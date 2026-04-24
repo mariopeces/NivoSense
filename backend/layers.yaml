@@ -1,0 +1,22 @@
+layers:
+  nowcast:
+    label: "Cobertura actual"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_nowcast.tif"
+  plus24h:
+    label: "+24 horas"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus24h.tif"
+  plus48h:
+    label: "+48 horas"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus48h.tif"
+  plus72h:
+    label: "+72 horas"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus72h.tif"
+  plus7d:
+    label: "+7 días"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus7d.tif"
+  plus1m:
+    label: "+1 mes"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus1m.tif"
+  plus2m:
+    label: "+2 meses"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus2m.tif"

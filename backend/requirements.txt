@@ -1,0 +1,9 @@
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+pyyaml==6.*
+
+# Añadir al cablear /tiles y stats:
+# rio-tiler==7.*
+# rasterio==1.4.*
+# geopandas==1.0.*
+# shapely==2.*
