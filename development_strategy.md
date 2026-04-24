@@ -7,7 +7,9 @@ Metodología: se entrenará un modelo ML (LSTM? Otro modelo? A tu decisión @Joa
 Features del visor:
 - Mapa donde se muestran los COG seleccionados
 - Panel lateral: aparecerá logo, seleccionable de la región montañosa (solo estará Sierra Nevada al principio), Indicador "Snow Cover", Indicador "Snow change", Stats (por cuenca hidrográfica), Dataset "Snow routes" (dentro habrá ski touring routes y snowshoe routes) donde habrá una serie de rutas "clásicas" de hacer en sierra nevada.
--
+- Cuando una snow route es abierta, tienes la opción de poder cruzarla con la capa de "snow cover" que has elegido (p.ej. la capa +72h) y te dirá cuanto de %de nieve hay en la ruta que %de nieve no, te dibuja la ruta con las zonas concretas que no hay nieve y las que si (aplica la simbologia). 
+- Cuando stats es abierto se te ofrecen todas las cuencas hidrográficas del sistema montañoso, y cuando seleccionas una te dibuja en el mapa esa cuenca y te dice el % de area cubierta de nieve, y la gráfica de tendencia tanto pasada como futura.
+- Añadir créditos a Darwin Geospatial y poner enlace a la web (y logo).
 
 Objetivos por persona:
 - Joan: encárgate del modelo de machine learning, no te vuelvas loco en cuanto a complejidad, algo que te veas con garantías de sacar en 1 día. Si solo da tiempo a meter las imagenes de NDSI y entrenar con eso como veas, es mejor tener algo sencillo y terminado a algo hipercomplejo y que no podamos terminar para el domingo. Te dejo una serie de artículos que quizás puedes usar de inspiración para diseñar el modelo y datos a utilizar:
@@ -37,4 +39,6 @@ No predice cobertura sino profundidad de nieve diaria, pero es muy útil porque 
 
 - Mario: encargado del diseño de la aplicación, backend, frontend, product design.
 - Guille: encargado del diseño de infraestructura. 
+
+Cosas pendientes: dónde guardaremos los datos (backend) como se conectará con el frontend, infraestructura.
 
