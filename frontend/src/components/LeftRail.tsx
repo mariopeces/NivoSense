@@ -7,7 +7,8 @@ import {
   ChevronRightIcon,
   ChevronLeftIcon,
 } from "../lib/icons";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
+import type { Basin } from "../lib/types";
 
 type IconComp = ComponentType<{ className?: string }>;
 
@@ -23,6 +24,9 @@ type Props = {
   onAction: (a: RailAction) => void;
   statsOpen: boolean;
   routesOpen: boolean;
+  basins: Basin[];
+  selectedBasinId: string | null;
+  onBasinSelect: (id: string | null) => void;
 };
 
 export default function LeftRail({
@@ -34,8 +38,11 @@ export default function LeftRail({
   onAction,
   statsOpen,
   routesOpen,
+  basins,
+  selectedBasinId,
+  onBasinSelect,
 }: Props) {
-  const width = expanded ? 240 : 76;
+  const width = expanded ? 260 : 76;
 
   const wrap = (fn: () => void) => () => {
     if (!expanded) onExpand();
@@ -47,7 +54,7 @@ export default function LeftRail({
       className="pointer-events-auto absolute bottom-0 left-0 top-16 z-20 flex flex-col border-r border-white/5 bg-slate-950/80 backdrop-blur-xl transition-[width] duration-200"
       style={{ width }}
     >
-      <div className="flex flex-col gap-2 p-3">
+      <div className="flex flex-col gap-2 overflow-y-auto p-3">
         <RegionPill
           expanded={expanded}
           label="Sierra Nevada"
@@ -70,20 +77,39 @@ export default function LeftRail({
           active={layer === "change"}
           onClick={wrap(() => onLayerChange("change"))}
         />
+
         <NavItem
           icon={StatsIcon}
           label="Stats"
           expanded={expanded}
           active={statsOpen}
+          expandable
+          isOpen={statsOpen}
           onClick={wrap(() => onAction("stats"))}
         />
+        {expanded && statsOpen && (
+          <BasinAccordion
+            basins={basins}
+            selectedId={selectedBasinId}
+            onSelect={onBasinSelect}
+          />
+        )}
+
         <NavItem
           icon={HikerIcon}
           label="Snow routes"
           expanded={expanded}
           active={routesOpen}
+          expandable
+          isOpen={routesOpen}
           onClick={wrap(() => onAction("routes"))}
         />
+        {expanded && routesOpen && (
+          <p className="px-3 pb-2 text-[11px] leading-relaxed text-slate-500">
+            No routes loaded yet. Routes will appear here once the dataset is
+            available.
+          </p>
+        )}
       </div>
 
       <div className="mt-auto p-3">
@@ -135,12 +161,16 @@ function NavItem({
   label,
   expanded,
   active,
+  expandable,
+  isOpen,
   onClick,
 }: {
   icon: IconComp;
   label: string;
   expanded: boolean;
   active?: boolean;
+  expandable?: boolean;
+  isOpen?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -157,9 +187,59 @@ function NavItem({
       {expanded && (
         <span className="truncate text-[15px] font-medium">{label}</span>
       )}
+      {expanded && expandable && (
+        <ChevronRightIcon
+          className={`ml-auto h-4 w-4 transition-transform ${
+            isOpen ? "rotate-90" : ""
+          }`}
+        />
+      )}
       {active && !expanded && (
         <span className="absolute -right-0.5 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
       )}
     </button>
+  );
+}
+
+function BasinAccordion({
+  basins,
+  selectedId,
+  onSelect,
+}: {
+  basins: Basin[];
+  selectedId: string | null;
+  onSelect: (id: string | null) => void;
+}) {
+  if (basins.length === 0) {
+    return (
+      <p className="px-3 pb-2 text-[11px] leading-relaxed text-slate-500">
+        Loading basins…
+      </p>
+    );
+  }
+
+  return (
+    <ul className="ml-3 flex flex-col gap-0.5 border-l border-white/5 pl-3">
+      {basins.map((b) => {
+        const active = b.id === selectedId;
+        return (
+          <li key={b.id}>
+            <button
+              onClick={() => onSelect(active ? null : b.id)}
+              className={`flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-[13px] transition ${
+                active
+                  ? "bg-cyan-400/10 text-cyan-200"
+                  : "text-slate-300 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span className="truncate">{b.name}</span>
+              {active && (
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
+              )}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
