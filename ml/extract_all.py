@@ -27,7 +27,9 @@ if __name__ == "__main__":
                 "Set GOOGLE_APPLICATION_CREDENTIALS or run: gcloud auth application-default login"
             )
 
+    # Set years=[2019] to extract a specific year, None = all years
     run_batch(
         dem_path=DEM_PATH,
         max_workers=6,
+        years=[2021],
     )

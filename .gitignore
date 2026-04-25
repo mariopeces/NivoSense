@@ -34,3 +34,6 @@ Thumbs.db
 
 # Folders
 own
+_mosaic_tmp.tif
+ml/data/
+ml/models/
