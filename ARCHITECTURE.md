@@ -104,6 +104,8 @@ Endpoints que expone el backend (borrador, puede ajustarse durante el fin de sem
 | `GET` | `/routes` | Lista de rutas (id, nombre, tipo: ski_touring \| snowshoe). |
 | `GET` | `/routes/{id}` | Geometría de la ruta. |
 | `GET` | `/routes/{id}/overlay?layer={layer}` | Geometría de la ruta segmentada en tramos con/sin nieve + porcentajes. |
+| `GET` | `/rivers` | Lista de ríos con estación de aforo (id, name, basin_cod_uni, station_id, source). |
+| `GET` | `/rivers/{id}/flow` | Serie temporal de caudal (m³/s) precomputada en `gs://nivosense-cogs/static/sierra-nevada/flow/{id}.json`. |
 
 Formato de respuesta: JSON (excepto tiles). CORS abierto durante el hackathon.
 

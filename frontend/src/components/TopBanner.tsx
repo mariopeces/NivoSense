@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "../lib/icons";
 import type { ObservationScene } from "../lib/types";
 
@@ -6,6 +7,14 @@ type Props = {
   selectedDate: string | null;
   onDateChange: (date: string | null) => void;
 };
+
+const JUMPS = [
+  { label: "24h", days: 1 },
+  { label: "48h", days: 2 },
+  { label: "72h", days: 3 },
+  { label: "7d", days: 7 },
+  { label: "1mo", days: 30 },
+];
 
 export default function TopBanner({
   observations,
@@ -35,7 +44,7 @@ export default function TopBanner({
         onChange={onDateChange}
       />
 
-      <ObservationTicks
+      <JumpPills
         observations={observations}
         selectedDate={selectedDate}
         onChange={onDateChange}
@@ -57,6 +66,11 @@ function DateNavigator({
   selectedDate: string | null;
   onChange: (date: string | null) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const availableDates = useMemo(
+    () => new Set(observations.map((item) => item.date)),
+    [observations],
+  );
   const selectedIndex = observations.findIndex(
     (item) => item.date === selectedDate,
   );
@@ -66,31 +80,47 @@ function DateNavigator({
   const atLast = selectedIndex < 0 || selectedIndex >= observations.length - 1;
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
-      <button
-        onClick={() => onChange(observations[selectedIndex - 1]?.date ?? null)}
-        disabled={atFirst}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-        aria-label="Previous observation"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-      </button>
-      <span className="px-3 text-sm font-medium tabular-nums text-slate-100">
-        {formatted}
-      </span>
-      <button
-        onClick={() => onChange(observations[selectedIndex + 1]?.date ?? null)}
-        disabled={atLast}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-        aria-label="Next observation"
-      >
-        <ChevronRightIcon className="h-4 w-4" />
-      </button>
+    <div className="relative">
+      <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
+        <button
+          onClick={() => onChange(observations[selectedIndex - 1]?.date ?? null)}
+          disabled={atFirst}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
+          aria-label="Previous observation"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => setOpen((value) => !value)}
+          className="min-w-[168px] rounded-full px-3 text-sm font-medium tabular-nums text-slate-100 transition hover:bg-white/5"
+        >
+          {formatted}
+        </button>
+        <button
+          onClick={() => onChange(observations[selectedIndex + 1]?.date ?? null)}
+          disabled={atLast}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
+          aria-label="Next observation"
+        >
+          <ChevronRightIcon className="h-4 w-4" />
+        </button>
+      </div>
+
+      {open && selected && (
+        <ObservationCalendar
+          selectedDate={selected.date}
+          availableDates={availableDates}
+          onSelect={(date) => {
+            onChange(date);
+            setOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function ObservationTicks({
+function JumpPills({
   observations,
   selectedDate,
   onChange,
@@ -99,27 +129,102 @@ function ObservationTicks({
   selectedDate: string | null;
   onChange: (date: string | null) => void;
 }) {
-  const selectedIndex = observations.findIndex(
-    (item) => item.date === selectedDate,
+  return (
+    <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
+      {JUMPS.map((jump) => {
+        const target = nextAvailableDate(observations, selectedDate, jump.days);
+        return (
+          <button
+            key={jump.label}
+            onClick={() => onChange(target)}
+            disabled={!target || target === selectedDate}
+            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium tabular-nums text-slate-400 transition hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            {jump.label}
+          </button>
+        );
+      })}
+    </div>
   );
+}
+
+function ObservationCalendar({
+  selectedDate,
+  availableDates,
+  onSelect,
+}: {
+  selectedDate: string;
+  availableDates: Set<string>;
+  onSelect: (date: string) => void;
+}) {
+  const [visibleMonth, setVisibleMonth] = useState(() =>
+    monthStart(parseDate(selectedDate)),
+  );
+  const days = calendarDays(visibleMonth);
 
   return (
-    <div className="hidden min-w-0 flex-1 items-center gap-3 xl:flex">
-      <span className="shrink-0 text-[11px] uppercase tracking-[0.22em] text-slate-400">
-        2024 scenes
-      </span>
-      <input
-        type="range"
-        min={0}
-        max={Math.max(observations.length - 1, 0)}
-        value={Math.max(selectedIndex, 0)}
-        disabled={observations.length === 0}
-        onChange={(event) => {
-          const index = Number(event.currentTarget.value);
-          onChange(observations[index]?.date ?? null);
-        }}
-        className="h-1 min-w-0 flex-1 accent-cyan-300"
-      />
+    <div className="absolute left-0 top-12 w-[292px] rounded-xl border border-white/10 bg-[#081020]/95 p-3 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+      <div className="mb-2 flex items-center justify-between">
+        <button
+          onClick={() => setVisibleMonth(addMonths(visibleMonth, -1))}
+          className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-slate-100"
+          aria-label="Previous month"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+        </button>
+        <span className="text-sm font-medium text-slate-100">
+          {visibleMonth.toLocaleDateString("en-GB", {
+            month: "long",
+            year: "numeric",
+            timeZone: "UTC",
+          })}
+        </span>
+        <button
+          onClick={() => setVisibleMonth(addMonths(visibleMonth, 1))}
+          className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-slate-100"
+          aria-label="Next month"
+        >
+          <ChevronRightIcon className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center text-[10px] uppercase tracking-[0.12em] text-slate-500">
+        {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => (
+          <span key={day} className="py-1">
+            {day}
+          </span>
+        ))}
+      </div>
+      <div className="mt-1 grid grid-cols-7 gap-1">
+        {days.map((day) => {
+          const key = isoDate(day);
+          const available = availableDates.has(key);
+          const active = key === selectedDate;
+          const inMonth = day.getUTCMonth() === visibleMonth.getUTCMonth();
+
+          return (
+            <button
+              key={key}
+              onClick={() => available && onSelect(key)}
+              disabled={!available}
+              className={`relative flex h-8 items-center justify-center rounded-md text-xs tabular-nums transition ${
+                active
+                  ? "bg-cyan-300 text-slate-950"
+                  : available
+                    ? "bg-cyan-400/10 text-cyan-100 hover:bg-cyan-400/20"
+                    : inMonth
+                      ? "text-slate-600"
+                      : "text-slate-700"
+              }`}
+            >
+              {day.getUTCDate()}
+              {available && !active && (
+                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-cyan-300" />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -139,12 +244,51 @@ function SceneStatus({ count }: { count: number }) {
   );
 }
 
+function nextAvailableDate(
+  observations: ObservationScene[],
+  selectedDate: string | null,
+  days: number,
+) {
+  if (!selectedDate) return observations[0]?.date ?? null;
+  const targetTime = parseDate(selectedDate).getTime() + days * 86400000;
+  const next = observations.find((item) => parseDate(item.date).getTime() >= targetTime);
+  return next?.date ?? observations[observations.length - 1]?.date ?? null;
+}
+
 function formatDate(value: string) {
-  return new Date(`${value}T00:00:00Z`).toLocaleDateString("en-GB", {
+  return parseDate(value).toLocaleDateString("en-GB", {
     weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
     timeZone: "UTC",
+  });
+}
+
+function parseDate(value: string) {
+  return new Date(`${value}T00:00:00Z`);
+}
+
+function isoDate(value: Date) {
+  return value.toISOString().slice(0, 10);
+}
+
+function monthStart(value: Date) {
+  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), 1));
+}
+
+function addMonths(value: Date, months: number) {
+  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth() + months, 1));
+}
+
+function calendarDays(month: Date) {
+  const start = monthStart(month);
+  const weekday = (start.getUTCDay() + 6) % 7;
+  const first = new Date(start);
+  first.setUTCDate(start.getUTCDate() - weekday);
+  return Array.from({ length: 42 }, (_, index) => {
+    const day = new Date(first);
+    day.setUTCDate(first.getUTCDate() + index);
+    return day;
   });
 }

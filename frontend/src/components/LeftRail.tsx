@@ -2,18 +2,19 @@ import {
   MountainIcon,
   SnowflakeIcon,
   TrendIcon,
-  StatsIcon,
+  WaterDropIcon,
   HikerIcon,
   ChevronRightIcon,
   ChevronLeftIcon,
 } from "../lib/icons";
 import type { ComponentType } from "react";
-import type { Basin } from "../lib/types";
+import type { River } from "../lib/types";
 
 type IconComp = ComponentType<{ className?: string }>;
 
 export type RailAction = "stats" | "routes";
 export type LayerMode = "cover" | "change";
+export type WaterTab = "snow" | "flow";
 
 type Props = {
   expanded: boolean;
@@ -24,9 +25,11 @@ type Props = {
   onAction: (a: RailAction) => void;
   statsOpen: boolean;
   routesOpen: boolean;
-  basins: Basin[];
-  selectedBasinId: string | null;
-  onBasinSelect: (id: string | null) => void;
+  rivers: River[];
+  selectedRiverId: string | null;
+  onRiverSelect: (id: string | null) => void;
+  waterTab: WaterTab;
+  onWaterTabChange: (tab: WaterTab) => void;
 };
 
 export default function LeftRail({
@@ -38,9 +41,11 @@ export default function LeftRail({
   onAction,
   statsOpen,
   routesOpen,
-  basins,
-  selectedBasinId,
-  onBasinSelect,
+  rivers,
+  selectedRiverId,
+  onRiverSelect,
+  waterTab,
+  onWaterTabChange,
 }: Props) {
   const width = expanded ? 260 : 76;
 
@@ -79,8 +84,8 @@ export default function LeftRail({
         />
 
         <NavItem
-          icon={StatsIcon}
-          label="Stats"
+          icon={WaterDropIcon}
+          label="Water by River"
           expanded={expanded}
           active={statsOpen}
           expandable
@@ -88,10 +93,12 @@ export default function LeftRail({
           onClick={wrap(() => onAction("stats"))}
         />
         {expanded && statsOpen && (
-          <BasinAccordion
-            basins={basins}
-            selectedId={selectedBasinId}
-            onSelect={onBasinSelect}
+          <RiverAccordion
+            rivers={rivers}
+            selectedId={selectedRiverId}
+            onSelect={onRiverSelect}
+            waterTab={waterTab}
+            onWaterTabChange={onWaterTabChange}
           />
         )}
 
@@ -201,45 +208,91 @@ function NavItem({
   );
 }
 
-function BasinAccordion({
-  basins,
+function RiverAccordion({
+  rivers,
   selectedId,
   onSelect,
+  waterTab,
+  onWaterTabChange,
 }: {
-  basins: Basin[];
+  rivers: River[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  waterTab: WaterTab;
+  onWaterTabChange: (tab: WaterTab) => void;
 }) {
-  if (basins.length === 0) {
+  if (rivers.length === 0) {
     return (
       <p className="px-3 pb-2 text-[11px] leading-relaxed text-slate-500">
-        Loading basins…
+        Loading rivers…
       </p>
     );
   }
 
   return (
-    <ul className="ml-3 flex flex-col gap-0.5 border-l border-white/5 pl-3">
-      {basins.map((b) => {
-        const active = b.id === selectedId;
-        return (
-          <li key={b.id}>
-            <button
-              onClick={() => onSelect(active ? null : b.id)}
-              className={`flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-[13px] transition ${
-                active
-                  ? "bg-cyan-400/10 text-cyan-200"
-                  : "text-slate-300 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span className="truncate">{b.name}</span>
-              {active && (
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
-              )}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <div className="ml-3 flex flex-col gap-1.5 border-l border-white/5 pl-3">
+      <ul className="flex flex-col gap-0.5">
+        {rivers.map((r) => {
+          const active = r.id === selectedId;
+          return (
+            <li key={r.id}>
+              <button
+                onClick={() => onSelect(active ? null : r.id)}
+                className={`flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-[13px] transition ${
+                  active
+                    ? "bg-cyan-400/10 text-cyan-200"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <span className="truncate">{r.name}</span>
+                {active && (
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      {selectedId && (
+        <div className="mt-2 flex items-center gap-1 rounded-md border border-white/5 bg-slate-900/40 p-0.5">
+          <TabButton
+            active={waterTab === "snow"}
+            onClick={() => onWaterTabChange("snow")}
+          >
+            Basin snow
+          </TabButton>
+          <TabButton
+            active={waterTab === "flow"}
+            onClick={() => onWaterTabChange("flow")}
+          >
+            River flow
+          </TabButton>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 rounded px-2 py-1.5 text-[11px] font-medium transition ${
+        active
+          ? "bg-cyan-400/15 text-cyan-100 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]"
+          : "text-slate-400 hover:text-slate-100"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

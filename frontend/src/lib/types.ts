@@ -47,3 +47,33 @@ export type ObservationScene = {
   tile_url: string;
   size: number;
 };
+
+export type River = {
+  id: string;
+  name: string;
+  basin_cod_uni: number;
+  station_id: string;
+  station_name: string;
+  source: string;
+  variable: string;
+  unit: string;
+};
+
+export type FlowPoint = {
+  date: string;
+  label: string;
+  value: number | null;
+};
+
+export type FlowSeries = {
+  river_id: string;
+  river_name: string;
+  station_id: string;
+  station_name: string;
+  variable: string;
+  unit: string;
+  source: string;
+  first_date: string | null;
+  last_date: string | null;
+  points: FlowPoint[];
+};

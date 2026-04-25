@@ -20,7 +20,7 @@ from rasterio.warp import reproject, transform_bounds, transform_geom
 import yaml
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 
 app = FastAPI(title="NivoSense API", version="0.1.0")
 
@@ -47,6 +47,50 @@ OBSERVATION_RE = re.compile(
 SNOW_NDSI_THRESHOLD = 0.4
 TILE_SIZE = 256
 WEB_MERCATOR_LIMIT = 20037508.342789244
+TILE_VERSION = "20260425-reprojected"
+
+RIVERS: list[dict] = [
+    {
+        "id": "dilar",
+        "name": "Río Dilar",
+        "basin_cod_uni": 508678,
+        "station_id": "5086",
+        "station_name": "Dilar (A05)",
+        "source": "SAIH Guadalquivir",
+        "variable": "caudal",
+        "unit": "m3/s",
+    },
+    {
+        "id": "alhori",
+        "name": "Río Alhorí",
+        "basin_cod_uni": 508678,
+        "station_id": "5051",
+        "station_name": "Jerez del Marquesado (A53)",
+        "source": "SAIH Guadalquivir",
+        "variable": "caudal",
+        "unit": "m3/s",
+    },
+    {
+        "id": "guadalfeo",
+        "name": "Río Guadalfeo",
+        "basin_cod_uni": 604456,
+        "station_id": "73",
+        "station_name": "Órgiva",
+        "source": "Hidrosur",
+        "variable": "caudal",
+        "unit": "m3/s",
+    },
+    {
+        "id": "andarax",
+        "name": "Río Andarax",
+        "basin_cod_uni": 604370,
+        "station_id": "90",
+        "station_name": "Terque",
+        "source": "Hidrosur",
+        "variable": "caudal",
+        "unit": "m3/s",
+    },
+]
 
 
 @app.get("/health")
@@ -84,7 +128,7 @@ def list_observations(
             "url": item["url"],
             "tile_url": (
                 f"/observations/{item['date'].isoformat()}"
-                "/tiles/{z}/{x}/{y}.png"
+                f"/tiles/{{z}}/{{x}}/{{y}}.png?v={TILE_VERSION}"
             ),
             "size": item["size"],
         }
@@ -112,6 +156,38 @@ def observation_tile(observed_on: date, z: int, x: int, y: int):
     )
 
 
+@app.get("/rivers")
+def list_rivers():
+    return RIVERS
+
+
+@app.get("/rivers/{river_id}/flow")
+def river_flow(river_id: str):
+    river = next((r for r in RIVERS if r["id"] == river_id), None)
+    if river is None:
+        raise HTTPException(status_code=404, detail="River not found")
+
+    url = f"{PUBLIC_BASE_URL}/static/{REGION}/flow/{river_id}.json"
+    try:
+        with urlopen(url, timeout=20) as response:
+            payload = json.load(response)
+    except HTTPError as exc:
+        if exc.code == 404:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    f"Flow data not yet uploaded for {river_id}. "
+                    "Run ml/normalize_flow.py and upload to "
+                    f"gs://{BUCKET}/static/{REGION}/flow/{river_id}.json."
+                ),
+            ) from exc
+        raise
+
+    payload.setdefault("river_id", river_id)
+    payload.setdefault("river_name", river["name"])
+    return JSONResponse(payload, headers={"Cache-Control": "no-store"})
+
+
 @app.get("/basins/{basin_id}/snow-series")
 def basin_snow_series(
     basin_id: str,
@@ -123,7 +199,11 @@ def basin_snow_series(
     )
     try:
         with urlopen(url, timeout=20) as response:
-            return json.load(response)
+            payload = json.load(response)
+            return JSONResponse(
+                payload,
+                headers={"Cache-Control": "no-store"},
+            )
     except HTTPError as exc:
         if exc.code == 404:
             raise HTTPException(
@@ -230,7 +310,7 @@ def colorize_ndsi(values: np.ndarray, valid: np.ndarray):
     first = low + (mid - low) * np.minimum(t * 2, 1)
     second = mid + (high - mid) * np.maximum((t - 0.5) * 2, 0)
     rgb = np.where(t <= 0.5, first, second).astype("uint8")
-    alpha = np.where(valid & (values >= 0.05), np.clip(values * 230, 45, 220), 0)
+    alpha = np.where(valid, np.clip(45 + values * 175, 35, 220), 0)
 
     rgba = np.zeros((TILE_SIZE, TILE_SIZE, 4), dtype="uint8")
     rgba[..., :3] = rgb

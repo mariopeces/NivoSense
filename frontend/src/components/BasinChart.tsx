@@ -1,6 +1,7 @@
 import {
-  LineChart,
+  ComposedChart,
   Line,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -18,6 +19,16 @@ type Props = {
   onClose: () => void;
 };
 
+type ChartPoint = {
+  hydro_day: number;
+  date?: string;
+  label: string;
+  observed?: number | null;
+  average?: number | null;
+  quality?: number | null;
+  masked?: number | null;
+};
+
 export default function BasinChart({
   basinName,
   series,
@@ -25,17 +36,8 @@ export default function BasinChart({
   error,
   onClose,
 }: Props) {
-  const observedData =
-    series?.points.map((point) => ({
-      ...point,
-      value: point.observed,
-    })) ?? [];
-  const averageData =
-    series?.average_points.map((point) => ({
-      ...point,
-      value: point.average,
-    })) ?? [];
-  const hasData = observedData.length > 0 || averageData.length > 0;
+  const chartData = buildChartData(series);
+  const hasData = chartData.length > 0;
 
   return (
     <div className="pointer-events-auto absolute bottom-4 left-[280px] z-20 w-[460px] rounded-2xl border border-white/10 bg-[#081020]/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
@@ -67,8 +69,8 @@ export default function BasinChart({
           <StatusState title="No observations for this basin" />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={averageData}
+            <ComposedChart
+              data={chartData}
               margin={{ top: 4, right: 12, left: 0, bottom: 0 }}
             >
               <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -83,6 +85,7 @@ export default function BasinChart({
                 tickFormatter={formatHydroDay}
               />
               <YAxis
+                yAxisId="snow"
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
@@ -90,18 +93,20 @@ export default function BasinChart({
                 tickFormatter={(v) => `${v}%`}
                 width={40}
               />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(2, 6, 23, 0.95)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: "8px",
-                  fontSize: 11,
-                }}
-                labelStyle={{ color: "#cbd5e1" }}
+              <YAxis yAxisId="quality" domain={[0, 100]} hide />
+              <Tooltip content={<SnowTooltip />} />
+              <Bar
+                yAxisId="quality"
+                dataKey="quality"
+                name="Valid data"
+                fill="#38bdf8"
+                opacity={0.12}
+                isAnimationActive={false}
               />
               <Line
+                yAxisId="snow"
                 type="monotone"
-                dataKey="value"
+                dataKey="average"
                 name="Historical avg."
                 stroke="#94a3b8"
                 strokeWidth={1.5}
@@ -111,9 +116,9 @@ export default function BasinChart({
                 connectNulls
               />
               <Line
-                data={observedData}
+                yAxisId="snow"
                 type="monotone"
-                dataKey="value"
+                dataKey="observed"
                 name={series?.hydrological_year ?? "Selected year"}
                 stroke="#67e8f9"
                 strokeWidth={2}
@@ -121,10 +126,77 @@ export default function BasinChart({
                 isAnimationActive={false}
                 connectNulls
               />
-            </LineChart>
+            </ComposedChart>
           </ResponsiveContainer>
         )}
       </div>
+    </div>
+  );
+}
+
+function buildChartData(series: BasinSeries | null): ChartPoint[] {
+  const byDay = new Map<number, ChartPoint>();
+
+  for (const point of series?.average_points ?? []) {
+    byDay.set(point.hydro_day, {
+      hydro_day: point.hydro_day,
+      label: point.label,
+      average: point.average,
+    });
+  }
+
+  for (const point of series?.points ?? []) {
+    const current = byDay.get(point.hydro_day);
+    byDay.set(point.hydro_day, {
+      hydro_day: point.hydro_day,
+      label: point.label,
+      date: point.date,
+      average: current?.average,
+      observed: point.observed,
+      quality: point.data_coverage_pct,
+      masked:
+        point.data_coverage_pct == null ? null : 100 - point.data_coverage_pct,
+    });
+  }
+
+  return [...byDay.values()].sort((a, b) => a.hydro_day - b.hydro_day);
+}
+
+function SnowTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{
+    name?: string;
+    value?: number | null;
+    color?: string;
+    payload: ChartPoint;
+  }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const point = payload[0].payload;
+  const title = point.date ? formatTooltipDate(point.date) : point.label;
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-slate-950/95 px-3 py-2 text-[11px] shadow-xl">
+      <p className="mb-1 font-medium text-slate-200">{title}</p>
+      {payload
+        .filter((entry) => entry.value != null)
+        .map((entry) => (
+          <p
+            key={entry.name}
+            className="tabular-nums"
+            style={{ color: entry.color }}
+          >
+            {entry.name}: {Number(entry.value).toFixed(2)}%
+          </p>
+        ))}
+      {point.masked != null && (
+        <p className="mt-1 tabular-nums text-slate-400">
+          Masked/cloud: {point.masked.toFixed(2)}%
+        </p>
+      )}
     </div>
   );
 }
@@ -139,6 +211,10 @@ function Legend() {
       <span className="flex items-center gap-1.5">
         <span className="block h-px w-4 border-t border-dashed border-slate-400" />
         Avg.
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="block h-2 w-3 rounded-sm bg-sky-400/25" />
+        Valid
       </span>
     </div>
   );
@@ -159,6 +235,15 @@ function formatHydroDay(value: number) {
   return ticks.reduce((best, tick) =>
     Math.abs(tick.day - value) < Math.abs(best.day - value) ? tick : best,
   ).label;
+}
+
+function formatTooltipDate(value: string) {
+  return new Date(`${value}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 function StatusState({ title }: { title: string }) {

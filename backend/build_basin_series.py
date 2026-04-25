@@ -27,6 +27,20 @@ def hydro_day(day: date) -> int:
     return (day - season_start(season_year(day))).days
 
 
+def filter_majority_observations(
+    observations: list[dict],
+    reference_date: date,
+    include_partial_observations: bool,
+):
+    if include_partial_observations:
+        return observations
+    return [
+        observation
+        for observation in observations
+        if (observation["date"] - reference_date).days % 5 == 0
+    ]
+
+
 def point_for_observation(observation: dict, geometry: dict, threshold: float):
     stats = snow_coverage_for_observation(observation["url"], geometry, threshold)
     day = observation["date"]
@@ -86,9 +100,15 @@ def build_payload(
     bin_days: int,
     workers: int,
     max_observations: int | None,
+    reference_date: date,
+    include_partial_observations: bool,
 ):
     props = feature["properties"]
-    observations = get_observations()
+    observations = filter_majority_observations(
+        get_observations(),
+        reference_date,
+        include_partial_observations,
+    )
     if max_observations:
         observations = observations[:max_observations]
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -117,6 +137,10 @@ def build_payload(
         "start_date": start.isoformat(),
         "end_date": end.isoformat(),
         "threshold": threshold,
+        "observation_filter": "all"
+        if include_partial_observations
+        else "majority-footprint-5-day-track",
+        "reference_date": reference_date.isoformat(),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "points": target_points,
         "average_points": average_points(all_points, year, bin_days),
@@ -145,12 +169,15 @@ def main():
     parser.add_argument("--threshold", type=float, default=SNOW_NDSI_THRESHOLD)
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--max-observations", type=int)
+    parser.add_argument("--reference-date", default="2024-01-08")
+    parser.add_argument("--include-partial-observations", action="store_true")
     parser.add_argument(
         "--output-dir",
         default="data/generated/static",
     )
     parser.add_argument("--upload-bucket")
     args = parser.parse_args()
+    reference_date = date.fromisoformat(args.reference_date)
 
     features = get_basins().get("features", [])
     if args.basin_id:
@@ -175,6 +202,8 @@ def main():
             args.bin_days,
             args.workers,
             args.max_observations,
+            reference_date,
+            args.include_partial_observations,
         )
         out_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         print(

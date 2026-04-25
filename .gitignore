@@ -36,6 +36,7 @@ Thumbs.db
 # Build artefacts
 *.tsbuildinfo
 data/generated/
+data/flow/raw/
 
 # Folders
 own

@@ -70,6 +70,22 @@ export function StatsIcon({ className, strokeWidth = 1.6 }: IconProps) {
   );
 }
 
+export function WaterDropIcon({ className, strokeWidth = 1.6 }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={base(className)}
+      fill="none"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2.5c-3 4.5-6 7.8-6 11.5a6 6 0 0 0 12 0c0-3.7-3-7-6-11.5z" />
+      <path d="M9 14a3 3 0 0 0 3 3" opacity="0.5" />
+    </svg>
+  );
+}
+
 export function HikerIcon({ className, strokeWidth = 1.6 }: IconProps) {
   return (
     <svg

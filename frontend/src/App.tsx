@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import TopBanner from "./components/TopBanner";
-import LeftRail, { type LayerMode, type RailAction } from "./components/LeftRail";
+import LeftRail, {
+  type LayerMode,
+  type RailAction,
+  type WaterTab,
+} from "./components/LeftRail";
 import BasinChart from "./components/BasinChart";
+import RiverFlowChart from "./components/RiverFlowChart";
 import Legend from "./components/Legend";
 import { prettifyBasinName } from "./lib/geo";
-import type { Basin, BasinSeries, ObservationScene } from "./lib/types";
+import type {
+  Basin,
+  BasinSeries,
+  FlowSeries,
+  ObservationScene,
+  River,
+} from "./lib/types";
 
 type BasinFeatureCollection = {
   type: "FeatureCollection";
@@ -26,8 +37,11 @@ export default function App() {
   const [statsOpen, setStatsOpen] = useState(false);
   const [routesOpen, setRoutesOpen] = useState(false);
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
+  const [selectedRiverId, setSelectedRiverId] = useState<string | null>(null);
+  const [waterTab, setWaterTab] = useState<WaterTab>("snow");
 
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
+  const [rivers, setRivers] = useState<River[]>([]);
   const [observations, setObservations] = useState<ObservationScene[]>([]);
   const [selectedObservationDate, setSelectedObservationDate] = useState<
     string | null
@@ -35,6 +49,9 @@ export default function App() {
   const [basinSeries, setBasinSeries] = useState<BasinSeries | null>(null);
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [seriesError, setSeriesError] = useState<string | null>(null);
+  const [flowSeries, setFlowSeries] = useState<FlowSeries | null>(null);
+  const [flowLoading, setFlowLoading] = useState(false);
+  const [flowError, setFlowError] = useState<string | null>(null);
 
   const apiUrl =
     import.meta.env.VITE_API_URL ??
@@ -46,6 +63,16 @@ export default function App() {
       .then((fc: BasinFeatureCollection) => setBasinsFC(fc))
       .catch((err) => console.error("Failed to load basins:", err));
   }, []);
+
+  useEffect(() => {
+    fetch(`${apiUrl}/rivers`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((items: River[]) => setRivers(items))
+      .catch((err) => console.error("Failed to load rivers:", err));
+  }, [apiUrl]);
 
   useEffect(() => {
     fetch(`${apiUrl}/observations?start=2023-10-01&end=2024-09-30`)
@@ -72,6 +99,14 @@ export default function App() {
     })) ?? [];
 
   const selectedBasin = basins.find((b) => b.id === selectedBasinId) ?? null;
+  const selectedRiver =
+    rivers.find((r) => r.id === selectedRiverId) ?? null;
+
+  useEffect(() => {
+    if (!selectedRiverId || rivers.length === 0) return;
+    const river = rivers.find((r) => r.id === selectedRiverId);
+    if (river) setSelectedBasinId(String(river.basin_cod_uni));
+  }, [selectedRiverId, rivers]);
 
   useEffect(() => {
     if (!selectedBasinId) {
@@ -104,17 +139,75 @@ export default function App() {
       });
 
     return () => controller.abort();
-  }, [selectedBasinId]);
+  }, [selectedBasinId, apiUrl]);
+
+  useEffect(() => {
+    if (!selectedRiverId) {
+      setFlowSeries(null);
+      setFlowError(null);
+      setFlowLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setFlowLoading(true);
+    setFlowError(null);
+
+    fetch(`${apiUrl}/rivers/${selectedRiverId}/flow`, {
+      signal: controller.signal,
+    })
+      .then((r) => {
+        if (r.status === 404) throw new Error("flow_not_uploaded");
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((payload: FlowSeries) => setFlowSeries(payload))
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        console.error("Failed to load river flow:", err);
+        setFlowError(
+          err.message === "flow_not_uploaded"
+            ? "Flow data not uploaded yet for this river"
+            : "Could not load river flow",
+        );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setFlowLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [selectedRiverId, apiUrl]);
 
   const handleAction = (a: RailAction) => {
     if (a === "stats") setStatsOpen((v) => !v);
     if (a === "routes") setRoutesOpen((v) => !v);
   };
 
-  const handleBasinSelect = (id: string | null) => {
-    setSelectedBasinId(id);
-    if (id && !railExpanded) setRailExpanded(true);
-    if (id && !statsOpen) setStatsOpen(true);
+  const handleBasinSelect = (basinId: string | null) => {
+    setSelectedBasinId(basinId);
+    if (basinId) {
+      const river = rivers.find((r) => String(r.basin_cod_uni) === basinId);
+      setSelectedRiverId(river ? river.id : null);
+      if (!railExpanded) setRailExpanded(true);
+      if (!statsOpen) setStatsOpen(true);
+    } else {
+      setSelectedRiverId(null);
+    }
+  };
+
+  const handleRiverSelect = (riverId: string | null) => {
+    setSelectedRiverId(riverId);
+    if (riverId) {
+      if (!railExpanded) setRailExpanded(true);
+      if (!statsOpen) setStatsOpen(true);
+    } else {
+      setSelectedBasinId(null);
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedRiverId(null);
+    setSelectedBasinId(null);
   };
 
   const selectedObservation =
@@ -122,6 +215,11 @@ export default function App() {
   const ndsiTileUrl = selectedObservation
     ? `${apiUrl}${selectedObservation.tile_url}`
     : null;
+
+  const showFlowChart =
+    selectedRiver !== null && waterTab === "flow";
+  const showSnowChart =
+    selectedBasin !== null && !showFlowChart;
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#081020] text-slate-100">
@@ -147,20 +245,32 @@ export default function App() {
         onAction={handleAction}
         statsOpen={statsOpen}
         routesOpen={routesOpen}
-        basins={basins}
-        selectedBasinId={selectedBasinId}
-        onBasinSelect={handleBasinSelect}
+        rivers={rivers}
+        selectedRiverId={selectedRiverId}
+        onRiverSelect={handleRiverSelect}
+        waterTab={waterTab}
+        onWaterTabChange={setWaterTab}
       />
 
       <Legend layer={layer} />
 
-      {selectedBasin && (
+      {showSnowChart && selectedBasin && (
         <BasinChart
           basinName={selectedBasin.name}
           series={basinSeries}
           loading={seriesLoading}
           error={seriesError}
-          onClose={() => setSelectedBasinId(null)}
+          onClose={handleClose}
+        />
+      )}
+
+      {showFlowChart && selectedRiver && (
+        <RiverFlowChart
+          river={selectedRiver}
+          series={flowSeries}
+          loading={flowLoading}
+          error={flowError}
+          onClose={handleClose}
         />
       )}
     </div>
