@@ -35,7 +35,7 @@ export default function App() {
   const [seriesError, setSeriesError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/data/basins.geojson")
+    fetch(`${import.meta.env.BASE_URL}data/basins.geojson`)
       .then((r) => r.json())
       .then((fc: BasinFeatureCollection) => setBasinsFC(fc))
       .catch((err) => console.error("Failed to load basins:", err));
@@ -65,7 +65,7 @@ export default function App() {
     setSeriesError(null);
 
     fetch(
-      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2018&cadence=monthly`,
+      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2018&cadence=all`,
       { signal: controller.signal },
     )
       .then((r) => {

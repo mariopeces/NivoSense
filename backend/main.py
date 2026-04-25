@@ -8,6 +8,7 @@ import re
 
 import numpy as np
 import rasterio
+from rasterio.features import geometry_mask
 from rasterio.mask import mask
 from rasterio.warp import transform_geom
 import yaml
@@ -91,26 +92,18 @@ def basin_snow_series(
     observations = [
         item for item in get_observations() if start <= item["date"] <= end
     ]
-    if cadence == "monthly":
-        observations = select_monthly_observations(observations)
 
     points = []
-    for observation in observations:
-        stats = snow_coverage_for_observation(
-            observation["url"],
-            basin["geometry"],
-            threshold,
-        )
-        points.append(
-            {
-                "date": observation["date"].isoformat(),
-                "label": observation["date"].strftime("%d %b"),
-                "observed": stats["snow_pct"],
-                "valid_pixels": stats["valid_pixels"],
-                "snow_pixels": stats["snow_pixels"],
-                "source": observation["path"],
-            }
-        )
+    if cadence == "monthly":
+        for candidates in group_monthly_observations(observations):
+            points.append(
+                best_monthly_point(candidates, basin["geometry"], threshold)
+            )
+    else:
+        for observation in observations:
+            points.append(
+                observation_point(observation, basin["geometry"], threshold)
+            )
 
     return {
         "basin_id": basin_id,
@@ -161,19 +154,45 @@ def list_bucket_objects(prefix: str):
             return items
 
 
-def select_monthly_observations(observations: list[dict]):
-    by_month = {}
+def group_monthly_observations(observations: list[dict]):
+    by_month: dict[tuple[int, int], list[dict]] = {}
     for observation in observations:
         key = (observation["date"].year, observation["date"].month)
-        current = by_month.get(key)
-        if current is None:
-            by_month[key] = observation
-            continue
-        current_distance = abs(current["date"].day - 15)
-        next_distance = abs(observation["date"].day - 15)
-        if next_distance < current_distance:
-            by_month[key] = observation
-    return sorted(by_month.values(), key=lambda item: item["date"])
+        by_month.setdefault(key, []).append(observation)
+    return [
+        sorted(items, key=lambda item: abs(item["date"].day - 15))
+        for _, items in sorted(by_month.items())
+    ]
+
+
+def best_monthly_point(observations: list[dict], geometry: dict, threshold: float):
+    fallback = None
+    for observation in observations:
+        point = observation_point(observation, geometry, threshold)
+        if fallback is None:
+            fallback = point
+        if point["valid_pixels"] > 0:
+            return point
+    return fallback
+
+
+def observation_point(observation: dict, geometry: dict, threshold: float):
+    stats = snow_coverage_for_observation(
+        observation["url"],
+        geometry,
+        threshold,
+    )
+    return {
+        "date": observation["date"].isoformat(),
+        "label": observation["date"].strftime("%d %b"),
+        "observed": stats["snow_pct"],
+        "total_pixels": stats["total_pixels"],
+        "valid_pixels": stats["valid_pixels"],
+        "masked_pixels": stats["masked_pixels"],
+        "data_coverage_pct": stats["data_coverage_pct"],
+        "snow_pixels": stats["snow_pixels"],
+        "source": observation["path"],
+    }
 
 
 @lru_cache(maxsize=1)
@@ -202,7 +221,7 @@ def snow_coverage_for_observation(url: str, geometry: dict, threshold: float):
                     precision=6,
                 )
 
-            data, _ = mask(
+            data, transform = mask(
                 dataset,
                 [raster_geometry],
                 crop=True,
@@ -210,20 +229,40 @@ def snow_coverage_for_observation(url: str, geometry: dict, threshold: float):
                 filled=False,
             )
             band = data.astype("float32", copy=False)
-            valid = ~np.ma.getmaskarray(band)
+            inside_geometry = geometry_mask(
+                [raster_geometry],
+                out_shape=band.shape,
+                transform=transform,
+                invert=True,
+            )
+            valid = inside_geometry & ~np.ma.getmaskarray(band)
             values = np.asarray(band.filled(np.nan), dtype="float32")
             valid &= np.isfinite(values)
             if dataset.nodata is not None:
                 valid &= values != dataset.nodata
 
+            total_pixels = int(inside_geometry.sum())
             valid_pixels = int(valid.sum())
+            masked_pixels = total_pixels - valid_pixels
             if valid_pixels == 0:
-                return {"snow_pct": None, "valid_pixels": 0, "snow_pixels": 0}
+                return {
+                    "snow_pct": None,
+                    "total_pixels": total_pixels,
+                    "valid_pixels": 0,
+                    "masked_pixels": masked_pixels,
+                    "data_coverage_pct": 0,
+                    "snow_pixels": 0,
+                }
 
             snow_pixels = int((valid & (values >= threshold)).sum())
             return {
                 "snow_pct": round((snow_pixels / valid_pixels) * 100, 2),
+                "total_pixels": total_pixels,
                 "valid_pixels": valid_pixels,
+                "masked_pixels": masked_pixels,
+                "data_coverage_pct": round((valid_pixels / total_pixels) * 100, 2)
+                if total_pixels
+                else None,
                 "snow_pixels": snow_pixels,
             }
 

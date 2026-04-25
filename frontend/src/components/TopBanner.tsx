@@ -17,9 +17,13 @@ type Props = {
 export default function TopBanner({ horizon, onHorizonChange }: Props) {
   return (
     <header className="pointer-events-auto absolute inset-x-0 top-0 z-30 flex h-16 items-center gap-6 border-b border-white/5 bg-[#081020]/90 px-6 backdrop-blur-md">
-      <a href="/" className="flex items-center" aria-label="NivoSense home">
+      <a
+        href={import.meta.env.BASE_URL}
+        className="flex items-center"
+        aria-label="NivoSense home"
+      >
         <img
-          src="/logo.png"
+          src={`${import.meta.env.BASE_URL}logo.png`}
           alt="NivoSense"
           className="h-12 w-auto select-none"
           draggable={false}

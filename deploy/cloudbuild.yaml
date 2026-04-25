@@ -2,7 +2,7 @@ substitutions:
   _REGION: europe-west1
   _REPO: darwin-general-sandbox-docker
   _SERVICE: nivosense-api
-  _SERVICE_ACCOUNT: sa-run-backend@${PROJECT_ID}.iam.gserviceaccount.com
+  _SERVICE_ACCOUNT: sa-run-backend@darwin-general-sandbox.iam.gserviceaccount.com
 
 steps:
   - id: build
@@ -10,7 +10,7 @@ steps:
     args:
       - build
       - -t
-      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE}:${SHORT_SHA}
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE}:${BUILD_ID}
       - -t
       - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE}:latest
       - backend
@@ -29,7 +29,7 @@ steps:
       - run
       - deploy
       - ${_SERVICE}
-      - --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE}:${SHORT_SHA}
+      - --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE}:${BUILD_ID}
       - --region=${_REGION}
       - --platform=managed
       - --allow-unauthenticated
