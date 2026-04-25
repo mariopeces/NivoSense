@@ -39,3 +39,11 @@ export type BasinSeries = {
   points: CoverageSeriesPoint[];
   average_points: AverageSeriesPoint[];
 };
+
+export type ObservationScene = {
+  date: string;
+  path: string;
+  url: string;
+  tile_url: string;
+  size: number;
+};

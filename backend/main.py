@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from functools import lru_cache
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import quote
 from urllib.error import HTTPError
@@ -9,12 +10,17 @@ import re
 
 import numpy as np
 import rasterio
+from PIL import Image
+from rasterio.enums import Resampling
+from rasterio.errors import RasterioIOError
 from rasterio.features import geometry_mask
 from rasterio.mask import mask
-from rasterio.warp import transform_geom
+from rasterio.transform import from_bounds
+from rasterio.warp import reproject, transform_bounds, transform_geom
 import yaml
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 
 app = FastAPI(title="NivoSense API", version="0.1.0")
 
@@ -39,6 +45,8 @@ OBSERVATION_RE = re.compile(
     r"ndsi_\d{4}_[a-z]{3}_(?P<stamp>\d{8}t\d{6}z)\.tif$"
 )
 SNOW_NDSI_THRESHOLD = 0.4
+TILE_SIZE = 256
+WEB_MERCATOR_LIMIT = 20037508.342789244
 
 
 @app.get("/health")
@@ -74,10 +82,34 @@ def list_observations(
             "date": item["date"].isoformat(),
             "path": item["path"],
             "url": item["url"],
+            "tile_url": (
+                f"/observations/{item['date'].isoformat()}"
+                "/tiles/{z}/{x}/{y}.png"
+            ),
             "size": item["size"],
         }
         for item in observations
     ]
+
+
+@app.get("/observations/{observed_on}/tiles/{z}/{x}/{y}.png")
+def observation_tile(observed_on: date, z: int, x: int, y: int):
+    if z < 0 or z > 18:
+        raise HTTPException(status_code=400, detail="Invalid zoom")
+    max_tile = (2**z) - 1
+    if x < 0 or y < 0 or x > max_tile or y > max_tile:
+        raise HTTPException(status_code=400, detail="Invalid tile")
+
+    observation = get_observation_by_date(observed_on)
+    try:
+        png = render_ndsi_tile(observation["url"], z, x, y)
+    except RasterioIOError as exc:
+        raise HTTPException(status_code=502, detail="Could not read COG") from exc
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @app.get("/basins/{basin_id}/snow-series")
@@ -126,6 +158,93 @@ def get_observations():
         )
 
     return sorted(observations, key=lambda item: item["date"])
+
+
+def get_observation_by_date(observed_on: date):
+    for observation in get_observations():
+        if observation["date"] == observed_on:
+            return observation
+    raise HTTPException(status_code=404, detail="Observation not found")
+
+
+def render_ndsi_tile(url: str, z: int, x: int, y: int) -> bytes:
+    mercator_bounds = xyz_bounds(z, x, y)
+    destination = np.full((TILE_SIZE, TILE_SIZE), np.nan, dtype="float32")
+    with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR"):
+        with rasterio.open(url) as dataset:
+            if dataset.crs is None:
+                return transparent_tile()
+
+            left, bottom, right, top = transform_bounds(
+                "EPSG:3857",
+                dataset.crs,
+                *mercator_bounds,
+                densify_pts=21,
+            )
+            if (
+                right < dataset.bounds.left
+                or left > dataset.bounds.right
+                or top < dataset.bounds.bottom
+                or bottom > dataset.bounds.top
+            ):
+                return transparent_tile()
+
+            reproject(
+                source=rasterio.band(dataset, 1),
+                destination=destination,
+                src_transform=dataset.transform,
+                src_crs=dataset.crs,
+                src_nodata=dataset.nodata,
+                dst_transform=from_bounds(*mercator_bounds, TILE_SIZE, TILE_SIZE),
+                dst_crs="EPSG:3857",
+                dst_nodata=np.nan,
+                resampling=Resampling.bilinear,
+            )
+
+    values = np.asarray(destination, dtype="float32")
+    valid = np.isfinite(values)
+    clipped = np.clip(values, 0, 1)
+    rgba = colorize_ndsi(clipped, valid)
+    buffer = BytesIO()
+    Image.fromarray(rgba, mode="RGBA").save(buffer, format="PNG", optimize=True)
+    return buffer.getvalue()
+
+
+def xyz_bounds(z: int, x: int, y: int):
+    tiles = 2**z
+    span = (WEB_MERCATOR_LIMIT * 2) / tiles
+    left = -WEB_MERCATOR_LIMIT + x * span
+    right = left + span
+    top = WEB_MERCATOR_LIMIT - y * span
+    bottom = top - span
+    return left, bottom, right, top
+
+
+def colorize_ndsi(values: np.ndarray, valid: np.ndarray):
+    values = np.nan_to_num(values, nan=0, posinf=1, neginf=0)
+    low = np.array([15, 23, 42], dtype="float32")
+    mid = np.array([34, 211, 238], dtype="float32")
+    high = np.array([236, 254, 255], dtype="float32")
+
+    t = values[..., None]
+    first = low + (mid - low) * np.minimum(t * 2, 1)
+    second = mid + (high - mid) * np.maximum((t - 0.5) * 2, 0)
+    rgb = np.where(t <= 0.5, first, second).astype("uint8")
+    alpha = np.where(valid & (values >= 0.05), np.clip(values * 230, 45, 220), 0)
+
+    rgba = np.zeros((TILE_SIZE, TILE_SIZE, 4), dtype="uint8")
+    rgba[..., :3] = rgb
+    rgba[..., 3] = alpha.astype("uint8")
+    return rgba
+
+
+def transparent_tile():
+    buffer = BytesIO()
+    Image.new("RGBA", (TILE_SIZE, TILE_SIZE), (0, 0, 0, 0)).save(
+        buffer,
+        format="PNG",
+    )
+    return buffer.getvalue()
 
 
 def list_bucket_objects(prefix: str):
@@ -245,7 +364,9 @@ def snow_coverage_for_observation(url: str, geometry: dict, threshold: float):
 
             snow_pixels = int((valid & (values >= threshold)).sum())
             return {
-                "snow_pct": round((snow_pixels / valid_pixels) * 100, 2),
+                "snow_pct": round((snow_pixels / total_pixels) * 100, 2)
+                if total_pixels
+                else None,
                 "total_pixels": total_pixels,
                 "valid_pixels": valid_pixels,
                 "masked_pixels": masked_pixels,

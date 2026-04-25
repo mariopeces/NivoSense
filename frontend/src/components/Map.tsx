@@ -16,7 +16,7 @@ const SATELLITE_STYLE: StyleSpecification = {
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       ],
       tileSize: 256,
-      attribution: "© Esri · Maxar · Earthstar Geographics",
+      attribution: "Esri / Maxar / Earthstar Geographics",
     },
     "esri-labels": {
       type: "raster",
@@ -24,7 +24,7 @@ const SATELLITE_STYLE: StyleSpecification = {
         "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
       ],
       tileSize: 256,
-      attribution: "© Esri",
+      attribution: "Esri",
     },
   },
   layers: [
@@ -45,18 +45,21 @@ type FC = {
 type Props = {
   basinsFC: FC | null;
   selectedBasinId: string | null;
+  ndsiTileUrl: string | null;
   onBasinSelect: (id: string | null) => void;
 };
 
 export default function Map({
   basinsFC,
   selectedBasinId,
+  ndsiTileUrl,
   onBasinSelect,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const basinsFCRef = useRef<FC | null>(null);
   const selectedRef = useRef<string | null>(null);
+  const ndsiTileUrlRef = useRef<string | null>(null);
   const onBasinSelectRef = useRef(onBasinSelect);
 
   useEffect(() => {
@@ -66,6 +69,10 @@ export default function Map({
   useEffect(() => {
     selectedRef.current = selectedBasinId;
   }, [selectedBasinId]);
+
+  useEffect(() => {
+    ndsiTileUrlRef.current = ndsiTileUrl;
+  }, [ndsiTileUrl]);
 
   useEffect(() => {
     onBasinSelectRef.current = onBasinSelect;
@@ -85,6 +92,7 @@ export default function Map({
     map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     const setupBasins = () => {
+      setNdsiLayer(map, ndsiTileUrlRef.current);
       if (basinsFCRef.current) {
         addBasinsLayers(map, basinsFCRef.current);
         applySelected(map, selectedRef.current);
@@ -111,6 +119,16 @@ export default function Map({
     applySelected(map, selectedBasinId);
     attachBasinInteractions(map, onBasinSelectRef);
   }, [basinsFC]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    setNdsiLayer(map, ndsiTileUrl);
+    if (basinsFC) {
+      addBasinsLayers(map, basinsFC);
+      applySelected(map, selectedBasinId);
+    }
+  }, [ndsiTileUrl, basinsFC, selectedBasinId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -144,6 +162,35 @@ export default function Map({
   }, [selectedBasinId, basinsFC]);
 
   return <div ref={containerRef} className="absolute inset-0" />;
+}
+
+function setNdsiLayer(map: maplibregl.Map, tileUrl: string | null) {
+  if (map.getLayer("ndsi-observation")) {
+    map.removeLayer("ndsi-observation");
+  }
+  if (map.getSource("ndsi-observation")) {
+    map.removeSource("ndsi-observation");
+  }
+  if (!tileUrl) return;
+
+  map.addSource("ndsi-observation", {
+    type: "raster",
+    tiles: [tileUrl],
+    tileSize: 256,
+    attribution: "NivoSense NDSI",
+  });
+  map.addLayer(
+    {
+      id: "ndsi-observation",
+      type: "raster",
+      source: "ndsi-observation",
+      paint: {
+        "raster-opacity": 0.9,
+        "raster-fade-duration": 120,
+      },
+    },
+    map.getLayer("labels") ? "labels" : undefined,
+  );
 }
 
 function addBasinsLayers(map: maplibregl.Map, fc: FC) {
