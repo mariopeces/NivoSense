@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import TopBanner from "./components/TopBanner";
 import LeftRail, { type LayerMode, type RailAction } from "./components/LeftRail";
-import StatsModal from "./components/StatsModal";
 import BasinChart from "./components/BasinChart";
 import Legend from "./components/Legend";
+import { prettifyBasinName } from "./lib/geo";
 import type { HorizonId } from "./lib/horizons";
 import type { Basin, CoverageSeriesPoint } from "./lib/types";
+
+type BasinFeatureCollection = {
+  type: "FeatureCollection";
+  features: Array<{
+    type: "Feature";
+    properties: {
+      cod_uni: number;
+      nom_rio_1: string;
+      [k: string]: unknown;
+    };
+    geometry: { type: string; coordinates: unknown };
+  }>;
+};
 
 export default function App() {
   const [horizon, setHorizon] = useState<HorizonId | null>(null);
@@ -16,7 +29,21 @@ export default function App() {
   const [routesOpen, setRoutesOpen] = useState(false);
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
 
-  const basins: Basin[] = [];
+  const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
+
+  useEffect(() => {
+    fetch("/data/basins.geojson")
+      .then((r) => r.json())
+      .then((fc: BasinFeatureCollection) => setBasinsFC(fc))
+      .catch((err) => console.error("Failed to load basins:", err));
+  }, []);
+
+  const basins: Basin[] =
+    basinsFC?.features.map((f) => ({
+      id: String(f.properties.cod_uni),
+      name: prettifyBasinName(f.properties.nom_rio_1),
+    })) ?? [];
+
   const basinSeries: CoverageSeriesPoint[] = [];
   const selectedBasin = basins.find((b) => b.id === selectedBasinId) ?? null;
 
@@ -25,9 +52,19 @@ export default function App() {
     if (a === "routes") setRoutesOpen((v) => !v);
   };
 
+  const handleBasinSelect = (id: string | null) => {
+    setSelectedBasinId(id);
+    if (id && !railExpanded) setRailExpanded(true);
+    if (id && !statsOpen) setStatsOpen(true);
+  };
+
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
-      <Map />
+      <Map
+        basinsFC={basinsFC}
+        selectedBasinId={selectedBasinId}
+        onBasinSelect={handleBasinSelect}
+      />
 
       <TopBanner horizon={horizon} onHorizonChange={setHorizon} />
 
@@ -40,6 +77,9 @@ export default function App() {
         onAction={handleAction}
         statsOpen={statsOpen}
         routesOpen={routesOpen}
+        basins={basins}
+        selectedBasinId={selectedBasinId}
+        onBasinSelect={handleBasinSelect}
       />
 
       <Legend layer={layer} />
@@ -51,13 +91,6 @@ export default function App() {
           onClose={() => setSelectedBasinId(null)}
         />
       )}
-
-      <StatsModal
-        open={statsOpen}
-        basins={basins}
-        onClose={() => setStatsOpen(false)}
-        onSelect={setSelectedBasinId}
-      />
     </div>
   );
 }

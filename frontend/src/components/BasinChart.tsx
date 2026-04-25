@@ -18,7 +18,7 @@ type Props = {
 
 export default function BasinChart({ basinName, data, onClose }: Props) {
   return (
-    <div className="pointer-events-auto absolute bottom-4 left-[100px] z-20 w-[460px] rounded-2xl border border-white/10 bg-slate-950/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
+    <div className="pointer-events-auto absolute bottom-4 left-[280px] z-20 w-[460px] rounded-2xl border border-white/10 bg-slate-950/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
       <div className="flex items-start justify-between gap-3 px-5 pt-4">
         <div>
           <span className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
