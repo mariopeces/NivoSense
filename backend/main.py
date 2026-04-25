@@ -2,6 +2,7 @@ from datetime import date, datetime
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote
+from urllib.error import HTTPError
 from urllib.request import urlopen
 import json
 import re
@@ -82,37 +83,25 @@ def list_observations(
 @app.get("/basins/{basin_id}/snow-series")
 def basin_snow_series(
     basin_id: str,
-    hydrological_year: int = Query(2018, ge=1900, le=2100),
-    threshold: float = Query(SNOW_NDSI_THRESHOLD, ge=0, le=1),
-    cadence: str = Query("monthly", pattern="^(monthly|all)$"),
+    hydrological_year: int = Query(2024, ge=1900, le=2100),
 ):
-    basin = get_basin_feature(basin_id)
-    start = date(hydrological_year, 10, 1)
-    end = date(hydrological_year + 1, 9, 30)
-    observations = [
-        item for item in get_observations() if start <= item["date"] <= end
-    ]
-
-    points = []
-    if cadence == "monthly":
-        for candidates in group_monthly_observations(observations):
-            points.append(
-                best_monthly_point(candidates, basin["geometry"], threshold)
-            )
-    else:
-        for observation in observations:
-            points.append(
-                observation_point(observation, basin["geometry"], threshold)
-            )
-
-    return {
-        "basin_id": basin_id,
-        "basin_name": basin["properties"].get("nom_rio_1"),
-        "hydrological_year": f"{hydrological_year}-{hydrological_year + 1}",
-        "threshold": threshold,
-        "cadence": cadence,
-        "points": points,
-    }
+    url = (
+        f"{PUBLIC_BASE_URL}/static/{REGION}/basins/"
+        f"{basin_id}/series_{hydrological_year}.json"
+    )
+    try:
+        with urlopen(url, timeout=20) as response:
+            return json.load(response)
+    except HTTPError as exc:
+        if exc.code == 404:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "Basin series has not been precomputed. "
+                    "Run backend/build_basin_series.py for this year."
+                ),
+            ) from exc
+        raise
 
 
 @lru_cache(maxsize=1)

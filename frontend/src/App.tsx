@@ -6,7 +6,7 @@ import BasinChart from "./components/BasinChart";
 import Legend from "./components/Legend";
 import { prettifyBasinName } from "./lib/geo";
 import type { HorizonId } from "./lib/horizons";
-import type { Basin, CoverageSeriesPoint } from "./lib/types";
+import type { Basin, BasinSeries } from "./lib/types";
 
 type BasinFeatureCollection = {
   type: "FeatureCollection";
@@ -30,7 +30,7 @@ export default function App() {
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
 
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
-  const [basinSeries, setBasinSeries] = useState<CoverageSeriesPoint[]>([]);
+  const [basinSeries, setBasinSeries] = useState<BasinSeries | null>(null);
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [seriesError, setSeriesError] = useState<string | null>(null);
 
@@ -51,7 +51,7 @@ export default function App() {
 
   useEffect(() => {
     if (!selectedBasinId) {
-      setBasinSeries([]);
+      setBasinSeries(null);
       setSeriesError(null);
       setSeriesLoading(false);
       return;
@@ -65,16 +65,14 @@ export default function App() {
     setSeriesError(null);
 
     fetch(
-      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2018&cadence=all`,
+      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2024`,
       { signal: controller.signal },
     )
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then((payload: { points: CoverageSeriesPoint[] }) =>
-        setBasinSeries(payload.points ?? []),
-      )
+      .then((payload: BasinSeries) => setBasinSeries(payload))
       .catch((err) => {
         if (err.name === "AbortError") return;
         console.error("Failed to load basin series:", err);
@@ -127,7 +125,7 @@ export default function App() {
       {selectedBasin && (
         <BasinChart
           basinName={selectedBasin.name}
-          data={basinSeries}
+          series={basinSeries}
           loading={seriesLoading}
           error={seriesError}
           onClose={() => setSelectedBasinId(null)}

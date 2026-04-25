@@ -31,3 +31,4 @@ Thumbs.db
 
 # Build artefacts
 *.tsbuildinfo
+data/generated/

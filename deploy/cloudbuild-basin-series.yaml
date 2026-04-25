@@ -1,0 +1,59 @@
+substitutions:
+  _REGION: europe-west1
+  _REPO: darwin-general-sandbox-docker
+  _IMAGE: nivosense-basin-series
+  _YEAR: "2024"
+  _WORKERS: "6"
+  _BUCKET: nivosense-cogs
+  _MAX_OBSERVATIONS: ""
+  _UPLOAD: "true"
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${BUILD_ID}
+      - backend
+
+  - id: compute
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        EXTRA_ARGS=""
+        if [ -n "${_MAX_OBSERVATIONS}" ]; then
+          EXTRA_ARGS="--max-observations ${_MAX_OBSERVATIONS}"
+        fi
+        docker run --rm \
+          -v /workspace/generated:/generated \
+          ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${BUILD_ID} \
+          python build_basin_series.py \
+          --year ${_YEAR} \
+          --workers ${_WORKERS} \
+          --output-dir /generated/static \
+          $${EXTRA_ARGS}
+
+  - id: upload
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        if [ "${_UPLOAD}" != "true" ]; then
+          echo "Skipping upload because _UPLOAD=${_UPLOAD}"
+          exit 0
+        fi
+        gcloud storage cp --recursive \
+          /workspace/generated/static/sierra-nevada/basins \
+          gs://${_BUCKET}/static/sierra-nevada/
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+
+timeout: 7200s
