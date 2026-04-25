@@ -18,13 +18,13 @@ type Props = {
 
 export default function BasinChart({ basinName, data, onClose }: Props) {
   return (
-    <div className="pointer-events-auto absolute bottom-4 left-20 z-20 w-[420px] rounded-2xl border border-white/10 bg-slate-950/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
-      <div className="flex items-start justify-between gap-3 px-4 pt-3.5">
+    <div className="pointer-events-auto absolute bottom-4 left-[100px] z-20 w-[460px] rounded-2xl border border-white/10 bg-slate-950/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
+      <div className="flex items-start justify-between gap-3 px-5 pt-4">
         <div>
-          <span className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <span className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
             Basin coverage
           </span>
-          <h3 className="mt-0.5 text-sm font-semibold text-white">{basinName}</h3>
+          <h3 className="mt-1 text-base font-semibold text-white">{basinName}</h3>
         </div>
         <div className="flex items-center gap-3">
           <Legend />
@@ -38,7 +38,7 @@ export default function BasinChart({ basinName, data, onClose }: Props) {
         </div>
       </div>
 
-      <div className="h-[180px] px-1 pb-1 pt-3">
+      <div className="h-[200px] px-2 pb-2 pt-3">
         {data.length === 0 ? (
           <EmptyState />
         ) : (
@@ -50,17 +50,17 @@ export default function BasinChart({ basinName, data, onClose }: Props) {
               <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis
                 dataKey="month"
-                tick={{ fill: "#64748b", fontSize: 10 }}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
               />
               <YAxis
-                tick={{ fill: "#64748b", fontSize: 10 }}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 domain={[0, 100]}
                 tickFormatter={(v) => `${v}%`}
-                width={36}
+                width={40}
               />
               <Tooltip
                 contentStyle={{
@@ -107,7 +107,7 @@ export default function BasinChart({ basinName, data, onClose }: Props) {
 
 function Legend() {
   return (
-    <div className="flex items-center gap-3 text-[10px] text-slate-400">
+    <div className="flex items-center gap-3 text-[11px] text-slate-400">
       <span className="flex items-center gap-1.5">
         <span className="block h-px w-4 border-t border-dashed border-slate-400" />
         Avg.
@@ -123,10 +123,10 @@ function Legend() {
 function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-      <p className="text-xs text-slate-400">No coverage data yet</p>
-      <p className="mt-1 text-[10px] leading-relaxed text-slate-600">
+      <p className="text-sm text-slate-300">No coverage data yet</p>
+      <p className="mt-1.5 max-w-[300px] text-[11px] leading-relaxed text-slate-500">
         Series for the selected basin will appear here once the backend
-        publishes <code className="text-slate-400">/basins/&#123;id&#125;/stats</code>.
+        publishes <code className="text-slate-300">/basins/&#123;id&#125;/stats</code>.
       </p>
     </div>
   );

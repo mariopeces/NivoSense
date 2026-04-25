@@ -9,7 +9,6 @@ import type { HorizonId } from "./lib/horizons";
 import type { Basin, CoverageSeriesPoint } from "./lib/types";
 
 export default function App() {
-  const [date, setDate] = useState<Date>(new Date());
   const [horizon, setHorizon] = useState<HorizonId | null>(null);
   const [railExpanded, setRailExpanded] = useState(false);
   const [layer, setLayer] = useState<LayerMode>("cover");
@@ -30,16 +29,12 @@ export default function App() {
     <div className="relative h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
       <Map />
 
-      <TopBanner
-        date={date}
-        onDateChange={setDate}
-        horizon={horizon}
-        onHorizonChange={setHorizon}
-      />
+      <TopBanner horizon={horizon} onHorizonChange={setHorizon} />
 
       <LeftRail
         expanded={railExpanded}
         onToggle={() => setRailExpanded((v) => !v)}
+        onExpand={() => setRailExpanded(true)}
         layer={layer}
         onLayerChange={setLayer}
         onAction={handleAction}
