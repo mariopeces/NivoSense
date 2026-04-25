@@ -1,3 +1,7 @@
+# Large / temp files
+_mosaic_tmp.tif
+*.tmp.tif
+
 # Python
 __pycache__/
 *.py[cod]
@@ -32,3 +36,6 @@ Thumbs.db
 # Build artefacts
 *.tsbuildinfo
 data/generated/
+
+# Folders
+own
