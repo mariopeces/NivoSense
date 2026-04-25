@@ -12,8 +12,9 @@ export type Route = {
 };
 
 export type CoverageSeriesPoint = {
-  month: string; // "Jul", "Aug", ...
-  observed?: number; // 0..100, undefined for future months
-  forecast?: number;
-  average: number;
+  date: string;
+  label: string;
+  observed: number | null;
+  valid_pixels?: number;
+  snow_pixels?: number;
 };

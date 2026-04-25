@@ -1,7 +1,17 @@
+from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
+from urllib.parse import quote
+from urllib.request import urlopen
+import json
+import re
 
+import numpy as np
+import rasterio
+from rasterio.mask import mask
+from rasterio.warp import transform_geom
 import yaml
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="NivoSense API", version="0.1.0")
@@ -18,6 +28,16 @@ LAYERS_FILE = Path(__file__).parent / "layers.yaml"
 with LAYERS_FILE.open("r", encoding="utf-8") as f:
     LAYERS: dict = yaml.safe_load(f).get("layers", {})
 
+BUCKET = "nivosense-cogs"
+REGION = "sierra-nevada"
+PUBLIC_BASE_URL = f"https://storage.googleapis.com/{BUCKET}"
+STORAGE_API_URL = f"https://storage.googleapis.com/storage/v1/b/{BUCKET}/o"
+OBSERVATION_RE = re.compile(
+    r"^observations/sierra-nevada/(?P<year>\d{4})/[a-z]{3}/"
+    r"ndsi_\d{4}_[a-z]{3}_(?P<stamp>\d{8}t\d{6}z)\.tif$"
+)
+SNOW_NDSI_THRESHOLD = 0.4
+
 
 @app.get("/health")
 def health():
@@ -30,6 +50,182 @@ def list_layers():
         {"id": key, "label": meta.get("label", key), "path": meta.get("path")}
         for key, meta in LAYERS.items()
     ]
+
+
+@app.get("/observations")
+def list_observations(
+    start: date | None = None,
+    end: date | None = None,
+    region: str = REGION,
+):
+    if region != REGION:
+        raise HTTPException(status_code=404, detail="Region not found")
+
+    observations = get_observations()
+    if start:
+        observations = [item for item in observations if item["date"] >= start]
+    if end:
+        observations = [item for item in observations if item["date"] <= end]
+
+    return [
+        {
+            "date": item["date"].isoformat(),
+            "path": item["path"],
+            "url": item["url"],
+            "size": item["size"],
+        }
+        for item in observations
+    ]
+
+
+@app.get("/basins/{basin_id}/snow-series")
+def basin_snow_series(
+    basin_id: str,
+    hydrological_year: int = Query(2018, ge=1900, le=2100),
+    threshold: float = Query(SNOW_NDSI_THRESHOLD, ge=0, le=1),
+    cadence: str = Query("monthly", pattern="^(monthly|all)$"),
+):
+    basin = get_basin_feature(basin_id)
+    start = date(hydrological_year, 10, 1)
+    end = date(hydrological_year + 1, 9, 30)
+    observations = [
+        item for item in get_observations() if start <= item["date"] <= end
+    ]
+    if cadence == "monthly":
+        observations = select_monthly_observations(observations)
+
+    points = []
+    for observation in observations:
+        stats = snow_coverage_for_observation(
+            observation["url"],
+            basin["geometry"],
+            threshold,
+        )
+        points.append(
+            {
+                "date": observation["date"].isoformat(),
+                "label": observation["date"].strftime("%d %b"),
+                "observed": stats["snow_pct"],
+                "valid_pixels": stats["valid_pixels"],
+                "snow_pixels": stats["snow_pixels"],
+                "source": observation["path"],
+            }
+        )
+
+    return {
+        "basin_id": basin_id,
+        "basin_name": basin["properties"].get("nom_rio_1"),
+        "hydrological_year": f"{hydrological_year}-{hydrological_year + 1}",
+        "threshold": threshold,
+        "cadence": cadence,
+        "points": points,
+    }
+
+
+@lru_cache(maxsize=1)
+def get_observations():
+    prefix = f"observations/{REGION}/"
+    objects = list_bucket_objects(prefix)
+    observations = []
+
+    for obj in objects:
+        name = obj.get("name", "")
+        match = OBSERVATION_RE.match(name)
+        if not match:
+            continue
+        observed_at = datetime.strptime(match.group("stamp"), "%Y%m%dt%H%M%Sz")
+        observations.append(
+            {
+                "date": observed_at.date(),
+                "path": f"gs://{BUCKET}/{name}",
+                "url": f"{PUBLIC_BASE_URL}/{name}",
+                "size": int(obj.get("size", 0)),
+            }
+        )
+
+    return sorted(observations, key=lambda item: item["date"])
+
+
+def list_bucket_objects(prefix: str):
+    items = []
+    page_token = None
+    while True:
+        url = f"{STORAGE_API_URL}?prefix={quote(prefix, safe='')}&maxResults=1000"
+        if page_token:
+            url += f"&pageToken={quote(page_token, safe='')}"
+        with urlopen(url, timeout=20) as response:
+            payload = json.load(response)
+        items.extend(payload.get("items", []))
+        page_token = payload.get("nextPageToken")
+        if not page_token:
+            return items
+
+
+def select_monthly_observations(observations: list[dict]):
+    by_month = {}
+    for observation in observations:
+        key = (observation["date"].year, observation["date"].month)
+        current = by_month.get(key)
+        if current is None:
+            by_month[key] = observation
+            continue
+        current_distance = abs(current["date"].day - 15)
+        next_distance = abs(observation["date"].day - 15)
+        if next_distance < current_distance:
+            by_month[key] = observation
+    return sorted(by_month.values(), key=lambda item: item["date"])
+
+
+@lru_cache(maxsize=1)
+def get_basins():
+    url = f"{PUBLIC_BASE_URL}/static/{REGION}/basins.geojson"
+    with urlopen(url, timeout=20) as response:
+        return json.load(response)
+
+
+def get_basin_feature(basin_id: str):
+    for feature in get_basins().get("features", []):
+        if str(feature.get("properties", {}).get("cod_uni")) == basin_id:
+            return feature
+    raise HTTPException(status_code=404, detail="Basin not found")
+
+
+def snow_coverage_for_observation(url: str, geometry: dict, threshold: float):
+    with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR"):
+        with rasterio.open(url) as dataset:
+            raster_geometry = geometry
+            if dataset.crs and dataset.crs.to_string() != "EPSG:4326":
+                raster_geometry = transform_geom(
+                    "EPSG:4326",
+                    dataset.crs,
+                    geometry,
+                    precision=6,
+                )
+
+            data, _ = mask(
+                dataset,
+                [raster_geometry],
+                crop=True,
+                indexes=1,
+                filled=False,
+            )
+            band = data.astype("float32", copy=False)
+            valid = ~np.ma.getmaskarray(band)
+            values = np.asarray(band.filled(np.nan), dtype="float32")
+            valid &= np.isfinite(values)
+            if dataset.nodata is not None:
+                valid &= values != dataset.nodata
+
+            valid_pixels = int(valid.sum())
+            if valid_pixels == 0:
+                return {"snow_pct": None, "valid_pixels": 0, "snow_pixels": 0}
+
+            snow_pixels = int((valid & (values >= threshold)).sum())
+            return {
+                "snow_pct": round((snow_pixels / valid_pixels) * 100, 2),
+                "valid_pixels": valid_pixels,
+                "snow_pixels": snow_pixels,
+            }
 
 
 if __name__ == "__main__":
