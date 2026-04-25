@@ -7,7 +7,7 @@ import {
   ChevronRightIcon,
   ChevronLeftIcon,
 } from "../lib/icons";
-import type { ComponentType, ReactNode } from "react";
+import type { ComponentType } from "react";
 import type { Basin } from "../lib/types";
 
 type IconComp = ComponentType<{ className?: string }>;
@@ -51,7 +51,7 @@ export default function LeftRail({
 
   return (
     <aside
-      className="pointer-events-auto absolute bottom-0 left-0 top-16 z-20 flex flex-col border-r border-white/5 bg-slate-950/80 backdrop-blur-xl transition-[width] duration-200"
+      className="pointer-events-auto absolute bottom-0 left-0 top-16 z-20 flex flex-col border-r border-white/5 bg-[#081020]/65 backdrop-blur-lg transition-[width] duration-200"
       style={{ width }}
     >
       <div className="flex flex-col gap-2 overflow-y-auto p-3">

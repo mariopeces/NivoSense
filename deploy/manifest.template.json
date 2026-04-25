@@ -1,0 +1,12 @@
+{
+  "run_id": null,
+  "valid_at": null,
+  "region": "sierra-nevada",
+  "horizons": {
+    "plus24h": { "path": "ndsi_plus24h.tif", "valid_at": null, "available": false },
+    "plus48h": { "path": "ndsi_plus48h.tif", "valid_at": null, "available": false },
+    "plus72h": { "path": "ndsi_plus72h.tif", "valid_at": null, "available": false },
+    "plus7d":  { "path": "ndsi_plus7d.tif",  "valid_at": null, "available": false },
+    "plus1m":  { "path": "ndsi_plus1m.tif",  "valid_at": null, "available": false }
+  }
+}

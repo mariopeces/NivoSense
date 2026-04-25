@@ -1,4 +1,4 @@
-import { LogoMark, ChevronLeftIcon, ChevronRightIcon } from "../lib/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "../lib/icons";
 import {
   HORIZONS,
   horizonToDate,
@@ -16,13 +16,15 @@ type Props = {
 
 export default function TopBanner({ horizon, onHorizonChange }: Props) {
   return (
-    <header className="pointer-events-auto absolute inset-x-0 top-0 z-30 flex h-16 items-center gap-6 border-b border-white/5 bg-slate-950/80 px-6 backdrop-blur-xl">
-      <div className="flex items-center gap-3">
-        <Logo />
-        <span className="text-lg font-semibold tracking-tight text-white">
-          NivoSense
-        </span>
-      </div>
+    <header className="pointer-events-auto absolute inset-x-0 top-0 z-30 flex h-16 items-center gap-6 border-b border-white/5 bg-[#081020]/90 px-6 backdrop-blur-md">
+      <a href="/" className="flex items-center" aria-label="NivoSense home">
+        <img
+          src="/logo.png"
+          alt="NivoSense"
+          className="h-12 w-auto select-none"
+          draggable={false}
+        />
+      </a>
 
       <div className="ml-2 h-6 w-px bg-white/10" />
 
@@ -34,14 +36,6 @@ export default function TopBanner({ horizon, onHorizonChange }: Props) {
         <ModelStatus />
       </div>
     </header>
-  );
-}
-
-function Logo() {
-  return (
-    <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/20 bg-gradient-to-br from-cyan-500/25 via-sky-600/10 to-slate-900/0 shadow-[0_0_24px_-6px_rgba(34,211,238,0.7)]">
-      <LogoMark className="h-6 w-6 text-cyan-300" />
-    </div>
   );
 }
 

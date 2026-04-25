@@ -59,7 +59,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
+    <div className="relative h-screen w-screen overflow-hidden bg-[#081020] text-slate-100">
       <Map
         basinsFC={basinsFC}
         selectedBasinId={selectedBasinId}
