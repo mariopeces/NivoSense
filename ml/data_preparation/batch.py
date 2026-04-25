@@ -1,35 +1,39 @@
 """
-Batch extraction of 5-band feature TIFs for all S2 acquisitions.
+Batch extraction of 5-band COGs for all snow-season S2 acquisitions.
 
-Discovers acquisitions by listing b03 files in GCS, then runs
-prepare_acquisition for each one. Already-processed files are skipped.
-Failed acquisitions are logged and skipped without stopping the batch.
+Uses one process per acquisition with a hard timeout — if a worker hangs
+it is killed and the acquisition is marked FAIL (safe to retry on next run).
 """
+import multiprocessing
 import re
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
 from pathlib import Path
 
 from google.cloud import storage
 
 from .pipeline import prepare_acquisition
 
-_GCS_BUCKET = "darwin-general-hdh-sandbox-tiles"
-_GCS_PREFIX = "tiles/guest/raster/temporal/s2_raw_images"
+_SRC_BUCKET  = "darwin-general-hdh-sandbox-tiles"
+_SRC_PREFIX  = "tiles/guest/raster/temporal/s2_raw_images"
+_OUT_BUCKET  = "nivosense-cogs"
+_OUT_PREFIX  = "observations/sierra-nevada"
+
 _FNAME_RE = re.compile(
     r"s2_raw_images_b03_(\d{4})_(\w{3})_sierra_nevada_(\w+)\.tif$"
 )
 
-# Snow season only — June, July, August have no meaningful snow signal
+# Snow season only — Jun/Jul/Aug have no meaningful snow signal
 SNOW_MONTHS = {"jan", "feb", "mar", "apr", "may", "oct", "nov", "dec"}
+
+# Kill worker if it takes longer than this
+_TIMEOUT_SEC = 300
 
 
 def list_acquisitions() -> list[dict]:
-    """Return list of {year, month, timestamp} dicts from GCS."""
+    """Return list of {year, month, timestamp} dicts for snow-season months."""
     client = storage.Client()
-    bucket = client.bucket(_GCS_BUCKET)
     acquisitions = []
-    for blob in bucket.list_blobs(prefix=_GCS_PREFIX, match_glob="**/s2_raw_images_b03_*.tif"):
+    for blob in client.bucket(_SRC_BUCKET).list_blobs(prefix=_SRC_PREFIX):
         m = _FNAME_RE.search(blob.name)
         if m and m.group(2) in SNOW_MONTHS:
             acquisitions.append({
@@ -40,79 +44,91 @@ def list_acquisitions() -> list[dict]:
     return acquisitions
 
 
-def _process_one(acq: dict, dem_path: str, output_dir: str, retries: int = 3) -> tuple[str, str | None]:
-    """Process one acquisition with retries. Returns (label, error_message | None)."""
+def _already_done(year: int, month: str, timestamp: str) -> bool:
+    blob_path = f"{_OUT_PREFIX}/{year}/{month}/ndsi_{year}_{month}_{timestamp}.tif"
+    return storage.Client().bucket(_OUT_BUCKET).blob(blob_path).exists()
+
+
+def _worker(acq: dict, dem_path: str, result_queue: multiprocessing.Queue) -> None:
+    """Runs in a child process. Puts (label, error|None) into the queue."""
     label = f"{acq['year']}_{acq['month']}_{acq['timestamp']}"
-    out_path = Path(output_dir) / f"ndsi_{label}.tif"
-
-    if out_path.exists():
-        return label, "skipped"
-
-    last_error = None
-    for attempt in range(retries):
-        try:
-            prepare_acquisition(
-                year=acq["year"],
-                month=acq["month"],
-                timestamp=acq["timestamp"],
-                dem_path=dem_path,
-                output_dir=output_dir,
-            )
-            return label, None
-        except Exception as e:
-            last_error = str(e)
-            if attempt < retries - 1:
-                time.sleep(5 * (attempt + 1))  # back off: 5s, 10s
-
-    return label, last_error
+    try:
+        prepare_acquisition(
+            year=acq["year"],
+            month=acq["month"],
+            timestamp=acq["timestamp"],
+            dem_path=dem_path,
+        )
+        result_queue.put((label, None))
+    except Exception as e:
+        result_queue.put((label, str(e)))
 
 
-def run_batch(
-    dem_path: str,
-    output_dir: str,
-    max_workers: int = 6,
-) -> None:
+def run_batch(dem_path: str, max_workers: int = 4) -> None:
     """
-    Extract all S2 acquisitions to output_dir.
+    Extract all snow-season S2 acquisitions and upload COGs to GCS.
 
     Parameters
     ----------
-    dem_path    : path or gs:// URI to the CNIG MDT05 GeoTIFF
-    output_dir  : directory where feature TIFs are written
-    max_workers : parallel threads (GCS I/O bound, 4-8 is optimal)
+    dem_path    : local path to the CNIG MDT05 GeoTIFF
+    max_workers : number of parallel acquisition processes (default 4)
     """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-    print("Discovering acquisitions from GCS...")
+    print("Discovering acquisitions...")
     acquisitions = list_acquisitions()
     total = len(acquisitions)
     print(f"Found {total} acquisitions\n")
 
-    done, skipped, failed = 0, 0, 0
+    done = skipped = failed = 0
+    pending = list(acquisitions)
+    active: list[tuple[multiprocessing.Process, multiprocessing.Queue, dict, float]] = []
 
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(_process_one, acq, dem_path, output_dir): acq
-            for acq in acquisitions
-        }
-        for future in as_completed(futures):
-            done += 1
-            try:
-                label, error = future.result(timeout=300)  # 5 min per acquisition
-            except TimeoutError:
-                acq = futures[future]
-                label = f"{acq['year']}_{acq['month']}_{acq['timestamp']}"
-                error = "timeout"
+    def _reap(proc, queue, acq, start):
+        nonlocal done, skipped, failed
+        label = f"{acq['year']}_{acq['month']}_{acq['timestamp']}"
+        elapsed = time.time() - start
 
-            if error == "skipped":
-                skipped += 1
-                status = "SKIP"
-            elif error:
+        if not queue.empty():
+            _, error = queue.get_nowait()
+            status = f"FAIL — {error}" if error else "OK"
+            if error:
                 failed += 1
-                status = f"FAIL — {error}"
-            else:
-                status = "OK"
+        elif elapsed >= _TIMEOUT_SEC:
+            proc.kill()
+            proc.join()
+            status = f"FAIL — timeout ({_TIMEOUT_SEC}s)"
+            failed += 1
+        else:
+            return False  # still running
 
-            print(f"[{done:>3}/{total}] {label}  {status}")
+        done += 1
+        print(f"[{done:>3}/{total}] {label}  {status}")
+        return True
 
-    print(f"\nDone. OK: {done - skipped - failed}  Skipped: {skipped}  Failed: {failed}")
+    while pending or active:
+        # Fill up to max_workers
+        while pending and len(active) < max_workers:
+            acq = pending.pop(0)
+            label = f"{acq['year']}_{acq['month']}_{acq['timestamp']}"
+
+            if _already_done(acq["year"], acq["month"], acq["timestamp"]):
+                done += 1
+                skipped += 1
+                print(f"[{done:>3}/{total}] {label}  SKIP")
+                continue
+
+            q: multiprocessing.Queue = multiprocessing.Queue()
+            p = multiprocessing.Process(target=_worker, args=(acq, dem_path, q))
+            p.start()
+            active.append((p, q, acq, time.time()))
+
+        # Check active workers
+        still_active = []
+        for proc, queue, acq, start in active:
+            proc.join(timeout=0.1)
+            if not _reap(proc, queue, acq, start):
+                still_active.append((proc, queue, acq, start))
+        active = still_active
+
+        time.sleep(0.5)
+
+    print(f"\nDone.  OK: {done - skipped - failed}  Skipped: {skipped}  Failed: {failed}")
