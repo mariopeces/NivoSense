@@ -9,7 +9,7 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  background: #020617;
+  background: #081020;
   color: #e2e8f0;
   font-family:
     "Inter",
@@ -28,7 +28,7 @@ body,
 }
 
 .maplibregl-ctrl-group {
-  background: rgba(2, 6, 23, 0.7) !important;
+  background: rgba(8, 16, 32, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(12px);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6) !important;
@@ -47,7 +47,7 @@ body,
 }
 
 .maplibregl-ctrl-attrib {
-  background: rgba(2, 6, 23, 0.6) !important;
+  background: rgba(8, 16, 32, 0.65) !important;
   color: rgba(148, 163, 184, 0.8) !important;
   backdrop-filter: blur(8px);
   font-size: 10px !important;
