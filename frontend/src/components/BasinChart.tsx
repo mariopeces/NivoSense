@@ -10,12 +10,16 @@ import {
 import { CloseIcon } from "../lib/icons";
 import type { CoverageSeriesPoint } from "../lib/types";
 
+const AVAILABLE_YEARS = [2024, 2025, 2026];
+
 type Props = {
   basinName: string;
   data: CoverageSeriesPoint[];
   loading: boolean;
   error: string | null;
   onClose: () => void;
+  hydrologicalYear: number;
+  onYearChange: (year: number) => void;
 };
 
 export default function BasinChart({
@@ -24,14 +28,28 @@ export default function BasinChart({
   loading,
   error,
   onClose,
+  hydrologicalYear,
+  onYearChange,
 }: Props) {
   return (
     <div className="pointer-events-auto absolute bottom-4 left-[280px] z-20 w-[460px] rounded-2xl border border-white/10 bg-[#081020]/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
       <div className="flex items-start justify-between gap-3 px-5 pt-4">
         <div>
-          <span className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
-            Hydrological year 2018-2019
-          </span>
+          <div className="flex items-center gap-1">
+            {AVAILABLE_YEARS.map((y) => (
+              <button
+                key={y}
+                onClick={() => onYearChange(y)}
+                className={`rounded px-2 py-0.5 text-[11px] font-medium transition ${
+                  hydrologicalYear === y
+                    ? "bg-cyan-400/20 text-cyan-300"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {y - 1}/{String(y).slice(2)}
+              </button>
+            ))}
+          </div>
           <h3 className="mt-1 text-base font-semibold text-white">{basinName}</h3>
         </div>
         <div className="flex items-center gap-3">

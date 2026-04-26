@@ -6,6 +6,7 @@ import BasinChart from "./components/BasinChart";
 import Legend from "./components/Legend";
 import { prettifyBasinName } from "./lib/geo";
 import type { HorizonId } from "./lib/horizons";
+import { currentHydrologicalYear } from "./lib/horizons";
 import type { Basin, CoverageSeriesPoint } from "./lib/types";
 
 type BasinFeatureCollection = {
@@ -33,6 +34,7 @@ export default function App() {
   const [basinSeries, setBasinSeries] = useState<CoverageSeriesPoint[]>([]);
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [seriesError, setSeriesError] = useState<string | null>(null);
+  const [hydrologicalYear, setHydrologicalYear] = useState<number>(currentHydrologicalYear());
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/basins.geojson`)
@@ -65,7 +67,7 @@ export default function App() {
     setSeriesError(null);
 
     fetch(
-      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2018&cadence=all`,
+      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=${hydrologicalYear}&cadence=all`,
       { signal: controller.signal },
     )
       .then((r) => {
@@ -85,7 +87,7 @@ export default function App() {
       });
 
     return () => controller.abort();
-  }, [selectedBasinId]);
+  }, [selectedBasinId, hydrologicalYear]);
 
   const handleAction = (a: RailAction) => {
     if (a === "stats") setStatsOpen((v) => !v);
@@ -131,6 +133,8 @@ export default function App() {
           loading={seriesLoading}
           error={seriesError}
           onClose={() => setSelectedBasinId(null)}
+          hydrologicalYear={hydrologicalYear}
+          onYearChange={setHydrologicalYear}
         />
       )}
     </div>

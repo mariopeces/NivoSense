@@ -5,6 +5,7 @@ from urllib.parse import quote
 from urllib.request import urlopen
 import json
 import re
+import time
 
 import numpy as np
 import rasterio
@@ -115,8 +116,21 @@ def basin_snow_series(
     }
 
 
-@lru_cache(maxsize=1)
+_obs_cache: list = []
+_obs_cache_ts: float = 0.0
+_OBS_CACHE_TTL = 300  # refresh every 5 minutes
+
+
 def get_observations():
+    global _obs_cache, _obs_cache_ts
+    if time.time() - _obs_cache_ts < _OBS_CACHE_TTL and _obs_cache:
+        return _obs_cache
+    _obs_cache = _fetch_observations()
+    _obs_cache_ts = time.time()
+    return _obs_cache
+
+
+def _fetch_observations():
     prefix = f"observations/{REGION}/"
     objects = list_bucket_objects(prefix)
     observations = []

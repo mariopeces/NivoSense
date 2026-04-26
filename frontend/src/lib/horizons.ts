@@ -77,3 +77,8 @@ export function isFirstHorizon(h: HorizonId | null): boolean {
 export function isLastHorizon(h: HorizonId | null): boolean {
   return h === "plus1m";
 }
+
+/** Hydrological year starts in October. April 2026 → 2026, November 2026 → 2027. */
+export function currentHydrologicalYear(now: Date = new Date()): number {
+  return now.getMonth() >= 9 ? now.getFullYear() + 1 : now.getFullYear();
+}
