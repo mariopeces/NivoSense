@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timezone
 from pathlib import Path
 import json
@@ -104,27 +104,33 @@ def build_payload(
     include_partial_observations: bool,
 ):
     props = feature["properties"]
+    start = season_start(year)
+    end = date(year, 9, 30)
+    year_observations = [
+        obs for obs in get_observations()
+        if start <= obs["date"] <= end
+    ]
     observations = filter_majority_observations(
-        get_observations(),
+        year_observations,
         reference_date,
         include_partial_observations,
     )
     if max_observations:
         observations = observations[:max_observations]
+    total = len(observations)
+    done = 0
+    all_points = []
+    print(f"  Processing {total} observations with {workers} workers...")
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        all_points = list(
-            executor.map(
-                lambda observation: point_for_observation(
-                    observation,
-                    feature["geometry"],
-                    threshold,
-                ),
-                observations,
-            )
-        )
-    target_points = [
-        point for point in all_points if point["season_year"] == year
-    ]
+        futures = {
+            executor.submit(point_for_observation, obs, feature["geometry"], threshold): obs
+            for obs in observations
+        }
+        for future in as_completed(futures):
+            all_points.append(future.result())
+            done += 1
+            print(f"  [{done}/{total}] {futures[future]['date']}", flush=True)
+    target_points = all_points
     start = season_start(year)
     end = date(year, 9, 30)
 
@@ -143,7 +149,7 @@ def build_payload(
         "reference_date": reference_date.isoformat(),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "points": target_points,
-        "average_points": average_points(all_points, year, bin_days),
+        "average_points": average_points(target_points, year, bin_days),
     }
 
 
@@ -190,8 +196,10 @@ def main():
         raise SystemExit("No basins matched")
 
     root = Path(args.output_dir) / REGION / "basins"
-    for feature in features:
+    for i, feature in enumerate(features, 1):
         basin_id = str(feature["properties"]["cod_uni"])
+        basin_name = feature["properties"].get("nom_rio_1", basin_id)
+        print(f"\n[{i}/{len(features)}] Basin {basin_id} — {basin_name}")
         out_dir = root / basin_id
         out_dir.mkdir(parents=True, exist_ok=True)
         out_file = out_dir / f"series_{args.year}.json"

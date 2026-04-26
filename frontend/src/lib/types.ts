@@ -48,6 +48,13 @@ export type ObservationScene = {
   size: number;
 };
 
+export type PredictionScene = {
+  date: string;
+  path: string;
+  url: string;
+  tile_url: string;
+};
+
 export type River = {
   id: string;
   name: string;

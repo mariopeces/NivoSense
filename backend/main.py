@@ -45,6 +45,10 @@ OBSERVATION_RE = re.compile(
     r"^observations/sierra-nevada/(?P<year>\d{4})/[a-z]{3}/"
     r"ndsi_\d{4}_[a-z]{3}_(?P<stamp>\d{8}t\d{6}z)\.tif$"
 )
+PREDICTION_RE = re.compile(
+    r"^predictions/sierra-nevada/\d{4}/[a-z]{3}/"
+    r"ndsi_pred_(?P<date>\d{8})\.tif$"
+)
 SNOW_NDSI_THRESHOLD = 0.4
 TILE_SIZE = 256
 WEB_MERCATOR_LIMIT = 20037508.342789244
@@ -157,6 +161,45 @@ def observation_tile(observed_on: date, z: int, x: int, y: int):
     )
 
 
+@app.get("/predictions")
+def list_predictions():
+    return [
+        {
+            "date": p["date"].isoformat(),
+            "path": p["path"],
+            "url": p["url"],
+            "tile_url": f"/predictions/{p['date'].isoformat()}/tiles/{{z}}/{{x}}/{{y}}.png",
+        }
+        for p in get_predictions()
+    ]
+
+
+@app.get("/predictions/{predicted_on}/tiles/{z}/{x}/{y}.png")
+def prediction_tile(predicted_on: date, z: int, x: int, y: int):
+    if z < 0 or z > 18:
+        raise HTTPException(status_code=400, detail="Invalid zoom")
+    max_tile = (2**z) - 1
+    if x < 0 or y < 0 or x > max_tile or y > max_tile:
+        raise HTTPException(status_code=400, detail="Invalid tile")
+
+    prediction = next(
+        (p for p in get_predictions() if p["date"] == predicted_on), None
+    )
+    if prediction is None:
+        raise HTTPException(status_code=404, detail="Prediction not found")
+
+    try:
+        png = render_ndsi_tile(prediction["url"], z, x, y)
+    except RasterioIOError as exc:
+        raise HTTPException(status_code=502, detail="Could not read COG") from exc
+
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
 @app.get("/rivers")
 def list_rivers():
     return RIVERS
@@ -219,6 +262,8 @@ def basin_snow_series(
 
 _obs_cache: list = []
 _obs_cache_ts: float = 0.0
+_pred_cache: list = []
+_pred_cache_ts: float = 0.0
 _OBS_CACHE_TTL = 300  # refresh every 5 minutes
 
 
@@ -229,6 +274,35 @@ def get_observations():
     _obs_cache = _fetch_observations()
     _obs_cache_ts = time.time()
     return _obs_cache
+
+
+def get_predictions():
+    global _pred_cache, _pred_cache_ts
+    if time.time() - _pred_cache_ts < _OBS_CACHE_TTL and _pred_cache:
+        return _pred_cache
+    _pred_cache = _fetch_predictions()
+    _pred_cache_ts = time.time()
+    return _pred_cache
+
+
+def _fetch_predictions():
+    prefix = f"predictions/{REGION}/"
+    objects = list_bucket_objects(prefix)
+    predictions = []
+    for obj in objects:
+        name = obj.get("name", "")
+        match = PREDICTION_RE.match(name)
+        if not match:
+            continue
+        pred_date = datetime.strptime(match.group("date"), "%Y%m%d").date()
+        predictions.append(
+            {
+                "date": pred_date,
+                "path": f"gs://{BUCKET}/{name}",
+                "url": f"{PUBLIC_BASE_URL}/{name}",
+            }
+        )
+    return sorted(predictions, key=lambda p: p["date"])
 
 
 def _fetch_observations():

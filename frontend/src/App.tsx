@@ -16,6 +16,7 @@ import type {
   BasinSeries,
   FlowSeries,
   ObservationScene,
+  PredictionScene,
   River,
 } from "./lib/types";
 
@@ -46,6 +47,7 @@ export default function App() {
   const [riversLoading, setRiversLoading] = useState(true);
   const [riversError, setRiversError] = useState<string | null>(null);
   const [observations, setObservations] = useState<ObservationScene[]>([]);
+  const [predictions, setPredictions] = useState<PredictionScene[]>([]);
   const [selectedObservationDate, setSelectedObservationDate] = useState<
     string | null
   >(null);
@@ -85,7 +87,17 @@ export default function App() {
   }, [apiUrl]);
 
   useEffect(() => {
-    fetch(`${apiUrl}/observations?start=2023-10-01&end=2024-09-30`)
+    fetch(`${apiUrl}/predictions`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((items: PredictionScene[]) => setPredictions(items))
+      .catch((err) => console.error("Failed to load predictions:", err));
+  }, [apiUrl]);
+
+  useEffect(() => {
+    fetch(`${apiUrl}/observations`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
@@ -222,9 +234,13 @@ export default function App() {
 
   const selectedObservation =
     observations.find((item) => item.date === selectedObservationDate) ?? null;
+  const selectedPrediction =
+    predictions.find((item) => item.date === selectedObservationDate) ?? null;
   const ndsiTileUrl = selectedObservation
     ? `${apiUrl}${selectedObservation.tile_url}`
-    : null;
+    : selectedPrediction
+      ? `${apiUrl}${selectedPrediction.tile_url}`
+      : null;
 
   const showFlowChart =
     selectedRiver !== null && waterTab === "flow";
@@ -242,6 +258,7 @@ export default function App() {
 
       <TopBanner
         observations={observations}
+        predictions={predictions}
         selectedDate={selectedObservationDate}
         onDateChange={setSelectedObservationDate}
       />

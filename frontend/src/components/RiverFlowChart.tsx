@@ -40,7 +40,7 @@ export default function RiverFlowChart({
           </h3>
           {series && (
             <p className="mt-0.5 text-[11px] text-slate-500">
-              {series.source} · {series.unit}
+              {river.source} · {river.unit}
               {series.first_date && series.last_date && (
                 <>
                   {" · "}
