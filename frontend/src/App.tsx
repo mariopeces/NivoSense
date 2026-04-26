@@ -30,9 +30,12 @@ export default function App() {
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
 
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
+  const [basinSeries, setBasinSeries] = useState<CoverageSeriesPoint[]>([]);
+  const [seriesLoading, setSeriesLoading] = useState(false);
+  const [seriesError, setSeriesError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/data/basins.geojson")
+    fetch(`${import.meta.env.BASE_URL}data/basins.geojson`)
       .then((r) => r.json())
       .then((fc: BasinFeatureCollection) => setBasinsFC(fc))
       .catch((err) => console.error("Failed to load basins:", err));
@@ -44,8 +47,45 @@ export default function App() {
       name: prettifyBasinName(f.properties.nom_rio_1),
     })) ?? [];
 
-  const basinSeries: CoverageSeriesPoint[] = [];
   const selectedBasin = basins.find((b) => b.id === selectedBasinId) ?? null;
+
+  useEffect(() => {
+    if (!selectedBasinId) {
+      setBasinSeries([]);
+      setSeriesError(null);
+      setSeriesLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const apiUrl =
+      import.meta.env.VITE_API_URL ??
+      (import.meta.env.DEV ? "http://localhost:8080" : "");
+    setSeriesLoading(true);
+    setSeriesError(null);
+
+    fetch(
+      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2018&cadence=all`,
+      { signal: controller.signal },
+    )
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((payload: { points: CoverageSeriesPoint[] }) =>
+        setBasinSeries(payload.points ?? []),
+      )
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        console.error("Failed to load basin series:", err);
+        setSeriesError("Could not load snow evolution");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setSeriesLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [selectedBasinId]);
 
   const handleAction = (a: RailAction) => {
     if (a === "stats") setStatsOpen((v) => !v);
@@ -88,6 +128,8 @@ export default function App() {
         <BasinChart
           basinName={selectedBasin.name}
           data={basinSeries}
+          loading={seriesLoading}
+          error={seriesError}
           onClose={() => setSelectedBasinId(null)}
         />
       )}

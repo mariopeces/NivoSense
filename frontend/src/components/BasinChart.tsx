@@ -13,16 +13,24 @@ import type { CoverageSeriesPoint } from "../lib/types";
 type Props = {
   basinName: string;
   data: CoverageSeriesPoint[];
+  loading: boolean;
+  error: string | null;
   onClose: () => void;
 };
 
-export default function BasinChart({ basinName, data, onClose }: Props) {
+export default function BasinChart({
+  basinName,
+  data,
+  loading,
+  error,
+  onClose,
+}: Props) {
   return (
     <div className="pointer-events-auto absolute bottom-4 left-[280px] z-20 w-[460px] rounded-2xl border border-white/10 bg-[#081020]/85 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85)]">
       <div className="flex items-start justify-between gap-3 px-5 pt-4">
         <div>
           <span className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
-            Basin coverage
+            Hydrological year 2018-2019
           </span>
           <h3 className="mt-1 text-base font-semibold text-white">{basinName}</h3>
         </div>
@@ -39,8 +47,12 @@ export default function BasinChart({ basinName, data, onClose }: Props) {
       </div>
 
       <div className="h-[200px] px-2 pb-2 pt-3">
-        {data.length === 0 ? (
-          <EmptyState />
+        {loading ? (
+          <StatusState title="Loading snow evolution" />
+        ) : error ? (
+          <StatusState title={error} />
+        ) : data.length === 0 ? (
+          <StatusState title="No observations for this basin" />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
@@ -49,10 +61,11 @@ export default function BasinChart({ basinName, data, onClose }: Props) {
             >
               <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="label"
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
+                minTickGap={18}
               />
               <YAxis
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
@@ -73,27 +86,9 @@ export default function BasinChart({ basinName, data, onClose }: Props) {
               />
               <Line
                 type="monotone"
-                dataKey="average"
-                stroke="#94a3b8"
-                strokeWidth={1.5}
-                strokeDasharray="3 3"
-                dot={false}
-                isAnimationActive={false}
-              />
-              <Line
-                type="monotone"
                 dataKey="observed"
                 stroke="#67e8f9"
                 strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="forecast"
-                stroke="#67e8f9"
-                strokeWidth={2}
-                strokeDasharray="5 3"
                 dot={false}
                 isAnimationActive={false}
               />
@@ -109,25 +104,17 @@ function Legend() {
   return (
     <div className="flex items-center gap-3 text-[11px] text-slate-400">
       <span className="flex items-center gap-1.5">
-        <span className="block h-px w-4 border-t border-dashed border-slate-400" />
-        Avg.
-      </span>
-      <span className="flex items-center gap-1.5">
         <span className="block h-0.5 w-4 rounded-full bg-cyan-300" />
-        2026
+        Snow
       </span>
     </div>
   );
 }
 
-function EmptyState() {
+function StatusState({ title }: { title: string }) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-      <p className="text-sm text-slate-300">No coverage data yet</p>
-      <p className="mt-1.5 max-w-[300px] text-[11px] leading-relaxed text-slate-500">
-        Series for the selected basin will appear here once the backend
-        publishes <code className="text-slate-300">/basins/&#123;id&#125;/stats</code>.
-      </p>
+      <p className="text-sm text-slate-300">{title}</p>
     </div>
   );
 }

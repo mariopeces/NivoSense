@@ -1,3 +1,7 @@
+# Large / temp files
+_mosaic_tmp.tif
+*.tmp.tif
+
 # Python
 __pycache__/
 *.py[cod]
@@ -34,6 +38,3 @@ Thumbs.db
 
 # Folders
 own
-_mosaic_tmp.tif
-ml/data/
-ml/models/
