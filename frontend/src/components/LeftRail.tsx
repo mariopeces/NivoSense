@@ -26,6 +26,8 @@ type Props = {
   statsOpen: boolean;
   routesOpen: boolean;
   rivers: River[];
+  riversLoading: boolean;
+  riversError: string | null;
   selectedRiverId: string | null;
   onRiverSelect: (id: string | null) => void;
   waterTab: WaterTab;
@@ -42,6 +44,8 @@ export default function LeftRail({
   statsOpen,
   routesOpen,
   rivers,
+  riversLoading,
+  riversError,
   selectedRiverId,
   onRiverSelect,
   waterTab,
@@ -95,6 +99,8 @@ export default function LeftRail({
         {expanded && statsOpen && (
           <RiverAccordion
             rivers={rivers}
+            loading={riversLoading}
+            error={riversError}
             selectedId={selectedRiverId}
             onSelect={onRiverSelect}
             waterTab={waterTab}
@@ -210,21 +216,41 @@ function NavItem({
 
 function RiverAccordion({
   rivers,
+  loading,
+  error,
   selectedId,
   onSelect,
   waterTab,
   onWaterTabChange,
 }: {
   rivers: River[];
+  loading: boolean;
+  error: string | null;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   waterTab: WaterTab;
   onWaterTabChange: (tab: WaterTab) => void;
 }) {
+  if (loading) {
+    return (
+      <p className="px-3 pb-2 text-[11px] leading-relaxed text-slate-500">
+        Loading rivers...
+      </p>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="px-3 pb-2 text-[11px] leading-relaxed text-rose-300/80">
+        {error}
+      </p>
+    );
+  }
+
   if (rivers.length === 0) {
     return (
       <p className="px-3 pb-2 text-[11px] leading-relaxed text-slate-500">
-        Loading rivers…
+        No rivers available
       </p>
     );
   }

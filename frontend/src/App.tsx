@@ -42,6 +42,8 @@ export default function App() {
 
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
   const [rivers, setRivers] = useState<River[]>([]);
+  const [riversLoading, setRiversLoading] = useState(true);
+  const [riversError, setRiversError] = useState<string | null>(null);
   const [observations, setObservations] = useState<ObservationScene[]>([]);
   const [selectedObservationDate, setSelectedObservationDate] = useState<
     string | null
@@ -65,13 +67,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    setRiversLoading(true);
+    setRiversError(null);
     fetch(`${apiUrl}/rivers`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then((items: River[]) => setRivers(items))
-      .catch((err) => console.error("Failed to load rivers:", err));
+      .catch((err) => {
+        console.error("Failed to load rivers:", err);
+        setRiversError("Could not load rivers");
+      })
+      .finally(() => setRiversLoading(false));
   }, [apiUrl]);
 
   useEffect(() => {
@@ -246,6 +254,8 @@ export default function App() {
         statsOpen={statsOpen}
         routesOpen={routesOpen}
         rivers={rivers}
+        riversLoading={riversLoading}
+        riversError={riversError}
         selectedRiverId={selectedRiverId}
         onRiverSelect={handleRiverSelect}
         waterTab={waterTab}
