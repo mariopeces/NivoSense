@@ -23,21 +23,24 @@ _FNAME_RE = re.compile(
 )
 
 # Snow season only — Jun/Jul/Aug have no meaningful snow signal
-SNOW_MONTHS = {"jan", "feb", "mar", "apr", "may", "oct", "nov", "dec"}
+SNOW_MONTHS = {"oct", "nov", "dec"}
 
 # Kill worker if it takes longer than this
 _TIMEOUT_SEC = 300
 
 
-def list_acquisitions() -> list[dict]:
+def list_acquisitions(years: list[int] | None = None) -> list[dict]:
     """Return list of {year, month, timestamp} dicts for snow-season months."""
     client = storage.Client()
     acquisitions = []
     for blob in client.bucket(_SRC_BUCKET).list_blobs(prefix=_SRC_PREFIX):
         m = _FNAME_RE.search(blob.name)
         if m and m.group(2) in SNOW_MONTHS:
+            year = int(m.group(1))
+            if years and year not in years:
+                continue
             acquisitions.append({
-                "year": int(m.group(1)),
+                "year": year,
                 "month": m.group(2),
                 "timestamp": m.group(3),
             })
@@ -64,17 +67,18 @@ def _worker(acq: dict, dem_path: str, result_queue: multiprocessing.Queue) -> No
         result_queue.put((label, str(e)))
 
 
-def run_batch(dem_path: str, max_workers: int = 4) -> None:
+def run_batch(dem_path: str, max_workers: int = 4, years: list[int] | None = None) -> None:
     """
-    Extract all snow-season S2 acquisitions and upload COGs to GCS.
+    Extract S2 acquisitions and upload COGs to GCS.
 
     Parameters
     ----------
     dem_path    : local path to the CNIG MDT05 GeoTIFF
     max_workers : number of parallel acquisition processes (default 4)
+    years       : list of years to process, e.g. [2019, 2020]. None = all years.
     """
     print("Discovering acquisitions...")
-    acquisitions = list_acquisitions()
+    acquisitions = list_acquisitions(years=years)
     total = len(acquisitions)
     print(f"Found {total} acquisitions\n")
 
