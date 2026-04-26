@@ -10,6 +10,7 @@ import BasinChart from "./components/BasinChart";
 import RiverFlowChart from "./components/RiverFlowChart";
 import Legend from "./components/Legend";
 import { prettifyBasinName } from "./lib/geo";
+import { currentHydrologicalYear } from "./lib/horizons";
 import type {
   Basin,
   BasinSeries,
@@ -54,6 +55,7 @@ export default function App() {
   const [flowSeries, setFlowSeries] = useState<FlowSeries | null>(null);
   const [flowLoading, setFlowLoading] = useState(false);
   const [flowError, setFlowError] = useState<string | null>(null);
+  const [hydrologicalYear, setHydrologicalYear] = useState<number>(currentHydrologicalYear());
 
   const apiUrl =
     import.meta.env.VITE_API_URL ??
@@ -129,7 +131,7 @@ export default function App() {
     setSeriesError(null);
 
     fetch(
-      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=2024`,
+      `${apiUrl}/basins/${selectedBasinId}/snow-series?hydrological_year=${hydrologicalYear}&cadence=all`,
       { signal: controller.signal },
     )
       .then((r) => {
@@ -147,7 +149,7 @@ export default function App() {
       });
 
     return () => controller.abort();
-  }, [selectedBasinId, apiUrl]);
+  }, [selectedBasinId, hydrologicalYear, apiUrl]);
 
   useEffect(() => {
     if (!selectedRiverId) {
@@ -271,6 +273,8 @@ export default function App() {
           loading={seriesLoading}
           error={seriesError}
           onClose={handleClose}
+          hydrologicalYear={hydrologicalYear}
+          onYearChange={setHydrologicalYear}
         />
       )}
 

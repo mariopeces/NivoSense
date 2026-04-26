@@ -33,6 +33,15 @@ Thumbs.db
 .env.local
 .env.*.local
 
+# ML checkpoints & outputs
+ml/checkpoints/
+ml/models/
+ml/data/
+*.ckpt
+*.pt
+*.pth
+*.pkl
+
 # Build artefacts
 *.tsbuildinfo
 data/generated/
