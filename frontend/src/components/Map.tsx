@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import maplibregl, { type StyleSpecification } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import type { StyleSpecification } from "maplibre-gl";
 import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
 
