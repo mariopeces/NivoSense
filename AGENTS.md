@@ -84,23 +84,22 @@ Bidirectional sync notes:
 - **Idempotent attachment.** Use a marker (`__basinClickAttached`) reset on `style.load` to avoid double-registering click handlers across basemap changes.
 - **Selection via filter, not feature-state.** Two layer pairs (base + selected) with `setFilter` is more reliable than `feature-state` for simple highlighting.
 
-## Data architecture (forward-looking)
+## Data pipelines and schedules
 
-Three data tiers, all in `gs://nivosense-cogs/`:
+The site is static (GitHub Pages). Every product is produced by a scheduled GitHub Actions workflow, uploaded as an artifact, and restored by the single publishing workflow. Nothing user-facing is committed by hand except calibrations.
 
-```
-observations/sierra-nevada/{YYYY-MM-DD}.tif    past observations from Sentinel-2/HRWSI
-forecasts/sierra-nevada/
-  latest/                                       always points to current run
-    manifest.json                               run metadata, horizon → COG mapping
-    ndsi_{horizon}.tif                          5 horizons (plus24h, plus48h, plus72h, plus7d, plus1m)
-  archive/{YYYY-MM-DD}/                         optional, for evaluating model over time
-static/sierra-nevada/
-  basins.geojson, routes.geojson
-  basins/{id}/series.json                       pre-computed coverage time series per basin
-```
+| Workflow | Schedule (UTC) | Produces | Artifact |
+|---|---|---|---|
+| `pages.yml` | hourly, on push, and after the three below | webcam catalog refresh, frontend build, deploy | the site |
+| `weather-forecasts.yml` | 05:30, 11:30, 17:30, 23:30 | GFS, ECMWF IFS and AEMET HARMONIE-AROME precipitation and snowfall at 24/48/72/120 h | `weather-forecasts` |
+| `snow-model.yml` | daily 07:40 | Sentinel-2 10 m snow and true colour, SWE and depth maps, basin snow volume | `snow-model` |
+| `snow-observation.yml` | daily 05:35 | GFSC from CDSE, skipped without credentials | `snow-observation-<run id>` |
 
-Pipeline ingests from CDSE / HRWSI **at build time**, never at runtime. Backend serves tiles via `rio-tiler` (or, as a fallback, frontend uses TiTiler's public endpoint or pre-rendered tiles from the bucket). See [ARCHITECTURE.md](ARCHITECTURE.md) and [ml/README.md](ml/README.md).
+A scheduled run that fails opens or comments on a GitHub issue titled "Scheduled workflow failed: <name>".
+
+Regions are described by `regions/<id>.json` (id, name, basins GeoJSON, optional `snow_model` settings). The weather and snow pipelines take `--region` and contain nothing specific to Sierra Nevada. To add a mountain range: add the file, run `Snow model` with mode `calibrate`, review the artifact, and commit it as `regions/<id>.snow-calibration.json`. The daily `operate` mode refuses to publish volumes and maps until a calibration passes its held-out gate.
+
+Snow model in one paragraph: Copernicus GLO-30 elevation on a UTM grid snapped to Sentinel-2 pixels, Open-Meteo hourly IFS forcing downscaled with a lapse rate and precipitation gradient, a temperature-index snowpack with a radiation term, a Latin hypercube ensemble weighted against held-out Sentinel-2 snow cover at 10 m. Magnitudes of SWE and depth are not validated against in-situ data; the UI and manifest say so.
 
 ## Time / horizon model
 

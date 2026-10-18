@@ -57,6 +57,7 @@ LIMITATIONS = [
     "Skill is verified against Sentinel-2 snow cover only; snow water equivalent and depth magnitudes are not verified against in-situ measurements",
 ]
 PERCENTILES = [0.1, 0.5, 0.9]
+CLEAR_SCENE_FRACTION = 0.75
 
 
 def merged_settings(region: Region) -> dict:
@@ -341,7 +342,12 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
 
     layers = {}
     if kept:
-        scene, observed, usable, snow, valid = max(kept, key=lambda row: row[0].day)
+        clear = [row for row in kept if row[4].mean() >= CLEAR_SCENE_FRACTION]
+        scene, observed, usable, snow, valid = (
+            max(clear, key=lambda row: row[0].day)
+            if clear
+            else max(kept, key=lambda row: row[4].mean())
+        )
         write_observation_png(output / "observed_snow_10m.png", snow, valid)
         shutil.copy(obs.true_colour(scene, static.grid.refined(), cache), output / "s2_true_colour.jpg")
         layers["s2_true_colour"] = {
