@@ -50,3 +50,6 @@ weather-output/
 
 # Folders
 own
+
+# Browser automation output
+.playwright-mcp/
