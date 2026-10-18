@@ -377,7 +377,11 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
         )[: settings["ensemble"]["operational_members"]]
         weights = np.array([member["weight"] for member in chosen])
         weights /= weights.sum()
-        observation_days = {(scene.day - start).days: row for row, (scene, *_rest) in enumerate(kept)}
+        observation_days = {
+            (scene.day - start).days: row
+            for row, (scene, *_rest) in enumerate(kept)
+            if 0 <= (scene.day - start).days < len(tables.days)
+        }
         results = []
         for number, member in enumerate(chosen, start=1):
             results.append(
