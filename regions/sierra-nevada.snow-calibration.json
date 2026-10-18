@@ -1,0 +1,657 @@
+{
+  "schema_version": 1,
+  "region": "sierra-nevada",
+  "created_at": "2026-10-18T14:58:27.835381Z",
+  "resolution_m": 100,
+  "forcing": {
+    "model": "ecmwf_ifs",
+    "spacing_deg": 0.1
+  },
+  "calibration_years": [
+    2025
+  ],
+  "observation": {
+    "source": "Sentinel-2 L2A snow cover at 10 m (NDSI >= 0.4, green reflectance >= 0.1)",
+    "fit_dates": [
+      "2025-10-14",
+      "2025-10-24",
+      "2025-11-28",
+      "2025-12-08",
+      "2026-01-07",
+      "2026-01-12",
+      "2026-02-26",
+      "2026-03-13",
+      "2026-04-04",
+      "2026-04-14",
+      "2026-05-04",
+      "2026-06-03",
+      "2026-06-21",
+      "2026-06-26",
+      "2026-07-16",
+      "2026-07-26",
+      "2026-08-05",
+      "2026-08-12",
+      "2026-08-30",
+      "2026-09-14"
+    ],
+    "test_dates": [
+      "2025-11-03",
+      "2025-12-18",
+      "2026-02-21",
+      "2026-03-25",
+      "2026-04-27",
+      "2026-06-13",
+      "2026-07-03",
+      "2026-07-31",
+      "2026-08-22",
+      "2026-09-24"
+    ]
+  },
+  "members": [
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.650383143754126,
+        "precipitation_gradient_per_100m": 0.05575651777613344,
+        "precipitation_scale": 0.8692465852919494,
+        "rain_snow_threshold": 0.36885651072998027,
+        "melt_factor": 2.467415828255641,
+        "radiation_factor": 0.0017842974888893197
+      },
+      "weight": 0.035018181990211374,
+      "cost": 0.050299106088645705
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.367614824035117,
+        "precipitation_gradient_per_100m": 0.013953944938923088,
+        "precipitation_scale": 0.858377742845021,
+        "rain_snow_threshold": 0.0482711042895097,
+        "melt_factor": 1.5461043730425015,
+        "radiation_factor": 0.0013889952595252167
+      },
+      "weight": 0.0020351576475387038,
+      "cost": 0.06461628234107158
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.483552957641003,
+        "precipitation_gradient_per_100m": 0.03985140252566077,
+        "precipitation_scale": 1.1382222731850646,
+        "rain_snow_threshold": 0.5011621543601699,
+        "melt_factor": 2.2695988177162163,
+        "radiation_factor": 0.008893410833016471
+      },
+      "weight": 0.013551672944948598,
+      "cost": 0.05507615785260839
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.179970313923431,
+        "precipitation_gradient_per_100m": 0.057033830211308534,
+        "precipitation_scale": 1.0839451376057003,
+        "rain_snow_threshold": 2.141495305040677,
+        "melt_factor": 1.865786134933434,
+        "radiation_factor": 0.0022828983874374226
+      },
+      "weight": 1.0039666119946781e-06,
+      "cost": 0.10293087110806323
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.7260429671127095,
+        "precipitation_gradient_per_100m": 0.02587691957211971,
+        "precipitation_scale": 1.2273928878718015,
+        "rain_snow_threshold": 2.089227820835751,
+        "melt_factor": 2.5363781032616117,
+        "radiation_factor": 0.004179013498674099
+      },
+      "weight": 0.00011017244454479471,
+      "cost": 0.07929065971448987
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.970993241460394,
+        "precipitation_gradient_per_100m": 0.015968717179920752,
+        "precipitation_scale": 1.3041720037364928,
+        "rain_snow_threshold": 2.4201006896439723,
+        "melt_factor": 1.366508317604203,
+        "radiation_factor": 0.0048891348708564025
+      },
+      "weight": 6.109227958635714e-08,
+      "cost": 0.11701675409320003
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.473296323479678,
+        "precipitation_gradient_per_100m": 0.06553318533967449,
+        "precipitation_scale": 0.8042884673143695,
+        "rain_snow_threshold": 1.411046300296308,
+        "melt_factor": 1.4600570192087778,
+        "radiation_factor": 0.00860579549856741
+      },
+      "weight": 0.022868132243270722,
+      "cost": 0.05244330591693719
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.244680178999746,
+        "precipitation_gradient_per_100m": 0.0866385798475532,
+        "precipitation_scale": 1.026020670918549,
+        "rain_snow_threshold": 1.5954037600105604,
+        "melt_factor": 3.3985246843291352,
+        "radiation_factor": 0.003979370443324827
+      },
+      "weight": 0.0038241000442093692,
+      "cost": 0.06144242519401327
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.780921144472548,
+        "precipitation_gradient_per_100m": 0.08299934292418532,
+        "precipitation_scale": 1.558593553854819,
+        "rain_snow_threshold": 2.37585332245286,
+        "melt_factor": 2.188937248117667,
+        "radiation_factor": 0.011713978073595838
+      },
+      "weight": 0.000394780369779047,
+      "cost": 0.0728685590383577
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.58490194923677,
+        "precipitation_gradient_per_100m": 0.0973468200214841,
+        "precipitation_scale": 1.3675963110489535,
+        "rain_snow_threshold": 1.3558375702405288,
+        "melt_factor": 2.2402473772612903,
+        "radiation_factor": 0.008055242290941218
+      },
+      "weight": 0.00014227819431978893,
+      "cost": 0.07800381981735392
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.175215438897506,
+        "precipitation_gradient_per_100m": 0.04242709846564283,
+        "precipitation_scale": 0.7536487503397561,
+        "rain_snow_threshold": 2.4899699365125674,
+        "melt_factor": 2.6627074544420606,
+        "radiation_factor": 0.010041645794131455
+      },
+      "weight": 0.13035493036355564,
+      "cost": 0.043685236556275625
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.96749136090854,
+        "precipitation_gradient_per_100m": 0.07801749231113435,
+        "precipitation_scale": 1.4824817656998552,
+        "rain_snow_threshold": 0.8222288937989322,
+        "melt_factor": 3.3783542208933093,
+        "radiation_factor": 0.0022288841009786794
+      },
+      "weight": 0.00010203963964392638,
+      "cost": 0.07967653165403116
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.70381740802761,
+        "precipitation_gradient_per_100m": 0.019516040770187516,
+        "precipitation_scale": 1.4050341896454732,
+        "rain_snow_threshold": 0.8810056389903808,
+        "melt_factor": 3.19586581427632,
+        "radiation_factor": 0.008289312972128442
+      },
+      "weight": 0.047603752757162554,
+      "cost": 0.048754096847555134
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.287252314492351,
+        "precipitation_gradient_per_100m": 0.05856194721668062,
+        "precipitation_scale": 0.8178927925411749,
+        "rain_snow_threshold": 0.29532847118429567,
+        "melt_factor": 1.908433823513231,
+        "radiation_factor": 0.007439301581604656
+      },
+      "weight": 0.1020502948390005,
+      "cost": 0.04491701634978426
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.55490845264495,
+        "precipitation_gradient_per_100m": 0.00667341988351541,
+        "precipitation_scale": 1.1646767587736158,
+        "rain_snow_threshold": 1.7027532412674595,
+        "melt_factor": 2.6895537843838784,
+        "radiation_factor": 0.010328129253953027
+      },
+      "weight": 0.03426626704809479,
+      "cost": 0.05040832810706658
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.969119315109319,
+        "precipitation_gradient_per_100m": 0.03600793018530027,
+        "precipitation_scale": 1.5109612670907078,
+        "rain_snow_threshold": 1.8314448778361025,
+        "melt_factor": 2.0746006763792666,
+        "radiation_factor": 0.01184029633665813
+      },
+      "weight": 0.000632320244168321,
+      "cost": 0.07049820984872293
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.163931114935781,
+        "precipitation_gradient_per_100m": 0.017321112282504793,
+        "precipitation_scale": 1.41391020834652,
+        "rain_snow_threshold": 0.6783275423947298,
+        "melt_factor": 3.051100913146044,
+        "radiation_factor": 0.0016384311614919443
+      },
+      "weight": 0.0013141042311355885,
+      "cost": 0.0668173170823257
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.060239670229405,
+        "precipitation_gradient_per_100m": 0.07981884970587487,
+        "precipitation_scale": 0.7743037108458105,
+        "rain_snow_threshold": 0.7325814141884595,
+        "melt_factor": 1.0351915670817249,
+        "radiation_factor": 0.010731491041855834
+      },
+      "weight": 0.16284564005664623,
+      "cost": 0.042565433134288025
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.911559151988371,
+        "precipitation_gradient_per_100m": 0.03245145774219365,
+        "precipitation_scale": 0.7288752100955588,
+        "rain_snow_threshold": 1.560649028133352,
+        "melt_factor": 2.9897868427134293,
+        "radiation_factor": 0.011000514210766156
+      },
+      "weight": 0.08530360469085356,
+      "cost": 0.04581897599018388
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.066055352220218,
+        "precipitation_gradient_per_100m": 0.052024354115874485,
+        "precipitation_scale": 0.920760518079059,
+        "rain_snow_threshold": 0.08571465445623093,
+        "melt_factor": 1.1225703530284665,
+        "radiation_factor": 0.00029057183360058
+      },
+      "weight": 1.733254828594381e-08,
+      "cost": 0.12335591226732753
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.79808905341606,
+        "precipitation_gradient_per_100m": 0.039113883614424444,
+        "precipitation_scale": 1.0099229276430692,
+        "rain_snow_threshold": 0.570151388879865,
+        "melt_factor": 2.8512142401712164,
+        "radiation_factor": 0.0026800529446649873
+      },
+      "weight": 0.03979895340990469,
+      "cost": 0.049655160390905846
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.8993673696083375,
+        "precipitation_gradient_per_100m": 0.034981529058693346,
+        "precipitation_scale": 1.1239671199444716,
+        "rain_snow_threshold": 1.4765304353579216,
+        "melt_factor": 1.1785234922507526,
+        "radiation_factor": 0.011348616632356125
+      },
+      "weight": 0.002818164325243118,
+      "cost": 0.06297834307238087
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.78719654501609,
+        "precipitation_gradient_per_100m": 0.07658180937612413,
+        "precipitation_scale": 0.9443854796971844,
+        "rain_snow_threshold": 2.070584457117782,
+        "melt_factor": 3.298048210977552,
+        "radiation_factor": 0.0063219526049742
+      },
+      "weight": 0.006093383082859869,
+      "cost": 0.05909817189336136
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.676943633541765,
+        "precipitation_gradient_per_100m": 0.07416039110525784,
+        "precipitation_scale": 1.566002381487884,
+        "rain_snow_threshold": 0.8888228627792534,
+        "melt_factor": 1.1023868812897137,
+        "radiation_factor": 0.009990723914531886
+      },
+      "weight": 1.7228583416634953e-06,
+      "cost": 0.10021352566719326
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.8232185882629555,
+        "precipitation_gradient_per_100m": 0.0289951922024394,
+        "precipitation_scale": 1.2564004261644022,
+        "rain_snow_threshold": 1.2586565190413004,
+        "melt_factor": 1.6089216355279412,
+        "radiation_factor": 0.006816007105831069
+      },
+      "weight": 6.116062481339496e-05,
+      "cost": 0.08225213807764044
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.0951641632803755,
+        "precipitation_gradient_per_100m": 0.022270062823848084,
+        "precipitation_scale": 0.9356980862116093,
+        "rain_snow_threshold": 1.993600694524583,
+        "melt_factor": 1.2517205769682826,
+        "radiation_factor": 0.003178541739467098
+      },
+      "weight": 1.60678982261428e-06,
+      "cost": 0.10056448136866628
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.669826750369912,
+        "precipitation_gradient_per_100m": 0.04895907589736848,
+        "precipitation_scale": 0.7029729068872508,
+        "rain_snow_threshold": 0.6015790756094136,
+        "melt_factor": 2.5811177472025597,
+        "radiation_factor": 0.0012410564172731387
+      },
+      "weight": 0.013002585078052837,
+      "cost": 0.05528428550500401
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.59289936166975,
+        "precipitation_gradient_per_100m": 0.029327257934376124,
+        "precipitation_scale": 1.449100548788616,
+        "rain_snow_threshold": 2.268615045838068,
+        "melt_factor": 3.1325466619879734,
+        "radiation_factor": 0.007190691514061609
+      },
+      "weight": 0.003702947194989189,
+      "cost": 0.0616044220919922
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.3026004458356475,
+        "precipitation_gradient_per_100m": 0.04685093588976151,
+        "precipitation_scale": 0.8903941306102638,
+        "rain_snow_threshold": 0.3384888777243237,
+        "melt_factor": 2.8131482864871273,
+        "radiation_factor": 0.009677353508980129
+      },
+      "weight": 0.0839798862596425,
+      "cost": 0.04589767151950512
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.974167148635673,
+        "precipitation_gradient_per_100m": 0.04419339790695903,
+        "precipitation_scale": 1.0470681859326003,
+        "rain_snow_threshold": 0.12627414503292073,
+        "melt_factor": 1.7280992836243692,
+        "radiation_factor": 0.006180801678191923
+      },
+      "weight": 0.0013489317437468066,
+      "cost": 0.06668569450629024
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.573326725880842,
+        "precipitation_gradient_per_100m": 0.023193117286555806,
+        "precipitation_scale": 1.096450053906611,
+        "rain_snow_threshold": 1.9049846437676612,
+        "melt_factor": 1.3227809506453023,
+        "radiation_factor": 0.0052013065267077375
+      },
+      "weight": 9.621290906965995e-06,
+      "cost": 0.0915587251596734
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.852593588703145,
+        "precipitation_gradient_per_100m": 0.09272096858860288,
+        "precipitation_scale": 0.8447007198644919,
+        "rain_snow_threshold": 1.1440969997597832,
+        "melt_factor": 1.8061025769062886,
+        "radiation_factor": 0.003317803412229981
+      },
+      "weight": 0.010954916097154528,
+      "cost": 0.05614654769390498
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.728886924911997,
+        "precipitation_gradient_per_100m": 0.003718927692910332,
+        "precipitation_scale": 1.492680869014284,
+        "rain_snow_threshold": 0.2321916437753187,
+        "melt_factor": 1.2805129684412693,
+        "radiation_factor": 0.009406671681294606
+      },
+      "weight": 0.0001497718254649858,
+      "cost": 0.07774553991843802
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.359442991355634,
+        "precipitation_gradient_per_100m": 0.004781263422511499,
+        "precipitation_scale": 1.3775150120335335,
+        "rain_snow_threshold": 1.7623683032186668,
+        "melt_factor": 1.6569736976876581,
+        "radiation_factor": 0.0054507214735108915
+      },
+      "weight": 6.166545307604304e-07,
+      "cost": 0.10538343465417684
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.609117913129856,
+        "precipitation_gradient_per_100m": 0.012018274499810765,
+        "precipitation_scale": 1.0571122596375722,
+        "rain_snow_threshold": 0.9924933315120766,
+        "melt_factor": 2.31511561112854,
+        "radiation_factor": 0.002972057410324208
+      },
+      "weight": 0.0008160222515020647,
+      "cost": 0.06921485099399358
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.454535248250157,
+        "precipitation_gradient_per_100m": 0.08442839483992137,
+        "precipitation_scale": 1.5282781663355804,
+        "rain_snow_threshold": 1.6346660029807323,
+        "melt_factor": 2.880232931757848,
+        "radiation_factor": 0.004726458538302015
+      },
+      "weight": 1.7820893063384033e-05,
+      "cost": 0.0884571096052684
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.0494343344782795,
+        "precipitation_gradient_per_100m": 0.06906051671535565,
+        "precipitation_scale": 0.9660962259385668,
+        "rain_snow_threshold": 1.1750258564397082,
+        "melt_factor": 2.378990447230673,
+        "radiation_factor": 0.00022597409839687397
+      },
+      "weight": 3.832575423416584e-05,
+      "cost": 0.08460394527387781
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.656809102218211,
+        "precipitation_gradient_per_100m": 0.0020103494666244494,
+        "precipitation_scale": 1.2163182264919712,
+        "rain_snow_threshold": 1.2302250289403613,
+        "melt_factor": 3.2728891633603974,
+        "radiation_factor": 0.0007744084498662183
+      },
+      "weight": 0.004868950925987284,
+      "cost": 0.060226947904263174
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.410161319972868,
+        "precipitation_gradient_per_100m": 0.052920075466434416,
+        "precipitation_scale": 1.3272069791157137,
+        "rain_snow_threshold": 1.9401051218714591,
+        "melt_factor": 3.467917469713089,
+        "radiation_factor": 0.00909410152184447
+      },
+      "weight": 0.03752795885332808,
+      "cost": 0.04995080538762131
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.294406364951804,
+        "precipitation_gradient_per_100m": 0.008948404699297285,
+        "precipitation_scale": 0.7929492693860037,
+        "rain_snow_threshold": 1.7916297402857604,
+        "melt_factor": 2.1451791324331397,
+        "radiation_factor": 0.005864098020872605
+      },
+      "weight": 0.0630744057551576,
+      "cost": 0.04733810856024946
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.1558231077981045,
+        "precipitation_gradient_per_100m": 0.0725979132721536,
+        "precipitation_scale": 1.3553903375662495,
+        "rain_snow_threshold": 2.236823237954984,
+        "melt_factor": 2.4273952485494217,
+        "radiation_factor": 0.00447292135099173
+      },
+      "weight": 1.1078486967077342e-06,
+      "cost": 0.10243542595523314
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 4.907567858693628,
+        "precipitation_gradient_per_100m": 0.0898426256927406,
+        "precipitation_scale": 1.2961852395712832,
+        "rain_snow_threshold": 0.971294310104789,
+        "melt_factor": 2.734365392835303,
+        "radiation_factor": 0.007604813404844965
+      },
+      "weight": 0.03442208374559373,
+      "cost": 0.05038549884620529
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.085119111900558,
+        "precipitation_gradient_per_100m": 0.08902831346057022,
+        "precipitation_scale": 1.4625922681371384,
+        "rain_snow_threshold": 0.18671699210480702,
+        "melt_factor": 2.031973845057266,
+        "radiation_factor": 0.007816228025839781
+      },
+      "weight": 0.008686218044624187,
+      "cost": 0.057314198663449875
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 6.882439783438235,
+        "precipitation_gradient_per_100m": 0.06705796821367806,
+        "precipitation_scale": 1.2783441829669067,
+        "rain_snow_threshold": 0.6284009745062418,
+        "melt_factor": 1.7534734272412913,
+        "radiation_factor": 0.010754964693289813
+      },
+      "weight": 0.0030563515796164665,
+      "cost": 0.06257007558882027
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.5566002118483,
+        "precipitation_gradient_per_100m": 0.06123435786669288,
+        "precipitation_scale": 0.9988515967839978,
+        "rain_snow_threshold": 0.41938418008558054,
+        "melt_factor": 3.1496467074322503,
+        "radiation_factor": 0.006572188569440542
+      },
+      "weight": 0.02991359660695186,
+      "cost": 0.051091900283675704
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.872789346946845,
+        "precipitation_gradient_per_100m": 0.09839979141346279,
+        "precipitation_scale": 1.1691740824166312,
+        "rain_snow_threshold": 1.0526770024912533,
+        "melt_factor": 2.9420047408578966,
+        "radiation_factor": 0.005695181046183357
+      },
+      "weight": 0.013233128525019976,
+      "cost": 0.05519584905942544
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 5.512485852780934,
+        "precipitation_gradient_per_100m": 0.09550255831810915,
+        "precipitation_scale": 1.1897144730090785,
+        "rain_snow_threshold": 1.3092616029087831,
+        "melt_factor": 1.518081030689804,
+        "radiation_factor": 0.003505042734514963
+      },
+      "weight": 1.2498400602248923e-06,
+      "cost": 0.10182860363063875
+    },
+    {
+      "parameters": {
+        "lapse_k_per_km": 7.318984246496288,
+        "precipitation_gradient_per_100m": 0.06331265531654139,
+        "precipitation_scale": 1.5880049478378182,
+        "rain_snow_threshold": 2.3429036421496505,
+        "melt_factor": 1.9875904556333293,
+        "radiation_factor": 0.0005412484819871219
+      },
+      "weight": 1.6698951479600872e-13,
+      "cost": 0.18147495030395544
+    }
+  ],
+  "metrics": {
+    "posterior": {
+      "cells": 780487,
+      "snow_cells": 96651,
+      "f1": 0.8359,
+      "mcc": 0.8162,
+      "brier": 0.0387,
+      "accuracy": 0.9544
+    },
+    "prior": {
+      "cells": 780487,
+      "snow_cells": 96651,
+      "f1": 0.7852,
+      "mcc": 0.768,
+      "brier": 0.0536,
+      "accuracy": 0.9341
+    },
+    "test_dates_with_snow": 5
+  },
+  "gate": {
+    "passed": true,
+    "reasons": []
+  },
+  "limitations": [
+    "Temperature-index melt with a radiation term; no wind redistribution, sublimation or avalanching",
+    "The season starts snow-free, so glaciers and perennial snow are not represented",
+    "Forcing is a 9 km to 25 km analysis downscaled with an elevation lapse rate and a precipitation gradient",
+    "Skill is verified against Sentinel-2 snow cover only; snow water equivalent and depth magnitudes are not verified against in-situ measurements"
+  ]
+}
