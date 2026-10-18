@@ -27,6 +27,10 @@ class PipelineError(RuntimeError):
     pass
 
 
+def environment_value(name: str, default: str) -> str:
+    return os.environ.get(name) or default
+
+
 def parse_datetime(value: str) -> datetime:
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if parsed.tzinfo is None:
@@ -119,7 +123,7 @@ def access_token() -> str:
             "client_secret": client_secret,
         }
     ).encode("utf-8")
-    endpoint = os.environ.get("GFSC_TOKEN_ENDPOINT", DEFAULT_TOKEN_ENDPOINT)
+    endpoint = environment_value("GFSC_TOKEN_ENDPOINT", DEFAULT_TOKEN_ENDPOINT)
     request = urllib.request.Request(endpoint, data=body, method="POST")
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
@@ -203,8 +207,32 @@ function evaluatePixel(sample) {
     }
 
 
+def visual_process_payload(
+    collection: str, bbox: list[float], observed_at: datetime
+) -> dict[str, Any]:
+    payload = process_payload(collection, bbox, observed_at)
+    payload["evalscript"] = """//VERSION=3
+function setup() {
+  return {
+    input: [{bands: [\"GF\", \"dataMask\"]}],
+    output: {bands: 4, sampleType: \"AUTO\"}
+  };
+}
+function evaluatePixel(sample) {
+  if (!sample.dataMask || sample.GF > 100) return [0, 0, 0, 0];
+  const fraction = sample.GF / 100;
+  return [0.35 + 0.65 * fraction, 0.75 + 0.25 * fraction, 1, fraction];
+}"""
+    payload["output"]["responses"][0]["format"]["type"] = "image/png"
+    return payload
+
+
 def download_observation(
-    endpoint: str, payload: dict[str, Any], token: str, destination: Path
+    endpoint: str,
+    payload: dict[str, Any],
+    token: str,
+    destination: Path,
+    media_type: str,
 ) -> None:
     request = urllib.request.Request(
         endpoint,
@@ -212,7 +240,7 @@ def download_observation(
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "Accept": "image/tiff",
+            "Accept": media_type,
         },
         method="POST",
     )
@@ -237,6 +265,7 @@ def build_manifest(
     products: list[dict[str, Any]],
     generated_at: datetime,
     layer_path: str,
+    web_layer_path: str,
     public_base_url: str | None,
 ) -> dict[str, Any]:
     age_days = max(0, (generated_at.date() - observed_at.date()).days)
@@ -248,6 +277,12 @@ def build_manifest(
     }
     if public_base_url:
         layer["url"] = f"{public_base_url.rstrip('/')}/{layer_path}"
+    web_layer: dict[str, Any] = {
+        "path": web_layer_path,
+        "media_type": "image/png",
+    }
+    if public_base_url:
+        web_layer["url"] = f"{public_base_url.rstrip('/')}/{web_layer_path}"
     return {
         "schema_version": 1,
         "generated_at": generated_at.isoformat().replace("+00:00", "Z"),
@@ -272,11 +307,21 @@ def build_manifest(
             "nodata": 255,
         },
         "layer": layer,
+        "web_layer": web_layer,
     }
 
 
 def validate_manifest(manifest: dict[str, Any]) -> None:
-    required = {"schema_version", "generated_at", "observation", "source", "coverage", "quality", "layer"}
+    required = {
+        "schema_version",
+        "generated_at",
+        "observation",
+        "source",
+        "coverage",
+        "quality",
+        "layer",
+        "web_layer",
+    }
     missing = required - manifest.keys()
     if missing:
         raise PipelineError(f"Manifest is missing fields: {', '.join(sorted(missing))}")
@@ -291,31 +336,38 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         raise PipelineError("Manifest source resolution is invalid")
     if not manifest["layer"].get("path"):
         raise PipelineError("Manifest layer path is missing")
+    if manifest["web_layer"].get("media_type") != "image/png":
+        raise PipelineError("Manifest web layer must be a PNG image")
+    if not manifest["web_layer"].get("path"):
+        raise PipelineError("Manifest web layer path is missing")
 
 
-def fixture_inputs(path: Path) -> tuple[dict[str, Any], Path]:
+def fixture_inputs(path: Path) -> tuple[dict[str, Any], Path, Path]:
     if os.environ.get("NIVOSENSE_TEST_MODE") != "1":
         raise PipelineError("Fixture mode is restricted to tests; set NIVOSENSE_TEST_MODE=1")
     catalog_path = path / "catalog.json"
     raster_path = path / "observation.tif"
-    if not catalog_path.is_file() or not raster_path.is_file():
-        raise PipelineError("Fixture directory must contain catalog.json and observation.tif")
+    web_layer_path = path / "snow_cover.png"
+    if not catalog_path.is_file() or not raster_path.is_file() or not web_layer_path.is_file():
+        raise PipelineError(
+            "Fixture directory must contain catalog.json, observation.tif and snow_cover.png"
+        )
     with catalog_path.open(encoding="utf-8") as source:
-        return json.load(source), raster_path
+        return json.load(source), raster_path, web_layer_path
 
 
 def run(args: argparse.Namespace) -> Path:
     now = datetime.now(timezone.utc)
     bbox = geometry_bbox(args.area)
-    collection = os.environ.get("GFSC_COLLECTION", DEFAULT_COLLECTION)
+    collection = environment_value("GFSC_COLLECTION", DEFAULT_COLLECTION)
 
     if args.fixture:
-        catalog, fixture_raster = fixture_inputs(args.fixture)
+        catalog, fixture_raster, fixture_web_layer = fixture_inputs(args.fixture)
         token = None
     else:
         token = access_token()
         catalog = search_catalog(
-            os.environ.get("GFSC_CATALOG_ENDPOINT", DEFAULT_CATALOG_ENDPOINT),
+            environment_value("GFSC_CATALOG_ENDPOINT", DEFAULT_CATALOG_ENDPOINT),
             collection,
             bbox,
             token,
@@ -325,14 +377,24 @@ def run(args: argparse.Namespace) -> Path:
     observed_at, products = select_latest_products(catalog)
     args.output.mkdir(parents=True, exist_ok=True)
     raster_path = args.output / "gfsc_latest.tif"
+    web_layer_path = args.output / "snow_cover.png"
     if args.fixture:
         shutil.copyfile(fixture_raster, raster_path)
+        shutil.copyfile(fixture_web_layer, web_layer_path)
     else:
         download_observation(
-            os.environ.get("GFSC_PROCESS_ENDPOINT", DEFAULT_PROCESS_ENDPOINT),
+            environment_value("GFSC_PROCESS_ENDPOINT", DEFAULT_PROCESS_ENDPOINT),
             process_payload(collection, bbox, observed_at),
             token,
             raster_path,
+            "image/tiff",
+        )
+        download_observation(
+            environment_value("GFSC_PROCESS_ENDPOINT", DEFAULT_PROCESS_ENDPOINT),
+            visual_process_payload(collection, bbox, observed_at),
+            token,
+            web_layer_path,
+            "image/png",
         )
 
     manifest = build_manifest(
@@ -342,6 +404,7 @@ def run(args: argparse.Namespace) -> Path:
         products=products,
         generated_at=now,
         layer_path=raster_path.name,
+        web_layer_path=web_layer_path.name,
         public_base_url=os.environ.get("GFSC_PUBLIC_BASE_URL"),
     )
     validate_manifest(manifest)

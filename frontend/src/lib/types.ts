@@ -42,10 +42,12 @@ export type BasinSeries = {
 
 export type ObservationScene = {
   date: string;
-  path: string;
-  url: string;
-  tile_url: string;
-  size: number;
+  path?: string;
+  url?: string;
+  tile_url?: string;
+  image_url?: string;
+  image_bbox?: [number, number, number, number];
+  size?: number;
 };
 
 export type PredictionScene = {

@@ -11,6 +11,7 @@ import RiverFlowChart from "./components/RiverFlowChart";
 import Legend from "./components/Legend";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
+import { staticObservationScene } from "./lib/snowObservation";
 import type {
   Basin,
   BasinSeries,
@@ -118,12 +119,23 @@ export default function App() {
   }, [apiUrl]);
 
   useEffect(() => {
-    fetch(`${apiUrl}/observations`)
+    const manifestUrl = new URL(
+      `${import.meta.env.BASE_URL}data/observations/latest/manifest.json`,
+      document.baseURI,
+    ).toString();
+    fetch(manifestUrl)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then((items: ObservationScene[]) => {
+      .then((payload: unknown) => [staticObservationScene(payload, manifestUrl)])
+      .catch(() =>
+        fetch(`${apiUrl}/observations`).then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json() as Promise<ObservationScene[]>;
+        }),
+      )
+      .then((items) => {
         setObservations(items);
         setSelectedObservationDate((current) => {
           if (current && items.some((item) => item.date === current)) {
@@ -269,9 +281,15 @@ export default function App() {
   const selectedPrediction =
     predictions.find((item) => item.date === selectedObservationDate) ?? null;
   const ndsiTileUrl = selectedObservation
-    ? `${apiUrl}${selectedObservation.tile_url}`
+    ? selectedObservation.tile_url
+      ? `${apiUrl}${selectedObservation.tile_url}`
+      : null
     : selectedPrediction
       ? `${apiUrl}${selectedPrediction.tile_url}`
+      : null;
+  const ndsiImage =
+    selectedObservation?.image_url && selectedObservation.image_bbox
+      ? { url: selectedObservation.image_url, bbox: selectedObservation.image_bbox }
       : null;
 
   const showFlowChart =
@@ -285,6 +303,7 @@ export default function App() {
         basinsFC={basinsFC}
         selectedBasinId={selectedBasinId}
         ndsiTileUrl={ndsiTileUrl}
+        ndsiImage={ndsiImage}
         onBasinSelect={handleBasinSelect}
         webcams={webcams}
         selectedWebcamId={selectedWebcamId}

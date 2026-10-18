@@ -48,6 +48,10 @@ type Props = {
   basinsFC: FC | null;
   selectedBasinId: string | null;
   ndsiTileUrl: string | null;
+  ndsiImage: {
+    url: string;
+    bbox: [number, number, number, number];
+  } | null;
   onBasinSelect: (id: string | null) => void;
   webcams: Webcam[];
   selectedWebcamId: string | null;
@@ -58,6 +62,7 @@ export default function Map({
   basinsFC,
   selectedBasinId,
   ndsiTileUrl,
+  ndsiImage,
   onBasinSelect,
   webcams,
   selectedWebcamId,
@@ -68,6 +73,7 @@ export default function Map({
   const basinsFCRef = useRef<FC | null>(null);
   const selectedRef = useRef<string | null>(null);
   const ndsiTileUrlRef = useRef<string | null>(null);
+  const ndsiImageRef = useRef<Props["ndsiImage"]>(null);
   const onBasinSelectRef = useRef(onBasinSelect);
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
@@ -84,6 +90,10 @@ export default function Map({
   useEffect(() => {
     ndsiTileUrlRef.current = ndsiTileUrl;
   }, [ndsiTileUrl]);
+
+  useEffect(() => {
+    ndsiImageRef.current = ndsiImage;
+  }, [ndsiImage]);
 
   useEffect(() => {
     onBasinSelectRef.current = onBasinSelect;
@@ -115,7 +125,7 @@ export default function Map({
     map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     const setupLayers = () => {
-      setNdsiLayer(map, ndsiTileUrlRef.current);
+      setNdsiLayer(map, ndsiTileUrlRef.current, ndsiImageRef.current);
       if (basinsFCRef.current) {
         addBasinsLayers(map, basinsFCRef.current);
         applySelected(map, selectedRef.current);
@@ -149,12 +159,12 @@ export default function Map({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
-    setNdsiLayer(map, ndsiTileUrl);
+    setNdsiLayer(map, ndsiTileUrl, ndsiImage);
     if (basinsFC) {
       addBasinsLayers(map, basinsFC);
       applySelected(map, selectedBasinId);
     }
-  }, [ndsiTileUrl, basinsFC, selectedBasinId]);
+  }, [ndsiTileUrl, ndsiImage, basinsFC, selectedBasinId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -300,21 +310,39 @@ function attachWebcamInteractions(
   });
 }
 
-function setNdsiLayer(map: maplibregl.Map, tileUrl: string | null) {
+function setNdsiLayer(
+  map: maplibregl.Map,
+  tileUrl: string | null,
+  image: Props["ndsiImage"],
+) {
   if (map.getLayer("ndsi-observation")) {
     map.removeLayer("ndsi-observation");
   }
   if (map.getSource("ndsi-observation")) {
     map.removeSource("ndsi-observation");
   }
-  if (!tileUrl) return;
+  if (!tileUrl && !image) return;
 
-  map.addSource("ndsi-observation", {
-    type: "raster",
-    tiles: [tileUrl],
-    tileSize: 256,
-    attribution: "NivoSense NDSI",
-  });
+  if (image) {
+    const [west, south, east, north] = image.bbox;
+    map.addSource("ndsi-observation", {
+      type: "image",
+      url: image.url,
+      coordinates: [
+        [west, north],
+        [east, north],
+        [east, south],
+        [west, south],
+      ],
+    });
+  } else if (tileUrl) {
+    map.addSource("ndsi-observation", {
+      type: "raster",
+      tiles: [tileUrl],
+      tileSize: 256,
+      attribution: "NivoSense NDSI",
+    });
+  }
   map.addLayer(
     {
       id: "ndsi-observation",

@@ -10,11 +10,13 @@ from unittest.mock import patch
 from scripts.fetch_snow_observation import (
     PipelineError,
     build_manifest,
+    environment_value,
     fixture_inputs,
     geometry_bbox,
     run,
     select_latest_products,
     validate_manifest,
+    visual_process_payload,
 )
 
 
@@ -47,6 +49,7 @@ class ManifestTests(unittest.TestCase):
             products=[{"id": "tile-a"}, {"id": "tile-b"}],
             generated_at=datetime(2026, 1, 12, 8, tzinfo=timezone.utc),
             layer_path="gfsc_latest.tif",
+            web_layer_path="snow_cover.png",
             public_base_url="https://example.test/snow",
         )
 
@@ -55,6 +58,9 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(manifest["source"]["native_resolution_m"], 60)
         self.assertEqual(manifest["quality"]["band"], 2)
         self.assertEqual(manifest["layer"]["url"], "https://example.test/snow/gfsc_latest.tif")
+        self.assertEqual(
+            manifest["web_layer"]["url"], "https://example.test/snow/snow_cover.png"
+        )
 
     def test_rejects_invalid_bbox(self) -> None:
         manifest = build_manifest(
@@ -64,6 +70,7 @@ class ManifestTests(unittest.TestCase):
             products=[{"id": "tile"}],
             generated_at=datetime(2026, 1, 11, tzinfo=timezone.utc),
             layer_path="gfsc_latest.tif",
+            web_layer_path="snow_cover.png",
             public_base_url=None,
         )
         with self.assertRaisesRegex(PipelineError, "bbox"):
@@ -71,6 +78,10 @@ class ManifestTests(unittest.TestCase):
 
 
 class InputTests(unittest.TestCase):
+    def test_empty_environment_override_uses_default(self) -> None:
+        with patch.dict(os.environ, {"GFSC_COLLECTION": ""}, clear=True):
+            self.assertEqual(environment_value("GFSC_COLLECTION", "default"), "default")
+
     def test_reads_bbox_from_geojson(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "area.geojson"
@@ -99,6 +110,7 @@ class InputTests(unittest.TestCase):
             fixture = Path(directory)
             (fixture / "catalog.json").write_text('{"features": []}', encoding="utf-8")
             (fixture / "observation.tif").write_bytes(b"fixture")
+            (fixture / "snow_cover.png").write_bytes(b"fixture")
             with patch.dict(os.environ, {}, clear=True):
                 with self.assertRaisesRegex(PipelineError, "restricted to tests"):
                     fixture_inputs(fixture)
@@ -120,6 +132,7 @@ class InputTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (fixture / "observation.tif").write_bytes(b"test-raster")
+            (fixture / "snow_cover.png").write_bytes(b"test-image")
             args = argparse.Namespace(
                 area=Path("data/basins.geojson"), output=output, fixture=fixture
             )
@@ -130,7 +143,19 @@ class InputTests(unittest.TestCase):
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             validate_manifest(manifest)
             self.assertEqual((output / "gfsc_latest.tif").read_bytes(), b"test-raster")
+            self.assertEqual((output / "snow_cover.png").read_bytes(), b"test-image")
             self.assertEqual(manifest["source"]["item_ids"], ["tile"])
+
+    def test_visual_request_is_transparent_for_invalid_values(self) -> None:
+        payload = visual_process_payload(
+            "gfsc-collection",
+            [-3.5, 36.9, -2.6, 37.2],
+            datetime(2026, 1, 10, tzinfo=timezone.utc),
+        )
+
+        self.assertEqual(payload["output"]["responses"][0]["format"]["type"], "image/png")
+        self.assertIn("sample.GF > 100", payload["evalscript"])
+        self.assertIn("fraction", payload["evalscript"])
 
 
 if __name__ == "__main__":
