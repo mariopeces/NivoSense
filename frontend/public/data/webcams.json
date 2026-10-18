@@ -1,0 +1,90 @@
+[
+  {
+    "id": "dgt-316",
+    "name": "A-395 · PK 12.6",
+    "location": "GRANADA",
+    "latitude": 37.154346,
+    "longitude": -3.491482,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/316.jpg",
+    "captured_at": "2026-10-18T12:27:02+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-317",
+    "name": "A-395 · PK 15.1",
+    "location": "GRANADA",
+    "latitude": 37.14976,
+    "longitude": -3.485274,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/317.jpg",
+    "captured_at": "2026-10-18T12:27:02+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-318",
+    "name": "A-395 · PK 19.9",
+    "location": "GRANADA",
+    "latitude": 37.13835,
+    "longitude": -3.45656,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/318.jpg",
+    "captured_at": "2026-10-18T12:27:02+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-319",
+    "name": "A-395 · PK 23.65",
+    "location": "GRANADA",
+    "latitude": 37.13002,
+    "longitude": -3.443039,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/319.jpg",
+    "captured_at": "2026-10-18T12:29:03+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-320",
+    "name": "A-395 · PK 24.95",
+    "location": "GRANADA",
+    "latitude": 37.12387,
+    "longitude": -3.449089,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/320.jpg",
+    "captured_at": "2026-10-18T12:29:03+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-312",
+    "name": "A-395 · PK 28.9",
+    "location": "GRANADA",
+    "latitude": 37.105434,
+    "longitude": -3.426944,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/312.jpg",
+    "captured_at": "2026-10-18T12:29:02+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-313",
+    "name": "A-395 · PK 30.92",
+    "location": "GRANADA",
+    "latitude": 37.099598,
+    "longitude": -3.409392,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/313.jpg",
+    "captured_at": "2026-10-18T12:29:02+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-321",
+    "name": "A-395 · PK 7.8",
+    "location": "GRANADA",
+    "latitude": 37.15386,
+    "longitude": -3.532502,
+    "image_url": "https://etraffic.dgt.es/camarasEtraffic/321.jpg",
+    "captured_at": "2026-10-18T12:27:02+00:00",
+    "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  }
+]

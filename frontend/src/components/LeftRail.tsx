@@ -6,13 +6,14 @@ import {
   HikerIcon,
   ChevronRightIcon,
   ChevronLeftIcon,
+  CameraIcon,
 } from "../lib/icons";
 import type { ComponentType } from "react";
-import type { River } from "../lib/types";
+import type { River, Webcam } from "../lib/types";
 
 type IconComp = ComponentType<{ className?: string }>;
 
-export type RailAction = "stats" | "routes";
+export type RailAction = "stats" | "routes" | "webcams";
 export type LayerMode = "cover" | "change";
 export type WaterTab = "snow" | "flow";
 
@@ -25,6 +26,12 @@ type Props = {
   onAction: (a: RailAction) => void;
   statsOpen: boolean;
   routesOpen: boolean;
+  webcamsOpen: boolean;
+  webcams: Webcam[];
+  webcamsLoading: boolean;
+  webcamsError: string | null;
+  selectedWebcamId: string | null;
+  onWebcamSelect: (id: string | null) => void;
   rivers: River[];
   riversLoading: boolean;
   riversError: string | null;
@@ -43,6 +50,12 @@ export default function LeftRail({
   onAction,
   statsOpen,
   routesOpen,
+  webcamsOpen,
+  webcams,
+  webcamsLoading,
+  webcamsError,
+  selectedWebcamId,
+  onWebcamSelect,
   rivers,
   riversLoading,
   riversError,
@@ -123,6 +136,25 @@ export default function LeftRail({
             available.
           </p>
         )}
+
+        <NavItem
+          icon={CameraIcon}
+          label="Webcams"
+          expanded={expanded}
+          active={webcamsOpen}
+          expandable
+          isOpen={webcamsOpen}
+          onClick={wrap(() => onAction("webcams"))}
+        />
+        {expanded && webcamsOpen && (
+          <WebcamAccordion
+            webcams={webcams}
+            loading={webcamsLoading}
+            error={webcamsError}
+            selectedId={selectedWebcamId}
+            onSelect={onWebcamSelect}
+          />
+        )}
       </div>
 
       <div className="mt-auto p-3">
@@ -145,6 +177,124 @@ export default function LeftRail({
       </div>
     </aside>
   );
+}
+
+function WebcamAccordion({
+  webcams,
+  loading,
+  error,
+  selectedId,
+  onSelect,
+}: {
+  webcams: Webcam[];
+  loading: boolean;
+  error: string | null;
+  selectedId: string | null;
+  onSelect: (id: string | null) => void;
+}) {
+  if (loading) {
+    return <StatusText>Loading webcams...</StatusText>;
+  }
+  if (error) {
+    return <StatusText error>{error}</StatusText>;
+  }
+  if (webcams.length === 0) {
+    return <StatusText>No webcams available in this region</StatusText>;
+  }
+
+  return (
+    <ul className="ml-3 flex flex-col gap-2 border-l border-white/5 pl-3">
+      {webcams.map((webcam) => {
+        const active = webcam.id === selectedId;
+        const imageUrl = safeImageUrl(webcam.image_url);
+        return (
+          <li
+            key={webcam.id}
+            className={`overflow-hidden rounded-lg border ${
+              active
+                ? "border-cyan-300/30 bg-cyan-400/10"
+                : "border-white/5 bg-slate-900/45"
+            }`}
+          >
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt={`Latest view from ${webcam.name}`}
+                className="aspect-video w-full bg-slate-950 object-cover"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => onSelect(active ? null : webcam.id)}
+              className="w-full px-2.5 py-2 text-left transition hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+              aria-pressed={active}
+            >
+              <span className="block text-[12px] font-medium text-slate-100">
+                {webcam.name}
+              </span>
+              {webcam.location && (
+                <span className="mt-0.5 block text-[10px] text-slate-400">
+                  {webcam.location}
+                </span>
+              )}
+            </button>
+            <div className="flex items-center justify-between gap-2 border-t border-white/5 px-2.5 py-1.5 text-[9px] text-slate-500">
+              <span>{formatCapturedAt(webcam.captured_at)}</span>
+              <a
+                href={webcam.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan-300 hover:text-cyan-200"
+              >
+                {webcam.attribution}
+              </a>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function StatusText({
+  children,
+  error = false,
+}: {
+  children: React.ReactNode;
+  error?: boolean;
+}) {
+  return (
+    <p
+      role={error ? "alert" : "status"}
+      className={`px-3 pb-2 text-[11px] leading-relaxed ${
+        error ? "text-rose-300/80" : "text-slate-500"
+      }`}
+    >
+      {children}
+    </p>
+  );
+}
+
+function safeImageUrl(value: string | null) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatCapturedAt(value: string | null) {
+  if (!value) return "Time unavailable";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Time unavailable";
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
 }
 
 function RegionPill({

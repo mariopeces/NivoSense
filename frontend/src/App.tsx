@@ -18,6 +18,7 @@ import type {
   ObservationScene,
   PredictionScene,
   River,
+  Webcam,
 } from "./lib/types";
 
 type BasinFeatureCollection = {
@@ -38,9 +39,11 @@ export default function App() {
   const [layer, setLayer] = useState<LayerMode>("cover");
   const [statsOpen, setStatsOpen] = useState(false);
   const [routesOpen, setRoutesOpen] = useState(false);
+  const [webcamsOpen, setWebcamsOpen] = useState(false);
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
   const [selectedRiverId, setSelectedRiverId] = useState<string | null>(null);
   const [waterTab, setWaterTab] = useState<WaterTab>("snow");
+  const [selectedWebcamId, setSelectedWebcamId] = useState<string | null>(null);
 
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
   const [rivers, setRivers] = useState<River[]>([]);
@@ -58,6 +61,9 @@ export default function App() {
   const [flowLoading, setFlowLoading] = useState(false);
   const [flowError, setFlowError] = useState<string | null>(null);
   const [hydrologicalYear, setHydrologicalYear] = useState<number>(currentHydrologicalYear());
+  const [webcams, setWebcams] = useState<Webcam[]>([]);
+  const [webcamsLoading, setWebcamsLoading] = useState(true);
+  const [webcamsError, setWebcamsError] = useState<string | null>(null);
 
   const apiUrl =
     import.meta.env.VITE_API_URL ??
@@ -68,6 +74,21 @@ export default function App() {
       .then((r) => r.json())
       .then((fc: BasinFeatureCollection) => setBasinsFC(fc))
       .catch((err) => console.error("Failed to load basins:", err));
+  }, []);
+
+  useEffect(() => {
+    setWebcamsLoading(true);
+    fetch(`${import.meta.env.BASE_URL}data/webcams.json`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((items: Webcam[]) => setWebcams(items))
+      .catch((err) => {
+        console.error("Failed to load webcams:", err);
+        setWebcamsError("Could not load webcams");
+      })
+      .finally(() => setWebcamsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -203,6 +224,17 @@ export default function App() {
   const handleAction = (a: RailAction) => {
     if (a === "stats") setStatsOpen((v) => !v);
     if (a === "routes") setRoutesOpen((v) => !v);
+    if (a === "webcams") setWebcamsOpen((v) => !v);
+  };
+
+  const handleWebcamSelect = (webcamId: string | null) => {
+    setSelectedWebcamId(webcamId);
+    if (webcamId) {
+      setRailExpanded(true);
+      setWebcamsOpen(true);
+      setSelectedBasinId(null);
+      setSelectedRiverId(null);
+    }
   };
 
   const handleBasinSelect = (basinId: string | null) => {
@@ -254,6 +286,9 @@ export default function App() {
         selectedBasinId={selectedBasinId}
         ndsiTileUrl={ndsiTileUrl}
         onBasinSelect={handleBasinSelect}
+        webcams={webcams}
+        selectedWebcamId={selectedWebcamId}
+        onWebcamSelect={handleWebcamSelect}
       />
 
       <TopBanner
@@ -272,6 +307,12 @@ export default function App() {
         onAction={handleAction}
         statsOpen={statsOpen}
         routesOpen={routesOpen}
+        webcamsOpen={webcamsOpen}
+        webcams={webcams}
+        webcamsLoading={webcamsLoading}
+        webcamsError={webcamsError}
+        selectedWebcamId={selectedWebcamId}
+        onWebcamSelect={handleWebcamSelect}
         rivers={rivers}
         riversLoading={riversLoading}
         riversError={riversError}

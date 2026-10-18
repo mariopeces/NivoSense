@@ -103,6 +103,22 @@ export function HikerIcon({ className, strokeWidth = 1.6 }: IconProps) {
   );
 }
 
+export function CameraIcon({ className, strokeWidth = 1.6 }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={base(className)}
+      fill="none"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 7.5h3l1.5-2h7l1.5 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
 export function ChevronLeftIcon({ className, strokeWidth = 1.8 }: IconProps) {
   return (
     <svg

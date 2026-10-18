@@ -1,0 +1,16 @@
+{
+  "region": {
+    "id": "sierra-nevada",
+    "bbox": [-3.55, 36.92, -2.95, 37.18]
+  },
+  "sources": [
+    {
+      "id": "dgt",
+      "type": "datex2",
+      "url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+      "attribution": "Dirección General de Tráfico (DGT)",
+      "enabled": true
+    }
+  ],
+  "additional_catalogs": []
+}

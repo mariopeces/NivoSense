@@ -84,3 +84,15 @@ export type FlowSeries = {
   last_date: string | null;
   points: FlowPoint[];
 };
+
+export type Webcam = {
+  id: string;
+  name: string;
+  location: string | null;
+  latitude: number;
+  longitude: number;
+  image_url: string | null;
+  captured_at: string | null;
+  source_url: string;
+  attribution: string;
+};
