@@ -1,3 +1,5 @@
+export const WEATHER_SCHEMA_VERSION = 2;
+
 export const WEATHER_HORIZONS = [24, 48, 72, 120] as const;
 
 export type WeatherHorizon = (typeof WEATHER_HORIZONS)[number];

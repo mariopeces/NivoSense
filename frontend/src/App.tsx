@@ -13,6 +13,7 @@ import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { staticObservationScene } from "./lib/snowObservation";
 import {
+  WEATHER_SCHEMA_VERSION,
   weatherField,
   weatherOverlay,
   type WeatherHorizon,
@@ -92,7 +93,12 @@ export default function App() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
       })
-      .then((payload: WeatherManifest) => setWeatherManifest(payload))
+      .then((payload: WeatherManifest) => {
+        if (payload.schema_version !== WEATHER_SCHEMA_VERSION) {
+          throw new Error(`Unsupported weather manifest version ${payload.schema_version}`);
+        }
+        setWeatherManifest(payload);
+      })
       .catch((error) => console.error("Failed to load weather forecasts:", error))
       .finally(() => setWeatherLoading(false));
   }, [weatherManifestUrl]);
