@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import type { StyleSpecification } from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
 import type { WeatherOverlay } from "../lib/weather";
+
+maplibregl.setWorkerUrl(workerUrl);
 
 const SIERRA_NEVADA_BOUNDS: [[number, number], [number, number]] = [
   [-3.55, 36.92],

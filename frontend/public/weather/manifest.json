@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_at": null,
   "region": null,
   "common_horizons_hours": [24, 48, 72, 120],
-  "models": []
+  "models": [],
+  "unavailable_models": []
 }

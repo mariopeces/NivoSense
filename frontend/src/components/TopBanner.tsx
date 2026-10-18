@@ -3,8 +3,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "../lib/icons";
 import type { ObservationScene, PredictionScene } from "../lib/types";
 import {
   WEATHER_HORIZONS,
+  WEATHER_VARIABLES,
+  weatherField,
   type WeatherHorizon,
   type WeatherManifest,
+  type WeatherVariable,
 } from "../lib/weather";
 
 type Scene = { date: string; isPrediction: boolean };
@@ -18,6 +21,10 @@ type Props = {
   weatherLoading: boolean;
   weatherHorizon: WeatherHorizon | null;
   onWeatherHorizonChange: (horizon: WeatherHorizon | null) => void;
+  weatherModelId: string | null;
+  onWeatherModelChange: (modelId: string) => void;
+  weatherVariable: WeatherVariable;
+  onWeatherVariableChange: (variable: WeatherVariable) => void;
 };
 
 export default function TopBanner({
@@ -29,6 +36,10 @@ export default function TopBanner({
   weatherLoading,
   weatherHorizon,
   onWeatherHorizonChange,
+  weatherModelId,
+  onWeatherModelChange,
+  weatherVariable,
+  onWeatherVariableChange,
 }: Props) {
   const scenes: Scene[] = useMemo(() => {
     const obs = observations.map((o) => ({ date: o.date, isPrediction: false }));
@@ -64,6 +75,10 @@ export default function TopBanner({
         loading={weatherLoading}
         selected={weatherHorizon}
         onChange={onWeatherHorizonChange}
+        modelId={weatherModelId}
+        onModelChange={onWeatherModelChange}
+        variable={weatherVariable}
+        onVariableChange={onWeatherVariableChange}
       />
 
       <div className="ml-auto flex items-center gap-3">
@@ -155,44 +170,96 @@ function WeatherPills({
   loading,
   selected,
   onChange,
+  modelId,
+  onModelChange,
+  variable,
+  onVariableChange,
 }: {
   manifest: WeatherManifest | null;
   loading: boolean;
   selected: WeatherHorizon | null;
   onChange: (horizon: WeatherHorizon | null) => void;
+  modelId: string | null;
+  onModelChange: (modelId: string) => void;
+  variable: WeatherVariable;
+  onVariableChange: (variable: WeatherVariable) => void;
 }) {
-  const model = manifest?.models.find((item) => item.id === "gfs");
+  const models = manifest?.models ?? [];
+  const unavailable = manifest?.unavailable_models ?? [];
+  const model = models.find((item) => item.id === modelId);
+  const chip = (active: boolean) =>
+    `rounded-full px-3 py-1.5 text-[13px] font-medium transition disabled:cursor-not-allowed disabled:opacity-25 ${
+      active ? "bg-cyan-300 text-slate-950" : "text-slate-400 hover:text-slate-200"
+    }`;
+
+  if (!models.length) {
+    return (
+      <div className="flex items-center rounded-full border border-white/10 bg-slate-900/60 p-1">
+        <span className="px-2 py-1.5 text-[10px] uppercase tracking-[0.16em] text-slate-500">
+          {loading ? "Weather..." : "Weather unavailable"}
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
-      <span className="px-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
-        {loading ? "Weather..." : model ? "GFS precip" : "Weather unavailable"}
-      </span>
-      {WEATHER_HORIZONS.map((horizon) => {
-        const available = Boolean(
-          model?.horizons[String(horizon)]?.precipitation_total.available,
-        );
-        return (
+    <>
+      <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
+        {models.map((item) => (
           <button
-            key={horizon}
-            onClick={() => onChange(selected === horizon ? null : horizon)}
-            disabled={!available}
-            aria-pressed={selected === horizon}
-            title={
-              available
-                ? model?.horizons[String(horizon)]?.valid_at
-                : "Forecast not generated yet"
-            }
-            className={`rounded-full px-3 py-1.5 text-[13px] font-medium tabular-nums transition disabled:cursor-not-allowed disabled:opacity-25 ${
-              selected === horizon
-                ? "bg-cyan-300 text-slate-950"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
+            key={item.id}
+            onClick={() => onModelChange(item.id)}
+            aria-pressed={item.id === model?.id}
+            title={`${item.name}, cycle ${item.run_at}`}
+            className={chip(item.id === model?.id)}
           >
-            {horizon === 120 ? "5d" : `${horizon}h`}
+            {item.name.split(" ")[0]}
           </button>
-        );
-      })}
-    </div>
+        ))}
+        {unavailable.map((item) => (
+          <button key={item.id} disabled title={item.reason} className={chip(false)}>
+            {item.name.split(" ")[0]}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
+        {WEATHER_VARIABLES.map((item) => {
+          const field = weatherField(model, WEATHER_HORIZONS[0], item.id);
+          return (
+            <button
+              key={item.id}
+              onClick={() => onVariableChange(item.id)}
+              disabled={!field?.available}
+              aria-pressed={variable === item.id}
+              title={field?.available ? undefined : field?.reason}
+              className={chip(variable === item.id)}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+        <span className="mx-1 h-4 w-px bg-white/10" />
+        {WEATHER_HORIZONS.map((horizon) => {
+          const field = weatherField(model, horizon, variable);
+          return (
+            <button
+              key={horizon}
+              onClick={() => onChange(selected === horizon ? null : horizon)}
+              disabled={!field?.available}
+              aria-pressed={selected === horizon}
+              title={
+                field?.available
+                  ? model?.horizons[String(horizon)]?.valid_at
+                  : (field?.reason ?? "Forecast not generated yet")
+              }
+              className={`${chip(selected === horizon)} tabular-nums`}
+            >
+              {horizon === 120 ? "5d" : `${horizon}h`}
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

@@ -2,3 +2,4 @@ numpy==2.*
 rasterio==1.4.*
 jsonschema==4.*
 pillow==11.*
+eccodes==2.*

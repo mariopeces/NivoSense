@@ -13,9 +13,11 @@ import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { staticObservationScene } from "./lib/snowObservation";
 import {
+  weatherField,
   weatherOverlay,
   type WeatherHorizon,
   type WeatherManifest,
+  type WeatherVariable,
 } from "./lib/weather";
 import type {
   Basin,
@@ -72,6 +74,9 @@ export default function App() {
   const [webcamsError, setWebcamsError] = useState<string | null>(null);
   const [weatherManifest, setWeatherManifest] = useState<WeatherManifest | null>(null);
   const [weatherHorizon, setWeatherHorizon] = useState<WeatherHorizon | null>(null);
+  const [weatherModelId, setWeatherModelId] = useState<string | null>(null);
+  const [weatherVariable, setWeatherVariable] =
+    useState<WeatherVariable>("precipitation_total");
   const [weatherLoading, setWeatherLoading] = useState(true);
 
   const apiUrl =
@@ -325,11 +330,24 @@ export default function App() {
     selectedObservation?.image_url && selectedObservation.image_bbox
       ? { url: selectedObservation.image_url, bbox: selectedObservation.image_bbox }
       : null;
+  const activeWeatherModel =
+    weatherManifest?.models.find((model) => model.id === weatherModelId) ??
+    weatherManifest?.models[0];
   const precipitationOverlay = weatherOverlay(
     weatherManifest,
+    activeWeatherModel?.id ?? null,
+    weatherVariable,
     weatherHorizon,
     weatherManifestUrl,
   );
+
+  const handleWeatherModelChange = (modelId: string) => {
+    setWeatherModelId(modelId);
+    const model = weatherManifest?.models.find((item) => item.id === modelId);
+    if (!weatherField(model, 24, weatherVariable)?.available) {
+      setWeatherVariable("precipitation_total");
+    }
+  };
 
   const showFlowChart =
     selectedRiver !== null && waterTab === "flow";
@@ -362,6 +380,10 @@ export default function App() {
         weatherLoading={weatherLoading}
         weatherHorizon={weatherHorizon}
         onWeatherHorizonChange={setWeatherHorizon}
+        weatherModelId={activeWeatherModel?.id ?? null}
+        onWeatherModelChange={handleWeatherModelChange}
+        weatherVariable={weatherVariable}
+        onWeatherVariableChange={setWeatherVariable}
       />
 
       <LeftRail
