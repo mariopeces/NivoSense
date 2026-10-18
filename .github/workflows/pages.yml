@@ -1,11 +1,20 @@
-name: Deploy web to GitHub Pages
+name: Publish site
 
 on:
   push:
     branches: [main]
     paths:
       - "frontend/**"
+      - "backend/ingest_webcams.py"
+      - "backend/webcam_sources.json"
+      - "backend/tests/**"
       - ".github/workflows/pages.yml"
+  workflow_run:
+    workflows: ["Update snow observation", "Weather forecasts"]
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -16,50 +25,89 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build:
+  publish:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
+      - name: Test webcam catalog
+        run: python -m unittest discover -s backend/tests -v
+
       - name: Restore latest snow observation
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           run_id=$(gh run list --workflow snow-observation.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')
           if [ -z "$run_id" ]; then
+            echo "::notice::No successful snow observation run; publishing without it"
             exit 0
           fi
           if ! gh run download "$run_id" --name "snow-observation-$run_id" --dir observation-artifact; then
+            echo "::warning::Snow observation artifact of run $run_id is unavailable; publishing without it"
             exit 0
           fi
           mkdir -p frontend/public/data/observations/latest
-          cp observation-artifact/manifest.json frontend/public/data/observations/latest/
-          cp observation-artifact/snow_cover.png frontend/public/data/observations/latest/
-      - run: npm ci
-        working-directory: frontend
-      - run: npm run build
+          cp observation-artifact/manifest.json observation-artifact/snow_cover.png frontend/public/data/observations/latest/
+
+      - name: Restore latest weather forecast
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list --workflow weather-forecasts.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$run_id" ]; then
+            echo "::notice::No successful weather forecast run; publishing without it"
+            exit 0
+          fi
+          if ! gh run download "$run_id" --name weather-forecasts --dir weather-artifact; then
+            echo "::warning::Weather artifact of run $run_id is unavailable; publishing without it"
+            exit 0
+          fi
+          rm -rf frontend/public/weather
+          cp -R weather-artifact frontend/public/weather
+
+      - name: Refresh webcam catalog
+        continue-on-error: true
+        run: python backend/ingest_webcams.py
+
+      - name: Build frontend
         working-directory: frontend
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Validate static artifact
+        run: |
+          test -f frontend/dist/index.html
+          for f in data/webcams.json data/basins.geojson weather/manifest.json; do
+            python -m json.tool "frontend/dist/$f" >/dev/null
+          done
+          if [ -f frontend/dist/data/observations/latest/manifest.json ]; then
+            python -m json.tool frontend/dist/data/observations/latest/manifest.json >/dev/null
+            test -f frontend/dist/data/observations/latest/snow_cover.png
+          fi
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -115,6 +115,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!apiUrl) {
+      setRiversLoading(false);
+      return;
+    }
     setRiversLoading(true);
     setRiversError(null);
     fetch(`${apiUrl}/rivers`)
@@ -131,6 +135,7 @@ export default function App() {
   }, [apiUrl]);
 
   useEffect(() => {
+    if (!apiUrl) return;
     fetch(`${apiUrl}/predictions`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -152,10 +157,12 @@ export default function App() {
       })
       .then((payload: unknown) => [staticObservationScene(payload, manifestUrl)])
       .catch(() =>
-        fetch(`${apiUrl}/observations`).then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          return r.json() as Promise<ObservationScene[]>;
-        }),
+        apiUrl
+          ? fetch(`${apiUrl}/observations`).then((r) => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.json() as Promise<ObservationScene[]>;
+            })
+          : ([] as ObservationScene[]),
       )
       .then((items) => {
         setObservations(items);
@@ -190,6 +197,11 @@ export default function App() {
       setBasinSeries(null);
       setSeriesError(null);
       setSeriesLoading(false);
+      return;
+    }
+    if (!apiUrl) {
+      setBasinSeries(null);
+      setSeriesError("No precomputed series available");
       return;
     }
 

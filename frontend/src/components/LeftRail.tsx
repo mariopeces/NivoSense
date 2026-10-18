@@ -223,6 +223,9 @@ function WebcamAccordion({
                 className="aspect-video w-full bg-slate-950 object-cover"
                 loading="lazy"
                 referrerPolicy="no-referrer"
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
               />
             )}
             <button

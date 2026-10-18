@@ -7,29 +7,19 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: snow-observation
   cancel-in-progress: false
 
 jobs:
   fetch-gfsc:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
       - name: Test observation pipeline
         run: python -m unittest tests.test_fetch_snow_observation -v
       - name: Check Copernicus credentials
@@ -59,21 +49,3 @@ jobs:
           path: data/generated/observations/sierra-nevada/latest/
           if-no-files-found: error
           retention-days: 14
-      - name: Add observation to web build
-        run: |
-          mkdir -p frontend/public/data/observations/latest
-          cp data/generated/observations/sierra-nevada/latest/manifest.json frontend/public/data/observations/latest/
-          cp data/generated/observations/sierra-nevada/latest/snow_cover.png frontend/public/data/observations/latest/
-      - run: npm ci
-        working-directory: frontend
-      - run: npm run build
-        working-directory: frontend
-        env:
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: frontend/dist
-      - name: Deploy updated observation
-        id: deployment
-        uses: actions/deploy-pages@v4

@@ -26,20 +26,9 @@ jobs:
       - run: pip install -r pipelines/weather_forecasts/requirements.txt
       - run: python -m unittest discover -s tests/weather_forecasts -v
       - run: python -m pipelines.weather_forecasts.run --output weather-output
-      - run: |
-          rm -rf frontend/public/weather
-          cp -R weather-output frontend/public/weather
-          npm ci --prefix frontend
-          npm run build --prefix frontend
       - uses: actions/upload-artifact@v4
         with:
           name: weather-forecasts
           path: weather-output/
           if-no-files-found: error
-          retention-days: 7
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nivosense-site-with-weather
-          path: frontend/dist/
-          if-no-files-found: error
-          retention-days: 7
+          retention-days: 14
