@@ -2,8 +2,7 @@ export type HorizonId =
   | "plus24h"
   | "plus48h"
   | "plus72h"
-  | "plus7d"
-  | "plus1m";
+  | "plus5d";
 
 export type Horizon = {
   id: HorizonId;
@@ -15,8 +14,7 @@ export const HORIZONS: Horizon[] = [
   { id: "plus24h", short: "24h", label: "+24 hours" },
   { id: "plus48h", short: "48h", label: "+48 hours" },
   { id: "plus72h", short: "72h", label: "+72 hours" },
-  { id: "plus7d", short: "7d", label: "+7 days" },
-  { id: "plus1m", short: "1mo", label: "+1 month" },
+  { id: "plus5d", short: "5d", label: "+5 days" },
 ];
 
 const ORDER: (HorizonId | null)[] = [
@@ -24,8 +22,7 @@ const ORDER: (HorizonId | null)[] = [
   "plus24h",
   "plus48h",
   "plus72h",
-  "plus7d",
-  "plus1m",
+  "plus5d",
 ];
 
 export function horizonById(id: HorizonId): Horizon | undefined {
@@ -48,11 +45,8 @@ export function horizonToDate(
     case "plus72h":
       d.setHours(d.getHours() + 72);
       break;
-    case "plus7d":
-      d.setDate(d.getDate() + 7);
-      break;
-    case "plus1m":
-      d.setMonth(d.getMonth() + 1);
+    case "plus5d":
+      d.setHours(d.getHours() + 120);
       break;
   }
   return d;
@@ -75,7 +69,7 @@ export function isFirstHorizon(h: HorizonId | null): boolean {
 }
 
 export function isLastHorizon(h: HorizonId | null): boolean {
-  return h === "plus1m";
+  return h === "plus5d";
 }
 
 /** Hydrological year starts in October. April 2026 → 2026, November 2026 → 2027. */

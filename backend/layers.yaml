@@ -11,12 +11,6 @@ layers:
   plus72h:
     label: "+72 horas"
     path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus72h.tif"
-  plus7d:
-    label: "+7 días"
-    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus7d.tif"
-  plus1m:
-    label: "+1 mes"
-    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus1m.tif"
-  plus2m:
-    label: "+2 meses"
-    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus2m.tif"
+  plus5d:
+    label: "+5 días"
+    path: "gs://nivosense-cogs/predictions/sierra-nevada/ndsi_plus5d.tif"
