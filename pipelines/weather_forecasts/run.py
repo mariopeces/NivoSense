@@ -1,17 +1,20 @@
 import argparse
 import shutil
 import sys
+import tarfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .config import COMMON_HORIZONS_HOURS, MIN_SCALE_MM
+from ..region import load_region
+from . import aemet
+from .config import COMMON_HORIZONS_HOURS, MIN_SCALE_MM, UNAVAILABLE_MODELS
 from .cycles import select_latest_cycle
 from .ecmwf import PARAMETERS, EcmwfClient
-from .geo import bbox_from_geojson
 from .gfs import GfsClient, accumulation_steps
 from .manifest import Field, ModelOutput, build_manifest, write_manifest
 from .raster import (
     build_accumulated_precipitation,
+    build_classified_field,
     build_field_image,
     build_regional_field,
     raster_bounds_and_maximum,
@@ -103,6 +106,48 @@ def build_ecmwf(bbox, output: Path, work: Path) -> ModelOutput:
     )
 
 
+def build_aemet(bbox, output: Path, work: Path) -> ModelOutput:
+    archive_path = aemet.download_archive(work / "aemet" / "harmonie_pb.tar.gz")
+    with tarfile.open(archive_path) as archive:
+        cycle = aemet.run_cycle(archive)
+        decoded = {
+            end: aemet.decode_window(archive.extractfile(name).read(), bbox)
+            for end, name in aemet.precipitation_windows(archive, cycle).items()
+        }
+    root = output / "aemet" / cycle.strftime("%Y%m%dT%HZ")
+    transform = decoded[aemet.WINDOW_HOURS][3]
+    files = {}
+    for horizon in COMMON_HORIZONS_HOURS:
+        if horizon > aemet.MAX_HORIZON_HOURS:
+            continue
+        destination = root / f"precipitation_total_f{horizon:03d}.tif"
+        build_classified_field(
+            [
+                decoded[end][:3]
+                for end in range(aemet.WINDOW_HOURS, horizon + 1, aemet.WINDOW_HOURS)
+            ],
+            transform,
+            destination,
+        )
+        files[horizon] = destination
+    bounds, _ = raster_bounds_and_maximum(files[max(files)])
+    return ModelOutput(
+        id="aemet",
+        name="AEMET HARMONIE-AROME",
+        attribution="AEMET, HARMONIE-AROME. Use authorised citing AEMET as author",
+        source="https://www.aemet.es/es/eltiempo/prediccion/modelosnumericos/harmonie_arome",
+        grid_degrees=0.025,
+        cycle=cycle,
+        precipitation=Field(
+            files,
+            bounds,
+            missing_reason=f"Forecast range is {aemet.MAX_HORIZON_HOURS} h",
+            note="Reconstructed from AEMET colour-classified maps: class midpoints, bounds in bands 2 and 3",
+        ),
+        snowfall_reason="AEMET publishes no snowfall field",
+    )
+
+
 def render_images(models: list[ModelOutput]) -> None:
     for variable in ("precipitation_total", "snowfall"):
         fields = [
@@ -126,21 +171,31 @@ def render_images(models: list[ModelOutput]) -> None:
                 item.images[horizon] = image
 
 
-def run(basins: Path, output: Path, keep_downloads: bool) -> Path:
-    bbox = bbox_from_geojson(basins)
+def run(region_file: Path, output: Path, keep_downloads: bool) -> Path:
+    region = load_region(region_file)
     work = output / "work"
     models = []
-    for name, build in (("gfs", build_gfs), ("ecmwf", build_ecmwf)):
+    unavailable = [dict(item) for item in UNAVAILABLE_MODELS]
+    for model_id, label, build in (
+        ("gfs", "GFS", build_gfs),
+        ("ecmwf", "ECMWF IFS", build_ecmwf),
+        ("aemet", "AEMET HARMONIE-AROME", build_aemet),
+    ):
         try:
-            models.append(build(bbox, output, work))
+            models.append(build(region.bbox, output, work))
         except (OSError, RuntimeError, ValueError) as error:
-            print(f"::warning::{name} forecast skipped: {error}", file=sys.stderr)
+            print(f"::warning::{model_id} forecast skipped: {error}", file=sys.stderr)
+            unavailable.append(
+                {"id": model_id, "name": label, "reason": f"Skipped in the latest run: {error}"}
+            )
     if not models:
         raise RuntimeError("No forecast model produced data")
 
     render_images(models)
     manifest_path = output / "manifest.json"
-    write_manifest(build_manifest(bbox, output, models), manifest_path)
+    write_manifest(
+        build_manifest(region.id, region.bbox, output, models, unavailable), manifest_path
+    )
     if not keep_downloads:
         shutil.rmtree(work, ignore_errors=True)
     return manifest_path
@@ -148,11 +203,11 @@ def run(basins: Path, output: Path, keep_downloads: bool) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--basins", type=Path, default=Path("data/basins.geojson"))
+    parser.add_argument("--region", type=Path, default=Path("regions/sierra-nevada.json"))
     parser.add_argument("--output", type=Path, default=Path("weather-output"))
     parser.add_argument("--keep-downloads", action="store_true")
     args = parser.parse_args()
-    print(run(args.basins, args.output, args.keep_downloads))
+    print(run(args.region, args.output, args.keep_downloads))
 
 
 if __name__ == "__main__":

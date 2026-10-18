@@ -1,0 +1,5 @@
+{
+  "id": "sierra-nevada",
+  "name": "Sierra Nevada",
+  "basins": "data/basins.geojson"
+}

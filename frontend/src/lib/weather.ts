@@ -22,6 +22,7 @@ type WeatherField = {
   units?: string;
   basis?: string;
   reason?: string;
+  note?: string;
   asset?: Asset;
   visualization?: {
     asset: Asset;
@@ -67,6 +68,7 @@ export type WeatherOverlay = {
   gridDegrees: number;
   runAt: string;
   validAt: string;
+  note: string | null;
 };
 
 export function weatherField(
@@ -86,7 +88,8 @@ export function weatherOverlay(
 ): WeatherOverlay | null {
   if (!manifest || horizon === null) return null;
   const model = manifest.models.find((item) => item.id === modelId);
-  const visualization = weatherField(model, horizon, variable)?.visualization;
+  const field = weatherField(model, horizon, variable);
+  const visualization = field?.visualization;
   if (!model || !visualization) return null;
   const baseUrl = new URL(manifestUrl, window.location.href);
   return {
@@ -100,5 +103,6 @@ export function weatherOverlay(
     gridDegrees: model.grid_degrees,
     runAt: model.run_at,
     validAt: model.horizons[String(horizon)].valid_at,
+    note: field?.note ?? null,
   };
 }

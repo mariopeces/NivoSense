@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from .config import COMMON_HORIZONS_HOURS, REGION_ID, UNAVAILABLE_MODELS
+from .config import COMMON_HORIZONS_HOURS
 
 
 @dataclass
@@ -14,6 +14,8 @@ class Field:
     images: dict[int, Path] = field(default_factory=dict)
     scale_max_mm: float = 0.0
     maxima: dict[int, float] = field(default_factory=dict)
+    missing_reason: str | None = None
+    note: str | None = None
 
 
 @dataclass
@@ -39,6 +41,8 @@ def _asset(path: Path, root: Path) -> dict:
 
 
 def _field_entry(item: Field, hours: int, root: Path) -> dict:
+    if hours not in item.files:
+        return {"available": False, "reason": item.missing_reason}
     return {
         "available": True,
         "units": "mm",
@@ -51,6 +55,7 @@ def _field_entry(item: Field, hours: int, root: Path) -> dict:
             "scale_max_mm": item.scale_max_mm,
             "region_max_mm": round(item.maxima[hours], 2),
         },
+        **({"note": item.note} if item.note else {}),
     }
 
 
@@ -86,17 +91,19 @@ def _model_entry(model: ModelOutput, root: Path) -> dict:
 
 
 def build_manifest(
+    region_id: str,
     bbox: tuple[float, float, float, float],
     output_root: Path,
     models: list[ModelOutput],
+    unavailable_models: list[dict],
 ) -> dict:
     return {
         "schema_version": 2,
         "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "region": {"id": REGION_ID, "bbox": list(bbox)},
+        "region": {"id": region_id, "bbox": list(bbox)},
         "common_horizons_hours": list(COMMON_HORIZONS_HOURS),
         "models": [_model_entry(model, output_root) for model in models],
-        "unavailable_models": list(UNAVAILABLE_MODELS),
+        "unavailable_models": unavailable_models,
     }
 
 

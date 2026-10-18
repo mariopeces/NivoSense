@@ -20,7 +20,7 @@ PALETTES = {
 }
 
 
-def _write_field(destination: Path, data, transform, crs, description: str) -> None:
+def _write_field(destination: Path, data, transform, crs, description: str, extra=()) -> None:
     import rasterio
     from rasterio.enums import Resampling
 
@@ -31,7 +31,7 @@ def _write_field(destination: Path, data, transform, crs, description: str) -> N
         driver="GTiff",
         width=data.shape[1],
         height=data.shape[0],
-        count=1,
+        count=1 + len(extra),
         dtype="float32",
         crs=crs,
         transform=transform,
@@ -45,6 +45,10 @@ def _write_field(destination: Path, data, transform, crs, description: str) -> N
         output.write(data.filled(-9999.0), 1)
         output.set_band_description(1, description)
         output.update_tags(1, units="mm")
+        for index, (band, band_description) in enumerate(extra, start=2):
+            output.write(band.astype("float32"), index)
+            output.set_band_description(index, band_description)
+            output.update_tags(index, units="mm")
         factors = [factor for factor in (2, 4, 8, 16) if min(output.width, output.height) // factor >= 1]
         if factors:
             output.build_overviews(factors, Resampling.average)
@@ -123,6 +127,25 @@ def build_regional_field(
     )
     # The GRIB grid is a spherical lat/lon grid; at this scale it is plotted as EPSG:4326.
     _write_field(destination, data, transform, "EPSG:4326", description)
+
+
+def build_classified_field(decoded: list, transform, destination: Path) -> None:
+    import numpy as np
+
+    estimate = np.ma.masked_array(sum(item[2] for item in decoded))
+    lower = sum(item[0] for item in decoded)
+    upper = sum(item[1] for item in decoded)
+    _write_field(
+        destination,
+        estimate,
+        transform,
+        "EPSG:4326",
+        "precipitation_total_accumulated_mm_class_estimate",
+        extra=(
+            (lower, "precipitation_total_accumulated_mm_lower_bound"),
+            (upper, "precipitation_total_accumulated_mm_upper_bound"),
+        ),
+    )
 
 
 def raster_bounds_and_maximum(path: Path) -> tuple[list[float], float]:

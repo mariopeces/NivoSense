@@ -1,13 +1,15 @@
 import json
+import tarfile
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
 from pipelines.weather_forecasts.config import COMMON_HORIZONS_HOURS
 from pipelines.weather_forecasts.cycles import select_latest_cycle
+from pipelines.weather_forecasts import aemet
 from pipelines.weather_forecasts.ecmwf import EcmwfClient
 from pipelines.weather_forecasts.gfs import accumulation_steps
 from pipelines.weather_forecasts.manifest import Field, ModelOutput, build_manifest
@@ -181,7 +183,13 @@ class ForecastPipelineTests(unittest.TestCase):
                 precipitation=field("ecmwf-tp", [-4.0, 36.0, -2.0, 38.5]),
                 snowfall=field("ecmwf-sf", [-4.0, 36.0, -2.0, 38.5]),
             )
-            payload = build_manifest((-4.0, 36.0, -2.0, 38.0), root, [gfs, ecmwf])
+            payload = build_manifest(
+                "test-region",
+                (-4.0, 36.0, -2.0, 38.0),
+                root,
+                [gfs, ecmwf],
+                [{"id": "weathernext", "name": "WeatherNext 3", "reason": "No access"}],
+            )
             schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
             Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
             self.assertEqual(payload["common_horizons_hours"], [24, 48, 72, 120])
@@ -193,10 +201,134 @@ class ForecastPipelineTests(unittest.TestCase):
                 self.assertTrue(horizon["snowfall"]["available"])
                 self.assertEqual(horizon["snowfall"]["units"], "mm")
                 self.assertEqual(horizon["snowfall"]["basis"], "water_equivalent")
+            self.assertEqual(payload["region"]["id"], "test-region")
             self.assertEqual(
-                {item["id"] for item in payload["unavailable_models"]},
-                {"weathernext", "aemet"},
+                [item["id"] for item in payload["unavailable_models"]], ["weathernext"]
             )
+
+    def test_manifest_marks_horizons_beyond_model_range_unavailable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            files, images = {}, {}
+            for horizon in (24, 48):
+                files[horizon] = root / f"f{horizon}.tif"
+                files[horizon].write_bytes(b"tif")
+                images[horizon] = root / f"f{horizon}.png"
+                images[horizon].write_bytes(b"png")
+            model = ModelOutput(
+                id="short",
+                name="Short range",
+                attribution="Test",
+                source="https://example.com/",
+                grid_degrees=0.025,
+                cycle=datetime(2026, 10, 18, 6, tzinfo=timezone.utc),
+                precipitation=Field(
+                    files,
+                    [0, 0, 1, 1],
+                    images,
+                    5.0,
+                    {24: 1.0, 48: 2.0},
+                    missing_reason="Forecast range is 48 h",
+                    note="Classified",
+                ),
+                snowfall_reason="No snowfall field",
+            )
+            payload = build_manifest("test-region", (0, 0, 1, 1), root, [model], [])
+            schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+            Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
+            horizons = payload["models"][0]["horizons"]
+            self.assertTrue(horizons["48"]["precipitation_total"]["available"])
+            self.assertEqual(horizons["48"]["precipitation_total"]["note"], "Classified")
+            self.assertEqual(
+                horizons["120"]["precipitation_total"],
+                {"available": False, "reason": "Forecast range is 48 h"},
+            )
+
+    def _aemet_legend(self):
+        return {
+            "Producto": "61",
+            "Lista RGBA": [
+                {"Valores": [10, ""], "RGBA": ["0", "153", "0", "255"]},
+                {"Valores": [2, 5], "RGBA": ["0", "204", "128", "255"]},
+                {"Valores": [0.5, 1.0], "RGBA": ["176", "224", "230", "255"]},
+                {"Valores": [0.0, 0.5], "RGBA": ["19", "49", "52", "0"]},
+            ],
+        }
+
+    def _aemet_raster(self, root, rows, name="field.tif"):
+        import numpy as np
+        import rasterio
+        from rasterio.transform import from_origin
+
+        array = np.array(rows, dtype="uint8").transpose(2, 0, 1)
+        path = root / name
+        with rasterio.open(
+            path,
+            "w",
+            driver="GTiff",
+            width=array.shape[2],
+            height=array.shape[1],
+            count=4,
+            dtype="uint8",
+            crs="EPSG:4326",
+            transform=from_origin(-4.0, 38.0, 0.5, 0.5),
+        ) as dataset:
+            dataset.write(array)
+            dataset.update_tags(ESCALA=str(self._aemet_legend()))
+        return path
+
+    def test_aemet_decode_assigns_nearest_legend_class(self):
+        try:
+            import numpy as np
+            import rasterio  # noqa: F401
+        except ImportError:
+            self.skipTest("Raster dependencies are not installed")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            transparent = [19, 49, 52, 0]
+            rows = [
+                [[0, 204, 128, 255], [3, 200, 130, 250], transparent, [0, 153, 0, 255]],
+                [[176, 224, 230, 255], [0, 0, 0, 10], [0, 150, 2, 255], transparent],
+            ]
+            data = self._aemet_raster(root, rows).read_bytes()
+            lower, upper, estimate, _, _ = aemet.decode_window(data, (-4.0, 37.0, -2.0, 38.0))
+            self.assertEqual(lower.tolist(), [[2, 2, 0, 10], [0.5, 0, 10, 0]])
+            self.assertEqual(upper.tolist(), [[5, 5, 0.5, 10], [1, 0.5, 10, 0.5]])
+            self.assertEqual(estimate.tolist(), [[3.5, 3.5, 0, 10], [0.75, 0, 10, 0]])
+
+    def test_aemet_decode_rejects_regions_outside_the_domain(self):
+        try:
+            import rasterio  # noqa: F401
+        except ImportError:
+            self.skipTest("Raster dependencies are not installed")
+
+        with tempfile.TemporaryDirectory() as directory:
+            data = self._aemet_raster(
+                Path(directory), [[[19, 49, 52, 0]] * 4] * 2
+            ).read_bytes()
+            with self.assertRaises(RuntimeError):
+                aemet.decode_window(data, (10.0, 40.0, 11.0, 41.0))
+
+    def test_aemet_archive_cycle_and_windows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "archive.tar.gz"
+            start = datetime(2026, 10, 18, 7, tzinfo=timezone.utc)
+            with tarfile.open(path, "w:gz") as archive:
+                for hour in range(48):
+                    valid = start + timedelta(hours=hour)
+                    stamp = valid.isoformat()
+                    for suffix in ("11.tif", "61_1HH.tif") + (
+                        ("61_6HH.tif",) if valid.hour % 6 == 0 else ()
+                    ):
+                        member = tarfile.TarInfo(f"down_{stamp}_{suffix}")
+                        archive.addfile(member)
+            with tarfile.open(path) as archive:
+                cycle = aemet.run_cycle(archive)
+                self.assertEqual(cycle, datetime(2026, 10, 18, 6, tzinfo=timezone.utc))
+                windows = aemet.precipitation_windows(archive, cycle)
+            self.assertEqual(sorted(windows), list(range(6, 49, 6)))
 
 
 if __name__ == "__main__":

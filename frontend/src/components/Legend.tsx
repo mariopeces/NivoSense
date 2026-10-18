@@ -79,6 +79,11 @@ export default function Legend({ layer, weatherOverlay }: Props) {
             {formatUtc(weatherOverlay.validAt)}
           </dd>
         </dl>
+        {weatherOverlay.note && (
+          <p className="mt-2 text-[10px] leading-snug text-amber-300/80">
+            {weatherOverlay.note}
+          </p>
+        )}
         <p className="mt-2 text-[10px] text-slate-600">{weatherOverlay.attribution}</p>
       </div>
     );
