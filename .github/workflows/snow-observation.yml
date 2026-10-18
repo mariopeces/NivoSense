@@ -1,0 +1,41 @@
+name: Update snow observation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "35 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-gfsc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check Copernicus credentials
+        env:
+          GFSC_ACCESS_TOKEN: ${{ secrets.GFSC_ACCESS_TOKEN }}
+          CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
+          CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
+        run: |
+          if [ -z "$GFSC_ACCESS_TOKEN" ] && { [ -z "$CDSE_CLIENT_ID" ] || [ -z "$CDSE_CLIENT_SECRET" ]; }; then
+            echo "Missing credentials: configure GFSC_ACCESS_TOKEN or CDSE_CLIENT_ID and CDSE_CLIENT_SECRET" >&2
+            exit 1
+          fi
+      - name: Fetch latest GFSC observation
+        env:
+          GFSC_ACCESS_TOKEN: ${{ secrets.GFSC_ACCESS_TOKEN }}
+          CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
+          CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
+        run: python scripts/fetch_snow_observation.py
+      - name: Upload static observation
+        uses: actions/upload-artifact@v4
+        with:
+          name: snow-observation-${{ github.run_id }}
+          path: data/generated/observations/sierra-nevada/latest/
+          if-no-files-found: error
+          retention-days: 14
