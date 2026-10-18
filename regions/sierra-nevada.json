@@ -3,6 +3,10 @@
   "name": "Sierra Nevada",
   "basins": "data/basins.geojson",
   "snow_model": {
-    "calibration_years": [2025]
+    "calibration_years": [2025],
+    "observation": {
+      "scenes_per_year": 48,
+      "min_gap_days": 5
+    }
   }
 }
