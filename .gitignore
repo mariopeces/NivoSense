@@ -46,6 +46,7 @@ ml/data/
 *.tsbuildinfo
 data/generated/
 data/flow/raw/
+weather-output/
 
 # Folders
 own
