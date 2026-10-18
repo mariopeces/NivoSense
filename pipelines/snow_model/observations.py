@@ -89,7 +89,7 @@ def reflectance_offset(item: dict) -> float:
     return 1000.0 if baseline >= 4.0 else 0.0
 
 
-def _read_band(href: str, fine: Grid, resampling: str):
+def _read_band(href: str, fine: Grid, resampling: str, band: int = 1):
     """Reads one band onto the fine grid, returning the array and a boolean coverage mask."""
     import rasterio
     from rasterio.enums import Resampling
@@ -107,7 +107,7 @@ def _read_band(href: str, fine: Grid, resampling: str):
                 height=fine.height,
                 resampling=method,
             ) as vrt:
-                array = vrt.read(1)
+                array = vrt.read(band)
             return array, np.ones(array.shape, dtype=bool)
 
         scale = source.res[0]
@@ -129,7 +129,7 @@ def _read_band(href: str, fine: Grid, resampling: str):
         out_rows = (row_stop - row_start) * factor
         out_cols = (col_stop - col_start) * factor
         block = source.read(
-            1,
+            band,
             window=Window(col_start, row_start, col_stop - col_start, row_stop - row_start),
             out_shape=(out_rows, out_cols),
             resampling=method,
@@ -177,6 +177,37 @@ def snow_mask(scene: Scene, fine: Grid) -> tuple[np.ndarray, np.ndarray]:
         snow |= tile_snow
         valid |= usable
     return snow, valid
+
+
+def true_colour(scene: Scene, fine: Grid, cache: Path) -> Path:
+    """Sentinel-2 true colour at 10 m for one acquisition day, as a cached JPEG."""
+    from PIL import Image
+    import rasterio
+
+    cache.mkdir(parents=True, exist_ok=True)
+    path = cache / f"s2-rgb-{fine.signature()}-{scene.day.isoformat()}.jpg"
+    if path.exists():
+        return path
+    jobs = [
+        (index, band, item["assets"]["visual"]["href"])
+        for index, item in enumerate(scene.items)
+        for band in (1, 2, 3)
+    ]
+    with rasterio.Env(**GDAL_OPTIONS):
+        with ThreadPoolExecutor(READ_THREADS) as pool:
+            results = list(pool.map(lambda job: _read_band(job[2], fine, "nearest", job[1]), jobs))
+    image = np.zeros((fine.height, fine.width, 3), dtype="uint8")
+    filled = np.zeros((fine.height, fine.width), dtype=bool)
+    for index in range(len(scene.items)):
+        channels = [
+            result[0] for job, result in zip(jobs, results) if job[0] == index
+        ]
+        tile = np.stack(channels, axis=-1)
+        usable = (tile.max(axis=-1) > 0) & ~filled
+        image[usable] = tile[usable]
+        filled |= usable
+    Image.fromarray(image, mode="RGB").save(path, quality=82, optimize=True)
+    return path
 
 
 def aggregate(snow: np.ndarray, valid: np.ndarray, factor: int) -> tuple[np.ndarray, np.ndarray]:

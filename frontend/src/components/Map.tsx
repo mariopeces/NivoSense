@@ -368,7 +368,7 @@ function setSnowLayer(map: maplibregl.Map, overlay: SnowOverlay | null) {
       type: "raster",
       source: "snow-model",
       paint: {
-        "raster-opacity": 0.88,
+        "raster-opacity": overlay.layer === "s2_true_colour" ? 1 : 0.88,
         "raster-fade-duration": 0,
         "raster-resampling": overlay.layer === "observed_snow_10m" ? "nearest" : "linear",
       },

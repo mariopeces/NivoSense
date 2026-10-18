@@ -50,6 +50,20 @@ const SNOW_GRADIENTS = {
 
 function SnowLegend({ overlay }: { overlay: SnowOverlay }) {
   const { info } = overlay;
+  if (overlay.layer === "s2_true_colour") {
+    return (
+      <div className={PANEL}>
+        <span className="text-[11px] uppercase tracking-[0.22em] text-slate-300">
+          Sentinel-2 true colour, 10 m
+        </span>
+        <p className="mt-2 text-[11px] tabular-nums text-slate-400">
+          {formatUtc(`${info.date}T11:00:00Z`).split(",")[0]} ·{" "}
+          {Math.round((info.valid_fraction ?? 0) * 100)} % clear of clouds
+        </p>
+        <p className="mt-2 text-[10px] leading-snug text-slate-600">{info.source}</p>
+      </div>
+    );
+  }
   if (overlay.layer === "observed_snow_10m") {
     return (
       <div className={PANEL}>

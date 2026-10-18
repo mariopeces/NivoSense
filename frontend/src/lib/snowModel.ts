@@ -1,8 +1,9 @@
 export const SNOW_MODEL_SCHEMA_VERSION = 1;
 
-export type SnowLayerId = "observed_snow_10m" | "swe" | "depth";
+export type SnowLayerId = "s2_true_colour" | "observed_snow_10m" | "swe" | "depth";
 
 export const SNOW_LAYERS: Array<{ id: SnowLayerId; label: string; title: string }> = [
+  { id: "s2_true_colour", label: "S2 RGB", title: "Sentinel-2 true colour at 10 m" },
   { id: "observed_snow_10m", label: "S2 10 m", title: "Observed snow cover, Sentinel-2 at 10 m" },
   { id: "swe", label: "SWE", title: "Modelled snow water equivalent" },
   { id: "depth", label: "Depth", title: "Modelled snow depth" },

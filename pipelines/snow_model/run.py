@@ -1,6 +1,7 @@
 import argparse
 import copy
 import json
+import shutil
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
@@ -342,6 +343,15 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
     if kept:
         scene, observed, usable, snow, valid = max(kept, key=lambda row: row[0].day)
         write_observation_png(output / "observed_snow_10m.png", snow, valid)
+        shutil.copy(obs.true_colour(scene, static.grid.refined(), cache), output / "s2_true_colour.jpg")
+        layers["s2_true_colour"] = {
+            "image": "s2_true_colour.jpg",
+            "corners": grid.lonlat_corners(),
+            "date": scene.day.isoformat(),
+            "resolution_m": 10,
+            "valid_fraction": round(float(valid.mean()), 3),
+            "source": "Sentinel-2 L2A true colour at 10 m (contains modified Copernicus Sentinel data)",
+        }
         layers["observed_snow_10m"] = {
             "image": "observed_snow_10m.png",
             "corners": grid.lonlat_corners(),
