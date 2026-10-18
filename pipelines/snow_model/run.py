@@ -286,6 +286,30 @@ def quantile_series(values: np.ndarray, weights: np.ndarray) -> dict:
     return {"p10": low, "p50": middle, "p90": high}
 
 
+def previous_season(static: Static, year: int, members: list, weights: np.ndarray, cache: Path, stamp: str):
+    """Median and range of snow water volume per basin for the last complete season, cached."""
+    path = cache / f"season-{static.region.id}-{year}-{stamp}.json"
+    if path.exists():
+        return json.loads(path.read_text(encoding="utf-8"))
+    prepared = prepare_year(static, year, cache)
+    if prepared is None:
+        return None
+    start, end, tables, domain = prepared
+    results = [simulate(domain, tables, member["parameters"], set(), False) for member in members]
+    swe = quantile_series(np.stack([r.basin_swe_hm3 for r in results]), weights)
+    payload = {
+        "year": year,
+        "start": start.isoformat(),
+        "dates": [day.isoformat() for day in tables.days],
+        "swe_hm3": {
+            key: np.round(value, 4).T.tolist() for key, value in swe.items()
+        },
+    }
+    cache.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return payload
+
+
 def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path) -> Path:
     region = load_region(region_file)
     settings = merged_settings(region)
@@ -387,6 +411,9 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
             results.append(
                 simulate(domain, tables, member["parameters"], set(observation_days), True)
             )
+        previous = previous_season(
+            static, year - 1, chosen, weights, cache, calibration["created_at"]
+        )
         log(f"Simulated {len(results)} members for {len(tables.days)} days")
 
         dates = [day.isoformat() for day in tables.days]
@@ -407,6 +434,20 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
                     "snow_area_km2": series(area),
                     "snowfall_hm3": series(snowfall),
                     "melt_hm3": series(melt),
+                    **(
+                        {
+                            "previous_season": {
+                                "year": previous["year"],
+                                "dates": previous["dates"],
+                                "swe_hm3": {
+                                    key: values[index]
+                                    for key, values in previous["swe_hm3"].items()
+                                },
+                            }
+                        }
+                        if previous
+                        else {}
+                    ),
                 },
             )
             basin["series"] = f"series/{basin['id']}.json"

@@ -66,6 +66,11 @@ export type BasinVolumeSeries = {
   snow_area_km2: Record<keyof Quantiles, number[]>;
   snowfall_hm3: Record<keyof Quantiles, number[]>;
   melt_hm3: Record<keyof Quantiles, number[]>;
+  previous_season?: {
+    year: number;
+    dates: string[];
+    swe_hm3: Record<keyof Quantiles, number[]>;
+  };
 };
 
 export type SnowOverlay = {

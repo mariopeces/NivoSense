@@ -25,7 +25,16 @@ type Props = {
   onClose: () => void;
 };
 
-function formatDate(value: string) {
+function formatMonth(value?: string) {
+  if (!value) return "";
+  return new Date(`${value}T00:00:00Z`).toLocaleDateString("en-GB", {
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
+function formatDate(value?: string) {
+  if (!value) return "";
   return new Date(`${value}T00:00:00Z`).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -44,12 +53,20 @@ export default function SnowVolumeChart({
 }: Props) {
   const model = manifest?.model;
   const calibration = model?.calibration;
-  const data =
-    series?.dates.map((date, index) => ({
-      date,
-      band: [series.swe_hm3.p10[index], series.swe_hm3.p90[index]],
-      median: series.swe_hm3.p50[index],
-    })) ?? [];
+  const previous = series?.previous_season;
+  const length = Math.max(series?.dates.length ?? 0, previous?.dates.length ?? 0);
+  const data = Array.from({ length }, (_, index) => ({
+    day: index,
+    date: series?.dates[index] ?? previous?.dates[index] ?? "",
+    band:
+      series && index < series.dates.length
+        ? [series.swe_hm3.p10[index], series.swe_hm3.p90[index]]
+        : undefined,
+    median: series && index < series.dates.length ? series.swe_hm3.p50[index] : undefined,
+    previous:
+      previous && index < previous.dates.length ? previous.swe_hm3.p50[index] : undefined,
+  }));
+  const monthStarts = data.filter((point) => point.date.endsWith("-01")).map((point) => point.day);
   const latest = basin?.latest;
   const message = loading
     ? "Loading snow volume"
@@ -113,12 +130,14 @@ export default function SnowVolumeChart({
             <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis
-                dataKey="date"
+                dataKey="day"
+                type="number"
+                domain={[0, Math.max(length - 1, 1)]}
+                ticks={monthStarts}
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
-                minTickGap={36}
-                tickFormatter={formatDate}
+                tickFormatter={(day) => formatMonth(data[day]?.date)}
               />
               <YAxis
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
@@ -133,7 +152,7 @@ export default function SnowVolumeChart({
                   border: "1px solid rgba(255,255,255,0.1)",
                   fontSize: 12,
                 }}
-                labelFormatter={(value) => formatDate(String(value))}
+                labelFormatter={(day) => formatDate(data[Number(day)]?.date)}
                 formatter={(value, name) =>
                   Array.isArray(value)
                     ? [`${Number(value[0]).toFixed(1)} to ${Number(value[1]).toFixed(1)} hm3`, "p10 to p90"]
@@ -148,6 +167,17 @@ export default function SnowVolumeChart({
                 fillOpacity={0.22}
                 isAnimationActive={false}
               />
+              {previous && (
+                <Line
+                  dataKey="previous"
+                  name={`Median ${previous.year}/${String(previous.year + 1).slice(2)}`}
+                  stroke="#94a3b8"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              )}
               <Line
                 dataKey="median"
                 name="Median"
