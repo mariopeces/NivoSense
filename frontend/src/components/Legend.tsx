@@ -1,9 +1,11 @@
 import type { LayerMode } from "./LeftRail";
+import type { SnowOverlay } from "../lib/snowModel";
 import type { WeatherOverlay, WeatherVariable } from "../lib/weather";
 
 type Props = {
   layer: LayerMode;
   weatherOverlay: WeatherOverlay | null;
+  snowOverlay: SnowOverlay | null;
 };
 
 const PANEL =
@@ -41,7 +43,67 @@ function formatAge(runAt: string) {
   return hours < 48 ? `${hours} h` : `${Math.round(hours / 24)} d`;
 }
 
-export default function Legend({ layer, weatherOverlay }: Props) {
+const SNOW_GRADIENTS = {
+  swe: "linear-gradient(to right, #142163, #2f61d6, #60a5fa, #bae6fd, #ffffff)",
+  depth: "linear-gradient(to right, #3c2878, #6366f1, #81b4fa, #cfe9fe, #ffffff)",
+};
+
+function SnowLegend({ overlay }: { overlay: SnowOverlay }) {
+  const { info } = overlay;
+  if (overlay.layer === "observed_snow_10m") {
+    return (
+      <div className={PANEL}>
+        <span className="text-[11px] uppercase tracking-[0.22em] text-slate-300">
+          Observed snow, 10 m
+        </span>
+        <div className="mt-2.5 flex items-center gap-3 text-[11px] text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-cyan-300" /> Snow
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-slate-500/60" /> Cloud or no data
+          </span>
+        </div>
+        <p className="mt-2 text-[11px] tabular-nums text-slate-400">
+          {formatUtc(`${info.date}T11:00:00Z`).split(",")[0]} ·{" "}
+          {Math.round((info.valid_fraction ?? 0) * 100)} % clear ·{" "}
+          {((info.snow_fraction_of_valid ?? 0) * 100).toFixed(1)} % of it snow
+        </p>
+        <p className="mt-2 text-[10px] leading-snug text-slate-600">{info.source}</p>
+      </div>
+    );
+  }
+  const unit = overlay.layer === "swe" ? "mm" : "m";
+  const title = overlay.layer === "swe" ? "Snow water equivalent" : "Snow depth";
+  return (
+    <div className={PANEL}>
+      <span className="text-[11px] uppercase tracking-[0.22em] text-slate-300">{title}</span>
+      <div
+        className="mt-2.5 h-2.5 w-full rounded-full"
+        style={{ background: SNOW_GRADIENTS[overlay.layer] }}
+      />
+      <div className="mt-2 flex justify-between text-[11px] tabular-nums text-slate-500">
+        <span>
+          {info.minimum_visible} {unit}
+        </span>
+        <span>
+          {info.scale_max} {unit}
+        </span>
+      </div>
+      <p className="mt-2 text-[11px] tabular-nums text-slate-400">
+        Weighted ensemble mean, {formatUtc(`${info.date}T00:00:00Z`).split(",")[0]} (UTC)
+      </p>
+      <p className="mt-1 text-[10px] leading-snug text-amber-300/80">
+        Experimental: magnitudes are not verified against in-situ measurements.
+      </p>
+    </div>
+  );
+}
+
+export default function Legend({ layer, weatherOverlay, snowOverlay }: Props) {
+  if (!weatherOverlay && snowOverlay) {
+    return <SnowLegend overlay={snowOverlay} />;
+  }
   if (weatherOverlay) {
     const style = WEATHER_STYLE[weatherOverlay.variable];
     return (

@@ -10,7 +10,7 @@ on:
       - "backend/tests/**"
       - ".github/workflows/pages.yml"
   workflow_run:
-    workflows: ["Update snow observation", "Weather forecasts"]
+    workflows: ["Update snow observation", "Weather forecasts", "Snow model"]
     types: [completed]
     branches: [main]
   schedule:
@@ -20,6 +20,7 @@ on:
 permissions:
   contents: read
   actions: read
+  issues: write
   pages: write
   id-token: write
 
@@ -49,37 +50,38 @@ jobs:
       - name: Test webcam catalog
         run: python -m unittest discover -s backend/tests -v
 
-      - name: Restore latest snow observation
+      - name: Restore the latest products
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          run_id=$(gh run list --workflow snow-observation.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')
-          if [ -z "$run_id" ]; then
-            echo "::notice::No successful snow observation run; publishing without it"
-            exit 0
+          # Walks back through recent successful runs until one still has its artifact.
+          restore() {
+            for run_id in $(gh run list --workflow "$1" --branch main --status success --limit 10 --json databaseId --jq '.[].databaseId'); do
+              rm -rf "$3"
+              if gh run download "$run_id" --name "${2/RUN_ID/$run_id}" --dir "$3" 2>/dev/null; then
+                echo "Restored $1 run $run_id"
+                return 0
+              fi
+            done
+            rm -rf "$3"
+            echo "::warning::No usable artifact from $1; publishing without it"
+            return 0
+          }
+          restore snow-observation.yml "snow-observation-RUN_ID" observation-artifact
+          restore weather-forecasts.yml "weather-forecasts" weather-artifact
+          restore snow-model.yml "snow-model" snow-artifact
+          if [ -d observation-artifact ]; then
+            mkdir -p frontend/public/data/observations/latest
+            cp observation-artifact/manifest.json observation-artifact/snow_cover.png frontend/public/data/observations/latest/
           fi
-          if ! gh run download "$run_id" --name "snow-observation-$run_id" --dir observation-artifact; then
-            echo "::warning::Snow observation artifact of run $run_id is unavailable; publishing without it"
-            exit 0
+          if [ -d weather-artifact ]; then
+            rm -rf frontend/public/weather
+            cp -R weather-artifact frontend/public/weather
           fi
-          mkdir -p frontend/public/data/observations/latest
-          cp observation-artifact/manifest.json observation-artifact/snow_cover.png frontend/public/data/observations/latest/
-
-      - name: Restore latest weather forecast
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          run_id=$(gh run list --workflow weather-forecasts.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')
-          if [ -z "$run_id" ]; then
-            echo "::notice::No successful weather forecast run; publishing without it"
-            exit 0
+          if [ -d snow-artifact ]; then
+            rm -rf frontend/public/data/snow-model
+            cp -R snow-artifact frontend/public/data/snow-model
           fi
-          if ! gh run download "$run_id" --name weather-forecasts --dir weather-artifact; then
-            echo "::warning::Weather artifact of run $run_id is unavailable; publishing without it"
-            exit 0
-          fi
-          rm -rf frontend/public/weather
-          cp -R weather-artifact frontend/public/weather
 
       - name: Refresh webcam catalog
         continue-on-error: true
@@ -96,13 +98,24 @@ jobs:
       - name: Validate static artifact
         run: |
           test -f frontend/dist/index.html
-          for f in data/webcams.json data/basins.geojson weather/manifest.json; do
+          for f in data/webcams.json data/basins.geojson weather/manifest.json data/snow-model/manifest.json; do
             python -m json.tool "frontend/dist/$f" >/dev/null
           done
           if [ -f frontend/dist/data/observations/latest/manifest.json ]; then
             python -m json.tool frontend/dist/data/observations/latest/manifest.json >/dev/null
             test -f frontend/dist/data/observations/latest/snow_cover.png
           fi
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+          root = Path("frontend/dist/data/snow-model")
+          manifest = json.loads((root / "manifest.json").read_text())
+          for layer in manifest["layers"].values():
+              assert (root / layer["image"]).is_file(), layer["image"]
+          for basin in manifest["basins"]:
+              if "series" in basin:
+                  json.loads((root / basin["series"]).read_text())
+          EOF
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
@@ -111,3 +124,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Report a failed scheduled run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

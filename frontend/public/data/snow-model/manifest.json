@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "region": null,
+  "generated_at": null,
+  "hydrological_year": null,
+  "model": {
+    "status": "unavailable",
+    "reasons": ["The snow model has not run yet"]
+  },
+  "basins": [],
+  "layers": {},
+  "monitoring": []
+}

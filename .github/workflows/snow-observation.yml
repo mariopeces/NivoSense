@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: snow-observation
@@ -23,16 +24,20 @@ jobs:
       - name: Test observation pipeline
         run: python -m unittest tests.test_fetch_snow_observation -v
       - name: Check Copernicus credentials
+        id: credentials
         env:
           GFSC_ACCESS_TOKEN: ${{ secrets.GFSC_ACCESS_TOKEN }}
           CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
           CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
         run: |
           if [ -z "$GFSC_ACCESS_TOKEN" ] && { [ -z "$CDSE_CLIENT_ID" ] || [ -z "$CDSE_CLIENT_SECRET" ]; }; then
-            echo "Missing credentials: configure GFSC_ACCESS_TOKEN or CDSE_CLIENT_ID and CDSE_CLIENT_SECRET" >&2
-            exit 1
+            echo "::notice::GFSC skipped: configure GFSC_ACCESS_TOKEN or CDSE_CLIENT_ID and CDSE_CLIENT_SECRET to enable it"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Fetch latest GFSC observation
+        if: steps.credentials.outputs.configured == 'true'
         env:
           GFSC_ACCESS_TOKEN: ${{ secrets.GFSC_ACCESS_TOKEN }}
           CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
@@ -43,9 +48,24 @@ jobs:
           GFSC_COLLECTION: ${{ vars.GFSC_COLLECTION }}
         run: python scripts/fetch_snow_observation.py
       - name: Upload static observation
+        if: steps.credentials.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: snow-observation-${{ github.run_id }}
           path: data/generated/observations/sierra-nevada/latest/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Report a failed scheduled run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

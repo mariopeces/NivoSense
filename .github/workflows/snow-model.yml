@@ -1,0 +1,81 @@
+name: Snow model
+
+on:
+  schedule:
+    - cron: "40 7 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "operate publishes the daily products; calibrate reruns the ensemble weighting"
+        type: choice
+        options: [operate, calibrate]
+        default: operate
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: snow-model
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pipelines/snow_model/requirements.txt
+      - run: pip install -r pipelines/snow_model/requirements.txt
+      - run: python -m unittest discover -s tests/snow_model -t . -v
+
+      - name: Restore Sentinel-2 and forcing cache
+        uses: actions/cache@v4
+        with:
+          path: snow-cache
+          key: snow-cache-${{ github.run_id }}
+          restore-keys: snow-cache-
+
+      - name: Calibrate the ensemble
+        if: github.event.inputs.mode == 'calibrate'
+        run: python -m pipelines.snow_model.run calibrate --cache snow-cache --output snow-calibration
+
+      - name: Publish the calibration for review
+        if: github.event.inputs.mode == 'calibrate'
+        uses: actions/upload-artifact@v4
+        with:
+          name: snow-calibration
+          path: snow-calibration/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Run the operational model
+        if: github.event.inputs.mode != 'calibrate'
+        run: python -m pipelines.snow_model.run operate --cache snow-cache --output snow-output
+
+      - name: Publish the products
+        if: github.event.inputs.mode != 'calibrate'
+        uses: actions/upload-artifact@v4
+        with:
+          name: snow-model
+          path: snow-output/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Report a failed scheduled run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

@@ -4,6 +4,7 @@ import type { StyleSpecification } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
+import type { SnowOverlay } from "../lib/snowModel";
 import type { WeatherOverlay } from "../lib/weather";
 
 maplibregl.setWorkerUrl(workerUrl);
@@ -57,6 +58,7 @@ type Props = {
     bbox: [number, number, number, number];
   } | null;
   weatherOverlay: WeatherOverlay | null;
+  snowOverlay: SnowOverlay | null;
   onBasinSelect: (id: string | null) => void;
   webcams: Webcam[];
   selectedWebcamId: string | null;
@@ -69,6 +71,7 @@ export default function Map({
   ndsiTileUrl,
   ndsiImage,
   weatherOverlay,
+  snowOverlay,
   onBasinSelect,
   webcams,
   selectedWebcamId,
@@ -81,6 +84,7 @@ export default function Map({
   const ndsiTileUrlRef = useRef<string | null>(null);
   const ndsiImageRef = useRef<Props["ndsiImage"]>(null);
   const weatherOverlayRef = useRef<WeatherOverlay | null>(null);
+  const snowOverlayRef = useRef<SnowOverlay | null>(null);
   const onBasinSelectRef = useRef(onBasinSelect);
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
@@ -105,6 +109,10 @@ export default function Map({
   useEffect(() => {
     weatherOverlayRef.current = weatherOverlay;
   }, [weatherOverlay]);
+
+  useEffect(() => {
+    snowOverlayRef.current = snowOverlay;
+  }, [snowOverlay]);
 
   useEffect(() => {
     onBasinSelectRef.current = onBasinSelect;
@@ -138,6 +146,7 @@ export default function Map({
     const setupLayers = () => {
       setNdsiLayer(map, ndsiTileUrlRef.current, ndsiImageRef.current);
       setWeatherLayer(map, weatherOverlayRef.current);
+      setSnowLayer(map, snowOverlayRef.current);
       if (basinsFCRef.current) {
         addBasinsLayers(map, basinsFCRef.current);
         applySelected(map, selectedRef.current);
@@ -183,6 +192,12 @@ export default function Map({
     if (!map || !map.isStyleLoaded()) return;
     setWeatherLayer(map, weatherOverlay);
   }, [weatherOverlay]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    setSnowLayer(map, snowOverlay);
+  }, [snowOverlay]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -326,6 +341,40 @@ function attachWebcamInteractions(
   map.on("mouseleave", "webcams", () => {
     map.getCanvas().style.cursor = "";
   });
+}
+
+function setSnowLayer(map: maplibregl.Map, overlay: SnowOverlay | null) {
+  if (map.getLayer("snow-model")) {
+    map.removeLayer("snow-model");
+  }
+  if (map.getSource("snow-model")) {
+    map.removeSource("snow-model");
+  }
+  if (!overlay) return;
+
+  map.addSource("snow-model", {
+    type: "image",
+    url: overlay.imageUrl,
+    coordinates: overlay.corners as [
+      [number, number],
+      [number, number],
+      [number, number],
+      [number, number],
+    ],
+  });
+  map.addLayer(
+    {
+      id: "snow-model",
+      type: "raster",
+      source: "snow-model",
+      paint: {
+        "raster-opacity": 0.88,
+        "raster-fade-duration": 0,
+        "raster-resampling": overlay.layer === "observed_snow_10m" ? "nearest" : "linear",
+      },
+    },
+    map.getLayer("basins-fill") ? "basins-fill" : undefined,
+  );
 }
 
 function setWeatherLayer(map: maplibregl.Map, overlay: WeatherOverlay | null) {

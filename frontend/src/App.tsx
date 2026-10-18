@@ -9,9 +9,18 @@ import LeftRail, {
 import BasinChart from "./components/BasinChart";
 import RiverFlowChart from "./components/RiverFlowChart";
 import Legend from "./components/Legend";
+import SnowLayerPicker from "./components/SnowLayerPicker";
+import SnowVolumeChart from "./components/SnowVolumeChart";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { staticObservationScene } from "./lib/snowObservation";
+import {
+  SNOW_MODEL_SCHEMA_VERSION,
+  snowOverlay,
+  type BasinVolumeSeries,
+  type SnowLayerId,
+  type SnowModelManifest,
+} from "./lib/snowModel";
 import {
   WEATHER_SCHEMA_VERSION,
   weatherField,
@@ -79,13 +88,65 @@ export default function App() {
   const [weatherVariable, setWeatherVariable] =
     useState<WeatherVariable>("precipitation_total");
   const [weatherLoading, setWeatherLoading] = useState(true);
+  const [snowManifest, setSnowManifest] = useState<SnowModelManifest | null>(null);
+  const [snowLoading, setSnowLoading] = useState(true);
+  const [snowLayerId, setSnowLayerId] = useState<SnowLayerId | null>(null);
+  const [volumeSeries, setVolumeSeries] = useState<BasinVolumeSeries | null>(null);
+  const [volumeLoading, setVolumeLoading] = useState(false);
+  const [volumeError, setVolumeError] = useState<string | null>(null);
 
   const apiUrl =
     import.meta.env.VITE_API_URL ??
     (import.meta.env.DEV ? "http://localhost:8080" : "");
+  const snowManifestUrl = `${import.meta.env.BASE_URL}data/snow-model/manifest.json`;
   const weatherManifestUrl =
     import.meta.env.VITE_WEATHER_MANIFEST_URL ??
     `${import.meta.env.BASE_URL}weather/manifest.json`;
+
+  useEffect(() => {
+    fetch(snowManifestUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((payload: SnowModelManifest) => {
+        if (payload.schema_version !== SNOW_MODEL_SCHEMA_VERSION) {
+          throw new Error(`Unsupported snow model manifest version ${payload.schema_version}`);
+        }
+        setSnowManifest(payload);
+      })
+      .catch((error) => console.error("Failed to load the snow model:", error))
+      .finally(() => setSnowLoading(false));
+  }, [snowManifestUrl]);
+
+  useEffect(() => {
+    const seriesPath = snowManifest?.basins.find((item) => item.id === selectedBasinId)?.series;
+    setVolumeSeries(null);
+    setVolumeError(null);
+    if (!seriesPath) {
+      setVolumeLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setVolumeLoading(true);
+    fetch(new URL(seriesPath, new URL(snowManifestUrl, window.location.href)), {
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((payload: BasinVolumeSeries) => setVolumeSeries(payload))
+      .catch((error) => {
+        if (error.name === "AbortError") return;
+        console.error("Failed to load the snow volume series:", error);
+        setVolumeError("Could not load the snow volume");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setVolumeLoading(false);
+      });
+    return () => controller.abort();
+  }, [snowManifest, selectedBasinId, snowManifestUrl]);
 
   useEffect(() => {
     fetch(weatherManifestUrl)
@@ -347,6 +408,8 @@ export default function App() {
     weatherManifestUrl,
   );
 
+  const activeSnowOverlay = snowOverlay(snowManifest, snowLayerId, snowManifestUrl);
+
   const handleWeatherModelChange = (modelId: string) => {
     setWeatherModelId(modelId);
     const model = weatherManifest?.models.find((item) => item.id === modelId);
@@ -368,6 +431,7 @@ export default function App() {
         ndsiTileUrl={ndsiTileUrl}
         ndsiImage={ndsiImage}
         weatherOverlay={precipitationOverlay}
+        snowOverlay={activeSnowOverlay}
         onBasinSelect={handleBasinSelect}
         webcams={webcams}
         selectedWebcamId={selectedWebcamId}
@@ -416,9 +480,32 @@ export default function App() {
         onWaterTabChange={setWaterTab}
       />
 
-      <Legend layer={layer} weatherOverlay={precipitationOverlay} />
+      <SnowLayerPicker
+        manifest={snowManifest}
+        loading={snowLoading}
+        selected={snowLayerId}
+        onChange={setSnowLayerId}
+      />
 
-      {showSnowChart && selectedBasin && (
+      <Legend
+        layer={layer}
+        weatherOverlay={precipitationOverlay}
+        snowOverlay={activeSnowOverlay}
+      />
+
+      {showSnowChart && selectedBasin && !apiUrl && (
+        <SnowVolumeChart
+          basin={snowManifest?.basins.find((item) => item.id === selectedBasin.id) ?? null}
+          basinName={selectedBasin.name}
+          manifest={snowManifest}
+          series={volumeSeries}
+          loading={volumeLoading || snowLoading}
+          error={volumeError}
+          onClose={handleClose}
+        />
+      )}
+
+      {showSnowChart && selectedBasin && apiUrl && (
         <BasinChart
           basinName={selectedBasin.name}
           series={basinSeries}

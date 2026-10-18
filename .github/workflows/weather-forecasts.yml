@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: weather-forecasts
@@ -32,3 +33,17 @@ jobs:
           path: weather-output/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Report a failed scheduled run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

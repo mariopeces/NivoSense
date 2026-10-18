@@ -1,5 +1,8 @@
 {
   "id": "sierra-nevada",
   "name": "Sierra Nevada",
-  "basins": "data/basins.geojson"
+  "basins": "data/basins.geojson",
+  "snow_model": {
+    "calibration_years": [2025]
+  }
 }
