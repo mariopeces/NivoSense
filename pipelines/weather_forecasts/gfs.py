@@ -7,21 +7,9 @@ NOMADS_FILTER_URL = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25.pl"
 
 
 def accumulation_steps(horizon_hours: int) -> tuple[int, ...]:
-    if horizon_hours <= 0 or horizon_hours > 384:
-        raise ValueError("GFS horizon must be between 1 and 384 hours")
-    if horizon_hours <= 120 and horizon_hours % 3:
-        raise ValueError("Horizon must align with the 3-hour accumulation windows")
-    if 120 < horizon_hours <= 240 and (horizon_hours - 120) % 3:
-        raise ValueError("Horizon must align with the 3-hour accumulation windows")
-    if horizon_hours > 240 and (horizon_hours - 240) % 12:
-        raise ValueError("Horizon must align with the 12-hour accumulation windows")
-
-    steps = list(range(3, min(horizon_hours, 120) + 1, 3))
-    if horizon_hours > 120:
-        steps.extend(range(123, min(horizon_hours, 240) + 1, 3))
-    if horizon_hours > 240:
-        steps.extend(range(252, horizon_hours + 1, 12))
-    return tuple(steps)
+    if horizon_hours <= 0 or horizon_hours > 120 or horizon_hours % 6:
+        raise ValueError("Horizon must be a multiple of 6 hours up to 120 hours")
+    return tuple(range(6, horizon_hours + 1, 6))
 
 
 class GfsClient:

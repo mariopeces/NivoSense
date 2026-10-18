@@ -12,6 +12,11 @@ import Legend from "./components/Legend";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { staticObservationScene } from "./lib/snowObservation";
+import {
+  weatherOverlay,
+  type WeatherHorizon,
+  type WeatherManifest,
+} from "./lib/weather";
 import type {
   Basin,
   BasinSeries,
@@ -65,10 +70,27 @@ export default function App() {
   const [webcams, setWebcams] = useState<Webcam[]>([]);
   const [webcamsLoading, setWebcamsLoading] = useState(true);
   const [webcamsError, setWebcamsError] = useState<string | null>(null);
+  const [weatherManifest, setWeatherManifest] = useState<WeatherManifest | null>(null);
+  const [weatherHorizon, setWeatherHorizon] = useState<WeatherHorizon | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
 
   const apiUrl =
     import.meta.env.VITE_API_URL ??
     (import.meta.env.DEV ? "http://localhost:8080" : "");
+  const weatherManifestUrl =
+    import.meta.env.VITE_WEATHER_MANIFEST_URL ??
+    `${import.meta.env.BASE_URL}weather/manifest.json`;
+
+  useEffect(() => {
+    fetch(weatherManifestUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((payload: WeatherManifest) => setWeatherManifest(payload))
+      .catch((error) => console.error("Failed to load weather forecasts:", error))
+      .finally(() => setWeatherLoading(false));
+  }, [weatherManifestUrl]);
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/basins.geojson`)
@@ -291,6 +313,11 @@ export default function App() {
     selectedObservation?.image_url && selectedObservation.image_bbox
       ? { url: selectedObservation.image_url, bbox: selectedObservation.image_bbox }
       : null;
+  const precipitationOverlay = weatherOverlay(
+    weatherManifest,
+    weatherHorizon,
+    weatherManifestUrl,
+  );
 
   const showFlowChart =
     selectedRiver !== null && waterTab === "flow";
@@ -304,6 +331,7 @@ export default function App() {
         selectedBasinId={selectedBasinId}
         ndsiTileUrl={ndsiTileUrl}
         ndsiImage={ndsiImage}
+        weatherOverlay={precipitationOverlay}
         onBasinSelect={handleBasinSelect}
         webcams={webcams}
         selectedWebcamId={selectedWebcamId}
@@ -314,7 +342,14 @@ export default function App() {
         observations={observations}
         predictions={predictions}
         selectedDate={selectedObservationDate}
-        onDateChange={setSelectedObservationDate}
+        onDateChange={(date) => {
+          setSelectedObservationDate(date);
+          setWeatherHorizon(null);
+        }}
+        weatherManifest={weatherManifest}
+        weatherLoading={weatherLoading}
+        weatherHorizon={weatherHorizon}
+        onWeatherHorizonChange={setWeatherHorizon}
       />
 
       <LeftRail
@@ -341,7 +376,7 @@ export default function App() {
         onWaterTabChange={setWaterTab}
       />
 
-      <Legend layer={layer} />
+      <Legend layer={layer} weatherOverlay={precipitationOverlay} />
 
       {showSnowChart && selectedBasin && (
         <BasinChart

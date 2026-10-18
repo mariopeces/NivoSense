@@ -4,19 +4,24 @@
   "required": ["schema_version", "generated_at", "region", "common_horizons_hours", "models"],
   "properties": {
     "schema_version": { "const": 1 },
-    "generated_at": { "type": "string", "format": "date-time" },
+    "generated_at": { "type": ["string", "null"], "format": "date-time" },
     "region": {
-      "type": "object",
-      "required": ["id", "bbox"],
-      "properties": {
-        "id": { "type": "string" },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "maxItems": 4,
-          "items": { "type": "number" }
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["id", "bbox"],
+          "properties": {
+            "id": { "type": "string" },
+            "bbox": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": { "type": "number" }
+            }
+          }
         }
-      }
+      ]
     },
     "common_horizons_hours": {
       "type": "array",
@@ -26,7 +31,7 @@
     },
     "models": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": {
         "type": "object",
         "required": ["id", "run_at", "source", "grid_degrees", "horizons"],

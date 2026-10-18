@@ -18,6 +18,14 @@ SCHEMA = Path("pipelines/weather_forecasts/manifest.schema.json")
 
 
 class ForecastPipelineTests(unittest.TestCase):
+    def test_empty_published_manifest_matches_schema(self):
+        schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+        payload = json.loads(
+            Path("frontend/public/weather/manifest.json").read_text(encoding="utf-8")
+        )
+        Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
+        self.assertEqual(payload["models"], [])
+
     def test_common_horizons(self):
         self.assertEqual(COMMON_HORIZONS_HOURS, (24, 48, 72, 120))
 
@@ -31,10 +39,10 @@ class ForecastPipelineTests(unittest.TestCase):
         selected = select_latest_cycle(now, complete.__contains__)
         self.assertEqual(selected, datetime(2026, 10, 18, 6, tzinfo=timezone.utc))
 
-    def test_accumulation_steps_cover_each_three_hour_window(self):
-        self.assertEqual(accumulation_steps(24), tuple(range(3, 25, 3)))
-        self.assertEqual(accumulation_steps(120), tuple(range(3, 121, 3)))
-        self.assertEqual(sum(3 for _ in accumulation_steps(120)), 120)
+    def test_accumulation_steps_use_disjoint_six_hour_windows(self):
+        self.assertEqual(accumulation_steps(24), (6, 12, 18, 24))
+        self.assertEqual(accumulation_steps(120), tuple(range(6, 121, 6)))
+        self.assertEqual(sum(6 for _ in accumulation_steps(120)), 120)
 
     def test_accumulated_raster_sums_intervals(self):
         try:
@@ -72,17 +80,23 @@ class ForecastPipelineTests(unittest.TestCase):
             root = Path(directory)
             precipitation = {}
             phase = {}
+            visualization = {}
             for horizon in COMMON_HORIZONS_HOURS:
                 precipitation[horizon] = root / f"precip-{horizon}.tif"
                 precipitation[horizon].write_bytes(f"precip-{horizon}".encode())
                 phase[horizon] = root / f"phase-{horizon}.grib2"
                 phase[horizon].write_bytes(f"phase-{horizon}".encode())
+                visualization[horizon] = root / f"precip-{horizon}.png"
+                visualization[horizon].write_bytes(f"image-{horizon}".encode())
             payload = build_manifest(
                 datetime(2026, 10, 18, 6, tzinfo=timezone.utc),
                 (-4.0, 36.0, -2.0, 38.0),
                 root,
                 precipitation,
                 phase,
+                visualization,
+                [-4.0, 36.0, -2.0, 38.0],
+                42.0,
             )
             schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
             Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
@@ -90,6 +104,10 @@ class ForecastPipelineTests(unittest.TestCase):
             for horizon in payload["models"][0]["horizons"].values():
                 self.assertTrue(horizon["precipitation_total"]["available"])
                 self.assertFalse(horizon["snowfall"]["available"])
+                self.assertEqual(
+                    horizon["precipitation_total"]["visualization"]["scale_max_mm"],
+                    42.0,
+                )
 
 
 if __name__ == "__main__":

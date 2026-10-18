@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "../lib/icons";
 import type { ObservationScene, PredictionScene } from "../lib/types";
+import {
+  WEATHER_HORIZONS,
+  type WeatherHorizon,
+  type WeatherManifest,
+} from "../lib/weather";
 
 type Scene = { date: string; isPrediction: boolean };
 
@@ -9,21 +14,21 @@ type Props = {
   predictions: PredictionScene[];
   selectedDate: string | null;
   onDateChange: (date: string | null) => void;
+  weatherManifest: WeatherManifest | null;
+  weatherLoading: boolean;
+  weatherHorizon: WeatherHorizon | null;
+  onWeatherHorizonChange: (horizon: WeatherHorizon | null) => void;
 };
-
-const JUMPS = [
-  { label: "24h", days: 1, disabled: true },
-  { label: "48h", days: 2, disabled: true },
-  { label: "72h", days: 3, disabled: true },
-  { label: "7d", days: 7, disabled: false },
-  { label: "1mo", days: 30, disabled: true },
-];
 
 export default function TopBanner({
   observations,
   predictions,
   selectedDate,
   onDateChange,
+  weatherManifest,
+  weatherLoading,
+  weatherHorizon,
+  onWeatherHorizonChange,
 }: Props) {
   const scenes: Scene[] = useMemo(() => {
     const obs = observations.map((o) => ({ date: o.date, isPrediction: false }));
@@ -54,10 +59,11 @@ export default function TopBanner({
         onChange={onDateChange}
       />
 
-      <JumpPills
-        scenes={scenes}
-        selectedDate={selectedDate}
-        onChange={onDateChange}
+      <WeatherPills
+        manifest={weatherManifest}
+        loading={weatherLoading}
+        selected={weatherHorizon}
+        onChange={onWeatherHorizonChange}
       />
 
       <div className="ml-auto flex items-center gap-3">
@@ -144,27 +150,45 @@ function DateNavigator({
   );
 }
 
-function JumpPills({
-  scenes,
-  selectedDate,
+function WeatherPills({
+  manifest,
+  loading,
+  selected,
   onChange,
 }: {
-  scenes: Scene[];
-  selectedDate: string | null;
-  onChange: (date: string | null) => void;
+  manifest: WeatherManifest | null;
+  loading: boolean;
+  selected: WeatherHorizon | null;
+  onChange: (horizon: WeatherHorizon | null) => void;
 }) {
+  const model = manifest?.models.find((item) => item.id === "gfs");
   return (
     <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/60 p-1">
-      {JUMPS.map((jump) => {
-        const target = nextAvailableDate(scenes, selectedDate, jump.days);
+      <span className="px-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
+        {loading ? "Weather..." : model ? "GFS precip" : "Weather unavailable"}
+      </span>
+      {WEATHER_HORIZONS.map((horizon) => {
+        const available = Boolean(
+          model?.horizons[String(horizon)]?.precipitation_total.available,
+        );
         return (
           <button
-            key={jump.label}
-            onClick={() => !jump.disabled && onChange(target)}
-            disabled={jump.disabled || !target || target === selectedDate}
-            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium tabular-nums text-slate-400 transition hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-35"
+            key={horizon}
+            onClick={() => onChange(selected === horizon ? null : horizon)}
+            disabled={!available}
+            aria-pressed={selected === horizon}
+            title={
+              available
+                ? model?.horizons[String(horizon)]?.valid_at
+                : "Forecast not generated yet"
+            }
+            className={`rounded-full px-3 py-1.5 text-[13px] font-medium tabular-nums transition disabled:cursor-not-allowed disabled:opacity-25 ${
+              selected === horizon
+                ? "bg-cyan-300 text-slate-950"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
           >
-            {jump.label}
+            {horizon === 120 ? "5d" : `${horizon}h`}
           </button>
         );
       })}
@@ -303,17 +327,6 @@ function SceneStatus({
       )}
     </div>
   );
-}
-
-function nextAvailableDate(
-  scenes: Scene[],
-  selectedDate: string | null,
-  days: number,
-) {
-  if (!selectedDate) return scenes[0]?.date ?? null;
-  const targetTime = parseDate(selectedDate).getTime() + days * 86400000;
-  const next = scenes.find((s) => parseDate(s.date).getTime() >= targetTime);
-  return next?.date ?? scenes[scenes.length - 1]?.date ?? null;
 }
 
 function formatDate(value: string) {

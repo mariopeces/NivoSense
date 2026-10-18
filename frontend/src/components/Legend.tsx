@@ -1,10 +1,26 @@
 import type { LayerMode } from "./LeftRail";
+import type { WeatherOverlay } from "../lib/weather";
 
 type Props = {
   layer: LayerMode;
+  weatherOverlay: WeatherOverlay | null;
 };
 
-export default function Legend({ layer }: Props) {
+export default function Legend({ layer, weatherOverlay }: Props) {
+  if (weatherOverlay) {
+    return (
+      <div className="pointer-events-auto absolute bottom-4 right-4 z-20 w-[240px] rounded-xl border border-white/5 bg-[#081020]/85 px-4 py-3 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.7)]">
+        <span className="text-[11px] uppercase tracking-[0.22em] text-slate-300">
+          Accumulated precipitation
+        </span>
+        <div className="mt-2.5 h-2.5 w-full rounded-full bg-gradient-to-r from-slate-900 via-cyan-600 to-cyan-50" />
+        <div className="mt-2 flex justify-between text-[11px] tabular-nums text-slate-500">
+          <span>0 mm</span>
+          <span>{weatherOverlay.scaleMaxMm.toFixed(1)} mm</span>
+        </div>
+      </div>
+    );
+  }
   const config =
     layer === "cover"
       ? {

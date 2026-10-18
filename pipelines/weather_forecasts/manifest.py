@@ -20,6 +20,9 @@ def build_manifest(
     output_root: Path,
     precipitation_files: dict[int, Path],
     phase_files: dict[int, Path],
+    visualization_files: dict[int, Path],
+    visualization_bounds: list[float],
+    visualization_scale_max_mm: float,
 ) -> dict:
     cycle = cycle.astimezone(timezone.utc)
     horizons = {}
@@ -31,6 +34,12 @@ def build_manifest(
                 "available": True,
                 "units": "mm",
                 "asset": _asset(precipitation_files[hours], output_root),
+                "visualization": {
+                    "asset": _asset(visualization_files[hours], output_root),
+                    "bounds": visualization_bounds,
+                    "scale_min_mm": 0,
+                    "scale_max_mm": visualization_scale_max_mm,
+                },
             },
             "phase_context": {
                 "available": hours in phase_files,

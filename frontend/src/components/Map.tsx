@@ -3,6 +3,7 @@ import * as maplibregl from "maplibre-gl";
 import type { StyleSpecification } from "maplibre-gl";
 import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
+import type { WeatherOverlay } from "../lib/weather";
 
 const SIERRA_NEVADA_BOUNDS: [[number, number], [number, number]] = [
   [-3.55, 36.92],
@@ -52,6 +53,7 @@ type Props = {
     url: string;
     bbox: [number, number, number, number];
   } | null;
+  weatherOverlay: WeatherOverlay | null;
   onBasinSelect: (id: string | null) => void;
   webcams: Webcam[];
   selectedWebcamId: string | null;
@@ -63,6 +65,7 @@ export default function Map({
   selectedBasinId,
   ndsiTileUrl,
   ndsiImage,
+  weatherOverlay,
   onBasinSelect,
   webcams,
   selectedWebcamId,
@@ -74,6 +77,7 @@ export default function Map({
   const selectedRef = useRef<string | null>(null);
   const ndsiTileUrlRef = useRef<string | null>(null);
   const ndsiImageRef = useRef<Props["ndsiImage"]>(null);
+  const weatherOverlayRef = useRef<WeatherOverlay | null>(null);
   const onBasinSelectRef = useRef(onBasinSelect);
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
@@ -94,6 +98,10 @@ export default function Map({
   useEffect(() => {
     ndsiImageRef.current = ndsiImage;
   }, [ndsiImage]);
+
+  useEffect(() => {
+    weatherOverlayRef.current = weatherOverlay;
+  }, [weatherOverlay]);
 
   useEffect(() => {
     onBasinSelectRef.current = onBasinSelect;
@@ -126,6 +134,7 @@ export default function Map({
 
     const setupLayers = () => {
       setNdsiLayer(map, ndsiTileUrlRef.current, ndsiImageRef.current);
+      setWeatherLayer(map, weatherOverlayRef.current);
       if (basinsFCRef.current) {
         addBasinsLayers(map, basinsFCRef.current);
         applySelected(map, selectedRef.current);
@@ -165,6 +174,12 @@ export default function Map({
       applySelected(map, selectedBasinId);
     }
   }, [ndsiTileUrl, ndsiImage, basinsFC, selectedBasinId]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    setWeatherLayer(map, weatherOverlay);
+  }, [weatherOverlay]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -308,6 +323,37 @@ function attachWebcamInteractions(
   map.on("mouseleave", "webcams", () => {
     map.getCanvas().style.cursor = "";
   });
+}
+
+function setWeatherLayer(map: maplibregl.Map, overlay: WeatherOverlay | null) {
+  if (map.getLayer("weather-precipitation")) {
+    map.removeLayer("weather-precipitation");
+  }
+  if (map.getSource("weather-precipitation")) {
+    map.removeSource("weather-precipitation");
+  }
+  if (!overlay) return;
+
+  const [left, bottom, right, top] = overlay.bounds;
+  map.addSource("weather-precipitation", {
+    type: "image",
+    url: overlay.imageUrl,
+    coordinates: [
+      [left, top],
+      [right, top],
+      [right, bottom],
+      [left, bottom],
+    ],
+  });
+  map.addLayer(
+    {
+      id: "weather-precipitation",
+      type: "raster",
+      source: "weather-precipitation",
+      paint: { "raster-opacity": 0.78, "raster-fade-duration": 0 },
+    },
+    map.getLayer("basins-fill") ? "basins-fill" : undefined,
+  );
 }
 
 function setNdsiLayer(

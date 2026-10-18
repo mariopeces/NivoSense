@@ -8,7 +8,11 @@ from .cycles import select_latest_cycle
 from .geo import bbox_from_geojson
 from .gfs import GfsClient, accumulation_steps
 from .manifest import build_manifest, write_manifest
-from .raster import build_accumulated_precipitation
+from .raster import (
+    build_accumulated_precipitation,
+    build_precipitation_image,
+    raster_bounds_and_maximum,
+)
 
 
 def run(basins: Path, output: Path, keep_downloads: bool) -> Path:
@@ -25,6 +29,7 @@ def run(basins: Path, output: Path, keep_downloads: bool) -> Path:
     precipitation_inputs = {}
     precipitation_files = {}
     phase_files = {}
+    visualization_files = {}
     for step in accumulation_steps(final_step):
         precipitation_inputs[step] = client.download(
             cycle,
@@ -48,7 +53,24 @@ def run(basins: Path, output: Path, keep_downloads: bool) -> Path:
         except (OSError, RuntimeError):
             pass
 
-    manifest = build_manifest(cycle, bbox, output, precipitation_files, phase_files)
+    visualization_bounds, scale_max_mm = raster_bounds_and_maximum(
+        precipitation_files[COMMON_HORIZONS_HOURS[-1]]
+    )
+    for horizon, precipitation_file in precipitation_files.items():
+        image = model_root / f"precipitation_total_f{horizon:03d}.png"
+        build_precipitation_image(precipitation_file, image, scale_max_mm)
+        visualization_files[horizon] = image
+
+    manifest = build_manifest(
+        cycle,
+        bbox,
+        output,
+        precipitation_files,
+        phase_files,
+        visualization_files,
+        visualization_bounds,
+        scale_max_mm,
+    )
     manifest_path = output / "manifest.json"
     write_manifest(manifest, manifest_path)
     if not keep_downloads:
