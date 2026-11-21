@@ -334,8 +334,31 @@ Soak periods (7 days of daily runs) are never a builder waiting: the builder fin
 
 ## P4 Interface
 
+### T4.0 Design spec (added 2026-11-22 by Mario's request for a carefully crafted product)
+- Lane E, done by a design-lead worker before any UI code. Needs T0.1.
+- Do: `docs/design/` with a written and visual spec that every UI task follows:
+  - study cedar-vista (`../cedar-vista/frontend/src/theme/global.css`, `applyTheme.ts`, `layout/IconRail.tsx`, `ContentPanel.tsx`, `ViewControls.tsx`, `symbology/Legend.tsx`, `layers/ActiveLayerRow.tsx`) and openpas-habitat.web.app (`../OpenPAS_HDH_Visor/webapp/web/style.css`), take screenshots of both;
+  - define NivoSense's own identity on that pattern (not a copy):
+    - a snow and mountain palette with tokens for UI and separate, perceptually ordered colour ramps for snow cover probability, SWE and depth, colour-blind safe and readable over the L1C RGB and over a light basemap;
+    - type scale (Inter plus one display face);
+    - spacing, radii, shadows, motion;
+    - one icon set with a stroke rule;
+  - screen specs for desktop 1440 and mobile 375:
+    - shell (rail + panel);
+    - timeline (observed / gap-filled / modelled / forecast ticks);
+    - layer rows with inline legend and opacity;
+    - basin panel with season charts;
+    - webcam map symbol + cone + card with offline state;
+    - method page;
+    - empty, loading and error states;
+  - Spanish UI copy deck for every label, tooltip and empty state (plain, precise, no marketing tone).
+- Out: `docs/design/README.md`, `tokens.json` (source of truth for T4.1), `ramps.json` (shared with the pipelines for legends), static mockups as HTML or SVG under `docs/design/mockups/` with screenshots.
+- Accept: G-UI rubric sections A to E pass on the mockups; the ramps pass a colour-blind simulation (deuteranopia, protanopia) and keep order in greyscale; every screen in the list has a mockup and copy.
+- Evidence: mockup screenshots side by side with the cedar-vista and openpas screenshots; colour-blind simulation images.
+- Gauntlets: G-UI.
+
 ### T4.1 Tokens and app shell
-- Lane E. Needs T0.1.
+- Lane E. Needs T0.1, T4.0 (tokens.json is the source). Builds on T0.6 tooling; may start on a branch stacked on the T0.6 branch.
 - Do:
   - CSS variables for colour, type, spacing, radius and shadow, mapped into Tailwind `theme.extend`;
   - Inter loaded for body and one display face for headings;
