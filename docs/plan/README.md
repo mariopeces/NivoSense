@@ -87,6 +87,16 @@ Answers given by Mario on 2026-11-21 ("agree with everything suggested, be fully
 | H5 | Still Mario's: go-live waits for his explicit OK after G-Product passes on staging. |
 | H6 | Recommended, but only Mario can create the account; until the secrets exist, run without it. |
 
+Advance OK given by Mario on 2026-11-21 for every case that would have escalated to him. The coordinator acts on these without asking:
+
+1. **H5 go-live: authorised.** Go live (T5.4) as soon as G-Product passes on staging, then run T5.5.
+2. **Org policy blocks public buckets:** never change org policies. The T0.2 builder picks the cleanest alternative (another Darwin project that allows public read, or a dedicated project), records why in `docs/runbook.md`, and continues.
+3. **Third failed gauntlet round:** the coordinator decides. It reads both sides' evidence, chooses the fix or a documented alternative approach and restarts the loop. It may not lower the thresholds of the definition of done; any change of approach is recorded in `STATUS.md`.
+4. **Spending above 20 EUR/month: allowed.** Keep the budget alert, log the cost and the reason in `STATUS.md`, prefer the cheaper option when two are equivalent.
+5. **Actions outside the repo and the buckets: allowed** when the plan needs them (cloud resources, tooling). Two limits stay: never send an email or message to a person on Mario's behalf (Gmail drafts only, e.g. for Cetursa, UCO/UGR or ERHIN), and never commit secrets.
+
+From now on Mario hears only about results: milestones (each phase finished, go-live) are reported in `STATUS.md`.
+
 Original gate definitions:
 
 These are human gates (H-gates). The coordinator stops and asks Mario; agents never decide them.
