@@ -47,6 +47,7 @@ jobs:
           echo "upload gs://$BUCKET/$OBJECT -> HTTP $code"
           test "$code" = 200
           jq '{name, size, contentType, contentEncoding}' upload.json
+          test -z "$(jq -r '.contentEncoding // empty' upload.json)"
 
       - name: Write the prod prefix (must be denied)
         env:
@@ -145,6 +146,9 @@ jobs:
           OBJECT: ${{ vars.DATA_PREFIX }}${{ env.PROBE_NAME }}
         run: |
           name=$(jq -rn --arg n "$OBJECT" '$n|@uri')
-          curl -s -o /dev/null -w 'delete -> HTTP %{http_code}\n' -X DELETE \
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE \
             -H "Authorization: Bearer $TOKEN" \
-            "https://storage.googleapis.com/storage/v1/b/$BUCKET/o/$name"
+            "https://storage.googleapis.com/storage/v1/b/$BUCKET/o/$name")
+          echo "delete gs://$BUCKET/$OBJECT -> HTTP $code"
+          # prod/ has no lifecycle rule, so a probe left behind would stay public; 404 means the upload never happened
+          test "$code" = 204 || test "$code" = 404
