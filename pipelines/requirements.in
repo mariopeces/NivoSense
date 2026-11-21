@@ -11,3 +11,5 @@ jsonschema==4.*
 eccodes==2.*
 # PMTiles builder (`rio pmtiles`).
 rio-pmtiles==1.2.2
+# Catalogue writes to Google Cloud Storage with generation preconditions (ifGenerationMatch).
+google-cloud-storage==3.17.*
