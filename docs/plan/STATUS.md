@@ -74,7 +74,9 @@ Coordinator notes on the DAG:
 
 ## Waiting for Mario
 
-Nothing. Mario gave advance OK on 2026-11-21 for every escalation case (README section 4): H5 go-live authorised, org-policy alternative, third-round decisions by the coordinator, spending above the cap logged, outside actions allowed except messaging people and committing secrets.
+1. **Dedicated buckets (blocked by an org IAM deny policy).** Decision needed: ask a Darwin org admin to create `nivosense-data` and `nivosense-staging` in project `nivosense` (europe-west1), or to add a deny-policy exception for Mario on that project. Every Darwin project denies `storage.buckets.create` to Mario's account and new projects cannot be created; other orgs' projects are not acceptable homes. Recommendation: the admin creates the two buckets (exact commands in `docs/runbook.md` once T0.2 lands). Meanwhile, work continues on an interim layout: prefixes `staging/` and `prod/` in the existing bucket `nivosense-cogs`, with prefix-scoped IAM conditions; moving later is a variable change plus a copy. Nothing is blocked while this waits.
+
+Advance OK (README section 4) covers the other escalation cases.
 
 ## SLO and QA status
 
@@ -98,3 +100,4 @@ None yet.
 - 2026-11-21: Change of approach (T0.2): the local account lacks IAM rights to create buckets/SAs/WIF in darwin-general-sandbox (org policy itself allows public buckets). Coordinator approved building in Darwin project `nivosense` (352045667691, Mario owner, already holds nivosense-cogs/-web, same org policies) under advance OK items 2 and 5. Existing buckets left untouched.
 - 2026-11-21: T0.5 done: live site verified after deploy (issuecomment-7054364229): 'Sin escenas disponibles' shown, 8/8 DGT cams offline, no placeholder card. Lane E idle until T0.6 merges (T4.1).
 - 2026-11-21: T0.1 G-Code r3 PASS; PR #3 squash-merged as 6c602c5. Follow-ups (non-blocking): README.md:31 hackathon wording; no v* release path defined for fixes after go-live (T5.3 runbook / T5.4 should cover); pages.yml push trigger is path-filtered (T0.7 replaces it).
+- 2026-11-21: T0.2 blocked by an org IAM deny policy on storage.buckets.create in every Darwin project (also no project creation). Coordinator decision: no other-org projects, no workaround of the deny; SAs + WIF in project nivosense now; interim storage under staging/ and prod/ prefixes of existing bucket nivosense-cogs with prefix-scoped IAM conditions, if bucket IAM/update rights exist. Dedicated buckets added to Waiting for Mario.
