@@ -25,9 +25,9 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | r2 pushed (6930192), r2 gauntlets queued for a free slot | #6 | G-Infra r1 fail, G-Code r1 fail (colour ban misses CSS and colours inside baselined literals) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r2 (G-Infra ctx_2169d2967ca3 running; G-Code queued) | #6 | G-Infra r1 fail, G-Code r1 fail (colour ban misses CSS and colours inside baselined literals) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | gauntlet r1 (G-Infra ctx_061cd50a37fd, G-Data ctx_80d756e714c9; G-Code running), stacked on plan/t06-ci | #13 | |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | fixing after r1 G-Code; G-Infra r1 running | #12 | r1: G-Code fail (any v* tag could go live) |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | fixing after r1 | #12 | r1: G-Code fail, G-Infra fail (any v* tag could go live) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r1 (G-Data ctx_e3021d8c7200, G-Method ctx_b9104f5cdede; G-Code queued) | #14 | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | waiting | | |
@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | fixing after r1 (builder ctx_a867ffda15fb); catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | r2 pushed (2f28bf1), r2 gauntlets queued; catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -126,3 +126,4 @@ None yet.
 - 2026-11-22: T0.2 G-Code r2 PASS; both gauntlets pass on 6d1c14e. PR #7 squash-merged as ee23a47. Post-merge storage-probe run 44962735294 on main green: prod-writer-on-main wrote staging/ and prod/ (HTTP 200 twice) and deleted the prod probe (204), so the main-ref Accept line is proven. Follow-ups: old commit ca67861 still served by GitHub with the email (purge needs GitHub Support, Mario's call); probe listing assumes DATA_BUCKET == STAGING_BUCKET; pages.yml holds id-token: write on main, so bind the prod writer on workflow_ref later; protect main.
 - 2026-11-22: v0.1.0 tag pushed on 0076035 (T0.5 merge, the code live today), the T0.5 hotfix release the plan allows, so the tag-only Pages deploy of T0.7 has a release to rebuild. T0.7 G-Code r1 FAIL: pages.yml would deploy the highest-sorting v* tag on any commit; fix sent (strict semver, ancestor of main, fail loudly).
 - 2026-11-22: T0.4 freshness design approved: F1 latency per entry from Earth Search 'created'; dates listed with no entry are missing unless a per-date decision object (catalogue root s2/decisions/<date>_<orbit>.json, schema in T0.4) explains them; T1.1/T1.6 write those objects. T2.2 archive inventory received: no open AEMET HARMONIE archive; ERA5-Land full variables only via CDS (key needed); candidates approved: ecmwf_ifs, icon_eu, gfs_global, arpege_europe, era5_seamless; RIA stations now, AEMET pending key. T0.6 round 2 pushed (per-occurrence colour rule covering CSS, head 6930192, CI 33 s); its r2 gauntlets start at the next free slot (gauntlets at 6).
+- 2026-11-22: T0.7 G-Infra r1 FAIL (same tag-selection major; merge gate met by v0.1.0). T3.1 round 2 pushed (2f28bf1): card shows only stored checked stills (content-addressed, local store shipped in the Pages artifact until the bucket store lands), five placeholder guards incl. all 24 feratel renditions and dHash. T0.6 G-Infra r2 started. Gauntlet queue (in order): T0.6 G-Code r2, T1.1 G-Code r1, T3.1 G-Data and G-Code r2, T2.1 G-Data, G-Method, G-Code r1.
