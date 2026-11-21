@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r1 (G-Data ctx_5d86381260d9, G-Code ctx_f09e155dab3c); catalogue output pending on T0.3 | #8 | |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | fixing after r1 (builder ctx_a867ffda15fb); catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -119,3 +119,4 @@ None yet.
 - 2026-11-22: T0.6 G-Infra r1 and G-Code r1 FAIL on the hard-coded-colour rule only: CSS files not linted, and the bulk-suppression baseline counts literals so new colours inside a suppressed className pass (shown by green throwaway CI runs, PRs #9-#11 closed). All Accept lines otherwise pass (CI under 1 min, lock reproduces with uv, snow cache exact hit). Findings sent to the builder.
 - 2026-11-22: T0.2 round 2 pushed (head 6d1c14e): email removed from branch history; API enablement and all audit-log changes in the runbook; bucket IAM narrowed (objectAdmin on object prefixes only, listing via bucket-only objectViewer); probe failure on main opens an issue; branch probe 44961952807 green. G-Infra and G-Code round 2 started.
 - 2026-11-22: T3.1 G-Data r1 FAIL (2 F3 majors): hotlinked provider image shown with the age of the frame checked at ingest; MD5-only placeholder detection misses other feratel renditions. Coordinator decision: no F3 exception for hotlinking; the site shows exactly the stored, checked still with its captured_at (local folder now, staging prefix via publish after T0.2/T0.3); add Last-Modified == Date, duplicate-bytes and perceptual placeholder guards.
+- 2026-11-22: T3.1 G-Code r1 FAIL: feratel localises its placeholder by language (5 MD5s); only German fingerprinted, no language header sent, so the Spanish placeholder passes as live. Sent to the builder with the G-Data fixes.
