@@ -30,7 +30,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | r2 pushed (b321cf5), r2 gauntlets queued | #12 | r1: G-Code fail, G-Infra fail (any v* tag could go live) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r1 (G-Data ctx_e3021d8c7200, G-Method ctx_b9104f5cdede; G-Code queued) | #14 | |
-| T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | waiting | | |
+| T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
 | T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | building, stacked on plan/t11-s2-ingest (plan-rgb, ctx_4e549ad175fb) | | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
@@ -47,8 +47,8 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | building (plan-design, ctx_343998a361a6) | | |
-| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | waiting | | |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | ready, G-UI and G-Code r1 queued | #16 | |
+| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | building, stacked on plan/t06-ci + plan/t40-design (plan-shell, ctx_9048d1707be4) | | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
 | T4.4 Basin and river panels | E | task_ff92a85a01b8 | T4.3 (T2.5 data optional, "pendiente" before) | waiting | | |
@@ -128,3 +128,4 @@ None yet.
 - 2026-11-22: T0.4 freshness design approved: F1 latency per entry from Earth Search 'created'; dates listed with no entry are missing unless a per-date decision object (catalogue root s2/decisions/<date>_<orbit>.json, schema in T0.4) explains them; T1.1/T1.6 write those objects. T2.2 archive inventory received: no open AEMET HARMONIE archive; ERA5-Land full variables only via CDS (key needed); candidates approved: ecmwf_ifs, icon_eu, gfs_global, arpege_europe, era5_seamless; RIA stations now, AEMET pending key. T0.6 round 2 pushed (per-occurrence colour rule covering CSS, head 6930192, CI 33 s); its r2 gauntlets start at the next free slot (gauntlets at 6).
 - 2026-11-22: T0.7 G-Infra r1 FAIL (same tag-selection major; merge gate met by v0.1.0). T3.1 round 2 pushed (2f28bf1): card shows only stored checked stills (content-addressed, local store shipped in the Pages artifact until the bucket store lands), five placeholder guards incl. all 24 feratel renditions and dHash. T0.6 G-Infra r2 started. Gauntlet queue (in order): T0.6 G-Code r2, T1.1 G-Code r1, T3.1 G-Data and G-Code r2, T2.1 G-Data, G-Method, G-Code r1.
 - 2026-11-22: T0.7 round 1 fixes pushed (b321cf5): scripts/pick_release.py deploys only the newest strict-semver tag that is an ancestor of origin/main; v* tag ruleset 27815705; github-pages tag policy narrowed; dry run picks v0.1.0, refuses a stray v9.9.9. Post-merge checks owed by the coordinator: main Staging site run green and site/index.html 200; first hourly Publish site logs 'Deploying release v0.1.0'. Queue now: T0.6 G-Code r2, T0.7 G-Infra and G-Code r2, T1.1 G-Code r1, T3.1 r2 x2, T2.1 r1 x3.
+- 2026-11-22: T4.0 PR #16 ready (tokens.json, ramps.json from cmocean ice/deep and Crameri acton with order kept under CVD and greyscale, copy.es.json, 13 mockup screens at 1440 and 375, side-by-sides with cedar-vista, openpas and the live site). G-UI and G-Code r1 queued. Started: T4.1 (plan-shell, on plan/t06-ci with plan/t40-design merged) and T1.0 labeller (plan-labeller, on plan/t11-s2-ingest, never sees classifier code or output). Queue: T0.6 G-Code r2, T0.7 r2 x2, T4.0 G-UI, T1.1 G-Code, T3.1 r2 x2, T2.1 r1 x3, T4.0 G-Code.
