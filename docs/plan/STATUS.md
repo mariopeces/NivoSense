@@ -24,7 +24,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 |---|---|---|---|---|---|---|
 | T0.1 Rules | A | task_f158ee3c34b4 | - | gauntlet r3 (G-Code: ctx_27e16659e72f) | #3 | G-Code r2 fail (1 major, 3 minor) |
 | T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_9e7f09f10236) | | |
-| T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live deploy running | #4 | G-Code r1 pass, G-UI light r1 pass |
+| T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building early (plan-ci, ctx_0f6f97451c5a; reads rules from PR #3) | | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | waiting | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
@@ -96,3 +96,4 @@ None yet.
 - 2026-11-21: T0.5 G-UI light r1 PASS (minor follow-ups: 404 frame not marked offline, exact md5 match, manifest fetch without timeout, favicon 404). PR #4 squash-merged as 0076035; Pages deploy triggered by the merge.
 - 2026-11-21: T0.1 round 2 fixes pushed (head d9bcdd3); G-Code round 3 started (ctx_27e16659e72f). Plan typo fixed: T0.4 CRS now EPSG:32630.
 - 2026-11-21: Change of approach (T0.2): the local account lacks IAM rights to create buckets/SAs/WIF in darwin-general-sandbox (org policy itself allows public buckets). Coordinator approved building in Darwin project `nivosense` (352045667691, Mario owner, already holds nivosense-cogs/-web, same org policies) under advance OK items 2 and 5. Existing buckets left untouched.
+- 2026-11-21: T0.5 done: live site verified after deploy (issuecomment-7054364229): 'Sin escenas disponibles' shown, 8/8 DGT cams offline, no placeholder card. Lane E idle until T0.6 merges (T4.1).
