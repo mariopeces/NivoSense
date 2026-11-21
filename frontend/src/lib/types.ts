@@ -95,6 +95,7 @@ export type Webcam = {
   longitude: number;
   image_url: string | null;
   captured_at: string | null;
+  offline: boolean;
   source_url: string;
   attribution: string;
 };

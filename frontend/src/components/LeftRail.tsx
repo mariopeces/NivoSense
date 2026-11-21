@@ -216,7 +216,11 @@ function WebcamAccordion({
                 : "border-white/5 bg-slate-900/45"
             }`}
           >
-            {imageUrl && (
+            {webcam.offline ? (
+              <div className="flex aspect-video w-full items-center justify-center bg-slate-950 text-[12px] text-slate-500">
+                Cámara sin imagen
+              </div>
+            ) : imageUrl && (
               <img
                 src={imageUrl}
                 alt={`Latest view from ${webcam.name}`}
@@ -244,7 +248,9 @@ function WebcamAccordion({
               )}
             </button>
             <div className="flex items-center justify-between gap-2 border-t border-white/5 px-2.5 py-1.5 text-[9px] text-slate-500">
-              <span>{formatCapturedAt(webcam.captured_at)}</span>
+              <span className="whitespace-nowrap">
+                {webcam.offline ? "Sin conexión" : formatCapturedAt(webcam.captured_at)}
+              </span>
               <a
                 href={webcam.source_url}
                 target="_blank"

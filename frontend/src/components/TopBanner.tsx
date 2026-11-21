@@ -15,6 +15,7 @@ type Scene = { date: string; isPrediction: boolean };
 type Props = {
   observations: ObservationScene[];
   predictions: PredictionScene[];
+  scenesLoading: boolean;
   selectedDate: string | null;
   onDateChange: (date: string | null) => void;
   weatherManifest: WeatherManifest | null;
@@ -30,6 +31,7 @@ type Props = {
 export default function TopBanner({
   observations,
   predictions,
+  scenesLoading,
   selectedDate,
   onDateChange,
   weatherManifest,
@@ -66,6 +68,7 @@ export default function TopBanner({
 
       <DateNavigator
         scenes={scenes}
+        loading={scenesLoading}
         selectedDate={selectedDate}
         onChange={onDateChange}
       />
@@ -93,10 +96,12 @@ export default function TopBanner({
 
 function DateNavigator({
   scenes,
+  loading,
   selectedDate,
   onChange,
 }: {
   scenes: Scene[];
+  loading: boolean;
   selectedDate: string | null;
   onChange: (date: string | null) => void;
 }) {
@@ -114,7 +119,11 @@ function DateNavigator({
   const selectedIndex = scenes.findIndex((s) => s.date === selectedDate);
   const selected = selectedIndex >= 0 ? scenes[selectedIndex] : null;
   const isForecast = selected?.isPrediction ?? false;
-  const formatted = selected ? formatDate(selected.date) : "Loading scenes";
+  const formatted = selected
+    ? formatDate(selected.date)
+    : loading
+      ? "Cargando escenas"
+      : "Sin escenas disponibles";
   const atFirst = selectedIndex <= 0;
   const atLast = selectedIndex < 0 || selectedIndex >= scenes.length - 1;
 

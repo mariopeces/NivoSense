@@ -28,6 +28,10 @@ class WebcamCatalogTest(unittest.TestCase):
             self.assertLessEqual(camera["longitude"], east)
             self.assertLessEqual(south, camera["latitude"])
             self.assertLessEqual(camera["latitude"], north)
+            self.assertIsInstance(camera["offline"], bool)
+            if camera["offline"]:
+                self.assertIsNone(camera["image_url"])
+                self.assertIsNone(camera["captured_at"])
             if camera["image_url"] is not None:
                 self.assertEqual(urlparse(camera["image_url"]).scheme, "https")
             self.assertEqual(urlparse(camera["source_url"]).scheme, "https")

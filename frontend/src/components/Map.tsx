@@ -272,6 +272,7 @@ function webcamFeatureCollection(webcams: Webcam[]): GeoJSON.FeatureCollection {
       properties: {
         id: webcam.id,
         name: webcam.name,
+        offline: webcam.offline,
       },
     })),
   };
@@ -294,7 +295,7 @@ function addWebcamLayers(map: maplibregl.Map, webcams: Webcam[]) {
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 5, 14, 8],
         "circle-color": "#0f172a",
-        "circle-stroke-color": "#67e8f9",
+        "circle-stroke-color": ["case", ["get", "offline"], "#64748b", "#67e8f9"],
         "circle-stroke-width": 2,
       },
     });

@@ -2,17 +2,24 @@ from __future__ import annotations
 
 import argparse
 import email.utils
+import hashlib
 import json
 import math
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse
 
 
 DEFAULT_CONFIG = Path(__file__).with_name("webcam_sources.json")
 DEFAULT_OUTPUT = Path(__file__).parents[1] / "frontend" / "public" / "data" / "webcams.json"
+# Frames providers serve in place of a dead camera, by MD5 of the file.
+PLACEHOLDER_MD5 = frozenset(
+    {
+        "c92fb6440dc51109074769bcad5c7de9",  # DGT "IMAGEN NO DISPONIBLE", 639x359, seen 2026-11-21
+    }
+)
 
 
 def local_name(tag: str) -> str:
@@ -97,23 +104,43 @@ def fetch_bytes(url: str) -> bytes:
         return response.read()
 
 
-def fetch_last_modified(url: str) -> str | None:
-    request = urllib.request.Request(
-        url,
-        method="HEAD",
-        headers={"User-Agent": "NivoSense webcam catalog"},
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=15) as response:
-            value = response.headers.get("Last-Modified")
-    except OSError:
-        return None
+def fetch_image(url: str) -> tuple[bytes, str | None]:
+    request = urllib.request.Request(url, headers={"User-Agent": "NivoSense webcam catalog"})
+    with urllib.request.urlopen(request, timeout=15) as response:
+        return response.read(), response.headers.get("Last-Modified")
+
+
+def parse_http_date(value: str | None) -> str | None:
     if not value:
         return None
     try:
         return email.utils.parsedate_to_datetime(value).isoformat()
     except (TypeError, ValueError):
         return None
+
+
+def probe_camera_image(
+    camera: dict[str, Any],
+    fetch: Callable[[str], tuple[bytes, str | None]] = fetch_image,
+) -> None:
+    """Set offline and captured_at from the image the provider serves right now.
+
+    A dead DGT camera still answers 200 with a stock "IMAGEN NO DISPONIBLE" frame
+    and a fresh Last-Modified, so the header alone would show it as live.
+    """
+    camera["offline"] = camera["image_url"] is None
+    camera["captured_at"] = None
+    if camera["offline"]:
+        return
+    try:
+        body, last_modified = fetch(camera["image_url"])
+    except OSError:
+        return
+    if hashlib.md5(body).hexdigest() in PLACEHOLDER_MD5:
+        camera["offline"] = True
+        camera["image_url"] = None
+        return
+    camera["captured_at"] = parse_http_date(last_modified)
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -140,8 +167,7 @@ def build_catalog(config: dict[str, Any]) -> list[dict[str, Any]]:
             source["attribution"],
         )
         for camera in source_cameras:
-            if camera["image_url"]:
-                camera["captured_at"] = fetch_last_modified(camera["image_url"])
+            probe_camera_image(camera)
         cameras.extend(source_cameras)
     return cameras
 
