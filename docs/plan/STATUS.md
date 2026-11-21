@@ -9,7 +9,7 @@ Kept by the coordinator (see `orchestration.md`). Last update: 2026-11-21 (coord
 
 | Milestone | State | Date |
 |---|---|---|
-| P0 Foundations | in progress | started 2026-11-21 |
+| P0 Foundations | paused by Mario | started 2026-11-21 |
 | P1 Observation data | waiting | |
 | P2 Model | waiting | |
 | P3 Webcams | waiting | |
@@ -23,9 +23,9 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
-| T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_aaa1f0cbfe48; restarted after outage, was ctx_9e7f09f10236) | | |
+| T0.2 Storage and access | A | task_08987025034c | - | paused (plan-infra, branch plan/t02-storage at 49a346b, clean; last dispatch ctx_aaa1f0cbfe48 stopped) | | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building (plan-ci, ctx_3b3936fa57cb; restarted after outage, was ctx_0f6f97451c5a) | | |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | paused (plan-ci, branch plan/t06-ci: local unpushed commit 2d4dd3d 'wip' plus 3 uncommitted files; last dispatch ctx_3b3936fa57cb stopped) | | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | waiting | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
@@ -102,3 +102,4 @@ None yet.
 - 2026-11-21: T0.1 G-Code r3 PASS; PR #3 squash-merged as 6c602c5. Follow-ups (non-blocking): README.md:31 hackathon wording; no v* release path defined for fixes after go-live (T5.3 runbook / T5.4 should cover); pages.yml push trigger is path-filtered (T0.7 replaces it).
 - 2026-11-21: T0.2 blocked by an org IAM deny policy on storage.buckets.create in every Darwin project (also no project creation). Coordinator decision: no other-org projects, no workaround of the deny; SAs + WIF in project nivosense now; interim storage under staging/ and prod/ prefixes of existing bucket nivosense-cogs with prefix-scoped IAM conditions, if bucket IAM/update rights exist. Dedicated buckets added to Waiting for Mario.
 - 2026-11-21: Outage. A network outage at about 01:55 (API ENOTFOUND) killed the T0.6 builder (ctx_0f6f97451c5a, uncommitted work in plan-ci) and the T0.2 builder (ctx_9e7f09f10236, commit 49a346b in plan-infra) mid-task, and the coordinator chat with them; the run stalled about 6 h. Coordinator handover to a new chat. Both dispatches stopped (guarded stop, terminals closed); fresh builders started on the same Tasks in the same worktrees with a recovery brief: T0.6 ctx_3b3936fa57cb, T0.2 ctx_aaa1f0cbfe48. T0.2 continues on the interim nivosense-cogs staging/ and prod/ layout (advance OK item 2); the dedicated-bucket item stays as information only. Workers silent for more than 45 minutes are now checked with worker-show and worker-read.
+- 2026-11-21: Run paused by Mario on 2026-11-21. No worker or gauntlet runs; none is to be started, restarted or retried until Mario resumes. T0.2: worktree plan-infra, branch plan/t02-storage at 49a346b (pushed, working tree clean); the restarted builder had re-checked GCP state in project nivosense, so GCP resources made after 49a346b (service accounts, WIF, bucket IAM, repo variables) must be re-inspected on resume before anything is created. T0.6: worktree plan-ci, branch plan/t06-ci with a local, unpushed commit 2d4dd3d ("wip") plus 3 uncommitted files on top; nothing pushed, no PR yet. Both dispatches (ctx_aaa1f0cbfe48, ctx_3b3936fa57cb) are stopped; their terminals are retained, not released. On resume: start fresh builders for both Tasks in the same worktrees with a recovery brief, as after the outage.
