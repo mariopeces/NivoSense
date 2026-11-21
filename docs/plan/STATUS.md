@@ -27,7 +27,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 gauntlet r1 (G-Infra, G-Code) | #6 | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | building, stacked on plan/t06-ci (plan-catalog, ctx_47dfd38bc970) | | |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | building, stacked on plan/t06-ci (plan-staging, ctx_4389de1ad9ff) | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | building early, local folder (plan-observation, ctx_14ada5544ce7) | | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | waiting | | |
@@ -43,9 +43,9 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | building early, current webcams.json path (plan-webcams, ctx_a867ffda15fb) | | |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r1 (G-Data ctx_5d86381260d9, G-Code ctx_f09e155dab3c); catalogue output pending on T0.3 | #8 | |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
-| T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | waiting | | |
+| T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
 | T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | building (plan-design, ctx_343998a361a6) | | |
 | T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | waiting | | |
@@ -77,6 +77,8 @@ Coordinator notes on the DAG:
 | T5.5 live soak | | | | |
 
 ## Waiting for Mario
+
+0. **Position of the Cetursa Pradollano still (`cetursa-pradollano-c1`).** No source gives its position, so it is listed in the rail but not on the map (T3.1, PR #8). Information only; if Mario knows where the camera stands, T3.3 can add its bearing. Nothing is blocked.
 
 1. **Dedicated buckets (blocked by an org IAM deny policy).** Decision needed: ask a Darwin org admin to create `nivosense-data` and `nivosense-staging` in project `nivosense` (europe-west1), or to add a deny-policy exception for Mario on that project. Every Darwin project denies `storage.buckets.create` to Mario's account and new projects cannot be created; other orgs' projects are not acceptable homes. Recommendation: the admin creates the two buckets (exact commands in `docs/runbook.md` once T0.2 lands). Information only, nothing waits on it: under advance OK item 2 the coordinator continues on the interim layout: prefixes `staging/` and `prod/` in the existing bucket `nivosense-cogs`, with prefix-scoped IAM conditions; moving later is a variable change plus a copy. Nothing is blocked while this waits; the dedicated buckets are a later variable change plus a copy.
 
@@ -112,3 +114,4 @@ None yet.
 - 2026-11-22: T0.2 PR #7 ready (runbook from live state, branch probe run 44960713581 green: staging 200, prod 403, no gzip; public read only on managed folders staging/ and prod/). G-Infra and G-Code round 1 started. The main-ref probe can only run after merge: the coordinator checks the storage-probe run on main right after the squash merge.
 - 2026-11-22: T2.1 decisions: domain = Parque Nacional U Parque Natural (Espacio Natural Sierra Nevada, 172,238 ha); per Decreto 238/2011 the peripheral protection zone is the Natural Park, no separate polygon exists. Sub-basins stay on MITECO Pfafstetter (keeps cod_uni codes the site uses); its download page has an ALTCHA check, so the builder downloads the two zips once through a normal browser session (no bypass), records URL, date, licence and sha256, and commits a clipped source copy if the licence allows. If that fails it goes on Waiting for Mario.
 - 2026-11-22: T0.6 PR #6 ready (CI green run 44960881559 in 35 s; failing trials 44960645571 lint, 44960736562 types, 44960813093 tests; hashed locks pin rasterio 1.4.4 / GDAL 3.10.3 and rio-pmtiles 1.2.2; snow-model cache keyed on content hash, exact hit shown; 54 existing colours baselined with ESLint bulk suppressions). G-Infra and G-Code round 1 started.
+- 2026-11-22: T3.1 PR #8 ready (17 feratel views from stations 15110-15114 plus the Pradollano still; 13 live, 5 offline because 15110 and 15114 serve a feratel placeholder, now fingerprinted; positions from feratel player metadata; 25 tests). G-Data and G-Code round 1 started. T0.2 G-Code r1 FAIL: Mario's email in docs/runbook.md; builder told to remove it and rewrite the branch history. Started under the stacked-branch rule: T0.7 on plan/t06-ci (plan-staging) and T3.3 on plan/t31-cetursa (plan-bearings). Alive: 6 builders (T0.2 fixing, T0.3, T0.7, T1.1, T2.1, T3.3, T4.0 counted 7 with the fixer) and 5 gauntlets.
