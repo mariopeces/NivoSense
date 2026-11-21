@@ -11,7 +11,7 @@ NivoSense is a maintained product, built from the plan in [docs/plan/](docs/plan
 - Every product goes through the catalogue (`pipelines/catalog/`, task T0.3).
 - Comments only for the non-obvious why. Libraries, data sources and papers may be named.
 - Spanish UI copy.
-- Commits only within the scope Mario granted in gate H0: on `mariopeces/NivoSense`, for this plan, commit to your branch, push it and open a PR. Never push to `main`, never merge; the coordinator squash-merges after every required gauntlet passes.
+- Commits only within the scope Mario granted in gate H0: on `mariopeces/NivoSense`, for this plan, commit to your branch, push it and open a PR. Builders and gauntlets never push to `main` and never merge; the coordinator squash-merges after every required gauntlet passes. Only the coordinator pushes `v*` release tags, on a merged `main` commit, for the T0.5 hotfix and at go-live (T5.4).
 - No secrets anywhere; never email or message a person on Mario's behalf (Gmail drafts only).
 
 ## How to operate effectively here
@@ -67,7 +67,7 @@ Skeleton rows and "no data" messages are deliberate while real data is wired. Do
 ## Don't
 
 - Don't run `gcloud` (or other outside) actions your card doesn't need. What a card needs is allowed under gate H2 and the advance OK in `docs/plan/README.md` section 4, with every command recorded in `docs/runbook.md`: `darwin-general-sandbox` first, another Darwin or a dedicated project if its org policy blocks the plan (record why); never change org policies, never touch resources other workloads use, never message a person for Mario, never commit secrets.
-- Don't commit, push or open PRs outside the H0 scope above. Never merge and never push to `main`.
+- Don't commit, push or open PRs outside the H0 scope above. Builders and gauntlets never merge, never push to `main` and never push release tags; the coordinator squash-merges after every required gauntlet passes (H0).
 - Don't introduce a new dependency without justifying it in the PR.
 - Don't create Markdown files unless a card names them or Mario asks.
 
