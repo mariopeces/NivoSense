@@ -1,0 +1,13 @@
+HTTP/1.1 200 200
+date: Sat, 21 Nov 2026 23:25:58 GMT
+server: Apache
+access-control-allow-credentials: true
+access-control-allow-origin: *
+set-cookie: JSESSIONID=26D8878BE279D63A91708972F61955FC; Path=/hotspot; HttpOnly; SameSite=Strict
+set-cookie: dcs=12493a94-5056-4d98-b02f-053fcc95dccd; Path=/hotspot; SameSite=Strict
+cache-control: max-age=0, must-revalidate
+expires: Sat, Nov 21, 2026 11:29:05 PM GMT
+last-modified: Sat, 21 Nov 2026 23:25:58 GMT
+content-length: 44732
+content-type: image/jpeg
+
