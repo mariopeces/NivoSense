@@ -1,0 +1,150 @@
+name: Storage access probe
+
+# Proves the access split of docs/runbook.md: any ref may write the staging
+# prefix through the staging writer; only refs/heads/main may use the prod writer.
+on:
+  push:
+    paths:
+      - .github/workflows/storage-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: storage-probe-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PROBE_NAME: _scratch/probe/${{ github.run_id }}-${{ github.run_attempt }}
+
+jobs:
+  staging-writer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Authenticate as the staging writer
+        id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SA_STAGING }}
+          token_format: access_token
+
+      - name: Write the staging probe (must succeed)
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          BUCKET: ${{ vars.STAGING_BUCKET }}
+          OBJECT: ${{ vars.STAGING_PREFIX }}${{ env.PROBE_NAME }}
+        run: |
+          head -c 65536 /dev/urandom > probe.bin
+          name=$(jq -rn --arg n "$OBJECT" '$n|@uri')
+          code=$(curl -s -o upload.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/octet-stream" \
+            --data-binary @probe.bin \
+            "https://storage.googleapis.com/upload/storage/v1/b/$BUCKET/o?uploadType=media&name=$name")
+          echo "upload gs://$BUCKET/$OBJECT -> HTTP $code"
+          test "$code" = 200
+          jq '{name, size, contentType, contentEncoding}' upload.json
+
+      - name: Write the prod prefix (must be denied)
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          BUCKET: ${{ vars.DATA_BUCKET }}
+          OBJECT: ${{ vars.DATA_PREFIX }}${{ env.PROBE_NAME }}
+        run: |
+          name=$(jq -rn --arg n "$OBJECT" '$n|@uri')
+          code=$(curl -s -o denied.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/octet-stream" \
+            --data-binary @probe.bin \
+            "https://storage.googleapis.com/upload/storage/v1/b/$BUCKET/o?uploadType=media&name=$name")
+          echo "upload gs://$BUCKET/$OBJECT -> HTTP $code"
+          jq -r '.error.message' denied.json
+          test "$code" = 403
+
+      - name: Public ranged read with CORS from the Pages origin
+        env:
+          URL: https://storage.googleapis.com/${{ vars.STAGING_BUCKET }}/${{ vars.STAGING_PREFIX }}${{ env.PROBE_NAME }}
+          ORIGIN: https://mariopeces.github.io
+        run: |
+          echo "== OPTIONS preflight"
+          curl -s -D preflight.txt -o /dev/null -X OPTIONS "$URL" \
+            -H "Origin: $ORIGIN" -H "Access-Control-Request-Method: GET" \
+            -H "Access-Control-Request-Headers: range"
+          cat preflight.txt
+          grep -q '^HTTP/[0-9.]* 200' preflight.txt
+          grep -qi "^access-control-allow-origin: $ORIGIN" preflight.txt
+          grep -qi '^access-control-allow-headers:.*range' preflight.txt
+          echo "== anonymous ranged GET"
+          curl -s -D ranged.txt -o part.bin "$URL" -H "Origin: $ORIGIN" -H "Range: bytes=0-1023"
+          cat ranged.txt
+          grep -q '^HTTP/[0-9.]* 206' ranged.txt
+          grep -qi '^content-range: bytes 0-1023/65536' ranged.txt
+          grep -qi '^access-control-expose-headers:.*content-range' ranged.txt
+          test "$(stat -c %s part.bin)" = 1024
+          if grep -qi '^content-encoding:' ranged.txt; then echo "object is content-encoded"; exit 1; fi
+
+  prod-writer-from-branch:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Try to authenticate as the prod writer
+        id: auth
+        continue-on-error: true
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SA_PROD }}
+          token_format: access_token
+
+      - name: The prod writer must be refused outside main
+        env:
+          OUTCOME: ${{ steps.auth.outcome }}
+        run: |
+          echo "prod writer impersonation from ${GITHUB_REF}: $OUTCOME"
+          test "$OUTCOME" = failure
+
+  prod-writer-on-main:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Authenticate as the prod writer
+        id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SA_PROD }}
+          token_format: access_token
+
+      - name: Write both prefixes (must succeed)
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          STAGING_OBJECT: ${{ vars.STAGING_BUCKET }}/${{ vars.STAGING_PREFIX }}${{ env.PROBE_NAME }}-prod-writer
+          PROD_OBJECT: ${{ vars.DATA_BUCKET }}/${{ vars.DATA_PREFIX }}${{ env.PROBE_NAME }}
+        run: |
+          head -c 1024 /dev/urandom > probe.bin
+          for target in "$STAGING_OBJECT" "$PROD_OBJECT"; do
+            bucket=${target%%/*}
+            name=$(jq -rn --arg n "${target#*/}" '$n|@uri')
+            code=$(curl -s -o upload.json -w '%{http_code}' -X POST \
+              -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/octet-stream" \
+              --data-binary @probe.bin \
+              "https://storage.googleapis.com/upload/storage/v1/b/$bucket/o?uploadType=media&name=$name")
+            echo "upload gs://$target -> HTTP $code"
+            test "$code" = 200
+          done
+
+      - name: Remove the prod probe
+        if: always()
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          BUCKET: ${{ vars.DATA_BUCKET }}
+          OBJECT: ${{ vars.DATA_PREFIX }}${{ env.PROBE_NAME }}
+        run: |
+          name=$(jq -rn --arg n "$OBJECT" '$n|@uri')
+          curl -s -o /dev/null -w 'delete -> HTTP %{http_code}\n' -X DELETE \
+            -H "Authorization: Bearer $TOKEN" \
+            "https://storage.googleapis.com/storage/v1/b/$BUCKET/o/$name"
