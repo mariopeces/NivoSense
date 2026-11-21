@@ -86,4 +86,4 @@ None yet.
 
 ## Log
 
-- 2026-11-21: Run `run_d154a40aeb1c` and 35-task DAG created. Mario's advance OK recorded in README section 4. Heartbeat automation `cda12975-2e78-4f49-9a7d-f9d4efbb7357` created (daily 09:00 Europe/Madrid). Started T0.1 (lane A) and T0.5 (lane E). T0.2 ready, queued behind T0.1 in lane A.
+- 2026-11-21: Run `run_d154a40aeb1c` and 35-task DAG created. Mario's advance OK recorded in README section 4. Heartbeat automation `cda12975-2e78-4f49-9a7d-f9d4efbb7357` created (daily 09:00 Europe/Madrid). Started T0.1 (lane A, worktree plan-platform, dispatch ctx_8787b4ed4ede) and T0.5 (lane E, worktree plan-ui, dispatch ctx_cb00ccf53cb1). T0.2 ready, queued behind T0.1 in lane A.
