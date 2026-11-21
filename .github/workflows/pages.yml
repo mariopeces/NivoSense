@@ -1,14 +1,11 @@
 name: Publish site
 
+# The live site's code comes only from a release tag: a pushed v* tag deploys that
+# tag, and every other run rebuilds the latest v* tag with fresh data. Pages serves
+# one artifact, so a data refresh is a redeploy of the same tagged code.
 on:
   push:
-    branches: [main]
-    paths:
-      - "frontend/**"
-      - "backend/ingest_webcams.py"
-      - "backend/webcam_sources.json"
-      - "backend/tests/**"
-      - ".github/workflows/pages.yml"
+    tags: ["v*"]
   workflow_run:
     workflows: ["Update snow observation", "Weather forecasts", "Snow model"]
     types: [completed]
@@ -37,7 +34,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Pick the release
+        id: release
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            tag=$GITHUB_REF_NAME
+          else
+            tag=$(git ls-remote --tags --refs "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" 'v*' | sed 's|.*refs/tags/||' | sort -V | tail -1)
+          fi
+          if [ -z "$tag" ]; then
+            echo "::error::No v* release tag exists; the live site deploys only from a release tag"
+            exit 1
+          fi
+          echo "Deploying release $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ steps.release.outputs.tag }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -125,16 +138,16 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Report a failed scheduled run
-        if: failure() && github.event_name == 'schedule'
+      - name: Report a failed run
+        if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           title="Scheduled workflow failed: ${{ github.workflow }}"
           body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
-            gh issue comment "$existing" --body "$body"
+            gh issue comment "$existing" -R "$GITHUB_REPOSITORY" --body "$body"
           else
-            gh issue create --title "$title" --body "$body"
+            gh issue create -R "$GITHUB_REPOSITORY" --title "$title" --body "$body"
           fi
