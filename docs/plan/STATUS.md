@@ -3,7 +3,7 @@
 Kept by the coordinator (see `orchestration.md`). Last update: 2026-11-22.
 
 - Orca Run: `run_d154a40aeb1c` (objective: NivoSense to production, README section 2 is the definition of done)
-- Agent: claude only. Limits: at most 5 builders and about 6 gauntlets alive at once; one active builder per lane.
+- Agent: claude only. Limits (Mario, 2026-11-22): up to 7 builders and 6 gauntlets alive at once while the machine stays responsive (back to 5 builders if it slows down). One active builder per lane only where files would overlap.
 
 ## Milestones
 
@@ -26,10 +26,10 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_e248982bda91) | | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building (plan-ci, ctx_2a0e2e712a9d) | | |
-| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | waiting | | |
+| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | building, stacked on plan/t06-ci (plan-catalog, ctx_47dfd38bc970) | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
-| T1.1 S2 ingest | B | task_597641229107 | T0.4 | waiting | | |
+| T1.1 S2 ingest | B | task_597641229107 | T0.4 | building early, local folder (plan-observation, ctx_14ada5544ce7) | | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | waiting | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
 | T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | waiting | | |
@@ -37,17 +37,18 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | waiting | | |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | building early (plan-model, ctx_4c7ee8195baf) | | |
 | T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | waiting | | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | waiting | | |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | building early, current webcams.json path (plan-webcams, ctx_a867ffda15fb) | | |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | waiting | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6 | waiting | | |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | building (plan-design, ctx_343998a361a6) | | |
+| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | waiting | | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
 | T4.4 Basin and river panels | E | task_ff92a85a01b8 | T4.3 (T2.5 data optional, "pendiente" before) | waiting | | |
@@ -59,7 +60,10 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T5.5 Live soak | A | task_cdc2a9aee5ae | T5.4 + 7 days | waiting | | |
 
 Coordinator notes on the DAG:
-- An Orca Task settles when its builder reports `worker_done` (PR ready for review), before gauntlets and merge. A dependent task is started only when every task it needs is **merged** in this table, whatever `task-list --ready` says.
+- An Orca Task settles when its builder reports `worker_done` (PR ready for review), before gauntlets and merge.
+- Stacked-branch rule (Mario, 2026-11-22; replaces "start only when deps are merged" for code deps): a task may start on a branch stacked on its dependency's branch, or against a local folder instead of the bucket, once the dependency's interface is clear. It **merges** only after every task it needs is merged, rebased onto main, with its gauntlets run on the rebased head. The coordinator sets such Orca Tasks to ready by hand.
+- T4.0 Design spec added by Mario (plan commit 51aa990); T4.1 now also needs T4.0 (the Orca Task deps of T4.1 predate this; the coordinator enforces it).
+- Quality bar (Mario, 2026-11-22): no gauntlet passes on claims; G-UI and G-Method look at real renders. When two options are close, choose the one a geospatial professional would trust.
 - Deps follow the dependency graph in `tasks.md` where it is stricter than a card's "Needs" line: T0.4 also waits for T0.7, T1.1 waits for T0.4, T4.1 waits for T0.6. T4.4 does not wait for T2.5 (shows "pendiente" until model data exists).
 - T0.4 card said CRS EPSG:25830, contradicting README D2 (EPSG:32630). Fixed in tasks.md on 2026-11-21 toward the definition of done (typo, no change to the DoD).
 - T1.0 runs in a fresh labeller worker (not the lane B builder) so it never sees classifier code.
@@ -104,3 +108,4 @@ None yet.
 - 2026-11-21: Outage. A network outage at about 01:55 (API ENOTFOUND) killed the T0.6 builder (ctx_0f6f97451c5a, uncommitted work in plan-ci) and the T0.2 builder (ctx_9e7f09f10236, commit 49a346b in plan-infra) mid-task, and the coordinator chat with them; the run stalled about 6 h. Coordinator handover to a new chat. Both dispatches stopped (guarded stop, terminals closed); fresh builders started on the same Tasks in the same worktrees with a recovery brief: T0.6 ctx_3b3936fa57cb, T0.2 ctx_aaa1f0cbfe48. T0.2 continues on the interim nivosense-cogs staging/ and prod/ layout (advance OK item 2); the dedicated-bucket item stays as information only. Workers silent for more than 45 minutes are now checked with worker-show and worker-read.
 - 2026-11-21: Run paused by Mario on 2026-11-21. No worker or gauntlet runs; none is to be started, restarted or retried until Mario resumes. T0.2: worktree plan-infra, branch plan/t02-storage at 49a346b (pushed, working tree clean); the restarted builder had re-checked GCP state in project nivosense, so GCP resources made after 49a346b (service accounts, WIF, bucket IAM, repo variables) must be re-inspected on resume before anything is created. T0.6: worktree plan-ci, branch plan/t06-ci with a local, unpushed commit 2d4dd3d ("wip") plus 3 uncommitted files on top; nothing pushed, no PR yet. Both dispatches (ctx_aaa1f0cbfe48, ctx_3b3936fa57cb) are stopped; their terminals are retained, not released. On resume: start fresh builders for both Tasks in the same worktrees with a recovery brief, as after the outage.
 - 2026-11-22: Run resumed by Mario, same mandate (README section 4). GCP state in project nivosense re-inspected read-only before anything was created: SAs nivosense-gha-staging and nivosense-gha-prod, WIF pool github with provider nivosense-repo (repo id condition; prod SA bound only to refs/heads/main), prefix-scoped objectAdmin on nivosense-cogs (staging/; staging/ and prod/), CORS, 14-day lifecycle on staging/_scratch/, and the repo variables (DATA_/STAGING_ bucket and prefix) all exist; public read not yet granted; docs/runbook.md not yet committed. Fresh builders with recovery briefs: T0.6 ctx_2a0e2e712a9d (plan-ci, keeps wip commit 2d4dd3d and the uncommitted files), T0.2 ctx_e248982bda91 (plan-infra). Paused dispatches released.
+- 2026-11-22: Mario asked for maximum effort and more parallel work. Recorded: T4.0 Design spec (new Orca Task task_de79f54a990b, design lead in plan-design, ctx_343998a361a6); stacked-branch rule; limits raised to 7 builders and 6 gauntlets; quality bar on real renders. Started early under the stacked-branch rule, each in its own child worktree: T0.3 on a branch from plan/t06-ci (plan-catalog, ctx_47dfd38bc970), T2.1 (plan-model, ctx_4c7ee8195baf), T3.1 (plan-webcams, ctx_a867ffda15fb), T1.1 against a local folder (plan-observation, ctx_14ada5544ce7). 7 builders alive.
