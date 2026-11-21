@@ -64,6 +64,29 @@ jobs:
           jq -r '.error.message' denied.json
           test "$code" = 403
 
+      - name: Bucket-level rights are listing only (no managed-folder or multipart rights)
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          BUCKET: ${{ vars.DATA_BUCKET }}
+          LIST_PREFIX: ${{ vars.STAGING_PREFIX }}_scratch/probe/
+          FOLDER: ${{ vars.DATA_PREFIX }}
+        run: |
+          api=https://storage.googleapis.com/storage/v1/b/$BUCKET
+          asked='permissions=storage.objects.list&permissions=storage.objects.create&permissions=storage.objects.delete&permissions=storage.managedFolders.create&permissions=storage.managedFolders.delete&permissions=storage.managedFolders.setIamPolicy&permissions=storage.multipartUploads.create'
+          granted=$(curl -sf -H "Authorization: Bearer $TOKEN" "$api/iam/testPermissions?$asked" | jq -c '.permissions // []')
+          echo "on the bucket: $granted"
+          test "$granted" = '["storage.objects.list"]'
+          if [ -n "$FOLDER" ]; then
+            folder=$(jq -rn --arg n "$FOLDER" '$n|@uri')
+            granted=$(curl -sf -H "Authorization: Bearer $TOKEN" "$api/managedFolders/$folder/iam/testPermissions?$asked" | jq -c '.permissions // []')
+            echo "on managed folder $FOLDER: $granted"
+            test "$granted" = '[]'
+          fi
+          code=$(curl -s -o list.json -w '%{http_code}' -H "Authorization: Bearer $TOKEN" \
+            "$api/o?maxResults=1&prefix=$(jq -rn --arg n "$LIST_PREFIX" '$n|@uri')")
+          echo "list $LIST_PREFIX -> HTTP $code, $(jq '.items | length' list.json) item(s)"
+          test "$code" = 200
+
       - name: Public ranged read with CORS from the Pages origin
         env:
           URL: https://storage.googleapis.com/${{ vars.STAGING_BUCKET }}/${{ vars.STAGING_PREFIX }}${{ env.PROBE_NAME }}
@@ -152,3 +175,27 @@ jobs:
           echo "delete gs://$BUCKET/$OBJECT -> HTTP $code"
           # prod/ has no lifecycle rule, so a probe left behind would stay public; 404 means the upload never happened
           test "$code" = 204 || test "$code" = 404
+
+  open-issue-on-failure:
+    # Branch failures show on the PR; on main nobody is watching, so open (or update) an issue.
+    needs: [staging-writer, prod-writer-from-branch, prod-writer-on-main]
+    if: failure() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the probe failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Storage access probe failed on main"
+          number=$(gh issue list --state open --search "\"$title\" in:title" --json number,title \
+            --jq '[.[] | select(.title == "Storage access probe failed on main")][0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body "Failed again: $RUN_URL"
+          else
+            gh issue create --title "$title" --body "Run: $RUN_URL. See docs/runbook.md section 1.10."
+          fi

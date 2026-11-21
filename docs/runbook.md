@@ -61,11 +61,19 @@ Resources left untouched: bucket `nivosense-web`, the existing objects of `nivos
 |---|---|---|
 | Buckets `nivosense-data` and `nivosense-staging` | Prefixes `prod/` and `staging/` in `nivosense-cogs` | Bucket creation denied (1.2). Moving later is a variable change plus a copy (1.9). |
 | `allUsers` object read on the whole bucket | `allUsers` object read on the managed folders `staging/` and `prod/` only | `nivosense-cogs` holds older, non-public objects. Bucket IAM conditions cannot be used with `allUsers`, so public read is granted on managed folders, which carry their own IAM policy. Anything outside the two prefixes stays private (anonymous GET returns 403). |
-| Writers: object admin on a bucket | `roles/storage.objectAdmin` on `nivosense-cogs` with an IAM condition per prefix | Same split as the card, scoped by `resource.name`. The condition also passes `resource.type == 'storage.googleapis.com/Bucket'` so the writers can list objects (listing is a bucket-level check). Listing shows object names of the whole bucket; it does not grant reading or writing them. |
+| Writers: object admin on a bucket | `roles/storage.objectAdmin` on `nivosense-cogs` with an IAM condition per object prefix, plus `roles/storage.objectViewer` conditioned on `resource.type == 'storage.googleapis.com/Bucket'` | Same split as the card, scoped by `resource.name`. Listing objects is checked on the bucket, not on an object, so it needs a bucket-level grant. That grant uses `objectViewer`, whose only permissions GCS checks on the bucket are `objects.list`, `managedFolders.list` and `folders.list` (`objects.get` and `managedFolders.get` are checked on the object or folder, where the condition is false). `objectAdmin` is never granted at bucket level, so its `managedFolders.*` and `multipartUploads.*` permissions do not reach the `prod/` managed folder. The probe asserts this with `testIamPermissions` (1.10). Listing shows object names of the whole bucket; it does not grant reading or writing them. |
 | Lifecycle 14 days on `nivosense-staging/_scratch/` | 14 days on `staging/_scratch/` | Same rule, prefixed. |
 | CORS on the new buckets | CORS on `nivosense-cogs` | Replaces the earlier `deploy/cors.json` setting (`origin: *`), which no browser code uses: the frontend does not read `nivosense-cogs` today. |
 
-### 1.4 Service accounts
+### 1.4 APIs
+
+Enabled on 2026-11-21 (audit log `BatchEnableServices`, 00:41:06Z). `storage.googleapis.com` was already on.
+
+```sh
+gcloud services enable iam.googleapis.com iamcredentials.googleapis.com sts.googleapis.com --project nivosense
+```
+
+### 1.4a Service accounts
 
 ```sh
 gcloud iam service-accounts create nivosense-gha-staging --project nivosense \
@@ -121,15 +129,24 @@ gcloud iam service-accounts add-iam-policy-binding nivosense-gha-prod@nivosense.
 ### 1.6 Bucket access
 
 ```sh
+# Object rights, per prefix
 gcloud storage buckets add-iam-policy-binding gs://nivosense-cogs \
   --member "serviceAccount:nivosense-gha-staging@nivosense.iam.gserviceaccount.com" \
   --role roles/storage.objectAdmin \
-  --condition "title=staging-prefix,description=Objects under staging/ and listing,expression=resource.type == 'storage.googleapis.com/Bucket' || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/')"
+  --condition "title=staging-objects,description=Objects under staging/,expression=resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/')"
 
 gcloud storage buckets add-iam-policy-binding gs://nivosense-cogs \
   --member "serviceAccount:nivosense-gha-prod@nivosense.iam.gserviceaccount.com" \
   --role roles/storage.objectAdmin \
-  --condition "title=staging-and-prod-prefixes,description=Objects under staging/ or prod/ and listing,expression=resource.type == 'storage.googleapis.com/Bucket' || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/') || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/prod/')"
+  --condition "title=staging-and-prod-objects,description=Objects under staging/ or prod/,expression=resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/') || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/prod/')"
+
+# Listing (bucket-level check only)
+for s in staging prod; do
+  gcloud storage buckets add-iam-policy-binding gs://nivosense-cogs \
+    --member "serviceAccount:nivosense-gha-$s@nivosense.iam.gserviceaccount.com" \
+    --role roles/storage.objectViewer \
+    --condition "title=bucket-listing,description=Bucket-level checks only (objects.list),expression=resource.type == 'storage.googleapis.com/Bucket'"
+done
 
 # Public read on the two data prefixes only
 gcloud storage managed-folders create gs://nivosense-cogs/staging/ gs://nivosense-cogs/prod/
@@ -203,9 +220,10 @@ After the switch, run the storage probe (1.10) on a branch and on `main`, then r
 
 `.github/workflows/storage-probe.yml` runs on any push that changes it and on demand (`workflow_dispatch`, available once the file is on `main`):
 
-- every ref: the staging writer uploads `${STAGING_PREFIX}_scratch/probe/<run>` (must be HTTP 200, no `contentEncoding`), is refused on `${DATA_PREFIX}` (must be HTTP 403), then an anonymous `OPTIONS` preflight with `Range` and a ranged GET from the Pages origin must give 200 and 206 with `Content-Range` exposed;
+- every ref: the staging writer uploads `${STAGING_PREFIX}_scratch/probe/<run>` (must be HTTP 200, no `contentEncoding`), is refused on `${DATA_PREFIX}` (must be HTTP 403), holds only `storage.objects.list` on the bucket and nothing on the `${DATA_PREFIX}` managed folder (`testIamPermissions` over object, managed-folder and multipart permissions), can list its prefix, then an anonymous `OPTIONS` preflight with `Range` and a ranged GET from the Pages origin must give 200 and 206 with `Content-Range` exposed;
 - branch refs: impersonating the prod writer must fail;
-- `main`: the prod writer uploads to both prefixes (must be HTTP 200 each), then deletes the prod probe.
+- `main`: the prod writer uploads to both prefixes (must be HTTP 200 each), then deletes the prod probe (must be HTTP 204; `prod/` has no lifecycle rule);
+- a failure on `main` opens an issue "Storage access probe failed on main", or comments on the open one.
 
 ```sh
 gh workflow run storage-probe.yml -R mariopeces/NivoSense --ref main
@@ -224,4 +242,12 @@ gh variable list -R mariopeces/NivoSense
 
 ### 1.11 Log of one-off actions
 
+- 2026-11-21: `gcloud storage buckets create gs://nivosense-data` and `gs://nivosense-staging` (`--project nivosense --location europe-west1 --uniform-bucket-level-access`): both refused by the deny policy (1.2). Net change: none.
+- 2026-11-21: the WIF provider was created, then updated once (`updateMask: attributeCondition,attributeMapping`) to the values in 1.5. Running the 1.5 command alone reproduces the final state.
+- 2026-11-21: one bucket IAM call on `nivosense-cogs` was rejected with `INVALID_ARGUMENT`. Net change: none.
+- 2026-11-21: a test object `staging/_scratch/probe/local-check` was uploaded by hand while checking CORS. The 14-day scratch rule deletes it.
+- 2026-11-22 (G-Infra round 1, finding F3): the first bucket bindings granted `objectAdmin` with the condition `resource.type == 'storage.googleapis.com/Bucket' || <prefix>`. That gave every `objectAdmin` permission checked on the bucket, including `managedFolders.*` and `multipartUploads.*`, to both writers. They were replaced by the 1.6 bindings: added first, then the old ones removed with
+  `gcloud storage buckets remove-iam-policy-binding gs://nivosense-cogs --member "serviceAccount:nivosense-gha-staging@nivosense.iam.gserviceaccount.com" --role roles/storage.objectAdmin --condition "title=staging-prefix,description=Objects under staging/ and listing,expression=resource.type == 'storage.googleapis.com/Bucket' || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/')"`
+  and
+  `gcloud storage buckets remove-iam-policy-binding gs://nivosense-cogs --member "serviceAccount:nivosense-gha-prod@nivosense.iam.gserviceaccount.com" --role roles/storage.objectAdmin --condition "title=staging-and-prod-prefixes,description=Objects under staging/ or prod/ and listing,expression=resource.type == 'storage.googleapis.com/Bucket' || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/') || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/prod/')"`.
 - 2026-11-22: `gcloud services enable policytroubleshooter.googleapis.com --project nivosense`, to check the prod writer's object rights without a run on `main`. The troubleshooter evaluated every `resource.name.startsWith(...)` condition as false, including the staging writer on `staging/`, whose real upload had succeeded, so its output was discarded. Disabled again with `gcloud services disable policytroubleshooter.googleapis.com --project nivosense --quiet`. Net change: none.
