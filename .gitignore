@@ -53,3 +53,6 @@ own
 
 # Browser automation output
 .playwright-mcp/
+
+# Domain build downloads
+.cache/
