@@ -1,96 +1,117 @@
 # Agent Guide
 
-Working notes for AI coding agents (Claude Code, Codex, Cursor, etc.) helping develop NivoSense. Read this before making changes.
+Working notes for AI coding agents (Claude Code, Codex, Cursor, etc.) developing NivoSense. Read this before making changes.
 
 ## What is NivoSense
 
-Real-time snow cover viewer for mountain ranges (starting with Sierra Nevada, Spain), built for the **Cassini Hackathon**. The product visualizes:
+A public snow viewer for the Sierra Nevada (Spain): Natural Park, its peripheral protection perimeter and the National Park. It started at the Cassini Hackathon (April 2026) and is now maintained as a product. The production target is in [docs/plan/README.md](docs/plan/README.md); in short, past and present scenes from 2025-10-01 onwards for:
 
-- **Now** — current observed snow cover (NDSI from Sentinel-2).
-- **Forecasts** — predicted snow cover at +24h, +48h, +72h, +7d, +1mo from an ML model.
-- **Stats per basin** — % coverage and trend (this year vs. multi-year average) per hydrographic sub-basin.
-- **Snow routes** — classic ski touring / snowshoe routes intersected with the active layer to show which segments are skiable.
-
-Read [README.md](README.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [ROADMAP.md](ROADMAP.md) for full context.
+- **Observed snow cover** from Sentinel-2 L2A (20 m, every clear pass).
+- **Gap-filled snow cover** (20 m, daily).
+- **SWE and snow depth** from our own assimilating snow model (100 m, daily).
+- **True colour** from Sentinel-2 L1C (10 m).
+- **Webcams** (Cetursa / feratel and live DGT cams) and **weather forecasts** (GFS, ECMWF IFS, AEMET HARMONIE-AROME).
+- **Per-basin panels**: snow area, SWE, depth and river flow.
 
 ## Critical rules
 
 These are non-negotiable:
 
-1. **Hackathon "fresh code only" constraint.** Every line in this repo must look like it was written this weekend during the hackathon. **Never** reference external repositories, libraries-by-name, or prior implementations in code, comments, commit messages, or docs. Patterns may be borrowed, but the implementation is always written from scratch in this repo.
+1. **The plan folder is the spec.** [docs/plan/](docs/plan/) holds the goal and definition of done (`README.md`), the task cards (`tasks.md`), the validation rubrics (`gauntlets.md`) and how the work is run (`orchestration.md`). Work from a card; do only what the card says. Anything else you find goes into the PR's "Found, not done" list. If this file and the plan disagree, the plan wins and this file gets fixed.
 
-2. **No hardcoded data.** Do not invent basin names, route names, snow coverage values, or sample series. Empty states and skeletons are fine; fake data is not. Real data flows from `data/*.geojson`, the backend API, or pre-computed JSONs in the bucket.
+2. **Real data only.** Never invent basin names, values, dates, scene ids, camera positions or sample series. Empty states, skeletons and honest "Sin datos" messages are fine; fake data is not. Real data comes from the pipelines, the catalogue in the bucket, or `data/*.geojson` built by a script.
 
-3. **No backwards-compat shims, no premature abstractions.** Three similar lines beats a generic helper. Refactor only when the next change becomes clearly easier. Bug fixes don't need surrounding cleanup.
+3. **Every product goes through the catalogue.** Raster products are published with `publish()` in `pipelines/catalog/` (task T0.3), which writes the files and the catalogue entry; nothing writes to the bucket directly and the frontend trusts only `catalog/index.json`. Until T0.3 lands, the existing workflows keep running as they are, and no new product is added outside that path.
 
-4. **Default to no comments.** Only add a comment when the *why* is non-obvious (a hidden constraint, a workaround, behavior that would surprise a reader). Don't restate what code already says. Don't reference task numbers or commit IDs.
+4. **Comments only for the non-obvious why.** Add a comment when there is a hidden constraint, a workaround or behaviour that would surprise a reader. Don't restate what the code says, and don't reference task numbers or commit ids in code.
 
-5. **No emojis in code or commits** unless the user explicitly asks.
+5. **Libraries and sources may be named.** Name the libraries, data sources, papers and methods you use, in code, comments, docs and commits. Cite the source of every threshold or constant (paper, calibration run or measured value). Dependencies are pinned; a new one is justified in the PR.
+
+6. **Spanish UI copy.** Everything the user reads on the site is in Spanish, in one language per screen (English may come later as an option). Code, identifiers, comments, commit messages and docs for developers stay in English.
+
+7. **Commit only within the scope Mario granted (Darwin rule, gate H0).** In `mariopeces/NivoSense`, for this plan only, agents may commit to their own branch, push it and open a PR. They never push to `main` and never merge: the coordinator squash-merges after every required gauntlet passes. The live site deploys only from a release tag (T0.7, go-live T5.4). Outside this repo and this plan, agents do not commit on Mario's behalf.
+
+8. **No secrets, no messages on Mario's behalf.** No keys, tokens or personal data in code, logs, PRs or published files; GitHub Actions reach GCP only through Workload Identity Federation. Never send an email or message to a person for Mario; outreach is prepared as a Gmail draft only.
+
+9. **No backwards-compat shims, no premature abstractions.** Three similar lines beat a generic helper. Refactor only when the next change becomes clearly easier. Bug fixes don't need surrounding cleanup.
+
+10. **No emojis in code or commits** unless Mario asks.
 
 ## Stack
 
-- **Frontend:** React 18 + Vite 5 + TypeScript + Tailwind 3 + MapLibre GL JS 4 + Recharts.
-- **Backend:** Python 3.11 + FastAPI + rio-tiler (when integrated). Single `main.py` until it grows organically.
-- **Data:** COGs (NDSI), GeoJSONs (basins, routes), JSON time series — all in **Google Cloud Storage**.
-- **Infra:** Cloud Run (backend) + GCS (data + frontend hosting) + Artifact Registry, region `europe-west1`.
+- **Frontend:** React 18, Vite 5, TypeScript 5, Tailwind CSS 3, MapLibre GL JS 6, Recharts 2. Static site on GitHub Pages; a staging build will be served from the staging bucket (T0.7).
+- **Pipelines:** Python 3.11 package `pipelines/` (numpy, rasterio/GDAL, Pillow, jsonschema, eccodes), run by scheduled GitHub Actions workflows.
+- **Data:** COGs for the archive and PMTiles for display, plus a JSON catalogue, in Google Cloud Storage (`nivosense-data` for prod, `nivosense-staging`; task T0.2). EPSG:32630, one aligned grid per resolution.
+- **Backend:** FastAPI (`backend/main.py`) is not on the critical path of v1: everything the site needs is a static file. It is kept for local development and may return for v2 features (point queries, downloads).
 
 ## Repo layout
 
 ```
 NivoSense/
-├── README.md, ARCHITECTURE.md, ROADMAP.md, development_strategy.md
-├── AGENTS.md, CLAUDE.md            ← agent guidance (this file + Claude-specific)
+├── AGENTS.md, CLAUDE.md          agent guidance (this file + Claude-specific extras)
+├── README.md, ARCHITECTURE.md    project description and original technical design
+├── ROADMAP.md, development_strategy.md, HANDOFF_CLAUDE.md, inventory_sierra_nevada.md
+│                                 hackathon-era documents, kept as history
+├── docs/plan/                    the production plan: the spec agents work from
+├── .github/workflows/            pages.yml, weather-forecasts.yml, snow-model.yml, snow-observation.yml
+├── pipelines/                    Python package run by the workflows
+│   ├── region.py, geo.py         region config loading and shared geometry helpers
+│   ├── snow_model/               DEM, forcing, snowpack, ensemble, validation, outputs
+│   └── weather_forecasts/        GFS, ECMWF, AEMET ingest and the forecast manifest
+├── regions/                      sierra-nevada.json and its committed snow calibration
+├── scripts/                      one-off and workflow helper scripts (snow observation fetch)
+├── tests/                        unittest suites for the pipelines and scripts
 ├── backend/
-│   ├── main.py                     FastAPI: /health, /layers
-│   ├── layers.yaml                 forecast horizon manifest
-│   ├── requirements.txt            rio-tiler etc. commented until wired
-│   └── Dockerfile
+│   ├── main.py                   FastAPI: /health, /layers, /observations, /predictions, /rivers, /basins
+│   ├── ingest_webcams.py         webcam catalogue refresh (run by pages.yml)
+│   ├── webcam_sources.json       webcam providers and cams
+│   ├── build_basin_series.py     per-basin snow series
+│   ├── layers.yaml, data/, tests/, Dockerfile, requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx                 owns shared state (horizon, selectedBasinId, etc.)
-│   │   ├── components/             Map, TopBanner, LeftRail, BasinChart, Legend, BasemapSwitcher
-│   │   └── lib/
-│   │       ├── horizons.ts         single source of truth for forecast horizons
-│   │       ├── icons.tsx           inline SVG icons
-│   │       ├── geo.ts              bbox + name helpers
-│   │       └── types.ts            Basin, Route, CoverageSeriesPoint
-│   └── public/data/                GeoJSONs served at /data/*.geojson during dev
-├── data/                           canonical GeoJSON sources (basins, routes)
-├── deploy/                         cloudbuild.yaml, deploy-web.sh, SETUP.md
-└── ml/                             Joan's domain — training & inference, NOT in deploy pipeline
+│   │   ├── App.tsx               owns shared state, passes it down by props
+│   │   ├── components/           Map, TopBanner, LeftRail, Legend, SnowLayerPicker,
+│   │   │                         BasinChart, SnowVolumeChart, RiverFlowChart
+│   │   └── lib/                  types, geo, icons, horizons, snowModel, snowObservation, weather
+│   └── public/                   data/ (basins.geojson, webcams.json, snow-model/) and weather/
+├── data/                         canonical GeoJSONs (basins, routes) and river flow series
+├── ml/                           hackathon ML experiments; not in any workflow
+├── deploy/                       hackathon-era Cloud Run / bucket setup (SETUP.md, cloudbuild)
+├── assets/                       logo, brand board, mockup
+└── spikes.png                    hackathon image, not referenced anywhere
 ```
 
 ## State model (frontend)
 
-State lives in `App.tsx` and is passed down by props. No Zustand, no Context. Add them only when prop drilling becomes painful (current size doesn't justify it).
+State lives in `App.tsx` and is passed down by props. No Zustand, no Context; add them only when prop drilling becomes painful. The main pieces:
 
-| State | Type | Owner | Notes |
-|---|---|---|---|
-| `horizon` | `HorizonId \| null` | App | Single source of truth for time. `null` = today. Date display is computed. |
-| `railExpanded` | `boolean` | App | Auto-expands on nav item click via `onExpand`. |
-| `layer` | `'cover' \| 'change'` | App | Drives map raster layer + Legend gradient. |
-| `statsOpen` / `routesOpen` | `boolean` | App | Accordion in LeftRail. |
-| `selectedBasinId` | `string \| null` | App | **Bidirectional sync**: clicked from map polygon OR from accordion list. |
-| `basinsFC` | `FeatureCollection \| null` | App | Fetched once at mount from `/data/basins.geojson`. |
+| State | Notes |
+|---|---|
+| `selectedObservationDate` | The date shown on the map, picked in `TopBanner` from the observation and prediction scene lists. There is no free date picker: only dates that have a scene can be selected. Task T4.2 replaces this with a timeline built from `catalog/index.json`. |
+| `layer`, `snowLayerId` | Which raster layer is on the map; drives `Legend`. Snow model layers come from `data/snow-model/manifest.json`. |
+| `weatherManifest`, `weatherHorizon`, `weatherModelId`, `weatherVariable` | Weather forecast overlay; horizons are the fixed list in `lib/weather.ts`. |
+| `hydrologicalYear` | Season shown in the basin charts (`lib/horizons.ts`). |
+| `selectedBasinId`, `selectedRiverId` | **Bidirectional sync** between the map and the rail, see below. |
+| `selectedWebcamId`, `webcams` | Webcam markers and card. |
+| `railExpanded`, `statsOpen`, `routesOpen`, `webcamsOpen`, `waterTab` | Rail and accordion state. |
+| `basinsFC`, `rivers`, `basinSeries`, `volumeSeries`, `flowSeries` | Fetched data, each with its own loading and error state. |
 
-Bidirectional sync notes:
-- Click on a basin polygon in `Map` → `onBasinSelect` callback → App → propagates to LeftRail (highlights that item) AND auto-opens the accordion / expands the rail if needed.
-- Click in LeftRail accordion → same handler → App → propagates to Map (highlights polygon, fits bounds).
+Basin selection from a map click and from the rail both go through `handleBasinSelect` in `App.tsx`, which also selects the matching river and opens the rail. Don't add a separate map-click path; the rail highlight would desync.
 
 ## MapLibre patterns
 
-- **Basemap switching wipes custom layers.** `setStyle` resets everything. Re-add custom sources/layers in the `style.load` event handler. See `Map.tsx` `addBasinsLayers()`.
-- **Refs for stable handlers.** When attaching layer event listeners that depend on props (e.g., `onBasinSelect`), use a ref so the captured value is always fresh. See `onBasinSelectRef` in `Map.tsx`.
-- **Idempotent attachment.** Use a marker (`__basinClickAttached`) reset on `style.load` to avoid double-registering click handlers across basemap changes.
-- **Selection via filter, not feature-state.** Two layer pairs (base + selected) with `setFilter` is more reliable than `feature-state` for simple highlighting.
+- **Re-add custom layers on `style.load`.** `setStyle` wipes custom sources and layers; `Map.tsx` adds them in its `style.load` handler (`addBasinsLayers`, `addWebcamLayers`).
+- **Refs for stable handlers.** Layer event listeners that depend on props read them through a ref (`onBasinSelectRef` in `Map.tsx`).
+- **Idempotent attachment.** A marker (`__basinClickAttached`) keeps click handlers from being registered twice.
+- **Selection via filter.** Two layer pairs (base + selected) with `setFilter` instead of `feature-state`.
 
 ## Data pipelines and schedules
 
-The site is static (GitHub Pages). Every product is produced by a scheduled GitHub Actions workflow, uploaded as an artifact, and restored by the single publishing workflow. Nothing user-facing is committed by hand except calibrations.
+Today the site is static (GitHub Pages). Every product is produced by a scheduled GitHub Actions workflow, uploaded as an artifact, and restored by the publishing workflow. The plan moves products to the catalogue in the bucket (T0.3, T1.6, T2.5) and freezes the live site on release tags (T0.7).
 
 | Workflow | Schedule (UTC) | Produces | Artifact |
 |---|---|---|---|
-| `pages.yml` | hourly, on push, and after the three below | webcam catalog refresh, frontend build, deploy | the site |
+| `pages.yml` | hourly, on push, and after the three below | webcam catalogue refresh, frontend build, deploy | the site |
 | `weather-forecasts.yml` | 05:30, 11:30, 17:30, 23:30 | GFS, ECMWF IFS and AEMET HARMONIE-AROME precipitation and snowfall at 24/48/72/120 h | `weather-forecasts` |
 | `snow-model.yml` | daily 07:40 | Sentinel-2 10 m snow and true colour, SWE and depth maps, basin snow volume | `snow-model` |
 | `snow-observation.yml` | daily 05:35 | GFSC from CDSE, skipped without credentials | `snow-observation-<run id>` |
@@ -99,13 +120,7 @@ A scheduled run that fails opens or comments on a GitHub issue titled "Scheduled
 
 Regions are described by `regions/<id>.json` (id, name, basins GeoJSON, optional `snow_model` settings). The weather and snow pipelines take `--region` and contain nothing specific to Sierra Nevada. To add a mountain range: add the file, run `Snow model` with mode `calibrate`, review the artifact, and commit it as `regions/<id>.snow-calibration.json`. The daily `operate` mode refuses to publish volumes and maps until a calibration passes its held-out gate.
 
-Snow model in one paragraph: Copernicus GLO-30 elevation on a UTM grid snapped to Sentinel-2 pixels, Open-Meteo hourly IFS forcing downscaled with a lapse rate and precipitation gradient, a temperature-index snowpack with a radiation term, a Latin hypercube ensemble weighted against held-out Sentinel-2 snow cover at 10 m. Magnitudes of SWE and depth are not validated against in-situ data; the UI and manifest say so.
-
-## Time / horizon model
-
-The `horizon` state has 6 values: `null` (today/nowcast) + 5 forecast IDs. **No arbitrary dates.** The date arrows in `TopBanner` step through this list — there is no way to land on, say, "today + 5 days" because that doesn't correspond to any model output. See `lib/horizons.ts`.
-
-If a future horizon is added (e.g., `plus2m`), update `lib/horizons.ts` AND `backend/layers.yaml` together.
+Snow model today, in one paragraph: Copernicus GLO-30 elevation on a UTM grid snapped to Sentinel-2 pixels, Open-Meteo hourly IFS forcing downscaled with a lapse rate and precipitation gradient, a temperature-index snowpack with a radiation term, a Latin hypercube ensemble weighted against held-out Sentinel-2 snow cover at 10 m. Magnitudes of SWE and depth are not validated against in-situ data; the UI and manifest say so. The plan's P2 tasks (forcing study, physics fixes, assimilation, three-season calibration) change this.
 
 ## Dev workflow
 
@@ -115,82 +130,66 @@ If a future horizon is added (e.g., `plus2m`), update `lib/horizons.ts` AND `bac
 cd frontend
 npm install        # first time only
 npm run dev        # http://localhost:5173
+npm run build      # tsc + production build
 ```
 
-Vite has HMR. State + style changes propagate live. On structural changes (adding new components, dependency changes), check the dev server log for errors.
+### Pipelines and tests
 
-### Backend (local)
+```bash
+python -m venv .venv
+source .venv/Scripts/activate    # Git Bash on Windows
+pip install -r pipelines/snow_model/requirements.txt -r pipelines/weather_forecasts/requirements.txt
+python -m unittest discover -s tests/snow_model -t . -v
+python -m unittest discover -s tests/weather_forecasts -v
+python -m unittest tests.test_fetch_snow_observation -v
+python -m unittest discover -s backend/tests -v
+```
+
+CI on pull requests (pytest, ruff, mypy, tsc, eslint, vitest, build) arrives with task T0.6.
+
+### Backend (local, optional)
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/Scripts/activate    # Git Bash on Windows
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8080
 ```
 
-Test:
-
-```bash
-curl http://localhost:8080/health
-curl http://localhost:8080/layers
-```
-
-### Backend (Docker)
-
-```bash
-cd backend
-docker build -t nivosense-api:local .
-docker run -p 8080:8080 nivosense-api:local
-```
-
-### Deploy
-
-See [deploy/SETUP.md](deploy/SETUP.md). The repo is set up for Cloud Run "deploy from source" (`gcloud run deploy --source backend/`) once IAM is in place.
-
 ## Common tasks
 
-### Adding a new forecast horizon
+### Wiring a new GeoJSON layer
 
-1. Add an entry to `frontend/src/lib/horizons.ts` (`HORIZONS` array, `HorizonId` type, `ORDER` array, and `horizonToDate` switch).
-2. Add the same key to `backend/layers.yaml` with the GCS path.
-3. ML pipeline starts producing the COG at the canonical path.
-4. No frontend changes needed beyond step 1 — `TopBanner` and `BasemapSwitcher` re-render automatically.
-
-### Wiring a new GeoJSON layer (e.g., routes)
-
-1. Drop the file at `data/{name}.geojson` and copy to `frontend/public/data/{name}.geojson`.
-2. In `App.tsx`, add a `useEffect` that fetches it and stores `Feature[]` in state, similar to `basinsFC`.
-3. In `Map.tsx`, add a source + layers in `addBasinsLayers`-style helper, re-added on `style.load`.
-4. Pass selected ID + select callback through props to LeftRail (for the accordion).
+1. Produce the file with a script (never by hand) at `data/{name}.geojson` and copy it to `frontend/public/data/{name}.geojson`; the two must stay identical.
+2. In `App.tsx`, fetch it in a `useEffect` and keep it in state, like `basinsFC`.
+3. In `Map.tsx`, add a source and layers in an `add...Layers` helper called from the `style.load` handler.
+4. Pass the selected id and the select callback through props to `LeftRail`.
 
 ### Adding a sidebar nav item
 
-1. Add an item in `LeftRail.tsx` with appropriate icon from `lib/icons.tsx` (or add a new icon there).
-2. Lift the corresponding state to `App.tsx`.
-3. If the item opens a panel, follow the accordion pattern (`expandable={true}` + conditional render of children).
+1. Add the item in `LeftRail.tsx` with an icon from `lib/icons.tsx`.
+2. Lift its state to `App.tsx`.
+3. If it opens a panel, follow the accordion pattern (`expandable` plus conditional children).
 
-### Adjusting visual hierarchy
+### Visual changes
 
-- Glassmorphism panels: `border-white/5 bg-slate-950/80 backdrop-blur-xl`.
-- Cyan accent: `cyan-300`, `cyan-400` for highlights, with `shadow-[0_0_*_rgba(34,211,238,0.X)]` for glow.
-- Section labels: `text-[11px] uppercase tracking-[0.22em] text-slate-400`.
+The visual system is being replaced by design tokens (task T4.1) and is checked by the G-UI rubric in `docs/plan/gauntlets.md`: colours, type, radius and shadow from tokens only, no text under 12 px, no all-caps blocks with wide tracking, no glow and no glassmorphism over the map. Don't add new inline hex colours or glow shadows.
 
 ## Things to avoid
 
-- **Adding state to a component that only the parent reads/writes.** Lift it to App.
-- **Calling `setStyle` redundantly** during basemap initialization — `Map.tsx` uses `isFirstBasemapRun` to skip this on mount.
-- **Hardcoding sample basins, routes, or stats values.** Empty states are correct.
-- **Fetching from CDSE / external APIs at runtime in the backend.** That's a build-time job; runtime serves from our bucket.
-- **Touching `darwingeospatial.com` org IAM or shared GCP resources** without explicit approval. The backend lives in a project where Mario is Owner OR uses a least-privilege runtime SA dedicated to NivoSense.
-- **Documentation files (`*.md`) created without explicit user request.** Only the planning docs already in the repo, plus this file and `CLAUDE.md` when asked.
+- **Adding state to a component that only the parent reads or writes.** Lift it to `App`.
+- **Hard-coding sample basins, routes, scenes or stats.** Empty states are correct.
+- **Fetching from external APIs at runtime in the site.** Pipelines fetch and publish; the site reads static files.
+- **Changing org policies or shared GCP resources beyond the plan.** Gate H2 lets the T0.2 builder create the NivoSense buckets, service accounts and Workload Identity Federation in `darwin-general-sandbox`, recording every command in `docs/runbook.md`. Nothing else in that project or the `darwingeospatial.com` org is touched, and org policies are never changed.
+- **Markdown files nobody asked for.** Write docs only when a card names them (for example `docs/runbook.md`, `docs/method/*.md`) or Mario asks.
 
 ## Pointers
 
-- [README.md](README.md) — public-facing project description.
-- [ARCHITECTURE.md](ARCHITECTURE.md) — full technical design + API contract + ML contract.
-- [ROADMAP.md](ROADMAP.md) — weekend timeline and per-person tasks.
-- [development_strategy.md](development_strategy.md) — original Spanish-language brief from project kickoff.
-- [deploy/SETUP.md](deploy/SETUP.md) — GCP setup commands.
-- [ml/README.md](ml/README.md) — COG format and bucket contract for the ML team.
-- [data/README.md](data/README.md) — GeoJSON schema for basins and routes.
+- [docs/plan/README.md](docs/plan/README.md): goal, definition of done, decisions, human gates.
+- [docs/plan/tasks.md](docs/plan/tasks.md): task cards.
+- [docs/plan/gauntlets.md](docs/plan/gauntlets.md): validation rubrics.
+- [docs/plan/orchestration.md](docs/plan/orchestration.md): how the work is run.
+- [README.md](README.md): public project description.
+- [ARCHITECTURE.md](ARCHITECTURE.md): original hackathon technical design (superseded by `docs/plan/README.md` section 5 where they differ).
+- [ROADMAP.md](ROADMAP.md): the hackathon weekend timeline, kept as history.
+- [data/README.md](data/README.md): GeoJSON schema for basins and routes.
+- [ml/README.md](ml/README.md): hackathon ML contract.
