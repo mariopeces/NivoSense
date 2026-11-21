@@ -1,6 +1,15 @@
+import hashlib
 import unittest
+from pathlib import Path
 
-from backend.ingest_webcams import parse_datex_cameras
+from backend.ingest_webcams import (
+    PLACEHOLDER_MD5,
+    parse_datex_cameras,
+    probe_camera_image,
+)
+
+
+PLACEHOLDER_BODY = (Path(__file__).parent / "fixtures" / "dgt_placeholder.jpg").read_bytes()
 
 
 FEED = """<?xml version="1.0" encoding="UTF-8"?>
@@ -60,6 +69,61 @@ class ParseDatexCamerasTest(unittest.TestCase):
         )
 
         self.assertIsNone(cameras[0]["image_url"])
+
+    def test_fixture_is_the_known_dgt_placeholder(self) -> None:
+        self.assertIn(hashlib.md5(PLACEHOLDER_BODY).hexdigest(), PLACEHOLDER_MD5)
+
+    def test_placeholder_image_marks_camera_offline_and_ignores_last_modified(self) -> None:
+        camera = self._camera()
+
+        probe_camera_image(
+            camera,
+            lambda url: (PLACEHOLDER_BODY, "Sat, 21 Nov 2026 00:23:03 GMT"),
+        )
+
+        self.assertTrue(camera["offline"])
+        self.assertIsNone(camera["image_url"])
+        self.assertIsNone(camera["captured_at"])
+
+    def test_real_image_stays_live_with_last_modified_as_capture_time(self) -> None:
+        camera = self._camera()
+
+        probe_camera_image(
+            camera,
+            lambda url: (b"\xff\xd8 a real frame", "Sat, 21 Nov 2026 09:10:00 GMT"),
+        )
+
+        self.assertFalse(camera["offline"])
+        self.assertEqual(camera["image_url"], "https://example.test/312.jpg")
+        self.assertEqual(camera["captured_at"], "2026-11-21T09:10:00+00:00")
+
+    def test_unreachable_image_keeps_url_without_capture_time(self) -> None:
+        camera = self._camera()
+
+        def fail(url: str) -> tuple[bytes, str | None]:
+            raise OSError("timed out")
+
+        probe_camera_image(camera, fail)
+
+        self.assertFalse(camera["offline"])
+        self.assertEqual(camera["image_url"], "https://example.test/312.jpg")
+        self.assertIsNone(camera["captured_at"])
+
+    def test_camera_without_image_is_offline(self) -> None:
+        camera = self._camera()
+        camera["image_url"] = None
+
+        probe_camera_image(camera, lambda url: self.fail("must not fetch"))
+
+        self.assertTrue(camera["offline"])
+
+    def _camera(self) -> dict:
+        return parse_datex_cameras(
+            FEED,
+            (-3.55, 36.92, -2.95, 37.18),
+            "https://example.test/feed.xml",
+            "DGT",
+        )[0]
 
     def test_rejects_malformed_xml(self) -> None:
         with self.assertRaises(Exception):

@@ -68,6 +68,7 @@ export default function App() {
   const [riversLoading, setRiversLoading] = useState(true);
   const [riversError, setRiversError] = useState<string | null>(null);
   const [observations, setObservations] = useState<ObservationScene[]>([]);
+  const [observationsLoading, setObservationsLoading] = useState(true);
   const [predictions, setPredictions] = useState<PredictionScene[]>([]);
   const [selectedObservationDate, setSelectedObservationDate] = useState<
     string | null
@@ -245,7 +246,8 @@ export default function App() {
           return items.length ? items[items.length - 1].date : null;
         });
       })
-      .catch((err) => console.error("Failed to load observations:", err));
+      .catch((err) => console.error("Failed to load observations:", err))
+      .finally(() => setObservationsLoading(false));
   }, [apiUrl]);
 
   const basins: Basin[] =
@@ -441,6 +443,7 @@ export default function App() {
       <TopBanner
         observations={observations}
         predictions={predictions}
+        scenesLoading={observationsLoading}
         selectedDate={selectedObservationDate}
         onDateChange={(date) => {
           setSelectedObservationDate(date);

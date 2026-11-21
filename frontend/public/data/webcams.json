@@ -5,10 +5,11 @@
     "location": "GRANADA",
     "latitude": 37.154346,
     "longitude": -3.491482,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/316.jpg",
-    "captured_at": "2026-10-18T12:27:02+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-317",
@@ -16,10 +17,11 @@
     "location": "GRANADA",
     "latitude": 37.14976,
     "longitude": -3.485274,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/317.jpg",
-    "captured_at": "2026-10-18T12:27:02+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-318",
@@ -27,10 +29,11 @@
     "location": "GRANADA",
     "latitude": 37.13835,
     "longitude": -3.45656,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/318.jpg",
-    "captured_at": "2026-10-18T12:27:02+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-319",
@@ -38,10 +41,11 @@
     "location": "GRANADA",
     "latitude": 37.13002,
     "longitude": -3.443039,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/319.jpg",
-    "captured_at": "2026-10-18T12:29:03+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-320",
@@ -49,10 +53,11 @@
     "location": "GRANADA",
     "latitude": 37.12387,
     "longitude": -3.449089,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/320.jpg",
-    "captured_at": "2026-10-18T12:29:03+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-312",
@@ -60,10 +65,11 @@
     "location": "GRANADA",
     "latitude": 37.105434,
     "longitude": -3.426944,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/312.jpg",
-    "captured_at": "2026-10-18T12:29:02+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-313",
@@ -71,10 +77,11 @@
     "location": "GRANADA",
     "latitude": 37.099598,
     "longitude": -3.409392,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/313.jpg",
-    "captured_at": "2026-10-18T12:29:02+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   },
   {
     "id": "dgt-321",
@@ -82,9 +89,10 @@
     "location": "GRANADA",
     "latitude": 37.15386,
     "longitude": -3.532502,
-    "image_url": "https://etraffic.dgt.es/camarasEtraffic/321.jpg",
-    "captured_at": "2026-10-18T12:27:02+00:00",
+    "image_url": null,
+    "captured_at": null,
     "source_url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
-    "attribution": "Dirección General de Tráfico (DGT)"
+    "attribution": "Dirección General de Tráfico (DGT)",
+    "offline": true
   }
 ]
