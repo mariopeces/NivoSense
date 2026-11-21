@@ -22,7 +22,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
-| T0.1 Rules | A | task_f158ee3c34b4 | fixing after r1 (follow-up ctx_fb3b418c21dc) | #3 | G-Code r1 fail (2 major, 1 minor) |
+| T0.1 Rules | A | task_f158ee3c34b4 | - | fixing after r1 (follow-up ctx_fb3b418c21dc) | #3 | G-Code r1 fail (2 major, 1 minor) |
 | T0.2 Storage and access | A | task_08987025034c | - | ready (lane A busy) | | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | building | | |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | waiting | | |
