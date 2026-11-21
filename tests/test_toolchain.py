@@ -9,7 +9,7 @@ class PinnedToolchainTests(unittest.TestCase):
         import rasterio
 
         self.assertEqual(version("rasterio"), "1.4.4")
-        self.assertEqual(rasterio.__gdal_version__, "3.10.3")
+        self.assertEqual(rasterio.__gdal_version__, "3.10.2")
 
     def test_pmtiles_builder_is_registered_with_the_rasterio_cli(self) -> None:
         plugins = {entry.name for entry in entry_points(group="rasterio.rio_plugins")}
