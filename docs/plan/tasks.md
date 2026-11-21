@@ -101,7 +101,7 @@ Soak periods (7 days of daily runs) are never a builder waiting: the builder fin
 ### T0.4 QA harness and regression fixtures
 - Lane A. Needs T0.3.
 - Do: `qa/` with:
-  - `check_catalog` (every entry's files exist, COG valid, CRS EPSG:25830, nodata set, values in range, no missing daily dates for daily layers);
+  - `check_catalog` (every entry's files exist, COG valid, CRS EPSG:32630, nodata set, values in range, no missing daily dates for daily layers);
   - `render_thumbs` (a PNG per entry for visual review, used by G-Data);
   - `freshness` (SLOs F1 and F2);
   - regression fixtures, first one the 2026-11-19/20 crest case (Q4) with the S2 scene ids.

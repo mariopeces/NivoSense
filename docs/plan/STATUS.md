@@ -22,10 +22,10 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
-| T0.1 Rules | A | task_f158ee3c34b4 | - | gauntlet r2 (G-Code: ctx_f510cd753f77) | #3 | G-Code r1 fail (2 major, 1 minor) |
-| T0.2 Storage and access | A | task_08987025034c | - | ready (lane A busy) | | |
-| T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | gauntlet r1 (G-UI light: ctx_46186010bbda, G-Code: ctx_f75556184958) | #4 | G-Code r1 pass (2 minor follow-ups) |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | waiting | | |
+| T0.1 Rules | A | task_f158ee3c34b4 | - | gauntlet r3 (G-Code: ctx_27e16659e72f) | #3 | G-Code r2 fail (1 major, 3 minor) |
+| T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_9e7f09f10236) | | |
+| T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live deploy running | #4 | G-Code r1 pass, G-UI light r1 pass |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building early (plan-ci, ctx_0f6f97451c5a; reads rules from PR #3) | | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | waiting | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
@@ -61,7 +61,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 Coordinator notes on the DAG:
 - An Orca Task settles when its builder reports `worker_done` (PR ready for review), before gauntlets and merge. A dependent task is started only when every task it needs is **merged** in this table, whatever `task-list --ready` says.
 - Deps follow the dependency graph in `tasks.md` where it is stricter than a card's "Needs" line: T0.4 also waits for T0.7, T1.1 waits for T0.4, T4.1 waits for T0.6. T4.4 does not wait for T2.5 (shows "pendiente" until model data exists).
-- T0.4 card says CRS EPSG:25830; README D2 (definition of done) says EPSG:32630. The builder spec tells T0.4 to check EPSG:32630.
+- T0.4 card said CRS EPSG:25830, contradicting README D2 (EPSG:32630). Fixed in tasks.md on 2026-11-21 toward the definition of done (typo, no change to the DoD).
 - T1.0 runs in a fresh labeller worker (not the lane B builder) so it never sees classifier code.
 
 ## Soak checks
@@ -92,3 +92,6 @@ None yet.
 - 2026-11-21: T0.5 PR #4 ready (head 4909a76); G-UI (light) and G-Code round 1 started.
 - 2026-11-21: T0.1 fixes pushed (head ad29e83); G-Code round 2 started.
 - 2026-11-21: T0.5 G-Code r1 PASS (minor follow-ups: silent except OSError backend/ingest_webcams.py:137; tsconfig not strict). Waiting on G-UI light.
+- 2026-11-21: Throughput guidance (msg_474e7ef1e8cd): one builder per lane relaxed when files do not overlap. T0.2 started in plan-infra (ctx_9e7f09f10236); T0.6 started early in plan-ci (ctx_0f6f97451c5a).
+- 2026-11-21: T0.5 G-UI light r1 PASS (minor follow-ups: 404 frame not marked offline, exact md5 match, manifest fetch without timeout, favicon 404). PR #4 squash-merged as 0076035; Pages deploy triggered by the merge.
+- 2026-11-21: T0.1 round 2 fixes pushed (head d9bcdd3); G-Code round 3 started (ctx_27e16659e72f). Plan typo fixed: T0.4 CRS now EPSG:32630.
