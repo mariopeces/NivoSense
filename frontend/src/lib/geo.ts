@@ -44,4 +44,3 @@ export function prettifyBasinName(raw: string): string {
     .replace(/(^|\s)([a-záéíóúñ])/g, (_, prefix, ch) => prefix + ch.toUpperCase())
     .replace(/\bO\b/g, "o");
 }
-export const TRIAL_COLOUR = "#3b82f6";

@@ -1,4 +1,3 @@
-import os
 import json
 from collections.abc import Iterator
 from pathlib import Path
