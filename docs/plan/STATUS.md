@@ -26,19 +26,19 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.2 Storage and access | A | task_08987025034c | - | gauntlet r2 | #7 | r1: G-Code fail, G-Infra fail; r2 running (G-Infra ctx_77cc3327cd76, G-Code ctx_5568c944d02c) on 6d1c14e |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r1 (builder ctx_2a0e2e712a9d) | #6 | G-Infra r1 fail, G-Code r1 fail (colour ban misses CSS and colours inside baselined literals) |
-| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | building, stacked on plan/t06-ci (plan-catalog, ctx_47dfd38bc970) | | |
+| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | gauntlet r1 (G-Infra ctx_061cd50a37fd, G-Data ctx_80d756e714c9; G-Code queued), stacked on plan/t06-ci | #13 | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r1 (G-Infra, G-Code), stacked on plan/t06-ci | #12 | |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
-| T1.1 S2 ingest | B | task_597641229107 | T0.4 | building early, local folder (plan-observation, ctx_14ada5544ce7) | | |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
+| T1.1 S2 ingest | B | task_597641229107 | T0.4 | ready for gauntlets (G-Data, G-Method, G-Code queued for a free slot) | #14 | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | waiting | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
-| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | waiting | | |
+| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | building, stacked on plan/t11-s2-ingest (plan-rgb, ctx_4e549ad175fb) | | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | building early (plan-model, ctx_4c7ee8195baf) | | |
-| T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | waiting | | |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | ready for gauntlets (G-Data, G-Method, G-Code queued for a free slot), merges after T0.3 | #15 | |
+| T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | building, stacked on plan/t21-domain (plan-forcing); scores wait for T1.7 | | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
@@ -121,3 +121,4 @@ None yet.
 - 2026-11-22: T3.1 G-Data r1 FAIL (2 F3 majors): hotlinked provider image shown with the age of the frame checked at ingest; MD5-only placeholder detection misses other feratel renditions. Coordinator decision: no F3 exception for hotlinking; the site shows exactly the stored, checked still with its captured_at (local folder now, staging prefix via publish after T0.2/T0.3); add Last-Modified == Date, duplicate-bytes and perceptual placeholder guards.
 - 2026-11-22: T3.1 G-Code r1 FAIL: feratel localises its placeholder by language (5 MD5s); only German fingerprinted, no language header sent, so the Spanish placeholder passes as live. Sent to the builder with the G-Data fixes.
 - 2026-11-22: T0.7 PR #12 ready (staging-site.yml: main push publishes staging/site/, labelled PR publishes staging/site/pr-N/, staging writer only, no gzip, immutable hashed assets; pages.yml deploys only from v* tags, hourly and post-pipeline runs rebuild the latest v* tag with fresh data; v* deployment policy added to the github-pages environment; preview run 44961917497 green and idempotent). Merge order note: the coordinator must push the T0.5 release tag (v*) on main before merging T0.7, or the hourly live data refresh fails. G-Infra and G-Code round 1 started.
+- 2026-11-22: Ready: T0.3 PR #13 (71 tests, CI green 44962170504; live publish of 2 real S2 dates to staging/_scratch; deviation to judge: three concurrency groups catalog-staging/-prod/-promote), T1.1 PR #14 (30 acquisitions match an independent query, 11 dates; 2026-11-10 in, 2026-11-05 out at 9.4% coverage; split datatake on 2026-11-17 kept), T2.1 PR #15 (domain 1722.380 km2 vs legal 172,238 ha; NP and PNat within 0.001 km2 of legal areas; MITECO sub-basins fetched once by browser, sha256 recorded, clipped copy in data/sources/). Gauntlets at the limit of 6: T0.3 G-Infra and G-Data started; T0.3 G-Code, T1.1 x3 and T2.1 x3 queued. Started under the stacked-branch rule: T0.4 on plan/t03-catalog, T1.3 on plan/t11-s2-ingest, T2.2 on plan/t21-domain (archive inventory first).
