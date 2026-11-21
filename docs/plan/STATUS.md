@@ -1,6 +1,6 @@
 # NivoSense production run: status
 
-Kept by the coordinator (see `orchestration.md`). Last update: 2026-11-21.
+Kept by the coordinator (see `orchestration.md`). Last update: 2026-11-21 (coordinator handover after the 01:55 outage).
 
 - Orca Run: `run_d154a40aeb1c` (objective: NivoSense to production, README section 2 is the definition of done)
 - Agent: claude only. Limits: at most 5 builders and about 6 gauntlets alive at once; one active builder per lane.
@@ -23,9 +23,9 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
-| T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_9e7f09f10236) | | |
+| T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_aaa1f0cbfe48; restarted after outage, was ctx_9e7f09f10236) | | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building early (plan-ci, ctx_0f6f97451c5a; reads rules from PR #3) | | |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building (plan-ci, ctx_3b3936fa57cb; restarted after outage, was ctx_0f6f97451c5a) | | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | waiting | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
@@ -74,7 +74,7 @@ Coordinator notes on the DAG:
 
 ## Waiting for Mario
 
-1. **Dedicated buckets (blocked by an org IAM deny policy).** Decision needed: ask a Darwin org admin to create `nivosense-data` and `nivosense-staging` in project `nivosense` (europe-west1), or to add a deny-policy exception for Mario on that project. Every Darwin project denies `storage.buckets.create` to Mario's account and new projects cannot be created; other orgs' projects are not acceptable homes. Recommendation: the admin creates the two buckets (exact commands in `docs/runbook.md` once T0.2 lands). Meanwhile, work continues on an interim layout: prefixes `staging/` and `prod/` in the existing bucket `nivosense-cogs`, with prefix-scoped IAM conditions; moving later is a variable change plus a copy. Nothing is blocked while this waits.
+1. **Dedicated buckets (blocked by an org IAM deny policy).** Decision needed: ask a Darwin org admin to create `nivosense-data` and `nivosense-staging` in project `nivosense` (europe-west1), or to add a deny-policy exception for Mario on that project. Every Darwin project denies `storage.buckets.create` to Mario's account and new projects cannot be created; other orgs' projects are not acceptable homes. Recommendation: the admin creates the two buckets (exact commands in `docs/runbook.md` once T0.2 lands). Information only, nothing waits on it: under advance OK item 2 the coordinator continues on the interim layout: prefixes `staging/` and `prod/` in the existing bucket `nivosense-cogs`, with prefix-scoped IAM conditions; moving later is a variable change plus a copy. Nothing is blocked while this waits; the dedicated buckets are a later variable change plus a copy.
 
 Advance OK (README section 4) covers the other escalation cases.
 
@@ -101,3 +101,4 @@ None yet.
 - 2026-11-21: T0.5 done: live site verified after deploy (issuecomment-7054364229): 'Sin escenas disponibles' shown, 8/8 DGT cams offline, no placeholder card. Lane E idle until T0.6 merges (T4.1).
 - 2026-11-21: T0.1 G-Code r3 PASS; PR #3 squash-merged as 6c602c5. Follow-ups (non-blocking): README.md:31 hackathon wording; no v* release path defined for fixes after go-live (T5.3 runbook / T5.4 should cover); pages.yml push trigger is path-filtered (T0.7 replaces it).
 - 2026-11-21: T0.2 blocked by an org IAM deny policy on storage.buckets.create in every Darwin project (also no project creation). Coordinator decision: no other-org projects, no workaround of the deny; SAs + WIF in project nivosense now; interim storage under staging/ and prod/ prefixes of existing bucket nivosense-cogs with prefix-scoped IAM conditions, if bucket IAM/update rights exist. Dedicated buckets added to Waiting for Mario.
+- 2026-11-21: Outage. A network outage at about 01:55 (API ENOTFOUND) killed the T0.6 builder (ctx_0f6f97451c5a, uncommitted work in plan-ci) and the T0.2 builder (ctx_9e7f09f10236, commit 49a346b in plan-infra) mid-task, and the coordinator chat with them; the run stalled about 6 h. Coordinator handover to a new chat. Both dispatches stopped (guarded stop, terminals closed); fresh builders started on the same Tasks in the same worktrees with a recovery brief: T0.6 ctx_3b3936fa57cb, T0.2 ctx_aaa1f0cbfe48. T0.2 continues on the interim nivosense-cogs staging/ and prod/ layout (advance OK item 2); the dedicated-bucket item stays as information only. Workers silent for more than 45 minutes are now checked with worker-show and worker-read.
