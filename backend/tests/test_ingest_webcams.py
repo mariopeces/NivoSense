@@ -1,5 +1,6 @@
 import hashlib
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from backend.ingest_webcams import (
@@ -7,7 +8,6 @@ from backend.ingest_webcams import (
     parse_datex_cameras,
     probe_camera_image,
 )
-
 
 PLACEHOLDER_BODY = (Path(__file__).parent / "fixtures" / "dgt_placeholder.jpg").read_bytes()
 
@@ -126,7 +126,7 @@ class ParseDatexCamerasTest(unittest.TestCase):
         )[0]
 
     def test_rejects_malformed_xml(self) -> None:
-        with self.assertRaises(Exception):
+        with self.assertRaises(ET.ParseError):
             parse_datex_cameras(
                 "<payload>",
                 (-3.55, 36.92, -2.95, 37.18),

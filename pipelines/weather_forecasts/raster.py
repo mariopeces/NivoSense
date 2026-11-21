@@ -1,6 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from .config import MIN_VISIBLE_MM
+
+if TYPE_CHECKING:
+    import numpy as np
+    from affine import Affine
+    from rasterio.crs import CRS
 
 PALETTES = {
     "precipitation_total": (
@@ -20,7 +28,14 @@ PALETTES = {
 }
 
 
-def _write_field(destination: Path, data, transform, crs, description: str, extra=()) -> None:
+def _write_field(
+    destination: Path,
+    data: np.ma.MaskedArray,
+    transform: Affine,
+    crs: CRS | str,
+    description: str,
+    extra: tuple[tuple[np.ndarray, str], ...] = (),
+) -> None:
     import rasterio
     from rasterio.enums import Resampling
 
@@ -76,7 +91,7 @@ def build_accumulated_precipitation(inputs: list[Path], destination: Path) -> No
                 raise ValueError(f"Grid mismatch in {path}")
             total += data
 
-    if total is None:
+    if total is None or transform is None or crs is None:
         raise ValueError("At least one precipitation input is required")
 
     _write_field(destination, total, transform, crs, "precipitation_total_accumulated_mm")
@@ -98,7 +113,9 @@ def build_regional_field(
     with source.open("rb") as handle:
         message = eccodes.codes_grib_new_from_file(handle)
     try:
-        get = lambda key: eccodes.codes_get(message, key)
+        def get(key: str) -> Any:
+            return eccodes.codes_get(message, key)
+
         if get("jScansPositively") or get("iScansNegatively"):
             raise ValueError("Unsupported GRIB scanning mode")
         columns, rows = get("Ni"), get("Nj")
@@ -129,7 +146,7 @@ def build_regional_field(
     _write_field(destination, data, transform, "EPSG:4326", description)
 
 
-def build_classified_field(decoded: list, transform, destination: Path) -> None:
+def build_classified_field(decoded: list, transform: Affine, destination: Path) -> None:
     import numpy as np
 
     estimate = np.ma.masked_array(sum(item[2] for item in decoded))

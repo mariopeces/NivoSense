@@ -2,10 +2,11 @@ import argparse
 import copy
 import json
 import shutil
-import sys
 import time
+from collections.abc import Iterator
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any, cast
 
 import numpy as np
 
@@ -14,7 +15,7 @@ from . import observations as obs
 from .dem import load_elevation, slope_aspect
 from .ensemble import sample_members, tempered_weights, weighted_quantiles
 from .forcing import fetch_forcing, neighbour_weights
-from .grid import Grid, build_grid
+from .grid import build_grid
 from .outputs import (
     MIN_VISIBLE_DEPTH_M,
     MIN_VISIBLE_SWE_MM,
@@ -25,7 +26,7 @@ from .outputs import (
     write_observation_png,
 )
 from .radiation import radiation_index
-from .snowpack import Domain, build_tables, simulate
+from .snowpack import Domain, Tables, build_tables, simulate
 from .validation import confusion_metrics, gate, misclassification, observed_snow, split_fit_test
 
 DEFAULTS = {
@@ -54,14 +55,15 @@ LIMITATIONS = [
     "Temperature-index melt with a radiation term; no wind redistribution, sublimation or avalanching",
     "The season starts snow-free, so glaciers and perennial snow are not represented",
     "Forcing is a 9 km to 25 km analysis downscaled with an elevation lapse rate and a precipitation gradient",
-    "Skill is verified against Sentinel-2 snow cover only; snow water equivalent and depth magnitudes are not verified against in-situ measurements",
+    "Skill is verified against Sentinel-2 snow cover only; "
+    "snow water equivalent and depth magnitudes are not verified against in-situ measurements",
 ]
 PERCENTILES = [0.1, 0.5, 0.9]
 CLEAR_SCENE_FRACTION = 0.75
 
 
 def merged_settings(region: Region) -> dict:
-    settings = copy.deepcopy(DEFAULTS)
+    settings: dict[str, Any] = copy.deepcopy(DEFAULTS)
     for key, value in region.settings.get("snow_model", {}).items():
         if isinstance(value, dict) and isinstance(settings.get(key), dict):
             settings[key].update(value)
@@ -129,7 +131,7 @@ def current_year(start_month: int) -> int:
     return today.year if today.month >= start_month else today.year - 1
 
 
-def prepare_year(static: Static, year: int, cache: Path):
+def prepare_year(static: Static, year: int, cache: Path) -> tuple[date, date, Tables, Domain] | None:
     settings = static.settings
     start, end = year_bounds(year, settings["hydrological_year_start_month"])
     if (end - start).days < 1:
@@ -159,7 +161,9 @@ def prepare_year(static: Static, year: int, cache: Path):
     return start, end, tables, domain
 
 
-def observation_arrays(static: Static, scene: obs.Scene, cache: Path):
+def observation_arrays(
+    static: Static, scene: obs.Scene, cache: Path
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Observed snow state and usability on the model cells, plus the 10 m masks."""
     fine = static.grid.refined()
     snow, valid = obs.cached_snow_mask(scene, fine, cache)
@@ -170,7 +174,9 @@ def observation_arrays(static: Static, scene: obs.Scene, cache: Path):
     return observed, usable, snow, valid
 
 
-def usable_scenes(static: Static, scenes: list[obs.Scene], cache: Path):
+def usable_scenes(
+    static: Static, scenes: list[obs.Scene], cache: Path
+) -> Iterator[tuple[obs.Scene, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
     minimum = static.settings["observation"]["min_usable_fraction"]
     for scene in scenes:
         observed, usable, snow, valid = observation_arrays(static, scene, cache)
@@ -288,7 +294,9 @@ def quantile_series(values: np.ndarray, weights: np.ndarray) -> dict:
     return {"p10": low, "p50": middle, "p90": high}
 
 
-def previous_season(static: Static, year: int, members: list, weights: np.ndarray, cache: Path, stamp: str):
+def previous_season(
+    static: Static, year: int, members: list, weights: np.ndarray, cache: Path, stamp: str
+) -> dict | None:
     """Median and range of snow water volume per basin for the last complete season, cached."""
     path = cache / f"season-{static.region.id}-{year}-{stamp}.json"
     if path.exists():
@@ -340,7 +348,7 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
     log(f"{len(recent)} recent Sentinel-2 days")
     kept = list(usable_scenes(static, recent, cache))
 
-    layers = {}
+    layers: dict[str, Any] = {}
     if kept:
         clear = [row for row in kept if row[4].mean() >= CLEAR_SCENE_FRACTION]
         scene, observed, usable, snow, valid = (
@@ -364,13 +372,13 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
             "date": scene.day.isoformat(),
             "resolution_m": 10,
             "valid_fraction": round(float(valid.mean()), 3),
-            "snow_fraction_of_valid": round(float(snow.sum() / max(valid.sum(), 1)), 4),
+            "snow_fraction_of_valid": round(float(snow.sum() / max(int(valid.sum()), 1)), 4),
             "source": "Sentinel-2 L2A, NDSI >= 0.4 at 10 m (contains modified Copernicus Sentinel data)",
         }
 
     verdict = calibration["gate"]
     status = {"available": False, "reasons": list(verdict["reasons"])}
-    manifest = {
+    manifest: dict[str, Any] = {
         "schema_version": 1,
         "region": {"id": region.id, "name": region.name},
         "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -423,7 +431,7 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
             if 0 <= (scene.day - start).days < len(tables.days)
         }
         results = []
-        for number, member in enumerate(chosen, start=1):
+        for member in chosen:
             results.append(
                 simulate(domain, tables, member["parameters"], set(observation_days), True)
             )
@@ -438,8 +446,8 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
         snowfall = quantile_series(np.stack([r.basin_snowfall_hm3 for r in results]), weights)
         melt = quantile_series(np.stack([r.basin_melt_hm3 for r in results]), weights)
         for index, basin in enumerate(manifest["basins"]):
-            def series(source):
-                return {key: np.round(value[:, index], 4).tolist() for key, value in source.items()}
+            def series(source: dict[str, np.ndarray], column: int = index) -> dict[str, list]:
+                return {key: np.round(value[:, column], 4).tolist() for key, value in source.items()}
 
             write_json(
                 output / "series" / f"{basin['id']}.json",
@@ -475,8 +483,9 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
                 },
             }
 
-        final_swe = np.stack([r.final_swe for r in results])
-        final_depth = np.stack([r.final_depth for r in results])
+        # simulate(..., keep_final=True) always sets the final states.
+        final_swe = np.stack([cast(np.ndarray, r.final_swe) for r in results])
+        final_depth = np.stack([cast(np.ndarray, r.final_depth) for r in results])
         mean_swe = to_grid(weights @ final_swe, static.cell_index, grid)
         mean_depth = to_grid(weights @ final_depth, static.cell_index, grid)
         low_swe, high_swe = weighted_quantiles(final_swe, weights, [0.1, 0.9])
@@ -552,4 +561,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

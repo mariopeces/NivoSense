@@ -7,9 +7,9 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+from pipelines.weather_forecasts import aemet
 from pipelines.weather_forecasts.config import COMMON_HORIZONS_HOURS
 from pipelines.weather_forecasts.cycles import select_latest_cycle
-from pipelines.weather_forecasts import aemet
 from pipelines.weather_forecasts.ecmwf import EcmwfClient
 from pipelines.weather_forecasts.gfs import accumulation_steps
 from pipelines.weather_forecasts.manifest import Field, ModelOutput, build_manifest
@@ -17,7 +17,6 @@ from pipelines.weather_forecasts.raster import (
     build_accumulated_precipitation,
     build_regional_field,
 )
-
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SCHEMA = Path("pipelines/weather_forecasts/manifest.schema.json")
@@ -279,7 +278,7 @@ class ForecastPipelineTests(unittest.TestCase):
 
     def test_aemet_decode_assigns_nearest_legend_class(self):
         try:
-            import numpy as np
+            import numpy  # noqa: F401
             import rasterio  # noqa: F401
         except ImportError:
             self.skipTest("Raster dependencies are not installed")

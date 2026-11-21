@@ -47,7 +47,7 @@ def search_scenes(
         "query": {"eo:cloud_cover": {"lt": max_cloud}},
     }
     by_day = defaultdict(list)
-    request = urllib.request.Request(
+    request: urllib.request.Request | None = urllib.request.Request(
         STAC_SEARCH_URL,
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json"},
@@ -181,8 +181,8 @@ def snow_mask(scene: Scene, fine: Grid) -> tuple[np.ndarray, np.ndarray]:
 
 def true_colour(scene: Scene, fine: Grid, cache: Path) -> Path:
     """Sentinel-2 true colour at 10 m for one acquisition day, as a cached JPEG."""
-    from PIL import Image
     import rasterio
+    from PIL import Image
 
     cache.mkdir(parents=True, exist_ok=True)
     path = cache / f"s2-rgb-{fine.signature()}-{scene.day.isoformat()}.jpg"

@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import hashlib
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from affine import Affine
 
 OBSERVATION_RESOLUTION_M = 10.0
 
@@ -21,7 +27,7 @@ class Grid:
     height: int
 
     @property
-    def transform(self):
+    def transform(self) -> Affine:
         from rasterio.transform import from_origin
 
         return from_origin(self.left, self.top, self.resolution, self.resolution)
@@ -61,7 +67,7 @@ class Grid:
         lons, lats = transform(self.crs, "EPSG:4326", xs, ys)
         return [[lon, lat] for lon, lat in zip(lons, lats)]
 
-    def cell_centres_lonlat(self):
+    def cell_centres_lonlat(self) -> tuple[np.ndarray, np.ndarray]:
         from rasterio.warp import transform
 
         columns = self.left + (np.arange(self.width) + 0.5) * self.resolution
