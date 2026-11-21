@@ -243,11 +243,13 @@ export default function Map({
     if (!map || !selectedWebcamId) return;
     const webcam = webcams.find((item) => item.id === selectedWebcamId);
     if (!webcam) return;
+    const { longitude, latitude } = webcam;
+    if (longitude === null || latitude === null) return;
 
     const focus = () => {
       applySelectedWebcam(map, selectedWebcamId);
       map.flyTo({
-        center: [webcam.longitude, webcam.latitude],
+        center: [longitude, latitude],
         zoom: Math.max(map.getZoom(), 13),
         duration: 800,
       });
@@ -263,18 +265,24 @@ export default function Map({
 function webcamFeatureCollection(webcams: Webcam[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
-    features: webcams.map((webcam) => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [webcam.longitude, webcam.latitude],
-      },
-      properties: {
-        id: webcam.id,
-        name: webcam.name,
-        offline: webcam.offline,
-      },
-    })),
+    features: webcams.flatMap((webcam) =>
+      webcam.longitude === null || webcam.latitude === null
+        ? []
+        : [
+            {
+              type: "Feature" as const,
+              geometry: {
+                type: "Point" as const,
+                coordinates: [webcam.longitude, webcam.latitude],
+              },
+              properties: {
+                id: webcam.id,
+                name: webcam.name,
+                offline: webcam.status === "offline",
+              },
+            },
+          ],
+    ),
   };
 }
 

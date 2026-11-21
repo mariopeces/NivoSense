@@ -206,7 +206,8 @@ function WebcamAccordion({
     <ul className="ml-3 flex flex-col gap-2 border-l border-white/5 pl-3">
       {webcams.map((webcam) => {
         const active = webcam.id === selectedId;
-        const imageUrl = safeImageUrl(webcam.image_url);
+        const imageUrl = safeImageUrl(webcam.thumbnail_url);
+        const offline = webcam.status === "offline";
         return (
           <li
             key={webcam.id}
@@ -216,14 +217,14 @@ function WebcamAccordion({
                 : "border-white/5 bg-slate-900/45"
             }`}
           >
-            {webcam.offline ? (
+            {offline ? (
               <div className="flex aspect-video w-full items-center justify-center bg-slate-950 text-[12px] text-slate-500">
                 Cámara sin imagen
               </div>
             ) : imageUrl && (
               <img
                 src={imageUrl}
-                alt={`Latest view from ${webcam.name}`}
+                alt={`Última imagen de ${webcam.name}`}
                 className="aspect-video w-full bg-slate-950 object-cover"
                 loading="lazy"
                 referrerPolicy="no-referrer"
@@ -249,7 +250,7 @@ function WebcamAccordion({
             </button>
             <div className="flex items-center justify-between gap-2 border-t border-white/5 px-2.5 py-1.5 text-[9px] text-slate-500">
               <span className="whitespace-nowrap">
-                {webcam.offline ? "Sin conexión" : formatCapturedAt(webcam.captured_at)}
+                {offline ? "Sin conexión" : formatCapturedAt(webcam.captured_at)}
               </span>
               <a
                 href={webcam.source_url}
@@ -297,13 +298,21 @@ function safeImageUrl(value: string | null) {
 }
 
 function formatCapturedAt(value: string | null) {
-  if (!value) return "Time unavailable";
+  if (!value) return "Hora desconocida";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Time unavailable";
-  return new Intl.DateTimeFormat("en", {
+  if (Number.isNaN(date.getTime())) return "Hora desconocida";
+  const minutes = Math.max(0, Math.round((Date.now() - date.getTime()) / 60_000));
+  const age =
+    minutes < 60
+      ? `hace ${minutes} min`
+      : minutes < 48 * 60
+        ? `hace ${Math.round(minutes / 60)} h`
+        : `hace ${Math.round(minutes / 1440)} d`;
+  const time = new Intl.DateTimeFormat("es", {
     dateStyle: "short",
     timeStyle: "short",
   }).format(date);
+  return `${age} · ${time}`;
 }
 
 function RegionPill({

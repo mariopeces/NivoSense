@@ -23,18 +23,29 @@ class WebcamCatalogTest(unittest.TestCase):
             self.assertNotIn(camera["id"], ids)
             ids.add(camera["id"])
             self.assertTrue(camera["name"])
-            self.assertLessEqual(west, camera["longitude"])
-            self.assertLessEqual(camera["longitude"], east)
-            self.assertLessEqual(south, camera["latitude"])
-            self.assertLessEqual(camera["latitude"], north)
-            self.assertIsInstance(camera["offline"], bool)
-            if camera["offline"]:
-                self.assertIsNone(camera["image_url"])
+            self.assertTrue(camera["provider"])
+            if camera["latitude"] is None:
+                self.assertIsNone(camera["longitude"])
+            else:
+                self.assertLessEqual(west, camera["longitude"])
+                self.assertLessEqual(camera["longitude"], east)
+                self.assertLessEqual(south, camera["latitude"])
+                self.assertLessEqual(camera["latitude"], north)
+                self.assertEqual(urlparse(camera["position_source"]).scheme, "https")
+            self.assertIn(camera["status"], {"live", "offline"})
+            if camera["status"] == "offline":
+                self.assertIsNone(camera["thumbnail_url"])
+                self.assertIsNone(camera["large_url"])
                 self.assertIsNone(camera["captured_at"])
-            if camera["image_url"] is not None:
-                self.assertEqual(urlparse(camera["image_url"]).scheme, "https")
+            for key in ("thumbnail_url", "large_url"):
+                if camera[key] is not None:
+                    self.assertEqual(urlparse(camera[key]).scheme, "https")
             self.assertEqual(urlparse(camera["source_url"]).scheme, "https")
             self.assertTrue(camera["attribution"])
+            if camera["id"].startswith("cetursa-"):
+                self.assertEqual(
+                    camera["attribution"], "Imagen: Cetursa Sierra Nevada / feratel"
+                )
 
 
 if __name__ == "__main__":
