@@ -66,7 +66,7 @@ Skeleton rows and "no data" messages are deliberate while real data is wired. Do
 
 ## Don't
 
-- Don't run `gcloud` (or other outside) actions your card doesn't need. What a card needs is allowed under gate H2 and the advance OK in `docs/plan/README.md` section 4, with every command recorded in `docs/runbook.md`; never change org policies, never touch resources other workloads use, never message a person for Mario, never commit secrets.
+- Don't run `gcloud` (or other outside) actions your card doesn't need. What a card needs is allowed under gate H2 and the advance OK in `docs/plan/README.md` section 4, with every command recorded in `docs/runbook.md`: `darwin-general-sandbox` first, another Darwin or a dedicated project if its org policy blocks the plan (record why); never change org policies, never touch resources other workloads use, never message a person for Mario, never commit secrets.
 - Don't commit, push or open PRs outside the H0 scope above. Never merge and never push to `main`.
 - Don't introduce a new dependency without justifying it in the PR.
 - Don't create Markdown files unless a card names them or Mario asks.

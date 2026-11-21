@@ -29,7 +29,7 @@ These are non-negotiable:
 
 6. **Spanish UI copy.** Everything the user reads on the site is in Spanish, in one language per screen (English may come later as an option). Code, identifiers, comments, commit messages and docs for developers stay in English.
 
-7. **Commit only within the scope Mario granted (Darwin rule, gate H0).** In `mariopeces/NivoSense`, for this plan only, agents may commit to their own branch, push it and open a PR. They never push to `main` and never merge: the coordinator squash-merges after every required gauntlet passes. Today `pages.yml` still deploys the live site hourly and on every push; from T0.7 on it deploys only from a release tag (go-live is T5.4). Outside this repo and this plan, agents do not commit on Mario's behalf.
+7. **Commit only within the scope Mario granted (Darwin rule, gate H0).** In `mariopeces/NivoSense`, for this plan only, agents may commit to their own branch, push it and open a PR. They never push to `main` and never merge: the coordinator squash-merges after every required gauntlet passes. Today `pages.yml` still deploys the live site hourly and on every push; from T0.7 on it deploys only from a release tag (the T0.5 hotfix is the one exception before go-live, T5.4). Outside this repo and this plan, agents do not commit on Mario's behalf.
 
 8. **No secrets, no messages on Mario's behalf.** No keys, tokens or personal data in code, logs, PRs or published files; GitHub Actions reach GCP only through Workload Identity Federation. Never send an email or message to a person for Mario; outreach is prepared as a Gmail draft only.
 
@@ -180,7 +180,7 @@ The visual system is being replaced by design tokens (task T4.1) and is checked 
 - **Adding state to a component that only the parent reads or writes.** Lift it to `App`.
 - **Hard-coding sample basins, routes, scenes or stats.** Empty states are correct.
 - **Fetching from external APIs at runtime in the site.** Pipelines fetch and publish; the site reads static files.
-- **GCP and other outside actions beyond the plan.** Cloud resources and tooling outside the repo are allowed when a card needs them, under gate H2 and Mario's advance OK in [docs/plan/README.md](docs/plan/README.md) section 4: record every command in `docs/runbook.md`; never change org policies (if one blocks the plan, pick the cleanest alternative project and record why); never message a person on Mario's behalf; never commit secrets. Resources other workloads use are not modified.
+- **GCP and other outside actions beyond the plan.** Cloud resources and tooling outside the repo are allowed when a card needs them, under gate H2 and Mario's advance OK in [docs/plan/README.md](docs/plan/README.md) section 4: NivoSense resources go in `darwin-general-sandbox` first; if its org policy blocks the plan, never change the policy: pick the cleanest alternative (another Darwin project that allows it, or a dedicated project) and record why; record every command in `docs/runbook.md`; never message a person on Mario's behalf; never commit secrets. Resources other workloads use are not modified.
 - **Markdown files nobody asked for.** Write docs only when a card names them (for example `docs/runbook.md`, `docs/method/*.md`) or Mario asks.
 
 ## Pointers
