@@ -251,3 +251,64 @@ gh variable list -R mariopeces/NivoSense
   and
   `gcloud storage buckets remove-iam-policy-binding gs://nivosense-cogs --member "serviceAccount:nivosense-gha-prod@nivosense.iam.gserviceaccount.com" --role roles/storage.objectAdmin --condition "title=staging-and-prod-prefixes,description=Objects under staging/ or prod/ and listing,expression=resource.type == 'storage.googleapis.com/Bucket' || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/staging/') || resource.name.startsWith('projects/_/buckets/nivosense-cogs/objects/prod/')"`.
 - 2026-11-22: `gcloud services enable policytroubleshooter.googleapis.com --project nivosense`, to check the prod writer's object rights without a run on `main`. The troubleshooter evaluated every `resource.name.startsWith(...)` condition as false, including the staging writer on `staging/`, whose real upload had succeeded, so its output was discarded. Disabled again with `gcloud services disable policytroubleshooter.googleapis.com --project nivosense --quiet`. Net change: none.
+
+## 2. Sites and releases (T0.7)
+
+### 2.1 Where the sites live
+
+| Site | URL | Built from | Workflow |
+|---|---|---|---|
+| Live | https://mariopeces.github.io/NivoSense/ | the newest release tag (2.2), with data restored from the legacy pipeline artifacts | `pages.yml` |
+| Staging | `https://storage.googleapis.com/${STAGING_BUCKET}/${STAGING_PREFIX}site/index.html` (today https://storage.googleapis.com/nivosense-cogs/staging/site/index.html) | `main`, on every push that touches `frontend/` | `staging-site.yml` |
+| PR preview | `.../${STAGING_PREFIX}site/pr-<n>/index.html` | the PR head, while the PR has the label `staging-preview` | `staging-site.yml` |
+
+storage.googleapis.com serves no index pages, so the staging and preview URLs must end in `index.html`; the bare directory returns 404.
+
+`assets/` (fingerprinted by Vite) is published with `Cache-Control: public, max-age=31536000, immutable`, every other file with `no-cache`. Nothing is gzip-encoded (1.7).
+
+Previews are kept under `site/pr-<n>/` by the workflow, not by IAM: the staging writer may write all of `${STAGING_PREFIX}` (1.6), and a preview runs the workflow file of the PR head. A PR that edits `staging-site.yml` can therefore overwrite the staging site or other staging objects, never prod. Review changes to that file accordingly.
+
+### 2.2 Releases
+
+A release is a tag `vMAJOR.MINOR.PATCH` (no suffix) on a commit of `main`. `pages.yml` deploys only the newest release (`scripts/pick_release.py`): the hourly and post-pipeline runs rebuild it with fresh data, and a tag push that is not the newest release fails the run. Any other tag (`vtest`, `v1.0.0-rc1`, a tag on a branch) is ignored. Only the coordinator pushes release tags, on a merged `main` commit (AGENTS.md rule 7).
+
+```sh
+git fetch origin main
+git tag -a v0.2.0 -m "<what changed>" origin/main
+git push origin v0.2.0
+gh run list -R mariopeces/NivoSense --workflow pages.yml -L 3   # the tag run logs "Deploying release v0.2.0 (<sha>)"
+python scripts/pick_release.py                                   # dry run locally after git fetch --tags
+```
+
+Rolling back by pushing an older tag is refused (it is not the newest release); see the T5.3 follow-up.
+
+### 2.3 Repository settings
+
+```sh
+# The github-pages environment allowed only branch main; tag deploys need a tag policy.
+R=repos/mariopeces/NivoSense/environments/github-pages/deployment-branch-policies
+gh api -X POST $R -f name='v[0-9]*.[0-9]*.[0-9]*' -f type=tag
+gh api $R --jq '.branch_policies[] | {name,type}'
+# {"name":"main","type":"branch"}
+# {"name":"v[0-9]*.[0-9]*.[0-9]*","type":"tag"}
+
+# Only repository admins may create, move or delete v* tags.
+gh api -X POST repos/mariopeces/NivoSense/rulesets --input - <<'JSON'
+{
+  "name": "release-tags",
+  "target": "tag",
+  "enforcement": "active",
+  "conditions": {"ref_name": {"include": ["refs/tags/v*"], "exclude": []}},
+  "rules": [{"type": "creation"}, {"type": "update"}, {"type": "deletion"}],
+  "bypass_actors": [{"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}]
+}
+JSON
+gh api repos/mariopeces/NivoSense/rulesets --jq '.[] | {id,name,target,enforcement}'
+
+# Label that asks for a PR preview.
+gh label create staging-preview -R mariopeces/NivoSense --description "Publish a staging site preview for this PR" --color 0E8A16
+```
+
+Every agent pushes as the repository admin, so the ruleset stops other writers, not an agent; the release check in `pick_release.py` is what keeps a stray tag off the live site.
+
+Log: 2026-11-22, the tag policy was first created as `v*` (id 67721681) and replaced by the pattern above (id 67722504) after review; ruleset `release-tags` id 27815705.

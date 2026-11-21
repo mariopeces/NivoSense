@@ -1,8 +1,9 @@
 name: Publish site
 
-# The live site's code comes only from a release tag: a pushed v* tag deploys that
-# tag, and every other run rebuilds the latest v* tag with fresh data. Pages serves
-# one artifact, so a data refresh is a redeploy of the same tagged code.
+# The live site's code comes only from a release: a tag vMAJOR.MINOR.PATCH on a
+# main commit (scripts/pick_release.py). Every run deploys the newest release with
+# fresh data; a pushed tag that is not that release fails. Pages serves one
+# artifact, so a data refresh is a redeploy of the same tagged code.
 on:
   push:
     tags: ["v*"]
@@ -34,23 +35,22 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Full history and tags, so the picker can check that a release tag is on main.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Pick the release
         id: release
         run: |
-          if [ "$GITHUB_REF_TYPE" = tag ]; then
-            tag=$GITHUB_REF_NAME
-          else
-            tag=$(git ls-remote --tags --refs "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" 'v*' | sed 's|.*refs/tags/||' | sort -V | tail -1)
-          fi
-          if [ -z "$tag" ]; then
-            echo "::error::No v* release tag exists; the live site deploys only from a release tag"
-            exit 1
-          fi
-          echo "Deploying release $tag"
+          pushed=()
+          if [ "$GITHUB_REF_TYPE" = tag ]; then pushed=(--pushed-tag "$GITHUB_REF_NAME"); fi
+          tag=$(python3 scripts/pick_release.py --main-ref refs/remotes/origin/main "${pushed[@]}")
+          echo "Deploying release $tag ($(git rev-parse "refs/tags/$tag^{commit}"))"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
-        with:
-          ref: refs/tags/${{ steps.release.outputs.tag }}
+      - name: Check out the release
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: git checkout --detach "refs/tags/$TAG"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -143,7 +143,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          title="Scheduled workflow failed: ${{ github.workflow }}"
+          title="Workflow failed: ${{ github.workflow }}"
           body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then

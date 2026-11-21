@@ -6,6 +6,9 @@ name: Staging site
 on:
   push:
     branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/staging-site.yml"
   pull_request:
     types: [labeled, synchronize, reopened]
   workflow_dispatch:
@@ -13,7 +16,6 @@ on:
 permissions:
   contents: read
   id-token: write
-  issues: write
 
 concurrency:
   group: staging-site-${{ github.event.pull_request.number || 'main' }}
@@ -95,8 +97,15 @@ jobs:
           cmp -s body.out "frontend/dist/${asset}"
           echo "Staging site: ${URL}index.html" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Report a failed run on main
-        if: failure() && github.event_name != 'pull_request'
+  report-failure:
+    needs: publish
+    if: failure() && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or comment on the failure issue
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

@@ -117,7 +117,7 @@ Today the site is static (GitHub Pages). Every product is produced by a schedule
 | `snow-model.yml` | daily 07:40 | Sentinel-2 10 m snow and true colour, SWE and depth maps, basin snow volume | `snow-model` |
 | `snow-observation.yml` | daily 05:35 | GFSC from CDSE, skipped without credentials | `snow-observation-<run id>` |
 
-A scheduled run that fails opens or comments on a GitHub issue titled "Scheduled workflow failed: <name>".
+A scheduled run that fails opens or comments on a GitHub issue titled "Scheduled workflow failed: <name>". `Publish site` and `Staging site` report every failed run, whatever the trigger, under "Workflow failed: <name>".
 
 Regions are described by `regions/<id>.json` (id, name, basins GeoJSON, optional `snow_model` settings). The weather and snow pipelines take `--region` and contain nothing specific to Sierra Nevada. To add a mountain range: add the file, run `Snow model` with mode `calibrate`, review the artifact, and commit it as `regions/<id>.snow-calibration.json`. The daily `operate` mode refuses to publish volumes and maps until a calibration passes its held-out gate.
 
