@@ -25,7 +25,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 gauntlet r1 (G-Infra ctx_6201df376921, G-Code ctx_40a04501d25e) | #7 | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building (plan-ci, ctx_2a0e2e712a9d) | | |
+gauntlet r1 (G-Infra, G-Code) | #6 | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | building, stacked on plan/t06-ci (plan-catalog, ctx_47dfd38bc970) | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
@@ -111,3 +111,4 @@ None yet.
 - 2026-11-22: Mario asked for maximum effort and more parallel work. Recorded: T4.0 Design spec (new Orca Task task_de79f54a990b, design lead in plan-design, ctx_343998a361a6); stacked-branch rule; limits raised to 7 builders and 6 gauntlets; quality bar on real renders. Started early under the stacked-branch rule, each in its own child worktree: T0.3 on a branch from plan/t06-ci (plan-catalog, ctx_47dfd38bc970), T2.1 (plan-model, ctx_4c7ee8195baf), T3.1 (plan-webcams, ctx_a867ffda15fb), T1.1 against a local folder (plan-observation, ctx_14ada5544ce7). 7 builders alive.
 - 2026-11-22: T0.2 PR #7 ready (runbook from live state, branch probe run 44960713581 green: staging 200, prod 403, no gzip; public read only on managed folders staging/ and prod/). G-Infra and G-Code round 1 started. The main-ref probe can only run after merge: the coordinator checks the storage-probe run on main right after the squash merge.
 - 2026-11-22: T2.1 decisions: domain = Parque Nacional U Parque Natural (Espacio Natural Sierra Nevada, 172,238 ha); per Decreto 238/2011 the peripheral protection zone is the Natural Park, no separate polygon exists. Sub-basins stay on MITECO Pfafstetter (keeps cod_uni codes the site uses); its download page has an ALTCHA check, so the builder downloads the two zips once through a normal browser session (no bypass), records URL, date, licence and sha256, and commits a clipped source copy if the licence allows. If that fails it goes on Waiting for Mario.
+- 2026-11-22: T0.6 PR #6 ready (CI green run 44960881559 in 35 s; failing trials 44960645571 lint, 44960736562 types, 44960813093 tests; hashed locks pin rasterio 1.4.4 / GDAL 3.10.3 and rio-pmtiles 1.2.2; snow-model cache keyed on content hash, exact hit shown; 54 existing colours baselined with ESLint bulk suppressions). G-Infra and G-Code round 1 started.
