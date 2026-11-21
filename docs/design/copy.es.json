@@ -1,0 +1,317 @@
+{
+  "$about": "NivoSense Spanish UI copy deck. Every label, tooltip and empty state. Keys are stable ids for the frontend (T4.1 to T4.5, T3.4). Braced tokens like {fecha} are filled at runtime; formats are in 'formats'. Tone: plain, precise, no marketing, no exclamation marks, sentence case, 'tú' never needed (impersonal or infinitive).",
+  "formats": {
+    "fecha_corta": "d MMM yyyy, months in lowercase without dot: '21 feb 2026'",
+    "fecha_larga": "EEEE d 'de' MMMM 'de' yyyy: 'sábado 21 de febrero de 2026'",
+    "hora": "HH:mm, Europe/Madrid, 24 h: '00:22'",
+    "edad": "'hace 4 min', 'hace 3 h', 'hace 2 días'; over 7 days: the fecha_corta",
+    "numero": "es-ES: thousands with a thin space only from 10 000, decimal comma: '319,2 km²', '1 250 mm'",
+    "unidades": "space before the unit: '20 m', '25 mm', '50 %'; units are never dropped from a value"
+  },
+  "app": {
+    "nombre": "NivoSense",
+    "descripcion": "Nieve en Sierra Nevada: observada por satélite, rellenada a diario y modelada",
+    "dominio": "Parque Natural de Sierra Nevada, su zona periférica de protección y Parque Nacional"
+  },
+  "rail": {
+    "nieve": "Nieve",
+    "agua": "Agua",
+    "webcams": "Webcams",
+    "meteo": "Meteo",
+    "metodo": "Método",
+    "mapa_base": "Mapa",
+    "relieve_3d": "3D",
+    "ocultar_panel": "Ocultar",
+    "mostrar_panel": "Mostrar",
+    "tooltip_nieve": "Capas de nieve",
+    "tooltip_agua": "Cuencas: nieve y caudal",
+    "tooltip_webcams": "Cámaras en el mapa",
+    "tooltip_meteo": "Previsión meteorológica",
+    "tooltip_metodo": "Cómo se hace cada capa",
+    "tooltip_mapa_base": "Cambiar el mapa base",
+    "tooltip_relieve_3d_on": "Ver el relieve en 3D",
+    "tooltip_relieve_3d_off": "Volver a la vista en planta",
+    "tooltip_ocultar_panel": "Ocultar el panel (el mapa ocupa todo)",
+    "tooltip_mostrar_panel": "Mostrar el panel"
+  },
+  "mapa_base": {
+    "titulo": "Mapa base",
+    "claro": "Claro (IGN)",
+    "ortofoto": "Ortofoto PNOA (IGN)",
+    "nota_rgb": "La imagen Sentinel-2 es una capa con fecha, no un mapa base. Está en Nieve."
+  },
+  "panel": {
+    "nieve": {
+      "eyebrow": "Nieve",
+      "titulo": "Sierra Nevada",
+      "subtitulo": "Parque Nacional y Parque Natural con su zona periférica"
+    },
+    "agua": {
+      "eyebrow": "Agua",
+      "titulo": "Cuencas",
+      "subtitulo": "Nieve y caudal por cuenca. Elige una en el mapa o en la lista."
+    },
+    "webcams": {
+      "eyebrow": "Webcams",
+      "titulo": "Cámaras",
+      "subtitulo": "Cada imagen con su hora real de captura y su autor."
+    },
+    "meteo": {
+      "eyebrow": "Meteo",
+      "titulo": "Previsión",
+      "subtitulo": "GFS, ECMWF IFS y AEMET HARMONIE-AROME, cuatro pasadas al día."
+    },
+    "metodo": {
+      "eyebrow": "Método",
+      "titulo": "Cómo se hace cada capa",
+      "subtitulo": "Fuentes, procesado, validación y límites conocidos."
+    },
+    "grupo_capas_nieve": "Capas de nieve",
+    "grupo_imagen": "Imagen",
+    "grupo_referencia": "Referencia"
+  },
+  "estado": {
+    "observado": "Observado",
+    "rellenado": "Rellenado",
+    "modelado": "Modelado",
+    "prevision": "Previsión",
+    "pendiente": "Pendiente",
+    "tooltip_observado": "Visto por el satélite en esa fecha.",
+    "tooltip_rellenado": "Sin imagen despejada ese día: estimado a partir de las observaciones más cercanas.",
+    "tooltip_modelado": "Calculado por el modelo de nieve, que corrige su estado con cada observación despejada.",
+    "tooltip_prevision": "Calculado a partir de una previsión meteorológica; puede cambiar.",
+    "tooltip_pendiente": "La capa está prevista pero todavía no se publica."
+  },
+  "capa": {
+    "nieve_observada": {
+      "nombre": "Nieve observada",
+      "fuente": "Sentinel-2 L2A",
+      "resolucion": "20 m",
+      "cadencia": "Cada pasada despejada",
+      "estado": "observado",
+      "descripcion": "Nieve vista por Sentinel-2 en la fecha de la pasada. Donde hay nube o sombra del relieve no se decide."
+    },
+    "nieve_diaria": {
+      "nombre": "Nieve diaria",
+      "fuente": "Nieve observada rellenada en el tiempo",
+      "resolucion": "20 m",
+      "cadencia": "Diaria",
+      "estado": "rellenado",
+      "descripcion": "Probabilidad de nieve para cada día. Los días sin imagen despejada se estiman con las observaciones anterior y siguiente, la cota de nieve y el modelo."
+    },
+    "swe": {
+      "nombre": "Equivalente en agua (SWE)",
+      "fuente": "Modelo de nieve NivoSense",
+      "resolucion": "100 m",
+      "cadencia": "Diaria",
+      "estado": "modelado",
+      "descripcion": "Agua contenida en la nieve, en milímetros. Mediana del conjunto de simulaciones. Por debajo de 5 mm no se dibuja."
+    },
+    "espesor": {
+      "nombre": "Espesor de nieve",
+      "fuente": "Modelo de nieve NivoSense",
+      "resolucion": "100 m",
+      "cadencia": "Diaria",
+      "estado": "modelado",
+      "descripcion": "Espesor del manto en centímetros: SWE dividido por la densidad modelada. Solo donde el SWE llega a 5 mm."
+    },
+    "color_real": {
+      "nombre": "Color real",
+      "fuente": "Sentinel-2 L1C",
+      "resolucion": "10 m",
+      "cadencia": "Cada pasada",
+      "estado": "observado",
+      "descripcion": "Imagen en color real con un ajuste de brillo pensado para la nieve, igual en todas las fechas para poder compararlas."
+    },
+    "cuencas": {
+      "nombre": "Cuencas",
+      "fuente": "Subcuencas recortadas al Parque Nacional (ES610002)",
+      "descripcion": "Límites de las subcuencas. Toca una para ver su nieve y su caudal."
+    },
+    "estacion": {
+      "nombre": "Estación de esquí",
+      "descripcion": "La nieve artificial queda fuera del alcance del modelo; esta zona no cuenta en la validación."
+    },
+    "webcams": {
+      "nombre": "Webcams",
+      "descripcion": "Cámaras con su orientación y campo de visión."
+    }
+  },
+  "fila_capa": {
+    "mostrar": "Mostrar {capa}",
+    "ocultar": "Ocultar {capa}",
+    "opacidad": "Opacidad",
+    "opacidad_valor": "{valor} %",
+    "info": "Información de {capa}",
+    "meta": "{fuente} · {resolucion}",
+    "fecha_observacion": "Escena del {fecha_corta}",
+    "fecha_observacion_rellenado": "Última observación real: {fecha_corta} (hace {dias} días)",
+    "fecha_modelado": "Estado del {fecha_corta}, corregido con la pasada del {fecha_obs}",
+    "sin_escena_en_fecha": "Sin escena este día. La más cercana: {fecha_corta}.",
+    "ir_a_escena": "Ir al {fecha_corta}",
+    "pendiente": "Aún no se publica",
+    "pendiente_detalle": "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha."
+  },
+  "info_capa": {
+    "titulo": "Sobre esta capa",
+    "fuente": "Fuente",
+    "resolucion": "Resolución",
+    "cadencia": "Frecuencia",
+    "fecha_dato": "Dato real del",
+    "estado": "Estado",
+    "escenas": "Escenas de origen",
+    "unidades": "Unidades",
+    "metodo": "Ver el método",
+    "cerrar": "Cerrar"
+  },
+  "leyenda": {
+    "probabilidad": "Probabilidad de nieve (%)",
+    "swe": "SWE (mm)",
+    "espesor": "Espesor (cm)",
+    "nieve": "Nieve",
+    "nieve_baja_confianza": "Nieve, confianza baja (bosque)",
+    "sin_nieve": "Sin nieve (se ve la imagen)",
+    "nube": "Nube",
+    "sin_dato": "Sin dato (sombra del relieve o fuera de la escena)",
+    "transparente_swe": "Menos de 5 mm: sin color",
+    "transparente_probabilidad": "Menos de 10 %: sin color",
+    "chip_mapa": "{capa} · {fecha_corta}"
+  },
+  "linea_tiempo": {
+    "etiqueta": "Fecha del mapa",
+    "anterior": "Fecha anterior con datos",
+    "siguiente": "Fecha siguiente con datos",
+    "reproducir": "Reproducir",
+    "pausar": "Pausar",
+    "ultima": "Última",
+    "tooltip_ultima": "Ir a la fecha más reciente con datos",
+    "calendario": "Elegir en el calendario",
+    "teclado": "Flechas: día anterior o siguiente. Mayús + flechas: pasada anterior o siguiente. Inicio y Fin: primera y última fecha.",
+    "leyenda_observado": "Observado",
+    "leyenda_rellenado": "Rellenado",
+    "leyenda_modelado": "Modelado",
+    "leyenda_prevision": "Previsión",
+    "leyenda_pendiente": "Pendiente",
+    "tick_tooltip": "{fecha_larga} · {estados}",
+    "temporada": "Año hidrológico {inicio}-{fin}",
+    "hoy": "Hoy",
+    "sin_datos": "Aún no hay escenas publicadas.",
+    "sin_datos_detalle": "La línea de tiempo se llena con cada escena que se publica, desde el 1 oct 2025."
+  },
+  "cuenca": {
+    "lista_titulo": "Cuencas",
+    "area": "Superficie",
+    "area_valor": "{valor} km² en el Parque Nacional",
+    "nieve_area": "Superficie con nieve",
+    "swe_medio": "SWE medio",
+    "espesor_medio": "Espesor medio",
+    "volumen": "Agua en la nieve",
+    "esta_temporada": "Esta temporada",
+    "temporada_anterior": "Temporada anterior",
+    "grafico_titulo_nieve": "Superficie con nieve (km²)",
+    "grafico_titulo_swe": "SWE medio (mm)",
+    "eje_fecha": "Fecha",
+    "pendiente": "Pendiente del modelo",
+    "pendiente_detalle": "Las series de SWE y espesor por cuenca aparecerán cuando el modelo publique su primera temporada.",
+    "pendiente_nieve_area": "La superficie con nieve aparecerá con las primeras escenas publicadas.",
+    "volver": "Todas las cuencas",
+    "seleccionar": "Elige una cuenca en el mapa o en la lista."
+  },
+  "caudal": {
+    "titulo": "Caudal",
+    "unidad": "m³/s",
+    "estacion": "Estación {nombre}",
+    "fuente_saih_guadalquivir": "SAIH Guadalquivir (Confederación Hidrográfica del Guadalquivir)",
+    "fuente_hidrosur": "Red Hidrosur (Junta de Andalucía)",
+    "pendiente": "Sin serie conectada",
+    "pendiente_detalle": "La estación existe, pero su serie aún no se descarga de la fuente oficial."
+  },
+  "webcam": {
+    "en_directo": "En directo",
+    "sin_imagen": "Sin imagen",
+    "capturada": "Captura: {fecha_corta}, {hora}",
+    "edad": "{edad}",
+    "credito_cetursa": "Imagen: Cetursa Sierra Nevada / feratel",
+    "credito_dgt": "Imagen: Dirección General de Tráfico (DGT)",
+    "abrir_fuente": "Ver en la web del proveedor",
+    "orientacion": "Mira hacia {rumbo}° ({punto_cardinal}), campo de {campo}°",
+    "orientacion_pendiente": "Orientación pendiente de verificar",
+    "offline_titulo": "Cámara sin imagen",
+    "offline_detalle": "El proveedor no sirve imagen ahora mismo. No se muestra ninguna imagen antigua como si fuera actual.",
+    "offline_ultima": "Última imagen válida: {fecha_corta}, {hora}",
+    "offline_ultima_desconocida": "No consta ninguna imagen válida.",
+    "imagen_antigua": "Imagen antigua: tiene más de {horas} h",
+    "ampliar": "Ver la imagen grande",
+    "cerrar": "Cerrar",
+    "lista_vivas": "Con imagen",
+    "lista_sin_imagen": "Sin imagen",
+    "proveedor_cetursa": "Cetursa Sierra Nevada (feratel)",
+    "proveedor_dgt": "DGT, cámaras de carretera",
+    "cetursa_alta_pendiente": "Cámaras de la estación: alta pendiente",
+    "cetursa_alta_pendiente_detalle": "Se añadirán con su posición, orientación y crédito.",
+    "tooltip_simbolo": "{nombre} · {estado}",
+    "leyenda_cono": "Con imagen: el cono muestra hacia dónde mira la cámara y hasta dónde llega su vista.",
+    "leyenda_sin_imagen": "Sin imagen ahora mismo.",
+    "leyenda_sin_orientacion": "Con imagen, orientación aún sin verificar: sin cono."
+  },
+  "metodo": {
+    "indice": "En esta página",
+    "seccion_nieve_observada": "Nieve observada",
+    "seccion_nieve_diaria": "Nieve diaria",
+    "seccion_modelo": "SWE y espesor",
+    "seccion_color_real": "Color real",
+    "seccion_webcams": "Webcams",
+    "seccion_validacion": "Validación",
+    "seccion_limites": "Límites conocidos",
+    "seccion_datos": "Datos y licencias",
+    "fuente_y_licencia": "Fuente y licencia",
+    "como_se_calcula": "Cómo se calcula",
+    "como_se_valida": "Cómo se valida",
+    "resultado_pendiente": "Resultado pendiente: se publicará aquí cuando termine la validación.",
+    "limite_estacion": "La nieve producida en la estación de esquí no la ve el modelo; esa zona se marca en el mapa y no cuenta en la validación.",
+    "limite_sombra": "En laderas en sombra del relieve el satélite no puede decidir: se marca como sin dato, nunca como sin nieve.",
+    "limite_bosque": "Bajo arbolado la nieve se ve peor: se marca como confianza baja.",
+    "volver_mapa": "Volver al mapa"
+  },
+  "vacio": {
+    "sin_catalogo_titulo": "Aún no hay escenas publicadas",
+    "sin_catalogo_detalle": "El mapa base y las cuencas están disponibles. Las capas de nieve aparecerán con la primera escena publicada.",
+    "sin_capa_activa": "Ninguna capa de nieve visible. Activa una en la lista.",
+    "sin_seleccion_cuenca": "Elige una cuenca en el mapa o en la lista.",
+    "sin_webcams": "Ninguna cámara con imagen en este momento."
+  },
+  "cargando": {
+    "catalogo": "Cargando el catálogo",
+    "capa": "Cargando {capa}",
+    "teselas": "Cargando la imagen del {fecha_corta}",
+    "grafico": "Cargando la serie"
+  },
+  "error": {
+    "catalogo_titulo": "No se pudo cargar el catálogo",
+    "catalogo_detalle": "Sin catálogo no se sabe qué fechas existen. El mapa base sigue disponible.",
+    "capa": "No se pudo cargar {capa} del {fecha_corta}.",
+    "imagen_webcam": "No se pudo cargar la imagen.",
+    "reintentar": "Reintentar",
+    "datos_antiguos": "Datos con retraso: la última actualización fue {edad}."
+  },
+  "mapa": {
+    "acercar": "Acercar",
+    "alejar": "Alejar",
+    "norte": "Orientar al norte",
+    "escala": "Escala",
+    "atribucion_ign": "© Instituto Geográfico Nacional (IGN), CC BY 4.0 scne.es",
+    "atribucion_s2": "Contiene datos modificados de Copernicus Sentinel {anio}",
+    "atribucion_cuencas": "Cuencas: {fuente}",
+    "$nota_atribucion_cuencas": "data/basins.geojson does not record its origin; T2.1 rebuilds the sub-basins and must fill {fuente}. Until then the attribution line is omitted, not guessed."
+  },
+  "movil": {
+    "abrir_panel": "Abrir el panel",
+    "cerrar_panel": "Cerrar el panel",
+    "asa": "Arrastra para ampliar o reducir"
+  },
+  "estado_servicio": {
+    "al_dia": "Datos al día",
+    "retraso": "Retraso en {capa}",
+    "detalle": "Comprobado {edad}"
+  }
+}
