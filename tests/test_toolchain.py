@@ -13,7 +13,7 @@ class PinnedToolchainTests(unittest.TestCase):
 
     def test_pmtiles_builder_is_registered_with_the_rasterio_cli(self) -> None:
         plugins = {entry.name for entry in entry_points(group="rasterio.rio_plugins")}
-        self.assertIn("pmtiles", plugins)
+        self.assertIn("pmtiles-gauntlet", plugins)
         self.assertEqual(version("rio-pmtiles"), "1.2.2")
 
 

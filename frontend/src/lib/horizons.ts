@@ -76,3 +76,5 @@ export function isLastHorizon(h: HorizonId | null): boolean {
 export function currentHydrologicalYear(now: Date = new Date()): number {
   return now.getMonth() >= 9 ? now.getFullYear() + 1 : now.getFullYear();
 }
+
+export const gauntletProbe: number = "r2";
