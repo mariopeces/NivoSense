@@ -22,7 +22,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
-| T0.1 Rules | A | task_f158ee3c34b4 | - | gauntlet r3 (G-Code: ctx_27e16659e72f) | #3 | G-Code r2 fail (1 major, 3 minor) |
+| T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | building (plan-infra, ctx_9e7f09f10236) | | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | building early (plan-ci, ctx_0f6f97451c5a; reads rules from PR #3) | | |
@@ -97,3 +97,4 @@ None yet.
 - 2026-11-21: T0.1 round 2 fixes pushed (head d9bcdd3); G-Code round 3 started (ctx_27e16659e72f). Plan typo fixed: T0.4 CRS now EPSG:32630.
 - 2026-11-21: Change of approach (T0.2): the local account lacks IAM rights to create buckets/SAs/WIF in darwin-general-sandbox (org policy itself allows public buckets). Coordinator approved building in Darwin project `nivosense` (352045667691, Mario owner, already holds nivosense-cogs/-web, same org policies) under advance OK items 2 and 5. Existing buckets left untouched.
 - 2026-11-21: T0.5 done: live site verified after deploy (issuecomment-7054364229): 'Sin escenas disponibles' shown, 8/8 DGT cams offline, no placeholder card. Lane E idle until T0.6 merges (T4.1).
+- 2026-11-21: T0.1 G-Code r3 PASS; PR #3 squash-merged as 6c602c5. Follow-ups (non-blocking): README.md:31 hackathon wording; no v* release path defined for fixes after go-live (T5.3 runbook / T5.4 should cover); pages.yml push trigger is path-filtered (T0.7 replaces it).
