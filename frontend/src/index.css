@@ -75,3 +75,8 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.3);
 }
+
+.gauntlet-r2 {
+  --gauntlet-accent: #ff00ff;
+  color: var(--gauntlet-accent);
+}

@@ -74,7 +74,7 @@ export default function LeftRail({
   return (
     <aside
       className="pointer-events-auto absolute bottom-0 left-0 top-16 z-20 flex flex-col border-r border-white/5 bg-[#081020]/65 backdrop-blur-lg transition-[width] duration-200"
-      style={{ width }}
+      style={{ width, borderColor: "magenta", outlineColor: "color-mix(in srgb, rgb(calc(255) 0 255) 50%, red)" }}
     >
       <div className="flex flex-col gap-2 overflow-y-auto p-3">
         <RegionPill
@@ -481,3 +481,6 @@ function TabButton({
     </button>
   );
 }
+
+// eslint-disable-next-line local/no-hard-coded-colour
+export const GAUNTLET_R2_PROBE = "#00ff00";
