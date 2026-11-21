@@ -1,3 +1,4 @@
+import os
 import json
 from collections.abc import Iterator
 from pathlib import Path
@@ -35,3 +36,7 @@ def bbox_from_geojson(path: Path) -> tuple[float, float, float, float]:
         raise ValueError(f"No coordinates found in {path}")
     longitudes, latitudes = zip(*points)
     return min(longitudes), min(latitudes), max(longitudes), max(latitudes)
+
+
+def trial_type_error() -> int:
+    return "not an int"

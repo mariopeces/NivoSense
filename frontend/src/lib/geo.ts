@@ -44,3 +44,4 @@ export function prettifyBasinName(raw: string): string {
     .replace(/(^|\s)([a-záéíóúñ])/g, (_, prefix, ch) => prefix + ch.toUpperCase())
     .replace(/\bO\b/g, "o");
 }
+export const trialYear: string = 1;
