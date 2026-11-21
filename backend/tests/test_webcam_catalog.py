@@ -39,3 +39,7 @@ class WebcamCatalogTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_gauntlet_probe_fails():
+    assert 1 + 1 == 3
