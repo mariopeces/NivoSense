@@ -23,10 +23,10 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
-| T0.2 Storage and access | A | task_08987025034c | - | gauntlet r2 | #7 | r1: G-Code fail, G-Infra fail; r2 running (G-Infra ctx_77cc3327cd76, G-Code ctx_5568c944d02c) on 6d1c14e |
+| T0.2 Storage and access | A | task_08987025034c | - | gauntlet r2 | #7 | r1: G-Code fail, G-Infra fail; r2: G-Infra PASS (6d1c14e), G-Code running |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r1 (builder ctx_2a0e2e712a9d) | #6 | G-Infra r1 fail, G-Code r1 fail (colour ban misses CSS and colours inside baselined literals) |
-| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | gauntlet r1 (G-Infra ctx_061cd50a37fd, G-Data ctx_80d756e714c9; G-Code queued), stacked on plan/t06-ci | #13 | |
+| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | gauntlet r1 (G-Infra ctx_061cd50a37fd, G-Data ctx_80d756e714c9; G-Code running), stacked on plan/t06-ci | #13 | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r1 (G-Infra, G-Code), stacked on plan/t06-ci | #12 | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | ready for gauntlets (G-Data, G-Method, G-Code queued for a free slot) | #14 | |
@@ -122,3 +122,4 @@ None yet.
 - 2026-11-22: T3.1 G-Code r1 FAIL: feratel localises its placeholder by language (5 MD5s); only German fingerprinted, no language header sent, so the Spanish placeholder passes as live. Sent to the builder with the G-Data fixes.
 - 2026-11-22: T0.7 PR #12 ready (staging-site.yml: main push publishes staging/site/, labelled PR publishes staging/site/pr-N/, staging writer only, no gzip, immutable hashed assets; pages.yml deploys only from v* tags, hourly and post-pipeline runs rebuild the latest v* tag with fresh data; v* deployment policy added to the github-pages environment; preview run 44961917497 green and idempotent). Merge order note: the coordinator must push the T0.5 release tag (v*) on main before merging T0.7, or the hourly live data refresh fails. G-Infra and G-Code round 1 started.
 - 2026-11-22: Ready: T0.3 PR #13 (71 tests, CI green 44962170504; live publish of 2 real S2 dates to staging/_scratch; deviation to judge: three concurrency groups catalog-staging/-prod/-promote), T1.1 PR #14 (30 acquisitions match an independent query, 11 dates; 2026-11-10 in, 2026-11-05 out at 9.4% coverage; split datatake on 2026-11-17 kept), T2.1 PR #15 (domain 1722.380 km2 vs legal 172,238 ha; NP and PNat within 0.001 km2 of legal areas; MITECO sub-basins fetched once by browser, sha256 recorded, clipped copy in data/sources/). Gauntlets at the limit of 6: T0.3 G-Infra and G-Data started; T0.3 G-Code, T1.1 x3 and T2.1 x3 queued. Started under the stacked-branch rule: T0.4 on plan/t03-catalog, T1.3 on plan/t11-s2-ingest, T2.2 on plan/t21-domain (archive inventory first).
+- 2026-11-22: T0.2 G-Infra r2 PASS at 6d1c14e (minors as follow-ups: probe lists DATA_BUCKET instead of STAGING_BUCKET; main unprotected). T0.3 G-Code round 1 started.
