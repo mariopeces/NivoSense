@@ -95,3 +95,4 @@ None yet.
 - 2026-11-21: Throughput guidance (msg_474e7ef1e8cd): one builder per lane relaxed when files do not overlap. T0.2 started in plan-infra (ctx_9e7f09f10236); T0.6 started early in plan-ci (ctx_0f6f97451c5a).
 - 2026-11-21: T0.5 G-UI light r1 PASS (minor follow-ups: 404 frame not marked offline, exact md5 match, manifest fetch without timeout, favicon 404). PR #4 squash-merged as 0076035; Pages deploy triggered by the merge.
 - 2026-11-21: T0.1 round 2 fixes pushed (head d9bcdd3); G-Code round 3 started (ctx_27e16659e72f). Plan typo fixed: T0.4 CRS now EPSG:32630.
+- 2026-11-21: Change of approach (T0.2): the local account lacks IAM rights to create buckets/SAs/WIF in darwin-general-sandbox (org policy itself allows public buckets). Coordinator approved building in Darwin project `nivosense` (352045667691, Mario owner, already holds nivosense-cogs/-web, same org policies) under advance OK items 2 and 5. Existing buckets left untouched.
