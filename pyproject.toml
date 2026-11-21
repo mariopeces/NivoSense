@@ -23,3 +23,5 @@ warn_unused_ignores = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "backend/tests"]
+# The tests import the repo packages (pipelines, scripts, backend) from the root, as the workflows do with `python -m`.
+pythonpath = ["."]
