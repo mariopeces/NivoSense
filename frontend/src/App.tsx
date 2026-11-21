@@ -426,7 +426,7 @@ export default function App() {
     selectedBasin !== null && !showFlowChart;
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#081020] text-slate-100">
+    <div className="relative h-screen w-screen overflow-hidden bg-[#ff00ff] text-slate-100">
       <Map
         basinsFC={basinsFC}
         selectedBasinId={selectedBasinId}
