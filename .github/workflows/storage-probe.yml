@@ -80,7 +80,8 @@ jobs:
             folder=$(jq -rn --arg n "$FOLDER" '$n|@uri')
             granted=$(curl -sf -H "Authorization: Bearer $TOKEN" "$api/managedFolders/$folder/iam/testPermissions?$asked" | jq -c '.permissions // []')
             echo "on managed folder $FOLDER: $granted"
-            test "$granted" = '[]'
+            # listing inherits from the bucket grant; anything else would be a write or IAM right
+            test "$(jq -c 'map(select(. != "storage.objects.list"))' <<<"$granted")" = '[]'
           fi
           code=$(curl -s -o list.json -w '%{http_code}' -H "Authorization: Bearer $TOKEN" \
             "$api/o?maxResults=1&prefix=$(jq -rn --arg n "$LIST_PREFIX" '$n|@uri')")

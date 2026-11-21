@@ -220,7 +220,7 @@ After the switch, run the storage probe (1.10) on a branch and on `main`, then r
 
 `.github/workflows/storage-probe.yml` runs on any push that changes it and on demand (`workflow_dispatch`, available once the file is on `main`):
 
-- every ref: the staging writer uploads `${STAGING_PREFIX}_scratch/probe/<run>` (must be HTTP 200, no `contentEncoding`), is refused on `${DATA_PREFIX}` (must be HTTP 403), holds only `storage.objects.list` on the bucket and nothing on the `${DATA_PREFIX}` managed folder (`testIamPermissions` over object, managed-folder and multipart permissions), can list its prefix, then an anonymous `OPTIONS` preflight with `Range` and a ranged GET from the Pages origin must give 200 and 206 with `Content-Range` exposed;
+- every ref: the staging writer uploads `${STAGING_PREFIX}_scratch/probe/<run>` (must be HTTP 200, no `contentEncoding`), is refused on `${DATA_PREFIX}` (must be HTTP 403), holds only `storage.objects.list` on the bucket and on the `${DATA_PREFIX}` managed folder (`testIamPermissions` over object, managed-folder and multipart permissions), can list its prefix, then an anonymous `OPTIONS` preflight with `Range` and a ranged GET from the Pages origin must give 200 and 206 with `Content-Range` exposed;
 - branch refs: impersonating the prod writer must fail;
 - `main`: the prod writer uploads to both prefixes (must be HTTP 200 each), then deletes the prod probe (must be HTTP 204; `prod/` has no lifecycle rule);
 - a failure on `main` opens an issue "Storage access probe failed on main", or comments on the open one.
