@@ -96,6 +96,7 @@ export type Webcam = {
   latitude: number | null;
   longitude: number | null;
   position_source: string | null;
+  // Site-relative paths of the stills the ingest checked and stored; null when offline.
   thumbnail_url: string | null;
   large_url: string | null;
   captured_at: string | null;

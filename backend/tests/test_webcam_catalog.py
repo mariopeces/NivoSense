@@ -37,9 +37,12 @@ class WebcamCatalogTest(unittest.TestCase):
                 self.assertIsNone(camera["thumbnail_url"])
                 self.assertIsNone(camera["large_url"])
                 self.assertIsNone(camera["captured_at"])
-            for key in ("thumbnail_url", "large_url"):
-                if camera[key] is not None:
-                    self.assertEqual(urlparse(camera[key]).scheme, "https")
+            else:
+                # The site shows the stored copy of the checked still, never the provider URL.
+                for key in ("thumbnail_url", "large_url"):
+                    self.assertRegex(
+                        camera[key], r"^data/webcam-stills/[a-z0-9-]+/([0-9]{8}T[0-9]{6}Z|undated)-(thumbnail|large)-[0-9a-f]{16}\.jpg$"
+                    )
             self.assertEqual(urlparse(camera["source_url"]).scheme, "https")
             self.assertTrue(camera["attribution"])
             if camera["id"].startswith("cetursa-"):

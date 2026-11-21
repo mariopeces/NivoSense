@@ -17,6 +17,7 @@
       "type": "static",
       "url": "https://sierranevada.es/es/webcams/",
       "attribution": "Imagen: Cetursa Sierra Nevada / feratel",
+      "position_source_note": "feratel positions are infolat/infolong in the webtv.feratel.com player page; it answers 404 unless the request carries a browser User-Agent and a https://sierranevada.es/ Referer.",
       "enabled": true,
       "cameras": [
         {

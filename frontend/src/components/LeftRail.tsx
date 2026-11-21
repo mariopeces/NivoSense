@@ -206,7 +206,7 @@ function WebcamAccordion({
     <ul className="ml-3 flex flex-col gap-2 border-l border-white/5 pl-3">
       {webcams.map((webcam) => {
         const active = webcam.id === selectedId;
-        const imageUrl = safeImageUrl(webcam.thumbnail_url);
+        const imageUrl = stillUrl(webcam.thumbnail_url);
         const offline = webcam.status === "offline";
         return (
           <li
@@ -287,14 +287,10 @@ function StatusText({
   );
 }
 
-function safeImageUrl(value: string | null) {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
+// Only the stills the ingest checked and stored are shown, so the image and its age match.
+function stillUrl(value: string | null) {
+  if (!value || !/^data\/webcam-stills\/[\w.-]+\/[\w.-]+\.jpg$/.test(value)) return null;
+  return `${import.meta.env.BASE_URL}${value}`;
 }
 
 function formatCapturedAt(value: string | null) {
