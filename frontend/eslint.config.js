@@ -1,13 +1,14 @@
+import css from "@eslint/css";
 import js from "@eslint/js";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import baseline from "./colour-baseline.json" with { type: "json" };
+import noHardCodedColour from "./eslint/no-hard-coded-colour.js";
 
-// Colours live in the tokens file; everywhere else they are referenced through CSS variables or Tailwind theme names.
-// esquery drops backslashes inside selector regexes, so the pattern uses character classes instead of \b and \(.
 const TOKENS_FILE = "src/styles/tokens.css";
-const COLOUR = "/#[0-9a-fA-F]{3,8}([^0-9a-zA-Z_]|$)|(rgb|hsl)a?[(]/";
-const COLOUR_MESSAGE = `Hard-coded colour: define it in ${TOKENS_FILE} and use the token.`;
+const local = { rules: { "no-hard-coded-colour": noHardCodedColour } };
+const colourRule = { "local/no-hard-coded-colour": ["error", { tokensFile: TOKENS_FILE, baseline }] };
 
 export default tseslint.config(
   { ignores: ["dist"] },
@@ -15,15 +16,26 @@ export default tseslint.config(
     files: ["src/**/*.{ts,tsx}"],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: { globals: globals.browser },
-    plugins: { "react-hooks": reactHooks },
+    plugins: { "react-hooks": reactHooks, local },
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "no-restricted-syntax": [
-        "error",
-        { selector: `Literal[value=${COLOUR}]`, message: COLOUR_MESSAGE },
-        { selector: `TemplateElement[value.raw=${COLOUR}]`, message: COLOUR_MESSAGE },
-      ],
+      ...colourRule,
     },
+  },
+  {
+    // The Tailwind theme maps the tokens; it must not define colours of its own.
+    files: ["tailwind.config.js"],
+    plugins: { local },
+    rules: colourRule,
+  },
+  {
+    files: ["src/**/*.css"],
+    ignores: [TOKENS_FILE],
+    language: "css/css",
+    // Tailwind's @tailwind and @apply at-rules are not standard CSS.
+    languageOptions: { tolerant: true },
+    plugins: { css, local },
+    rules: colourRule,
   },
 );

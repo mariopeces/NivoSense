@@ -87,7 +87,8 @@ jobs:
         run: |
           gh cache list --ref "$GITHUB_REF" --key snow-cache- --limit 100 --json id,key \
             --jq ".[] | select(.key != \"$KEEP\") | .id" | while read -r id; do
-            gh cache delete "$id"
+            # An entry already gone (another run deleted it) must not fail a run whose products are published.
+            gh cache delete "$id" || echo "::warning::Could not delete cache entry $id"
           done
 
       - name: Report a failed scheduled run
