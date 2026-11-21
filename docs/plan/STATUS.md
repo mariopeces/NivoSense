@@ -22,7 +22,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
-| T0.1 Rules | A | task_f158ee3c34b4 | - | gauntlet r1 (G-Code: ctx_cbaccf4b9dfe) | #3 | |
+| T0.1 Rules | A | task_f158ee3c34b4 | fixing after r1 (follow-up ctx_fb3b418c21dc) | #3 | G-Code r1 fail (2 major, 1 minor) |
 | T0.2 Storage and access | A | task_08987025034c | - | ready (lane A busy) | | |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | building | | |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | waiting | | |
@@ -88,3 +88,4 @@ None yet.
 
 - 2026-11-21: Run `run_d154a40aeb1c` and 35-task DAG created. Mario's advance OK recorded in README section 4. Heartbeat automation `cda12975-2e78-4f49-9a7d-f9d4efbb7357` created (daily 09:00 Europe/Madrid). Started T0.1 (lane A, worktree plan-platform, dispatch ctx_8787b4ed4ede) and T0.5 (lane E, worktree plan-ui, dispatch ctx_cb00ccf53cb1). T0.2 ready, queued behind T0.1 in lane A.
 - 2026-11-21: T0.1 PR #3 ready (head 367d105); G-Code round 1 started (dispatch ctx_cbaccf4b9dfe). Builder listed 6 out-of-scope items under Found, not done.
+- 2026-11-21: T0.1 G-Code r1 FAIL (HANDOFF_CLAUDE.md lacks history banner; GCP scope lines contradict advance OK). Findings sent to builder (ctx_fb3b418c21dc).
