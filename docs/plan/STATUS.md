@@ -26,8 +26,8 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r2 (G-Code r2 running) | #6 | r1 both fail; r2: G-Infra fail (colour rule: CSS custom properties, .js/.jsx, named colours) |
-| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1 (G-Code r1 running), stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN nodata breaks index JSON) |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r2 (G-Infra running; G-Code queued) | #12 | r1: G-Code fail, G-Infra fail (any v* tag could go live) |
+| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r2 (G-Infra and G-Code running) | #12 | r1: G-Code fail, G-Infra fail (any v* tag could go live) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r1 (G-Data ctx_e3021d8c7200, G-Method ctx_b9104f5cdede; G-Code queued) | #14 | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
@@ -133,3 +133,4 @@ None yet.
 - 2026-11-22: T4.1 decision: legacy data-ramp gradients in Legend.tsx that mirror today's pipeline PNG palettes stay in the colour baseline as a declared exception until T4.3 moves legends to ramps.json and re-colours the pipelines (a legend must not lie about the image); hackathon 'Snow cover / Snow change' rail modes dropped in favour of the T4.0 rail with honest empty states.
 - 2026-11-22: T0.3 G-Data r1 FAIL (major: NaN nodata written as bare NaN into entry and index.json, invalid JSON). Sent to the builder. T0.7 G-Infra r2 started.
 - 2026-11-22: T0.6 G-Infra r2 FAIL on the colour rule again (blocker: CSS custom property values unchecked; majors: named colours and nested-paren functions in TS, .js/.jsx not linted). To bound round 3 the coordinator fixed the bar: all CSS declarations incl. custom properties, all colour syntaxes incl. nested parens, all script extensions, named colours where used as colours (CSS, style props, MapLibre paint, SVG/Recharts colour props), no inline disabling, baseline may only shrink; named colour words in prose strings not required.
+- 2026-11-22: T0.3 G-Code r1 FAIL (tests let mutations survive: input_key fields, never-overwrite, promote ordering; no GcsStorage unit test). Sent with the G-Data fixes. T0.7 G-Code r2 started.
