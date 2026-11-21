@@ -1,0 +1,13 @@
+[
+  {
+    "origin": [
+      "https://mariopeces.github.io",
+      "https://storage.googleapis.com",
+      "http://localhost:5173",
+      "http://localhost:4173"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Range", "ETag", "Content-Range", "Content-Length", "Accept-Ranges"],
+    "maxAgeSeconds": 3600
+  }
+]
