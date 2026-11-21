@@ -23,9 +23,9 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | Task | Lane | Orca task | Needs | State | PR | Last gauntlet verdicts |
 |---|---|---|---|---|---|---|
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
-gauntlet r1 (G-Infra ctx_6201df376921, G-Code ctx_40a04501d25e) | #7 | |
+| T0.2 Storage and access | A | task_08987025034c | - | fixing after r1 (builder ctx_e248982bda91) | #7 | G-Code r1 fail (personal email in runbook); G-Infra r1 fail (API enablement not in runbook) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-gauntlet r1 (G-Infra, G-Code) | #6 | |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r1 (builder ctx_2a0e2e712a9d) | #6 | G-Infra r1 fail, G-Code r1 fail (colour ban misses CSS and colours inside baselined literals) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | building, stacked on plan/t06-ci (plan-catalog, ctx_47dfd38bc970) | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | building, stacked on plan/t06-ci (plan-staging, ctx_4389de1ad9ff) | | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
