@@ -27,7 +27,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r1 (builder ctx_2a0e2e712a9d) | #6 | G-Infra r1 fail, G-Code r1 fail (colour ban misses CSS and colours inside baselined literals) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | building, stacked on plan/t06-ci (plan-catalog, ctx_47dfd38bc970) | | |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | building, stacked on plan/t06-ci (plan-staging, ctx_4389de1ad9ff) | | |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r1 (G-Infra, G-Code), stacked on plan/t06-ci | #12 | |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | waiting | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | building early, local folder (plan-observation, ctx_14ada5544ce7) | | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | waiting | | |
@@ -120,3 +120,4 @@ None yet.
 - 2026-11-22: T0.2 round 2 pushed (head 6d1c14e): email removed from branch history; API enablement and all audit-log changes in the runbook; bucket IAM narrowed (objectAdmin on object prefixes only, listing via bucket-only objectViewer); probe failure on main opens an issue; branch probe 44961952807 green. G-Infra and G-Code round 2 started.
 - 2026-11-22: T3.1 G-Data r1 FAIL (2 F3 majors): hotlinked provider image shown with the age of the frame checked at ingest; MD5-only placeholder detection misses other feratel renditions. Coordinator decision: no F3 exception for hotlinking; the site shows exactly the stored, checked still with its captured_at (local folder now, staging prefix via publish after T0.2/T0.3); add Last-Modified == Date, duplicate-bytes and perceptual placeholder guards.
 - 2026-11-22: T3.1 G-Code r1 FAIL: feratel localises its placeholder by language (5 MD5s); only German fingerprinted, no language header sent, so the Spanish placeholder passes as live. Sent to the builder with the G-Data fixes.
+- 2026-11-22: T0.7 PR #12 ready (staging-site.yml: main push publishes staging/site/, labelled PR publishes staging/site/pr-N/, staging writer only, no gzip, immutable hashed assets; pages.yml deploys only from v* tags, hourly and post-pipeline runs rebuild the latest v* tag with fresh data; v* deployment policy added to the github-pages environment; preview run 44961917497 green and idempotent). Merge order note: the coordinator must push the T0.5 release tag (v*) on main before merging T0.7, or the hourly live data refresh fails. G-Infra and G-Code round 1 started.
