@@ -24,7 +24,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 |---|---|---|---|---|---|---|
 | T0.1 Rules | A | task_f158ee3c34b4 | - | gauntlet r2 (G-Code: ctx_f510cd753f77) | #3 | G-Code r1 fail (2 major, 1 minor) |
 | T0.2 Storage and access | A | task_08987025034c | - | ready (lane A busy) | | |
-| T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | gauntlet r1 (G-UI light: ctx_46186010bbda, G-Code: ctx_f75556184958) | #4 | |
+| T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | gauntlet r1 (G-UI light: ctx_46186010bbda, G-Code: ctx_f75556184958) | #4 | G-Code r1 pass (2 minor follow-ups) |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | waiting | | |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | waiting | | |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | waiting | | |
@@ -91,3 +91,4 @@ None yet.
 - 2026-11-21: T0.1 G-Code r1 FAIL (HANDOFF_CLAUDE.md lacks history banner; GCP scope lines contradict advance OK). Findings sent to builder (ctx_fb3b418c21dc).
 - 2026-11-21: T0.5 PR #4 ready (head 4909a76); G-UI (light) and G-Code round 1 started.
 - 2026-11-21: T0.1 fixes pushed (head ad29e83); G-Code round 2 started.
+- 2026-11-21: T0.5 G-Code r1 PASS (minor follow-ups: silent except OSError backend/ingest_webcams.py:137; tsconfig not strict). Waiting on G-UI light.
