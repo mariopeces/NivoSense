@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 from urllib.parse import urlparse
 
-
 ROOT = Path(__file__).parents[2]
 
 

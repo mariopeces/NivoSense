@@ -1,0 +1,25 @@
+# Tool settings only; the pipelines' dependencies are pinned in pipelines/requirements.lock.
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+extend-exclude = ["ml", "frontend", "deploy"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "ANN001", "ANN201"]
+# zip(strict=...) would change behaviour on length mismatch; deciding that per call is out of scope for lint.
+ignore = ["B905"]
+
+[tool.ruff.lint.per-file-ignores]
+# Type hints are required on the public functions of the pipelines and scripts, not on tests or the legacy backend.
+"tests/**" = ["ANN001", "ANN201"]
+"backend/**" = ["ANN001", "ANN201"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["pipelines", "scripts"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "backend/tests"]

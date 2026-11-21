@@ -132,21 +132,26 @@ cd frontend
 npm install        # first time only
 npm run dev        # http://localhost:5173
 npm run build      # tsc + production build
+npm run lint       # eslint; hard-coded colours outside the tokens file fail
+npm test           # vitest
 ```
+
+Colours that predate the tokens file are listed per file in `frontend/eslint-suppressions.json`; a file may not gain new ones. Once colours move to the tokens, run `npx eslint . --prune-suppressions`.
 
 ### Pipelines and tests
 
 ```bash
 python -m venv .venv
 source .venv/Scripts/activate    # Git Bash on Windows
-pip install -r pipelines/snow_model/requirements.txt -r pipelines/weather_forecasts/requirements.txt
-python -m unittest discover -s tests/snow_model -t . -v
-python -m unittest discover -s tests/weather_forecasts -v
-python -m unittest tests.test_fetch_snow_observation -v
-python -m unittest discover -s backend/tests -v
+pip install --require-hashes -r pipelines/requirements-dev.lock   # Linux x86_64; elsewhere: pip install -r pipelines/requirements-dev.in
+ruff check .
+mypy
+pytest
 ```
 
-CI on pull requests (pytest, ruff, mypy, tsc, eslint, vitest, build) arrives with task T0.6.
+Dependencies are pinned with hashes in `pipelines/requirements.lock` (workflows) and `pipelines/requirements-dev.lock` (CI tools); edit the `.in` files and regenerate both with the `uv pip compile` commands at the top of `pipelines/requirements.in`.
+
+`ci.yml` runs on every pull request: ruff, mypy and pytest, then tsc, eslint, vitest and the production build of the frontend.
 
 ### Backend (local, optional)
 

@@ -1,8 +1,9 @@
 import json
+from collections.abc import Iterator
 from pathlib import Path
 
 
-def _positions(value):
+def _positions(value: object) -> Iterator[tuple[float, float]]:
     if (
         isinstance(value, list)
         and len(value) >= 2

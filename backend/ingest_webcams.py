@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import urlparse
 
-
 DEFAULT_CONFIG = Path(__file__).with_name("webcam_sources.json")
 DEFAULT_OUTPUT = Path(__file__).parents[1] / "frontend" / "public" / "data" / "webcams.json"
 # Frames providers serve in place of a dead camera, by MD5 of the file.

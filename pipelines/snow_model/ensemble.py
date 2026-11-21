@@ -47,7 +47,7 @@ def tempered_weights(cost: np.ndarray, target_size: float) -> np.ndarray:
     return weights(high)
 
 
-def weighted_quantiles(values: np.ndarray, weights: np.ndarray, quantiles) -> np.ndarray:
+def weighted_quantiles(values: np.ndarray, weights: np.ndarray, quantiles: list[float]) -> np.ndarray:
     """Weighted quantiles along the first axis of `values`; weights must sum to one."""
     order = np.argsort(values, axis=0)
     sorted_values = np.take_along_axis(values, order, axis=0)
