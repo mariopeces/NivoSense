@@ -1,5 +1,7 @@
 # Roadmap del fin de semana
 
+> **Historical.** This is the Cassini Hackathon weekend plan (April 2026), kept as a record. It does not set current scope. The production plan is in [docs/plan/README.md](docs/plan/README.md) and its task cards in [docs/plan/tasks.md](docs/plan/tasks.md).
+
 Timeline orientativo. Las horas son flexibles; los hitos no.
 
 ## Reparto

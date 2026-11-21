@@ -1,5 +1,7 @@
 # Handoff para Claude Code
 
+> **Historical, superseded.** This is an agent handoff from 2026-10-18, kept as a record. Do not follow its instructions (including `git push origin main`). Current agent rules are in [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md); the spec is [docs/plan/](docs/plan/). Agents never push to `main`.
+
 ## Objetivo
 
 Dejar NivoSense operativo como aplicación pública para Sierra Nevada, con el frontend en GitHub Pages y procesos programados en GitHub Actions. La aplicación debe mostrar únicamente datos reales y declarar de forma visible cualquier capa que todavía no esté disponible.
