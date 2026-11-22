@@ -6,26 +6,16 @@ from unittest import mock
 import pytest
 
 from pipelines.catalog import LocalStorage
-from pipelines.s2.stac import C1_COMPLETE_FROM, COLLECTION, LEGACY_COLLECTION, collection_for
 from pipelines.snow_obs import backfill
 
 
-def test_collection_follows_the_date():
-    assert collection_for(date(2022, 12, 31)) == LEGACY_COLLECTION
-    assert collection_for(C1_COMPLETE_FROM) == COLLECTION
-    assert collection_for(date(2026, 11, 1)) == COLLECTION
-
-
-def test_windows_cover_the_range_once_and_never_straddle_a_collection_change():
-    cut = windows = backfill.windows(date(2022, 12, 20), date(2023, 1, 20))
-    days = [w.start for w in cut]
+def test_windows_cover_the_range_once_in_weeks():
+    windows = backfill.windows(date(2022, 12, 20), date(2023, 1, 20))
     assert windows[0].start == date(2022, 12, 20) and windows[-1].end == date(2023, 1, 20)
     for before, after in zip(windows, windows[1:]):
         assert (after.start - before.end).days == 1
     assert all((w.end - w.start).days < backfill.WINDOW_DAYS for w in windows)
-    assert any(w.end == date(2022, 12, 31) for w in windows) and date(2023, 1, 1) in days
-    assert {w.collection for w in windows if w.end < date(2023, 1, 1)} == {LEGACY_COLLECTION}
-    assert {w.collection for w in windows if w.start >= date(2023, 1, 1)} == {COLLECTION}
+    assert [(w.end - w.start).days + 1 for w in windows[:-1]] == [backfill.WINDOW_DAYS] * (len(windows) - 1)
 
 
 def test_windows_of_a_single_day():
@@ -42,7 +32,7 @@ def test_published_dates_read_the_catalogue_entries(tmp_path):
 
 
 def test_pending_range_skips_published_edges_only():
-    window = backfill.Window(date(2025, 1, 1), date(2025, 1, 7), COLLECTION)
+    window = backfill.Window(date(2025, 1, 1), date(2025, 1, 7))
     assert backfill.pending_range(window, {date(2025, 1, 1), date(2025, 1, 2), date(2025, 1, 7)}) == (
         date(2025, 1, 3),
         date(2025, 1, 6),

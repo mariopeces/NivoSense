@@ -37,10 +37,12 @@ from .stac import (
     group_acquisitions,
     reference_window,
     search_items,
+    search_merged,
 )
 
 # Twice the 10-day repeat of one satellite, so every orbit has passed at least twice
 # even with a single satellite operating.
+AUTO = "auto"  # collection value: c1 plus the legacy items it lacks (stac.search_merged)
 REFERENCE_DAYS = 20
 # README section 5 has the daily job reprocess the last 5 days so late granules complete a
 # mosaic; the split 30SWG granules of 2026-11-17 were generated 67 min apart. 10 days is a
@@ -56,7 +58,7 @@ class Record:
     date: str
     orbit: str
     datatake: str
-    collection: str
+    scene_collections: list[str]
     tiles: list[str]
     expected_tiles: list[str]
     missing_tiles: list[str]
@@ -136,9 +138,7 @@ def write_rasters(folder: Path, mosaic: Mosaic, grid: Grid) -> None:
         target.set_band_description(2, "cloud")
 
 
-def process(
-    candidates: list[Acquisition], expected: set[str], domain: Domain, out: Path, collection: str = COLLECTION
-) -> Record:
+def process(candidates: list[Acquisition], expected: set[str], domain: Domain, out: Path) -> Record:
     """Builds the record of one date and orbit from its datatakes. Each datatake is mosaicked
     on its own: two overpasses minutes apart see different clouds, so blending them would put
     a seam in the mosaic and give fractions that belong to neither."""
@@ -159,7 +159,7 @@ def process(
         date=chosen.day.isoformat(),
         orbit=chosen.orbit,
         datatake=chosen.datatake,
-        collection=collection,
+        scene_collections=[item.get("collection", COLLECTION) for item in chosen.items],
         tiles=list(chosen.tiles),
         expected_tiles=sorted(expected),
         missing_tiles=missing,
@@ -231,7 +231,8 @@ def run(
     reprocess: bool = True,
 ) -> list[dict]:
     """Ingest every acquisition in [start, end] and in the last REPROCESS_DAYS days (unless
-    `reprocess` is off, as for a backfill of past dates); returns their records in date and orbit order."""
+    `reprocess` is off, as for a backfill of past dates); returns their records in date and orbit order.
+    `collection` is an Earth Search collection or AUTO."""
     today = today or datetime.now(timezone.utc).date()
     if catalogue_root is not None and version is None:
         version = code_version()
@@ -241,11 +242,11 @@ def run(
     windows = search_windows(start, end, today) if reprocess else [(start, end)]
     for window_start, window_end in windows:
         reference_start, reference_end = reference_window(window_start, window_end, REFERENCE_DAYS)
-        items = [
-            item
-            for item in search_items(hull, reference_start, reference_end, fetch, collection)
-            if domain.touches(item["geometry"])
-        ]
+        if collection == AUTO:
+            found = search_merged(hull, reference_start, reference_end, fetch)
+        else:
+            found = search_items(hull, reference_start, reference_end, fetch, collection)
+        items = [item for item in found if domain.touches(item["geometry"])]
         acquisitions = group_acquisitions(items)
         expected = expected_tiles(acquisitions)
         passes: dict[tuple[date, str], list[Acquisition]] = defaultdict(list)
@@ -255,7 +256,7 @@ def run(
         for (day, orbit), candidates in sorted(passes.items()):
             rebuilt = not is_current(out, day, orbit, candidates, expected[orbit])
             if rebuilt:
-                process(candidates, expected[orbit], domain, out, collection)
+                process(candidates, expected[orbit], domain, out)
             record = json.loads(record_path(out, day, orbit).read_text(encoding="utf-8"))
             if catalogue_root is not None and (rebuilt or not decision_path(catalogue_root, day, orbit).exists()):
                 write_decision(catalogue_root, record, version or code_version())
@@ -269,7 +270,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--start", type=date.fromisoformat, required=True)
     parser.add_argument("--end", type=date.fromisoformat, required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--collection", default=COLLECTION, help="Earth Search L2A collection to read")
+    parser.add_argument(
+        "--collection", default=COLLECTION, help="Earth Search L2A collection, or auto for c1 plus the legacy items"
+    )
     parser.add_argument(
         "--no-reprocess", action="store_true", help="skip the search of the last days (backfill of past dates)"
     )

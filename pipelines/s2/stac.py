@@ -8,12 +8,10 @@ from typing import Any, Callable
 
 STAC_SEARCH_URL = "https://earth-search.aws.element84.com/v1/search"
 COLLECTION = "sentinel-2-c1-l2a"
-# Collection 1 is the reprocessed archive (baseline 05.xx everywhere), but Earth Search has it complete over the
-# Sierra Nevada only from 2023-01 (monthly date counts equal to the legacy collection from then, 2018-2022 holds
-# 0 to 13 dates a month against 11 to 13 in the legacy one). Before that the legacy `sentinel-2-l2a` is the
-# complete archive (from 2016-11); its items mix Sen2Cor baselines, which `raster:bands` scale and offset absorb.
+# Collection 1 is the reprocessed archive (baseline 05.xx) but over the Sierra Nevada it is missing 2016-11 to
+# 2019-03 and 2022-01 to 2022-11 (monthly date counts, 2026-11-22). The legacy `sentinel-2-l2a` covers 2016-11
+# onwards, but some of its items have only JP2 assets in a requester-pays bucket and no COGs.
 LEGACY_COLLECTION = "sentinel-2-l2a"
-C1_COMPLETE_FROM = date(2023, 1, 1)
 PAGE_LIMIT = 100
 
 # Earth Search c1 items carry no sat:relative_orbit; the orbit is in the ESA product name,
@@ -24,10 +22,6 @@ _ORBIT = re.compile(r"_R(\d{3})_")
 _BASELINE_SUFFIX = re.compile(r"_N\d{2}\.\d{2}$")
 
 Fetch = Callable[[urllib.request.Request], dict]
-
-
-def collection_for(day: date) -> str:
-    return COLLECTION if day >= C1_COMPLETE_FROM else LEGACY_COLLECTION
 
 
 @dataclass(frozen=True)
@@ -96,6 +90,23 @@ def search_items(
         else:
             raise ValueError("Earth Search returned a GET next link; this client only follows POST")
     return items
+
+
+def has_cogs(item: dict) -> bool:
+    return str(item["assets"].get("green", {}).get("href", "")).endswith(".tif")
+
+
+def search_merged(geometry: dict, start: date, end: date, fetch: Fetch = fetch_json) -> list[dict]:
+    """Items of c1 plus the legacy items it lacks. A legacy item is used only if it has COG assets and c1 has
+    no item of the same tile and datatake, so a granule is never read twice."""
+    c1_items = search_items(geometry, start, end, fetch, COLLECTION)
+    have = {(tile_of(item), datatake_of(item)) for item in c1_items}
+    legacy = [
+        item
+        for item in search_items(geometry, start, end, fetch, LEGACY_COLLECTION)
+        if has_cogs(item) and (tile_of(item), datatake_of(item)) not in have
+    ]
+    return c1_items + legacy
 
 
 def _baseline(item: dict) -> float:
