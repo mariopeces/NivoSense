@@ -9,7 +9,10 @@ from functools import cache, lru_cache
 from pathlib import Path
 from typing import Any
 
+from jsonschema import ValidationError
+
 from pipelines.catalog import GcsStorage, LocalStorage, Storage, storage_from_env
+from pipelines.catalog.validate import validate_index
 
 ByteReader = Callable[[int, int], bytes]
 
@@ -83,8 +86,17 @@ def byte_reader(storage: Storage, key: str) -> tuple[ByteReader, int] | None:
 
 
 def index_entries(storage: Storage) -> dict[str, list[dict[str, Any]]]:
-    """The entries of catalog/index.json by layer; empty when there is no index yet."""
+    """The entries of catalog/index.json by layer.
+
+    Empty when there is no index or it is not valid: check_catalog reports an invalid index as an error, and the
+    other checks then see an empty catalogue instead of stopping the run before the report is written.
+    """
     blob = storage.read("catalog/index.json")
     if blob is None:
         return {}
-    return {layer: item["entries"] for layer, item in json.loads(blob.data)["layers"].items()}
+    try:
+        index = json.loads(blob.data)
+        validate_index(index)
+    except (ValueError, ValidationError):  # unparsable JSON or a schema violation, reported by check_catalog
+        return {}
+    return {layer: item["entries"] for layer, item in index["layers"].items()}

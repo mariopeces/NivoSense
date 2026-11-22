@@ -182,7 +182,10 @@ def render_thumbs(
     def render(entry: dict[str, Any], tmp: Path) -> dict[str, str]:
         target = out_dir / entry["layer"] / f"{entry['date']}.png"
         target.parent.mkdir(parents=True, exist_ok=True)
-        entry_thumbnail(storage, entry, tmp).save(target, optimize=True)
+        try:
+            entry_thumbnail(storage, entry, tmp).save(target, optimize=True)
+        except Exception as error:  # a broken file is check_catalog's finding; the other thumbnails still render
+            return {"layer": entry["layer"], "date": entry["date"], "error": f"{type(error).__name__}: {error}"}
         return {"layer": entry["layer"], "date": entry["date"], "png": target.as_posix()}
 
     with tempfile.TemporaryDirectory(prefix="thumbs-") as tmp, ThreadPoolExecutor(max_workers=workers) as pool:
@@ -205,9 +208,12 @@ def fixture_thumbs(
                         continue
                     target = out_dir / "fixtures" / fixture["id"] / f"{layer}-{entry['date']}.png"
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    image = entry_thumbnail(storage, entry, Path(tmp), bounds=fixture["bbox"], label=fixture["id"])
-                    image.save(target, optimize=True)
-                    written.append(
-                        {"fixture": fixture["id"], "layer": layer, "date": entry["date"], "png": target.as_posix()}
-                    )
+                    row = {"fixture": fixture["id"], "layer": layer, "date": entry["date"]}
+                    try:
+                        image = entry_thumbnail(storage, entry, Path(tmp), bounds=fixture["bbox"], label=fixture["id"])
+                        image.save(target, optimize=True)
+                    except Exception as error:  # reported in the thumbnail list; check_catalog names the broken file
+                        written.append(row | {"error": f"{type(error).__name__}: {error}"})
+                        continue
+                    written.append(row | {"png": target.as_posix()})
     return written

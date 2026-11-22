@@ -29,6 +29,8 @@ from qa.render_thumbs import render_thumbs
 from tests.catalog.helpers import LEFT, TOP, meta, product, write_raster
 
 DAILY = ("2026-11-01", "2026-11-02", "2026-11-03")
+# 13:00 Madrid on 2026-11-04: past the F2 deadline, so 2026-11-03 is the last day the daily layers must have.
+NOW = dt.datetime(2026, 11, 4, 12, 0, tzinfo=dt.timezone.utc)
 
 
 def build(folder: Path, dates: tuple[str, ...] = DAILY, layer: str = "snow_gapfill") -> LocalStorage:
@@ -71,31 +73,76 @@ class CatalogueTestCase(unittest.TestCase):
 
 class CheckCatalogTests(CatalogueTestCase):
     def test_a_published_catalogue_passes(self) -> None:
-        report = check_catalog(self.storage)
+        report = check_catalog(self.storage, now=NOW)
         self.assertEqual(report["errors"], [])
         self.assertTrue(report["ok"])
         self.assertEqual(report["entries_checked"], 3)
-        self.assertEqual(report["layers"]["snow_gapfill"]["missing_days"], [])
+        self.assertEqual(report["layers"]["snow_gapfill"]["daily"]["missing_days"], [])
+        self.assertEqual(report["layers"]["swe"]["daily"], "not live: no entry and no declared start")
 
     def test_a_missing_day_is_caught(self) -> None:
         (self.storage.root / "catalog/entries/snow_gapfill/2026-11-02.json").unlink()
         rebuild_index(self.storage)
-        report = check_catalog(self.storage)
+        report = check_catalog(self.storage, now=NOW)
         self.assertFalse(report["ok"])
         self.assertEqual([e["date"] for e in errors_of(report, "missing_day")], ["2026-11-02"])
 
     def test_missing_days_at_the_edges_of_a_requested_range_are_caught(self) -> None:
-        report = check_catalog(self.storage, start="2026-10-31", end="2026-11-04")
+        # Days before a layer's first entry count only once the layer declares its start.
+        report = check_catalog(self.storage, start="2026-10-31", end="2026-11-04", now=NOW)
+        self.assertEqual([e["date"] for e in errors_of(report, "missing_day")], ["2026-11-04"])
+        with mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"snow_gapfill": "2026-10-01"}):
+            report = check_catalog(self.storage, start="2026-10-31", end="2026-11-04", now=NOW)
         self.assertEqual([e["date"] for e in errors_of(report, "missing_day")], ["2026-10-31", "2026-11-04"])
 
     def test_a_daily_layer_with_no_entry_in_the_range_misses_every_day(self) -> None:
-        report = check_catalog(self.storage, start="2026-11-10", end="2026-11-11")
+        report = check_catalog(self.storage, start="2026-11-10", end="2026-11-11", now=NOW)
         self.assertEqual([e["date"] for e in errors_of(report, "missing_day")], ["2026-11-10", "2026-11-11"])
+
+    def test_a_daily_layer_that_stops_early_is_caught(self) -> None:
+        # Two days later the layer still ends on 2026-11-03.
+        report = check_catalog(self.storage, now=NOW + dt.timedelta(days=2))
+        self.assertEqual([e["date"] for e in errors_of(report, "missing_day")], ["2026-11-04", "2026-11-05"])
+
+    def test_before_the_f2_deadline_yesterday_is_not_yet_expected(self) -> None:
+        # 09:00 Madrid on 2026-11-05: 2026-11-04 is not due yet; at 13:00 it is.
+        early = check_catalog(self.storage, now=dt.datetime(2026, 11, 5, 8, 0, tzinfo=dt.timezone.utc))
+        self.assertTrue(early["ok"], early["errors"])
+        late = check_catalog(self.storage, now=dt.datetime(2026, 11, 5, 12, 0, tzinfo=dt.timezone.utc))
+        self.assertEqual([e["date"] for e in errors_of(late, "missing_day")], ["2026-11-04"])
+
+    def test_a_declared_daily_layer_with_no_entry_misses_every_day(self) -> None:
+        with mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"swe": "2026-11-02"}):
+            report = check_catalog(self.storage, now=NOW)
+        missing = [(e["layer"], e["date"]) for e in errors_of(report, "missing_day")]
+        self.assertEqual(missing, [("swe", "2026-11-02"), ("swe", "2026-11-03")])
+
+    def test_a_declared_start_before_the_first_entry_is_checked_from_the_declared_start(self) -> None:
+        with mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"snow_gapfill": "2026-10-30"}):
+            report = check_catalog(self.storage, now=NOW)
+        self.assertEqual([e["date"] for e in errors_of(report, "missing_day")], ["2026-10-30", "2026-10-31"])
+
+    def test_without_a_start_only_the_last_35_days_of_files_are_checked(self) -> None:
+        self.cog_path(0).unlink()
+        later = NOW + dt.timedelta(days=30)
+        report = check_catalog(self.storage, end="2026-11-03", now=later)
+        self.assertEqual(report["range"], {"start": "2026-10-30", "end": "2026-11-03", "default_window": True})
+        self.assertEqual(report["entries_checked"], 3)
+        report = check_catalog(self.storage, end="2026-11-03", now=later + dt.timedelta(days=30))
+        self.assertEqual(report["entries_checked"], 0)
+        self.assertTrue(report["ok"], report["errors"])
+        explicit = check_catalog(self.storage, start="2026-11-01", end="2026-11-03", now=later + dt.timedelta(days=30))
+        self.assertEqual([e["check"] for e in explicit["errors"]], ["cog"])
+
+    def test_an_unparsable_entry_object_is_reported_not_raised(self) -> None:
+        (self.storage.root / "catalog/entries/snow_gapfill/2026-11-02.json").write_bytes(b"\x00garbage")
+        report = check_catalog(self.storage, now=NOW)
+        self.assertIn("entry_schema", {e["check"] for e in report["errors"]})
 
     def test_a_truncated_cog_is_caught(self) -> None:
         path = self.cog_path()
         path.write_bytes(path.read_bytes()[: path.stat().st_size // 2])
-        report = check_catalog(self.storage)
+        report = check_catalog(self.storage, now=NOW)
         self.assertEqual([e["date"] for e in errors_of(report, "cog")], ["2026-11-01"])
 
     def test_corrupted_tile_data_is_caught(self) -> None:
@@ -107,7 +154,7 @@ class CheckCatalogTests(CatalogueTestCase):
         path.write_bytes(bytes(data))
         problems = cog_problems(path)
         self.assertTrue(any(p.startswith("unreadable") for p in problems), problems)
-        self.assertTrue(errors_of(check_catalog(self.storage), "cog"))
+        self.assertTrue(errors_of(check_catalog(self.storage, now=NOW), "cog"))
 
     def test_a_plain_geotiff_in_place_of_the_cog_is_caught(self) -> None:
         path = self.cog_path()
@@ -117,7 +164,7 @@ class CheckCatalogTests(CatalogueTestCase):
         path.unlink()
         with rasterio.open(path, "w", **profile) as dst:
             dst.write(array)
-        messages = [e["message"] for e in errors_of(check_catalog(self.storage), "cog")]
+        messages = [e["message"] for e in errors_of(check_catalog(self.storage, now=NOW), "cog")]
         self.assertIn("no GDAL structural metadata: not written by the COG driver", messages)
 
     def test_a_cog_edited_after_writing_is_caught(self) -> None:
@@ -137,7 +184,7 @@ class CheckCatalogTests(CatalogueTestCase):
         self.cog_path(0).unlink()
         pmtiles = self.storage.root / self.entries[1]["pmtiles"]
         pmtiles.write_bytes(pmtiles.read_bytes()[:200])
-        report = check_catalog(self.storage)
+        report = check_catalog(self.storage, now=NOW)
         self.assertEqual([(e["date"], e["message"]) for e in errors_of(report, "cog")], [("2026-11-01", "missing")])
         self.assertTrue(any(e["date"] == "2026-11-02" for e in errors_of(report, "pmtiles")))
 
@@ -155,19 +202,19 @@ class CheckCatalogTests(CatalogueTestCase):
         path.unlink()
         copy(plain, path, driver="COG")
         plain.unlink()
-        report = check_catalog(self.storage)
+        report = check_catalog(self.storage, now=NOW)
         checks = {e["check"] for e in report["errors"] if e["date"] == "2026-11-01"}
         self.assertTrue({"crs", "nodata", "values", "pixel_hash"} <= checks, report["errors"])
 
     def test_an_entry_published_without_rebuilding_the_index_is_caught(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             publish("snow_gapfill", "2026-11-04", product(Path(tmp), "late", seed=9), meta(), self.storage)
-        report = check_catalog(self.storage)
+        report = check_catalog(self.storage, now=NOW)
         self.assertEqual([(e["date"], e["check"]) for e in report["errors"]], [("2026-11-04", "index")])
 
     def test_an_empty_catalogue_passes_and_says_so(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            report = check_catalog(LocalStorage(Path(tmp)))
+            report = check_catalog(LocalStorage(Path(tmp)), now=NOW)
         self.assertTrue(report["ok"])
         self.assertEqual(report["index"], "absent")
 
@@ -194,7 +241,7 @@ class CommandLineTests(CatalogueTestCase):
         ):
             summary = Path(out) / "summary.md"
             with mock.patch.dict("os.environ", {"GITHUB_STEP_SUMMARY": str(summary)}):
-                status = main(["run", "--no-freshness", "--upload", "--out-dir", out])
+                status = main(["run", "--no-freshness", "--upload", "--out-dir", out, "--now", NOW.isoformat()])
             report = json.loads((Path(out) / "report.json").read_text(encoding="utf-8"))
             self.assertEqual(status, 0)
             self.assertTrue(report["ok"])
@@ -204,7 +251,16 @@ class CommandLineTests(CatalogueTestCase):
             self.assertEqual(len(staging.list("qa/thumbs/snow_gapfill")), 3)
 
             (staging.root / self.entries[1]["cog"]).unlink()
-            self.assertEqual(main(["run", "--no-freshness", "--no-thumbs", "--out-dir", out]), 1)
+            self.assertEqual(
+                main(["run", "--no-freshness", "--no-thumbs", "--out-dir", out, "--now", NOW.isoformat()]), 1
+            )
+
+            # A malformed index is reported, and the run still writes its report.
+            (staging.root / "catalog/index.json").write_bytes(b"{not json")
+            (Path(out) / "report.json").unlink()
+            self.assertEqual(main(["run", "--no-freshness", "--out-dir", out, "--now", NOW.isoformat()]), 1)
+            report = json.loads((Path(out) / "report.json").read_text(encoding="utf-8"))
+            self.assertEqual(errors_of(report["check_catalog"], "index")[0]["key"], "catalog/index.json")
 
 
 def _item(scene: str, created: str, product_uri: str = "") -> dict[str, Any]:
@@ -223,7 +279,11 @@ class FreshnessTests(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
-        self.storage = build(Path(self._tmp.name), dates=("2026-11-10",), layer="snow_obs")
+        folder = Path(self._tmp.name)
+        self.storage = build(folder, dates=("2026-11-10",), layer="snow_obs")
+        # The pass's true colour; the test raster stands in for RGB, only the entry matters here.
+        publish("rgb", "2026-11-10", product(folder, "rgb", resolution=10), meta(), self.storage)
+        rebuild_index(self.storage)
         self.items = [
             _item("S2A_T30SVG_20261110T110234_L2A", "2026-11-10T17:30:00Z"),
             _item("S2A_T30SVG_20261113T110234_L2A", "2026-11-13T15:00:00Z"),
@@ -274,6 +334,52 @@ class FreshnessTests(unittest.TestCase):
         )
         self.assertFalse(self.run_f1("2026-11-21T08:00:00+00:00")["ok"])
 
+    def decision(self, **overrides: Any) -> dict[str, Any]:
+        decision: dict[str, Any] = {
+            "date": "2026-11-13",
+            "orbit": "R094",
+            "scene_ids": ["S2A_T30SVG_20261113T110234_L2A"],
+            "domain_coverage": 1.0,
+            "domain_valid_fraction": 0.12,
+            "complete": True,
+            "listed": False,
+            "decided_at": "2026-11-13T16:00:00+00:00",
+            "code_version": "test",
+        }
+        return decision | overrides
+
+    def write_decision(self, data: bytes) -> None:
+        self.storage.write("s2/decisions/2026-11-13_R094.json", data, "application/json", "no-cache")
+
+    def test_contradicting_decisions_do_not_explain_a_pass(self) -> None:
+        cases = {
+            "another pass": self.decision(date="2026-11-14", orbit="R051"),
+            "valid at the threshold": self.decision(domain_valid_fraction=0.30),
+            "valid above coverage": self.decision(domain_coverage=0.1, domain_valid_fraction=0.2),
+            "incomplete": self.decision(complete=False),
+        }
+        for name, decision in cases.items():
+            with self.subTest(name):
+                self.write_decision(json.dumps(decision).encode())
+                f1 = self.run_f1("2026-11-21T08:00:00+00:00")
+                self.assertIn("2026-11-13", [b["date"] for b in f1["breaches"]])
+
+    def test_a_malformed_decision_is_a_breach_not_a_crash(self) -> None:
+        no_scenes = {k: v for k, v in self.decision().items() if k != "scene_ids"}
+        for data in (b"{broken", json.dumps(no_scenes).encode()):
+            with self.subTest(data=data[:20]):
+                self.write_decision(data)
+                f1 = self.run_f1("2026-11-21T08:00:00+00:00")
+                whys = [b["why"] for b in f1["breaches"] if b["date"] == "2026-11-13"]
+                self.assertTrue(whys and "invalid decision" in whys[0], f1["breaches"])
+
+    def test_a_published_pass_without_rgb_is_a_breach(self) -> None:
+        (self.storage.root / "catalog/entries/rgb/2026-11-10.json").unlink()
+        rebuild_index(self.storage)
+        f1 = self.run_f1("2026-11-21T08:00:00+00:00")
+        self.assertEqual(f1["passes"][0]["state"], "published_without_rgb")
+        self.assertIn(("rgb", "2026-11-10"), [(b["layer"], b["date"]) for b in f1["breaches"]])
+
     def test_late_publication_is_a_breach(self) -> None:
         self.search_listed = None
         original = self.search
@@ -286,7 +392,8 @@ class FreshnessTests(unittest.TestCase):
 
         self.search = late  # type: ignore[method-assign]
         f1 = self.run_f1("2026-11-21T08:00:00+00:00")
-        self.assertEqual([b["why"] for b in f1["breaches"]], ["published 30.0 h after listing"])
+        whys = {(b["layer"], b["why"]) for b in f1["breaches"]}
+        self.assertEqual(whys, {(layer, "published 30.0 h after listing") for layer in ("snow_obs", "rgb")})
 
 
 class F2Tests(unittest.TestCase):

@@ -3,6 +3,10 @@ name: QA
 # The QA harness (python -m qa): catalogue checks, regression fixtures, thumbnails and the freshness SLOs.
 # Pipelines call it after rebuilding the index; a pull request that changes the harness runs it on the staging
 # catalogue. The report goes to the step summary, to qa/ in the catalogue's bucket and to a run artifact.
+#
+# A normal run checks the files of the last 35 days (or start..end) and the daily layers over their whole span.
+# full_range splits start..end (default 2025-10-01 to today) into one job per month, each with its own
+# 10 minute budget, so a check of the whole history never depends on one job's timeout.
 on:
   workflow_call:
     inputs:
@@ -23,6 +27,9 @@ on:
       freshness:
         type: boolean
         default: true
+      full_range:
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       target:
@@ -34,16 +41,20 @@ on:
         type: string
         default: ""
       start:
-        description: "first date checked, YYYY-MM-DD; empty for all"
+        description: "first date checked, YYYY-MM-DD; empty for the last 35 days (2025-10-01 with full_range)"
         type: string
         default: ""
       end:
-        description: "last date checked, YYYY-MM-DD; empty for all"
+        description: "last date checked, YYYY-MM-DD; empty for up to today"
         type: string
         default: ""
       freshness:
         type: boolean
         default: true
+      full_range:
+        description: "one job per month from start to end"
+        type: boolean
+        default: false
   pull_request:
     paths:
       - "qa/**"
@@ -56,22 +67,64 @@ permissions:
   issues: write
 
 jobs:
-  qa:
+  plan:
     # Pull requests from forks get no OIDC token, so they cannot read the bucket.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    outputs:
+      ranges: ${{ steps.ranges.outputs.ranges }}
+    steps:
+      - id: ranges
+        env:
+          FULL: ${{ inputs.full_range || false }}
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+          # A pull request does not change the data, so its run leaves the freshness SLOs to the scheduled checks.
+          FRESHNESS: ${{ github.event_name != 'pull_request' && inputs.freshness }}
+        shell: python
+        run: |
+          import datetime as dt, json, os
+          start, end = os.environ["START"], os.environ["END"]
+          if os.environ["FULL"] == "true":
+              first = dt.date.fromisoformat(start or "2025-10-01")
+              last = dt.date.fromisoformat(end) if end else dt.date.today()
+              ranges, month = [], first.replace(day=1)
+              while month <= last:
+                  following = (month + dt.timedelta(days=32)).replace(day=1)
+                  ranges.append({
+                      "start": max(month, first).isoformat(),
+                      # The open end of the last month lets the harness apply the F2 cut-off for yesterday.
+                      "end": "" if following > last and not end else min(following - dt.timedelta(days=1), last).isoformat(),
+                      "freshness": False,
+                  })
+                  month = following
+          else:
+              ranges = [{"start": start, "end": end, "freshness": os.environ["FRESHNESS"] == "true"}]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"ranges={json.dumps(ranges)}
+")
+          print(json.dumps(ranges))
+
+  qa:
+    needs: plan
+    runs-on: ubuntu-24.04
     # The card's budget: the harness finishes in under 10 minutes on a month of data.
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        range: ${{ fromJSON(needs.plan.outputs.ranges) }}
     concurrency:
-      group: qa-${{ inputs.target || 'staging' }}-${{ inputs.root || github.ref }}
+      group: qa-${{ inputs.target || 'staging' }}-${{ inputs.root || github.ref }}-${{ matrix.range.start }}
       cancel-in-progress: false
     env:
       TARGET: ${{ inputs.target || 'staging' }}
       ROOT: ${{ inputs.root }}
-      START: ${{ inputs.start }}
-      END: ${{ inputs.end }}
-      # A pull request does not change the data, so its run leaves the freshness SLOs to the scheduled checks.
-      FRESHNESS: ${{ github.event_name != 'pull_request' && inputs.freshness }}
+      START: ${{ matrix.range.start }}
+      END: ${{ matrix.range.end }}
+      FRESHNESS: ${{ matrix.range.freshness }}
       STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
       STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
       DATA_BUCKET: ${{ vars.DATA_BUCKET }}
@@ -104,7 +157,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-${{ github.run_id }}
+          name: qa-${{ github.run_id }}-${{ matrix.range.start || 'window' }}
           path: qa-out/
           if-no-files-found: ignore
           retention-days: 14

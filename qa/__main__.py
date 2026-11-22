@@ -58,7 +58,8 @@ def summary_markdown(report: dict[str, Any]) -> str:
                 f"| {slo.upper()} | {'pass' if result['ok'] else 'fail'} | {len(result['breaches'])} breaches |"
             )
     if "thumbs" in report:
-        lines.append(f"| render_thumbs | done | {len(report['thumbs'])} PNGs |")
+        failed = sum(1 for thumb in report["thumbs"] if "error" in thumb)
+        lines.append(f"| render_thumbs | done | {len(report['thumbs']) - failed} PNGs, {failed} failed |")
     lines += [
         "",
         "<details><summary>Report JSON</summary>",
@@ -78,6 +79,8 @@ def upload(storage: Storage, report: dict[str, Any], out_dir: Path) -> list[str]
     run = os.environ.get("GITHUB_RUN_ID", "local")
     keys = []
     for thumb in report.get("thumbs", []):
+        if "png" not in thumb:
+            continue
         path = Path(thumb["png"])
         key = "qa/thumbs/" + path.relative_to(out_dir / "thumbs").as_posix()
         storage.write(key, path, "image/png", NO_CACHE)
@@ -97,17 +100,18 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "catalogue": repr(storage),
         "code_version": os.environ.get("GITHUB_SHA"),
-        "check_catalog": check_catalog(storage, args.start, args.end),
+        "check_catalog": check_catalog(storage, args.start, args.end, now=args.now),
     }
     entries = index_entries(storage)
     fixtures = load_fixtures()
     report["regression_fixtures"] = run_fixtures(storage, entries, fixtures)
     if args.thumbs:
         thumbs_dir = args.out_dir / "thumbs"
-        report["thumbs"] = render_thumbs(storage, _in_range(entries, args.start, args.end), thumbs_dir)
+        window = report["check_catalog"]["range"]["start"]
+        report["thumbs"] = render_thumbs(storage, _in_range(entries, window, args.end), thumbs_dir)
         report["thumbs"] += fixture_thumbs(storage, fixtures, entries, thumbs_dir)
     if args.freshness:
-        report["freshness"] = freshness(storage, load_region(args.region).bbox)
+        report["freshness"] = freshness(storage, load_region(args.region).bbox, args.now)
     report["ok"] = all(
         report[part]["ok"] for part in ("check_catalog", "regression_fixtures", "freshness") if part in report
     )
@@ -122,10 +126,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("command", choices=["run", "check-catalog", "render-thumbs", "freshness", "fixtures"])
     parser.add_argument("--target", choices=["staging", "prod"], default="staging")
     parser.add_argument("--root", default="", help="a catalogue under this prefix of the target (trial runs)")
-    parser.add_argument("--start", help="first date checked, YYYY-MM-DD")
+    parser.add_argument("--start", help="first date checked, YYYY-MM-DD; default: files of the last 35 days")
     parser.add_argument("--end", help="last date checked, YYYY-MM-DD")
     parser.add_argument("--out-dir", type=Path, default=Path("qa-out"))
     parser.add_argument("--region", type=Path, default=Path("regions/sierra-nevada.json"))
+    parser.add_argument(
+        "--now",
+        type=dt.datetime.fromisoformat,
+        help="judge as of this time (ISO 8601 with offset), to rerun a past day",
+    )
     parser.add_argument("--no-thumbs", dest="thumbs", action="store_false")
     parser.add_argument("--no-freshness", dest="freshness", action="store_false")
     parser.add_argument("--upload", action="store_true", help="write the report and thumbnails to qa/ in the bucket")
@@ -150,11 +159,11 @@ def main(argv: list[str] | None = None) -> int:
     storage = catalogue(args.target, args.root)
     part: Any
     if args.command == "check-catalog":
-        part = check_catalog(storage, args.start, args.end)
+        part = check_catalog(storage, args.start, args.end, now=args.now)
     elif args.command == "render-thumbs":
         part = render_thumbs(storage, _in_range(index_entries(storage), args.start, args.end), args.out_dir / "thumbs")
     elif args.command == "freshness":
-        part = freshness(storage, load_region(args.region).bbox)
+        part = freshness(storage, load_region(args.region).bbox, args.now)
     else:
         part = run_fixtures(storage, index_entries(storage))
     print(json.dumps(part, indent=1))

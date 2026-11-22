@@ -124,5 +124,10 @@ def run_fixtures(
     results = []
     with tempfile.TemporaryDirectory(prefix="fixtures-") as tmp:
         for fixture in fixtures if fixtures is not None else load_fixtures():
-            results.append(evaluate(storage, fixture, entries, Path(tmp)))
+            try:
+                results.append(evaluate(storage, fixture, entries, Path(tmp)))
+            except Exception as error:  # a malformed input file fails this fixture, not the whole run
+                results.append(
+                    {"id": fixture["id"], "status": "fail", "failures": [f"{type(error).__name__}: {error}"]}
+                )
     return {"check": "regression_fixtures", "fixtures": results, "ok": all(r["status"] != "fail" for r in results)}

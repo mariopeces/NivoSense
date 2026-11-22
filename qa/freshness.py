@@ -5,8 +5,10 @@ F1: a clear Sentinel-2 pass appears on the site within 24 h of being listed on E
     `created` time of its source scenes; over 24 h is a breach.
   - Missing: every Earth Search pass (UTC date and relative orbit) over the region listed more than 24 h ago
     whose date has no snow_obs entry is missing, unless the observation pipeline recorded a decision object
-    `s2/decisions/<date>_<orbit>.json` (schema pipelines/catalog/s2_decision.schema.json) saying the pass is
-    complete and not listed (under 30% of the domain covered and valid).
+    `s2/decisions/<date>_<orbit>.json` (schema pipelines/catalog/s2_decision.schema.json) for that same date and
+    orbit saying the pass is complete and not listed, with under 30% of the domain covered and valid. A decision
+    that contradicts its key or the 30% rule is reported, never taken as an explanation.
+  - A pass date with a snow_obs entry must also have its rgb entry (README D1 lists both).
 F2: the daily layers for yesterday (Europe/Madrid) exist, created by 10:00 Europe/Madrid today.
 """
 
@@ -21,6 +23,8 @@ from collections.abc import Callable
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from jsonschema import ValidationError
+
 from pipelines.catalog import Storage
 from pipelines.catalog.validate import validate_s2_decision
 
@@ -32,6 +36,9 @@ L1C = "sentinel-2-l1c"
 F1_LIMIT = dt.timedelta(hours=24)
 F1_LATENCY_LAYERS = ("snow_obs", "rgb")
 F1_PASS_LAYER = "snow_obs"
+F1_RGB_LAYER = "rgb"
+# README D1: an S2 date is listed when at least 30% of the domain is covered and valid.
+MIN_LISTED_VALID_FRACTION = 0.30
 F2_LAYERS = ("snow_gapfill", "swe", "snow_depth")
 F2_DEADLINE = dt.time(10, 0)
 MADRID = ZoneInfo("Europe/Madrid")
@@ -118,6 +125,7 @@ def check_f1(
     for item in items:
         passes[(item["properties"]["datetime"][:10], orbit_of(item))].append(item)
     published = {entry["date"] for entry in entries.get(F1_PASS_LAYER, [])}
+    published_rgb = {entry["date"] for entry in entries.get(F1_RGB_LAYER, [])}
     rows = []
     for (date, orbit), group in sorted(passes.items()):
         listed = max(_time(item["properties"]["created"]) for item in group)
@@ -129,18 +137,20 @@ def check_f1(
         }
         if date in published:
             row["state"] = "published"
+            if date not in published_rgb and now - listed > F1_LIMIT:
+                row["state"] = "published_without_rgb"
+                breaches.append({"layer": F1_RGB_LAYER, "date": date, "orbit": orbit, "why": "missing: no rgb entry"})
         elif now - listed <= F1_LIMIT:
             row["state"] = "not_due"
         else:
-            decision = _decision(storage, date, orbit)
-            if decision is not None and decision["complete"] and not decision["listed"]:
+            decision, problem = _decision(storage, date, orbit)
+            if problem is None and decision is not None:
                 row["state"] = "not_clear"
                 row["domain_coverage"] = decision["domain_coverage"]
                 row["domain_valid_fraction"] = decision["domain_valid_fraction"]
             else:
                 row["state"] = "missing"
-                why = "no decision recorded" if decision is None else "decision says listed or incomplete"
-                breaches.append({"layer": F1_PASS_LAYER, "date": date, "orbit": orbit, "why": f"missing: {why}"})
+                breaches.append({"layer": F1_PASS_LAYER, "date": date, "orbit": orbit, "why": f"missing: {problem}"})
         rows.append(row)
     return {
         "ok": not breaches,
@@ -151,13 +161,32 @@ def check_f1(
     }
 
 
-def _decision(storage: Storage, date: str, orbit: str) -> dict[str, Any] | None:
-    blob = storage.read(f"s2/decisions/{date}_{orbit}.json")
+def _decision(storage: Storage, date: str, orbit: str) -> tuple[dict[str, Any] | None, str | None]:
+    """The decision object of a pass and, when it does not explain the pass as not clear, why not."""
+    key = f"s2/decisions/{date}_{orbit}.json"
+    blob = storage.read(key)
     if blob is None:
-        return None
-    decision: dict[str, Any] = json.loads(blob.data)
-    validate_s2_decision(decision)
-    return decision
+        return None, "no decision recorded"
+    try:
+        decision: dict[str, Any] = json.loads(blob.data)
+        validate_s2_decision(decision)
+    except (ValueError, ValidationError) as error:  # unparsable JSON or a schema violation
+        return None, f"invalid decision {key}: {str(error).splitlines()[0]}"
+    if (decision["date"], decision["orbit"]) != (date, orbit):
+        return decision, f"decision {key} is for {decision['date']} {decision['orbit']}"
+    if not decision["complete"]:
+        return decision, "decision says the pass is incomplete"
+    if decision["listed"]:
+        return decision, "decision says listed"
+    valid, coverage = decision["domain_valid_fraction"], decision["domain_coverage"]
+    if valid > coverage:
+        return decision, f"decision contradicts itself: valid fraction {valid} above coverage {coverage}"
+    if valid >= MIN_LISTED_VALID_FRACTION:
+        return (
+            decision,
+            f"decision says not listed with {valid} of the domain valid (at least {MIN_LISTED_VALID_FRACTION})",
+        )
+    return decision, None
 
 
 def check_f2(entries: dict[str, list[dict[str, Any]]], now: dt.datetime) -> dict[str, Any]:

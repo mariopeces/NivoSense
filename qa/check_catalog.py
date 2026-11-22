@@ -12,18 +12,24 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from jsonschema import ValidationError
 
 from pipelines.catalog import LocalStorage, Storage, pixel_hash
 from pipelines.catalog.layers import CRS, ZOOMS, check_on_grid, get_layer
 from pipelines.catalog.validate import validate_entry, validate_index
 
+from .freshness import F2_DEADLINE, MADRID
 from .objects import byte_reader, local_file
 
 INDEX_KEY = "catalog/index.json"
 ENTRIES_PREFIX = "catalog/entries/"
-# Gap-filled snow cover, SWE and depth are produced for every day (README section 1); observed layers only on
-# clear passes, so only these statuses can miss a day.
-DAILY_STATUSES = {"gapfilled", "modelled"}
+# The daily layers (README section 1) and the first day each must exist from. A layer's producing task sets its
+# date to 2025-10-01 (README D1) when its backfill lands (T1.4 gap-fill, T2.5 SWE and depth). Until then a layer
+# that has entries is checked from its first one, and one with none is reported as not live.
+DAILY_SINCE: dict[str, str | None] = {"snow_gapfill": None, "swe": None, "snow_depth": None}
+# Without --start, files and thumbnails are checked for the last 35 days: a month plus the 5 days the daily
+# observation job reprocesses. A full-range check is an explicit --start/--end run (one job per month in qa.yml).
+DEFAULT_WINDOW_DAYS = 35
 # Entry bounds are rounded to 6 decimals (about 0.1 m) by publish().
 BOUNDS_TOLERANCE_DEG = 2e-6
 
@@ -178,6 +184,15 @@ def check_entry(storage: Storage, entry: dict[str, Any], folder: Path) -> list[d
     return problems
 
 
+def _checked(storage: Storage, entry: dict[str, Any], folder: Path) -> list[dict[str, Any]]:
+    # One malformed object must not stop the run before the report is written: whatever it raises is
+    # reported against its entry.
+    try:
+        return check_entry(storage, entry, folder)
+    except Exception as error:
+        return [_problem("unexpected", f"{type(error).__name__}: {error}", entry)]
+
+
 def missing_days(dates: list[str], start: str, end: str) -> list[str]:
     """Every day from start to end (inclusive) that is not in dates."""
     present = set(dates)
@@ -201,7 +216,7 @@ def _entry_objects(storage: Storage) -> tuple[dict[tuple[str, str], dict[str, An
         try:
             entry = json.loads(blob.data)
             validate_entry(entry)
-        except ValueError as error:  # json.JSONDecodeError and jsonschema.ValidationError are both ValueErrors
+        except (ValueError, ValidationError) as error:  # unparsable JSON or a schema violation
             problems.append(_problem("entry_schema", str(error).splitlines()[0], key=key))
             continue
         if key != f"{ENTRIES_PREFIX}{entry['layer']}/{entry['date']}.json":
@@ -211,20 +226,34 @@ def _entry_objects(storage: Storage) -> tuple[dict[tuple[str, str], dict[str, An
     return entries, problems
 
 
-def check_catalog(
-    storage: Storage, start: str | None = None, end: str | None = None, workers: int = 4
-) -> dict[str, Any]:
-    """Check the catalogue (entries dated start..end, all when omitted) and return the report.
+def expected_last_day(now: dt.datetime) -> str:
+    """The latest day the daily layers must have: yesterday (Europe/Madrid) once its F2 deadline has passed."""
+    local = now.astimezone(MADRID)
+    lag = 1 if local.time() >= F2_DEADLINE else 2
+    return (local.date() - dt.timedelta(days=lag)).isoformat()
 
-    Daily layers are checked for missing days over start..end when both are given, else between their first
-    and last dates.
+
+def check_catalog(
+    storage: Storage,
+    start: str | None = None,
+    end: str | None = None,
+    workers: int = 4,
+    now: dt.datetime | None = None,
+) -> dict[str, Any]:
+    """Check the catalogue and return the report.
+
+    Files are checked for entries dated start..end; without start, for the last DEFAULT_WINDOW_DAYS days.
+    Every daily layer of DAILY_SINCE is checked for missing days from its first expected day (clipped to start)
+    to `end`, or to the last expected day when no end is given, also when it has no entry in the index.
     """
     started = time.monotonic()
+    now = now or dt.datetime.now(dt.timezone.utc)
+    window_start = start or (now.astimezone(MADRID).date() - dt.timedelta(days=DEFAULT_WINDOW_DAYS)).isoformat()
     report: dict[str, Any] = {
         "check": "check_catalog",
         "catalogue": repr(storage),
-        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-        "range": {"start": start, "end": end},
+        "generated_at": now.isoformat(timespec="seconds"),
+        "range": {"start": window_start, "end": end, "default_window": start is None},
         "entries_checked": 0,
         "layers": {},
         "errors": [],
@@ -233,75 +262,72 @@ def check_catalog(
     objects, entry_errors = _entry_objects(storage)
     errors.extend(entry_errors)
 
+    indexed: dict[tuple[str, str], dict[str, Any]] = {}
     blob = storage.read(INDEX_KEY)
     if blob is None:
         if objects or entry_errors:
             errors.append(_problem("index", "catalog/index.json is missing but entries exist", key=INDEX_KEY))
         report["index"] = "absent"
-        index_entries: dict[tuple[str, str], dict[str, Any]] = {}
     else:
-        index = json.loads(blob.data)
         try:
+            index = json.loads(blob.data)
             validate_index(index)
-        except ValueError as error:
-            errors.append(_problem("index", f"schema: {str(error).splitlines()[0]}", key=INDEX_KEY))
+        except (ValueError, ValidationError) as error:  # unparsable JSON or a schema violation
+            errors.append(_problem("index", f"invalid: {str(error).splitlines()[0]}", key=INDEX_KEY))
             index = {"layers": {}}
         report["index"] = {"generated_at": index.get("generated_at"), "entries_digest": index.get("entries_digest")}
-        index_entries = {}
         for layer, item in index["layers"].items():
             if item["dates"] != [entry["date"] for entry in item["entries"]] or item["dates"] != sorted(item["dates"]):
                 errors.append(_problem("index", f"{layer}: dates are not the ascending dates of its entries"))
             for entry in item["entries"]:
-                index_entries[(entry["layer"], entry["date"])] = entry
-        for key in sorted(set(objects) | set(index_entries)):
-            if objects.get(key) != index_entries.get(key):
+                indexed[(entry["layer"], entry["date"])] = entry
+        for key in sorted(set(objects) | set(indexed)):
+            if objects.get(key) != indexed.get(key):
                 where = (
                     "only in the index"
                     if key not in objects
                     else "not in the index"
-                    if key not in index_entries
+                    if key not in indexed
                     else "differs from its entry object"
                 )
-                errors.append(
-                    _problem(
-                        "index", f"index entry {where}; rebuild the index", objects.get(key) or index_entries.get(key)
-                    )
-                )
+                entry = objects.get(key) or indexed.get(key)
+                errors.append(_problem("index", f"index entry {where}; rebuild the index", entry))
 
     # The index is what the site reads, so its entries are what is checked; entry objects not yet indexed
     # are already reported above.
     selected = [
         entry
-        for key, entry in sorted(index_entries.items())
-        if (start is None or entry["date"] >= start) and (end is None or entry["date"] <= end)
+        for _, entry in sorted(indexed.items())
+        if entry["date"] >= window_start and (end is None or entry["date"] <= end)
     ]
     with tempfile.TemporaryDirectory(prefix="qa-") as tmp, ThreadPoolExecutor(max_workers=workers) as pool:
-        for problems in pool.map(lambda entry: check_entry(storage, entry, Path(tmp)), selected):
+        for problems in pool.map(lambda entry: _checked(storage, entry, Path(tmp)), selected):
             errors.extend(problems)
     report["entries_checked"] = len(selected)
 
-    # Every layer in the index is summarised, also one with no entry in the range: a daily layer that stopped
-    # before `start` misses every day of it.
-    by_layer: dict[str, list[str]] = {layer: [] for layer, _ in index_entries}
-    for entry in selected:
-        by_layer[entry["layer"]].append(entry["date"])
-    for layer, dates in sorted(by_layer.items()):
+    all_dates: dict[str, list[str]] = {layer: [] for layer in DAILY_SINCE}
+    for layer, date in sorted(indexed):
+        all_dates.setdefault(layer, []).append(date)
+    last_expected = end or expected_last_day(now)
+    for layer, dates in sorted(all_dates.items()):
+        in_window = [date for date in dates if date >= window_start and (end is None or date <= end)]
         summary: dict[str, Any] = {
             "entries": len(dates),
             "first": min(dates, default=None),
             "last": max(dates, default=None),
         }
-        try:
-            daily = get_layer(layer).status in DAILY_STATUSES
-        except ValueError:
-            daily = False
-        first, last = start or summary["first"], end or summary["last"]
-        if daily and first and last:
-            gaps = missing_days(dates, first, last)
-            summary["missing_days"] = gaps
-            errors.extend(
-                _problem("missing_day", "no entry for this day", {"layer": layer, "date": day}) for day in gaps
-            )
+        summary["checked_files"] = len(in_window)
+        if layer in DAILY_SINCE:
+            since = DAILY_SINCE[layer] or summary["first"]
+            if since is None:
+                summary["daily"] = "not live: no entry and no declared start"
+            else:
+                first = max(since, start) if start else since
+                gaps = missing_days(dates, first, last_expected) if first <= last_expected else []
+                summary["daily"] = {"expected": [first, last_expected], "missing_days": gaps}
+                errors.extend(
+                    _problem("missing_day", "no entry for this day", {"layer": layer, "date": day}) for day in gaps
+                )
         report["layers"][layer] = summary
     report["ok"] = not errors
     report["duration_s"] = round(time.monotonic() - started, 1)
