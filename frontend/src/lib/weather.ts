@@ -6,10 +6,7 @@ export type WeatherHorizon = (typeof WEATHER_HORIZONS)[number];
 
 export type WeatherVariable = "precipitation_total" | "snowfall";
 
-export const WEATHER_VARIABLES: Array<{ id: WeatherVariable; label: string }> = [
-  { id: "precipitation_total", label: "Precip" },
-  { id: "snowfall", label: "Snow" },
-];
+export const WEATHER_VARIABLES: WeatherVariable[] = ["precipitation_total", "snowfall"];
 
 type Asset = {
   path: string;
