@@ -1,0 +1,27 @@
+{
+  "build": "vite preview of plan/t42-timeline at 79bae44, VITE_CATALOG_URL = gs://nivosense-cogs/staging/_scratch/t04-evidence-98f90df/staging/catalog/index.json (7 real true colour entries), ?d=2026-11-20",
+  "1440": {
+    "track_width_px": 578,
+    "hoy_label_px_from_track_left": [487, 514],
+    "prevision_label_px_from_track_left": [514, 571],
+    "hoy_overlaps_prevision": false,
+    "prevision_inside_track": true,
+    "labels_on_track": ["oct", "nov", "dic", "2026", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "Hoy", "Previsión"],
+    "button_sizes_px": {"anterior": [32, 32], "reproducir": [32, 32], "siguiente": [32, 32], "calendario": [32, 32]},
+    "click_in_forecast_slot": "dom 22 nov 2026: Pendiente (today: the slot has no forecast day to pick)",
+    "axe_violations": []
+  },
+  "375": {
+    "track_width_px": 327,
+    "hoy_label_px_from_track_left": [236, 263],
+    "prevision_label_px_from_track_left": [263, 320],
+    "hoy_overlaps_prevision": false,
+    "prevision_inside_track": true,
+    "labels_on_track": ["oct", "2026", "abr", "jul", "Hoy", "Previsión"],
+    "button_sizes_px": {"anterior": [44, 44], "reproducir": [44, 44], "siguiente": [44, 44], "calendario": [44, 44]},
+    "status_badge_overlaps_next_button": false,
+    "document_scroll_width": 375,
+    "axe_violations": []
+  },
+  "console_errors": []
+}
