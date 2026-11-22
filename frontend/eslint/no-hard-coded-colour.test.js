@@ -9,13 +9,19 @@ RuleTester.itOnly = it.only;
 
 const tokensFile = "src/styles/tokens.css";
 const file = "src/Probe.tsx";
-const options = (baseline = {}) => [{ tokensFile, baseline }];
+const options = (baseline = {}, extra = {}) => [{ tokensFile, baseline, ...extra }];
 const colour = (value) => ({ messageId: "colour", data: { value, tokensFile } });
+// With inline config off, as in eslint.config.js, ESLint warns that the directive has no effect.
+const ignored = { message: /has no effect because you have 'noInlineConfig'/ };
+const jsx = { parserOptions: { ecmaFeatures: { jsx: true } } };
 
-new RuleTester().run("no-hard-coded-colour in scripts", rule, {
+new RuleTester({ languageOptions: jsx, linterOptions: { noInlineConfig: true } }).run("no-hard-coded-colour in scripts", rule, {
   valid: [
     { filename: file, code: 'const a = "bg-navy text-slate-100 #section";', options: options() },
     { filename: file, code: 'const a = "S2 RGB", b = "true colour";', options: options() },
+    // Named colours in prose and identifiers are words, not colours.
+    { filename: file, code: 'const red = "La nieve en Sierra Nevada es white y red";', options: options() },
+    { filename: file, code: 'const a = { "fill-color": "var(--colour-snow)" };', options: options() },
     { filename: file, code: 'const a = "bg-[#081020]";', options: options({ [file]: { "#081020": 1 } }) },
   ],
   invalid: [
@@ -28,9 +34,67 @@ new RuleTester().run("no-hard-coded-colour in scripts", rule, {
     },
     {
       filename: file,
-      code: 'const a = ["hsl(10 20% 30%)", "oklch(70% 0.1 200)", "#abcd", "#11223344"];',
+      code: 'const a = ["hsl(10 20% 30%)", "oklch(70% 0.1 200)", "#abcd", "#11223344", "hwb(1 2% 3%)", "lab(1 2 3)"];',
       options: options(),
-      errors: [colour("hsl(10 20% 30%)"), colour("oklch(70% 0.1 200)"), colour("#abcd"), colour("#11223344")],
+      errors: [
+        colour("hsl(10 20% 30%)"),
+        colour("oklch(70% 0.1 200)"),
+        colour("#abcd"),
+        colour("#11223344"),
+        colour("hwb(1 2% 3%)"),
+        colour("lab(1 2 3)"),
+      ],
+    },
+    {
+      // Template literals: colour parts around interpolations, literal interpolations and escape sequences.
+      filename: file,
+      code: [
+        "const a = `rgb(${r}, 0, 0)`;",
+        "const b = `#ff${x}`;",
+        'const c = `#${"ff00ff"}`;',
+        "const d = `border-[\\u0023abcdef] ${y}`;",
+        'const e = "\\x23123456";',
+      ].join("\n"),
+      options: options(),
+      errors: [colour("rgb("), colour("#ff${}"), colour("#ff00ff"), colour("#abcdef"), colour("#123456")],
+    },
+    {
+      // Nested parentheses are matched to the balanced closing one.
+      filename: file,
+      code: 'const a = ["rgb(calc(255) 0 255)", "rgb(var(--a) / 50%)", "rgba(255,0,255,var(--x))", "color(srgb 1 0 0)"];',
+      options: options(),
+      errors: [
+        colour("rgb(calc(255) 0 255)"),
+        colour("rgb(var(--a)/50%)"),
+        colour("rgba(255,0,255,var(--x))"),
+        colour("color(srgb 1 0 0)"),
+      ],
+    },
+    {
+      // Named colours where a value is a colour: style props, SVG and Recharts props, MapLibre paint.
+      filename: "src/Probe.jsx",
+      code: [
+        'const a = <div style={{ borderColor: "magenta", boxShadow: "0 0 4px black" }} />;',
+        'const b = <Bar fill="Red" stroke={x ? "blue" : "none"} />;',
+        'const c = <stop stopColor="white" />;',
+        'const d = { "fill-color": ["case", ["==", ["get", "k"], 1], "tomato", "transparent"] };',
+        'map.setPaintProperty("snow", "line-color", "gold");',
+        'el.style.backgroundColor = "teal";',
+      ].join("\n"),
+      options: options(),
+      errors: ["magenta", "black", "red", "blue", "white", "tomato", "gold", "teal"].map(colour),
+    },
+    {
+      filename: file,
+      code: 'const a = { "circle-color": ["rgb", 255, 0, 255] };',
+      options: options(),
+      errors: [colour('["rgb",255,0,255]')],
+    },
+    {
+      filename: "tailwind.config.js",
+      code: 'export default { theme: { extend: { colors: { brand: "magenta" } } } };',
+      options: options({}, { namedColoursAnywhere: true }),
+      errors: [colour("magenta")],
     },
     {
       // A second colour inside a literal whose first colour is in the baseline.
@@ -53,15 +117,30 @@ new RuleTester().run("no-hard-coded-colour in scripts", rule, {
       options: options({ "src/Other.tsx": { "#081020": 1 } }),
       errors: [colour("#081020")],
     },
+    {
+      filename: file,
+      code: '// eslint-disable-next-line rule-to-test/no-hard-coded-colour\nconst a = 1;\n/* eslint-disable */\nconst b = 2;',
+      options: options(),
+      errors: [ignored, { messageId: "directive" }, ignored, { messageId: "directive" }],
+    },
   ],
 });
 
-new RuleTester({ plugins: { css }, language: "css/css", languageOptions: { tolerant: true } }).run(
+new RuleTester({
+  plugins: { css },
+  language: "css/css",
+  languageOptions: { tolerant: true },
+  linterOptions: { noInlineConfig: true },
+}).run(
   "no-hard-coded-colour in stylesheets",
   rule,
   {
     valid: [
-      { filename: "src/a.css", code: "#root { color: var(--colour-text); background: transparent; }", options: options() },
+      {
+        filename: "src/a.css",
+        code: "#root { color: var(--colour-text); background: transparent; animation: snow 1s; --red-ish: var(--red); }",
+        options: options(),
+      },
       { filename: "src/a.css", code: ".a { color: #081020; }", options: options({ "src/a.css": { "#081020": 1 } }) },
     ],
     invalid: [
@@ -70,6 +149,31 @@ new RuleTester({ plugins: { css }, language: "css/css", languageOptions: { toler
         code: ".a { color: #FF00FF; border: 1px solid rgba(1, 2, 3, .5); outline-color: Red; }",
         options: options(),
         errors: [colour("#ff00ff"), colour("rgba(1,2,3,.5)"), colour("red")],
+      },
+      {
+        // Custom properties are where tokens live: outside the tokens file they cannot hold colours.
+        filename: "src/a.css",
+        code: ":root { --a: #fff; --b: rgb(255 0 255); --c: red; --d: rgb(var(--a) / 50%); }",
+        options: options(),
+        errors: [colour("#fff"), colour("rgb(255 0 255)"), colour("red"), colour("rgb(var(--a)/50%)")],
+      },
+      {
+        filename: "src/a.css",
+        code: `.a { color: rgb(calc(255) 0 255); background: url("data:image/svg+xml,%3Csvg fill='%23ff00ff'/%3E"); }`,
+        options: options(),
+        errors: [colour("rgb(calc(255) 0 255)"), colour("#ff00ff")],
+      },
+      {
+        filename: "src/a.css",
+        code: ".a { @apply bg-[#123456]; }",
+        options: options(),
+        errors: [colour("#123456")],
+      },
+      {
+        filename: "src/a.css",
+        code: "/* eslint-disable */\n.a { color: blue; }",
+        options: options(),
+        errors: [ignored, { messageId: "directive" }, colour("blue")],
       },
     ],
   },
