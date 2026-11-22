@@ -176,20 +176,7 @@
     "sin_dato": "Sin dato (sombra del relieve o fuera de la escena)",
     "transparente_swe": "Menos de 5 mm: sin color",
     "transparente_probabilidad": "Menos de 10 %: sin color",
-    "chip_mapa": "{capa} · {fecha_corta}",
-    "espesor_m": "Espesor (m)",
-    "nube_o_sin_dato": "Nube o sin dato",
-    "despejado": "{valor} % sin nubes",
-    "despejado_nieve": "{valor} % sin nubes; de eso, {nieve} % con nieve",
-    "media_conjunto": "Media ponderada del conjunto, {fecha_corta}",
-    "experimental": "Experimental: las magnitudes no están contrastadas con medidas de campo.",
-    "precipitacion_acumulada": "Precipitación acumulada (mm)",
-    "nieve_acumulada": "Nieve acumulada (mm de agua)",
-    "sin_valores": "Ningún valor por encima de {valor} mm en la zona",
-    "maximo_regional": "Máximo en la zona: {valor} mm",
-    "modelo": "Modelo",
-    "pasada": "Pasada",
-    "valida": "Válida para"
+    "chip_mapa": "{capa} · {fecha_corta}"
   },
   "linea_tiempo": {
     "etiqueta": "Fecha del mapa",
@@ -232,13 +219,7 @@
     "pendiente_detalle": "Las series de SWE y espesor por cuenca aparecerán cuando el modelo publique su primera temporada.",
     "pendiente_nieve_area": "La superficie con nieve aparecerá con las primeras escenas publicadas.",
     "volver": "Todas las cuencas",
-    "seleccionar": "Elige una cuenca en el mapa o en la lista.",
-    "temporada": "Año hidrológico",
-    "grafico_titulo_nieve_pct": "Superficie con nieve (%)",
-    "media_historica": "Media histórica",
-    "datos_validos": "Datos válidos",
-    "rango_p10_p90": "Entre {p10} y {p90} (p10 a p90)",
-    "calibracion": "Conjunto ponderado de {miembros} simulaciones, forzado con {forzamiento}. F1 de cobertura de nieve en fechas reservadas: {f1}, frente a Sentinel-2 a 10 m."
+    "seleccionar": "Elige una cuenca en el mapa o en la lista."
   },
   "caudal": {
     "titulo": "Caudal",
@@ -247,8 +228,7 @@
     "fuente_saih_guadalquivir": "SAIH Guadalquivir (Confederación Hidrográfica del Guadalquivir)",
     "fuente_hidrosur": "Red Hidrosur (Junta de Andalucía)",
     "pendiente": "Sin serie conectada",
-    "pendiente_detalle": "La estación existe, pero su serie aún no se descarga de la fuente oficial.",
-    "tendencia": "Tendencia lineal"
+    "pendiente_detalle": "La estación existe, pero su serie aún no se descarga de la fuente oficial."
   },
   "webcam": {
     "en_directo": "En directo",
@@ -327,9 +307,7 @@
     "capa": "No se pudo cargar {capa} del {fecha_corta}.",
     "imagen_webcam": "No se pudo cargar la imagen.",
     "reintentar": "Reintentar",
-    "datos_antiguos": "Datos con retraso: la última actualización fue {edad}.",
-    "serie": "No se pudo cargar la serie.",
-    "webcams": "No se pudo cargar la lista de cámaras."
+    "datos_antiguos": "Datos con retraso: la última actualización fue {edad}."
   },
   "mapa": {
     "acercar": "Acercar",
@@ -339,10 +317,7 @@
     "atribucion_ign": "© Instituto Geográfico Nacional (IGN), CC BY 4.0 scne.es",
     "atribucion_s2": "Contiene datos modificados de Copernicus Sentinel {anio}",
     "atribucion_cuencas": "Cuencas: {fuente}",
-    "$nota_atribucion_cuencas": "data/basins.geojson does not record its origin; T2.1 rebuilds the sub-basins and must fill {fuente}. Until then the attribution line is omitted, not guessed.",
-    "titulo": "Mapa",
-    "alternar_atribucion": "Mostrar u ocultar la atribución",
-    "comentarios_mapa": "Comentarios sobre el mapa"
+    "$nota_atribucion_cuencas": "data/basins.geojson does not record its origin; T2.1 rebuilds the sub-basins and must fill {fuente}. Until then the attribution line is omitted, not guessed."
   },
   "movil": {
     "abrir_panel": "Abrir el panel",
@@ -353,20 +328,5 @@
     "al_dia": "Datos al día",
     "retraso": "Retraso en {capa}",
     "detalle": "Comprobado {edad}"
-  },
-  "calendario": {
-    "mes_anterior": "Mes anterior",
-    "mes_siguiente": "Mes siguiente"
-  },
-  "meteo": {
-    "modelo": "Modelo",
-    "variable": "Variable",
-    "horizonte": "Plazo",
-    "precipitation_total": "Precipitación",
-    "snowfall": "Nieve",
-    "horas": "{horas} h",
-    "pasada": "Pasada del {fecha_corta}, {hora}",
-    "ayuda_horizonte": "Elige un plazo para ver en el mapa la previsión acumulada hasta esa hora. Vuelve a tocarlo para quitarla.",
-    "sin_prevision": "Aún no hay previsión publicada."
   }
 }
