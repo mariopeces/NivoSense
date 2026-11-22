@@ -31,7 +31,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra and G-Code r1 running | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
-| T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
+| T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | building, stacked on plan/t11-s2-ingest + t03 + t04 (plan-snowobs, ctx_67b47268eaba); Q1 scored once after T1.0 freezes | | |
 | T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | ready, stacked on plan/t11-s2-ingest + plan/t03-catalog; G-Data, G-Method, G-Code queued | #22 | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
@@ -49,7 +49,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
 | T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running); fixing G-Code r1 | #16 | r1: G-UI fail, G-Code fail (estado.undefined rows; build_ramps exits 0 on a broken ramp) |
 | T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | gauntlet r1 (G-UI, G-Code), stacked on plan/t06-ci + plan/t40-design | #25 | |
-| T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
+| T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | building, stacked on plan/t41-shell + plan/t03-catalog (plan-timeline, ctx_b1fd50713fbe) | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
 | T4.4 Basin and river panels | E | task_ff92a85a01b8 | T4.3 (T2.5 data optional, "pendiente" before) | waiting | | |
 | T4.5 Mobile, a11y, perf | E | task_8d2518876af4 | T4.4 | waiting | | |
@@ -165,3 +165,4 @@ Not available until T5.1.
 - 2026-11-22: T4.0 G-Code r1 FAIL (two majors: '[estado.undefined]' on 7 screens; build_ramps.py writes ramps.json on a broken ramp). Sent to the design lead. T0.6 combined narrow round 4 started.
 - 2026-11-22: T0.3 r1 fixes pushed (a46b2b6: strict JSON, 18 mutations caught, GcsStorage tests, per-promote concurrency groups, tile format upstream); r2 x3 queued. T2.1 r1 fixes pushed (bad749e: geo deps in the hashed locks, sha refusal, slivers merged); narrow G-Code r2 queued. T2.2 PR #27 opened: inventory scripted; precipitation vs 6 RIA foothill stations: timing similar (r 0.65-0.73), volume differs (median ratio ARPEGE 1.09, ICON-EU 1.21, GFS 1.51, IFS 1.57, ERA5 1.74); snow scores and the recommendation wait for T1.7, so its G-Method gauntlet waits too (past-season forcing prefetch, ~25k calls over ~3 days, running locally into .cache/forcing).
 - 2026-11-22: T1.3 PR #22 ready (catalogue copy dropped in favour of T0.3 a46b2b6; CI green on eeac1c6). Gauntlet queue: T0.3 r2 x3, T2.1 G-Code r2, T1.3 r1 x3.
+- 2026-11-22: Started under the stacked-branch rule: T4.2 timeline (plan-timeline) and T1.2 observed snow cover (plan-snowobs). T1.2 independence rule: the classifier builder never sees the T1.0 reference sample until its parameters are frozen and committed; Q1 is scored once, no tuning against the sample.
