@@ -56,6 +56,17 @@ jobs:
       - name: ESLint
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run lint
+      - name: Colour baseline only shrinks
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          if git show "FETCH_HEAD:frontend/colour-baseline.json" > "$RUNNER_TEMP/base-colour-baseline.json"; then
+            node eslint/check-colour-baseline.js "$RUNNER_TEMP/base-colour-baseline.json"
+          else
+            node eslint/check-colour-baseline.js
+          fi
       - name: Vitest
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm test

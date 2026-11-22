@@ -136,7 +136,7 @@ npm run lint       # eslint; hard-coded colours outside the tokens file fail
 npm test           # vitest
 ```
 
-The lint rule `frontend/eslint/no-hard-coded-colour.js` bans colours (hex, `rgb()`/`hsl()` and the other CSS colour functions, and named colours in CSS) in `src/` and `tailwind.config.js`, except in `src/styles/tokens.css`. Colours that predate the tokens file are listed value by value and file by file in `frontend/colour-baseline.json`: a new, moved or swapped colour fails, and so does a baseline entry whose colour is gone (delete the entries the rule reports).
+The lint rule `frontend/eslint/no-hard-coded-colour.js` bans colours outside `src/styles/tokens.css`, in every script under `src/`, the root config files and every CSS file under `src/` (custom properties included): hex, `rgb()`/`hsl()` and the other CSS colour functions, and named colours wherever a value is a colour (CSS values, style and SVG props, MapLibre paint). Colours that predate the tokens file are listed value by value and file by file in `frontend/colour-baseline.json`: a new, moved or swapped colour fails, and so does an entry whose colour or file is gone (delete the entries the rule reports). CI also fails if a PR adds to the baseline. Inline ESLint comments are off in the frontend, so no rule can be switched off from the code; change `eslint.config.js` instead.
 
 ### Pipelines and tests
 
