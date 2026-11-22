@@ -160,6 +160,29 @@ class PanoramaTest(unittest.TestCase):
         self.assertGreater(match.score - match.alternative_score, wb.MATCH_MARGIN)
 
 
+class JudgeViewTest(unittest.TestCase):
+    match = wb.ViewMatch(bearing=120.0, fov=40.0, pitch=0.0, score=0.9, alternative_score=0.5, pano_column=0.0)
+
+    def verdict(self, **changes: float) -> str | None:
+        values = {"fraction": 0.9, "cost": 5.0, "tolerance": 20.0, "bearing": 121.0, "fov": 41.0, **changes}
+        pose = wb.Pose(values["bearing"], values["fov"], 0.0, 0.0)
+        return wb.judge_view(values["fraction"], self.match, values["cost"], values["tolerance"], pose)
+
+    def test_settles_when_the_skyline_confirms_the_match(self) -> None:
+        self.assertIsNone(self.verdict())
+
+    def test_each_disagreement_unsettles(self) -> None:
+        self.assertIn("nothing to confirm", self.verdict(fraction=0.1) or "")
+        self.assertIn("residual", self.verdict(cost=25.0) or "")
+        self.assertIn("moves the matched bearing", self.verdict(bearing=123.0) or "")
+        self.assertIn("edge", self.verdict(fov=20.5) or "")
+        self.assertIn("field of view disagrees", self.verdict(fov=60.0) or "")
+
+    def test_ambiguous_match_unsettles(self) -> None:
+        match = wb.ViewMatch(bearing=120.0, fov=40.0, pitch=0.0, score=0.9, alternative_score=0.85, pano_column=0.0)
+        self.assertIn("not unique", wb.judge_view(0.9, match, 5.0, 20.0, wb.Pose(120.0, 40.0, 0.0, 0.0)) or "")
+
+
 class SkylineTest(unittest.TestCase):
     def test_extracts_sky_edge_and_ignores_masked_caption(self) -> None:
         columns = np.arange(WIDTH)

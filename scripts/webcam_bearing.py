@@ -124,6 +124,8 @@ MATCH_FINE_PX_PER_DEG = 8.0
 MATCH_MARGIN = 0.1
 # The view's own skyline fit, started from the panorama bearing, may move it this far.
 VIEW_AGREEMENT_DEG = 2.0
+# The two estimates of the field of view (panorama match, skyline refit) may differ by this fraction.
+VIEW_FOV_AGREEMENT = 0.15
 USER_AGENT = "NivoSense-webcam-bearing (+https://github.com/mariopeces/NivoSense)"
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
@@ -1021,6 +1023,35 @@ def judge(fit: Fit, skyline_fraction: float, tolerance_px: float, spread_deg: fl
     return ("high" if spread_deg <= SPREAD_HIGH_DEG else "medium"), None
 
 
+def judge_view(
+    skyline_fraction: float, match: ViewMatch, cost_px: float, tolerance_px: float, pose: Pose
+) -> str | None:
+    """Why a view located in its station panorama is not settled, or None if it is.
+
+    ``pose`` is the view's own skyline refit started from the match.
+    """
+    agreement = float(angular_gap(pose.bearing, match.bearing))
+    if skyline_fraction < MIN_SKYLINE_FRACTION:
+        return f"view skyline found in only {skyline_fraction:.0%} of the columns, nothing to confirm the match"
+    if match.score - match.alternative_score < MATCH_MARGIN:
+        return (
+            f"panorama match not unique: a position more than {UNIQUE_SEPARATION_DEG:.0f} deg away scores"
+            f" {match.alternative_score:.2f} against {match.score:.2f} (needs {MATCH_MARGIN} lower)"
+        )
+    if cost_px > tolerance_px:
+        return f"view skyline residual {cost_px:.1f} px exceeds {tolerance_px:.1f} px at the matched pose"
+    if agreement > VIEW_AGREEMENT_DEG:
+        return f"view skyline moves the matched bearing by {agreement:.1f} deg (allowed {VIEW_AGREEMENT_DEG})"
+    if not (FOV_RANGE_DEG[0] + 1.0 < pose.fov < FOV_RANGE_DEG[1] - 1.0):
+        return f"field of view {pose.fov:.1f} deg at the edge of the searched range"
+    if abs(pose.fov / match.fov - 1) > VIEW_FOV_AGREEMENT:
+        return (
+            f"field of view disagrees: {match.fov:.1f} deg from the panorama match,"
+            f" {pose.fov:.1f} deg from the view skyline (allowed {VIEW_FOV_AGREEMENT:.0%})"
+        )
+    return None
+
+
 def list_cameras(sources: dict[str, Any]) -> list[dict[str, Any]]:
     """Every camera the ingest lists, read fresh from the providers (positions and image URLs)."""
     west, south, east, north = (float(value) for value in sources["region"]["bbox"])
@@ -1360,26 +1391,7 @@ def settle_station(
             math.atan2(DEM_RESOLUTION_M, view_distance) * focal_length(view_w, pose.fov) + 2 * view_w / WORK_WIDTH
         )
         agreement = float(angular_gap(pose.bearing, match.bearing))
-        margin = match.score - match.alternative_score
-        if fraction < MIN_SKYLINE_FRACTION:
-            view_reason: str | None = (
-                f"view skyline found in only {fraction:.0%} of the columns, nothing to confirm the match"
-            )
-        elif margin < MATCH_MARGIN:
-            view_reason = (
-                f"panorama match not unique: a position more than {UNIQUE_SEPARATION_DEG:.0f} deg away scores"
-                f" {match.alternative_score:.2f} against {match.score:.2f} (needs {MATCH_MARGIN} lower)"
-            )
-        elif cost > view_tolerance:
-            view_reason = f"view skyline residual {cost:.1f} px exceeds {view_tolerance:.1f} px at the matched pose"
-        elif agreement > VIEW_AGREEMENT_DEG:
-            view_reason = (
-                f"view skyline moves the matched bearing by {agreement:.1f} deg (allowed {VIEW_AGREEMENT_DEG})"
-            )
-        elif not (FOV_RANGE_DEG[0] + 1.0 < pose.fov < FOV_RANGE_DEG[1] - 1.0):
-            view_reason = f"field of view {pose.fov:.1f} deg at the edge of the searched range"
-        else:
-            view_reason = None
+        view_reason = judge_view(fraction, match, cost, view_tolerance, pose)
         confidence = "unsettled" if view_reason else station_confidence
         in_view = [p for p in on_skyline if angular_gap(p["azimuth"], pose.bearing) <= pose.fov / 2]
         view_record.update(
