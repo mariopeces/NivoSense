@@ -48,7 +48,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
 | T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running), G-Code r1 running; ruff fix on design tools requested | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
-| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | draft PR #25, waits for T4.0 ruff fix to go green | #25 | |
+| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | gauntlet r1 (G-UI, G-Code), stacked on plan/t06-ci + plan/t40-design | #25 | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
 | T4.4 Basin and river panels | E | task_ff92a85a01b8 | T4.3 (T2.5 data optional, "pendiente" before) | waiting | | |
@@ -159,3 +159,4 @@ Not available until T5.1.
 - 2026-11-22: T0.6 G-Infra r3 FAIL (named colour as var() fallback; named colours under non-colour keys and in a MapLibre legacy default; hex built in templates). Coordinator decision recorded under Changes of approach.
 - 2026-11-22: T0.6 G-Code r3 FAIL (var() fallback, colour-bearing shorthands like textDecoration/filter, a template case, escaped identifiers). Narrow fix list extended with colour-bearing shorthand properties; escaped identifiers are a follow-up. T2.1 G-Code r1 FAIL (geopandas/pyproj/pyogrio not in the hashed locks after rebase onto T0.6). T0.4 G-Data r1 FAIL (3 majors). Started: T3.1 G-Data r3, T4.0 G-Code r1, T0.4 G-Infra r1. T4.1 draft PR #25 waits for T4.0 to fix ruff in docs/design/tools.
 - 2026-11-22: T0.7 G-Code r4 PASS at 0bbc81e: both round-4 gauntlets pass. T0.7 merges right after T0.6, after a rebase that also fixes two minors (restore must fail on a gh api error; query runs by event), with a narrow post-rebase check.
+- 2026-11-22: T4.1 PR #25 ready (tokens.css generated from tokens.json with sync test; colour baseline 102 -> 19, only the declared Legend.tsx exception; axe 0 violations on 5 sections at both sizes; CI green 44969739805). G-UI and G-Code r1 started. T0.7 fixes for its post-rebase minors committed locally (f96d6a1), waiting for T0.6 to merge.
