@@ -4,7 +4,7 @@ import type { Status } from "../components/ui";
 // Start of hydrological year 2025-26, where the published history begins (docs/plan/README.md, goal).
 export const SEASON_START = "2025-10-01";
 
-const STATUS_OF: Record<CatalogStatus, Status> = {
+export const STATUS_OF: Record<CatalogStatus, Status> = {
   observed: "observado",
   gapfilled: "rellenado",
   modelled: "modelado",

@@ -17,7 +17,6 @@ from .ensemble import sample_members, tempered_weights, weighted_quantiles
 from .forcing import fetch_forcing, neighbour_weights
 from .grid import build_grid
 from .outputs import (
-    MIN_VISIBLE_DEPTH_M,
     MIN_VISIBLE_SWE_MM,
     to_grid,
     write_field_png,
@@ -490,10 +489,10 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
         mean_depth = to_grid(weights @ final_depth, static.cell_index, grid)
         low_swe, high_swe = weighted_quantiles(final_swe, weights, [0.1, 0.9])
         spread = to_grid(high_swe - low_swe, static.cell_index, grid)
-        swe_max = float(max(np.nanpercentile(mean_swe, 99), 50.0))
-        depth_max = float(max(np.nanpercentile(mean_depth, 99), 0.5))
-        write_field_png(output / "swe_latest.png", mean_swe, swe_max, "swe", MIN_VISIBLE_SWE_MM)
-        write_field_png(output / "depth_latest.png", mean_depth, depth_max, "depth", MIN_VISIBLE_DEPTH_M)
+        write_field_png(output / "swe_latest.png", mean_swe, "swe")
+        # The depth ramp is in cm and its first class starts at 0, so depth is masked where SWE is under 5 mm.
+        depth_cm = np.where(mean_swe >= MIN_VISIBLE_SWE_MM, mean_depth * 100.0, np.nan)
+        write_field_png(output / "depth_latest.png", depth_cm, "snow_depth")
         write_geotiff(
             output / "snow_state_latest.tif",
             [
@@ -509,7 +508,6 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
             "corners": corners,
             "date": dates[-1],
             "units": "mm water equivalent",
-            "scale_max": round(swe_max, 1),
             "minimum_visible": MIN_VISIBLE_SWE_MM,
         }
         layers["depth"] = {
@@ -517,8 +515,6 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
             "corners": corners,
             "date": dates[-1],
             "units": "m",
-            "scale_max": round(depth_max, 2),
-            "minimum_visible": MIN_VISIBLE_DEPTH_M,
         }
         manifest["model"]["status"] = "available"
         manifest["model"]["reasons"] = []

@@ -66,25 +66,3 @@ export type BasinVolumeSeries = {
     swe_hm3: Record<keyof Quantiles, number[]>;
   };
 };
-
-export type SnowOverlay = {
-  layer: SnowLayerId;
-  imageUrl: string;
-  corners: [number, number][];
-  info: SnowLayerInfo;
-};
-
-export function snowOverlay(
-  manifest: SnowModelManifest | null,
-  layer: SnowLayerId | null,
-  manifestUrl: string,
-): SnowOverlay | null {
-  const info = layer ? manifest?.layers[layer] : undefined;
-  if (!layer || !info) return null;
-  return {
-    layer,
-    imageUrl: new URL(info.image, new URL(manifestUrl, window.location.href)).toString(),
-    corners: info.corners,
-    info,
-  };
-}

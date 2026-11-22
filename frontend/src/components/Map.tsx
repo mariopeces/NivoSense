@@ -4,12 +4,28 @@ import type { StyleSpecification } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
-import type { SnowOverlay } from "../lib/snowModel";
+import { Protocol } from "pmtiles";
+import type { Status } from "./ui";
 import type { WeatherOverlay } from "../lib/weather";
 import { t } from "../lib/copy";
 import { token } from "../lib/tokens";
 
 maplibregl.setWorkerUrl(workerUrl);
+// Catalogue tiles are PMTiles archives read by HTTP range requests straight from the bucket (no tile server).
+maplibregl.addProtocol("pmtiles", new Protocol().tile);
+
+/** A catalogue layer on the map at the date it shows (its own date may be the nearest to the map date). */
+export type CatalogLayer = {
+  id: string;
+  name: string;
+  url: string;
+  bounds: [number, number, number, number];
+  opacity: number;
+  date: string;
+  status: Status;
+  resampling: "nearest" | "linear";
+  attribution: string;
+};
 
 const SIERRA_NEVADA_BOUNDS: [[number, number], [number, number]] = [
   [-3.55, 36.92],
@@ -81,7 +97,8 @@ type Props = {
   basinsFC: FC | null;
   selectedBasinId: string | null;
   weatherOverlay: WeatherOverlay | null;
-  snowOverlay: SnowOverlay | null;
+  /** Bottom to top. */
+  catalogLayers: CatalogLayer[];
   onBasinSelect: (id: string | null) => void;
   webcams: Webcam[];
   selectedWebcamId: string | null;
@@ -96,7 +113,7 @@ export default function Map({
   basinsFC,
   selectedBasinId,
   weatherOverlay,
-  snowOverlay,
+  catalogLayers,
   onBasinSelect,
   webcams,
   selectedWebcamId,
@@ -110,7 +127,7 @@ export default function Map({
   const basinsFCRef = useRef<FC | null>(null);
   const selectedRef = useRef<string | null>(null);
   const weatherOverlayRef = useRef<WeatherOverlay | null>(null);
-  const snowOverlayRef = useRef<SnowOverlay | null>(null);
+  const catalogLayersRef = useRef<CatalogLayer[]>([]);
   const onBasinSelectRef = useRef(onBasinSelect);
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
@@ -132,8 +149,8 @@ export default function Map({
   }, [weatherOverlay]);
 
   useEffect(() => {
-    snowOverlayRef.current = snowOverlay;
-  }, [snowOverlay]);
+    catalogLayersRef.current = catalogLayers;
+  }, [catalogLayers]);
 
   useEffect(() => {
     onBasinSelectRef.current = onBasinSelect;
@@ -178,7 +195,7 @@ export default function Map({
 
     const setupLayers = () => {
       setWeatherLayer(map, weatherOverlayRef.current);
-      setSnowLayer(map, snowOverlayRef.current);
+      setCatalogLayers(map, catalogLayersRef.current);
       if (basinsFCRef.current) {
         addBasinsLayers(map, basinsFCRef.current);
         applySelected(map, selectedRef.current);
@@ -235,8 +252,8 @@ export default function Map({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
-    setSnowLayer(map, snowOverlay);
-  }, [snowOverlay]);
+    setCatalogLayers(map, catalogLayers);
+  }, [catalogLayers]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -391,38 +408,42 @@ function attachWebcamInteractions(
   });
 }
 
-function setSnowLayer(map: maplibregl.Map, overlay: SnowOverlay | null) {
-  if (map.getLayer("snow-model")) {
-    map.removeLayer("snow-model");
-  }
-  if (map.getSource("snow-model")) {
-    map.removeSource("snow-model");
-  }
-  if (!overlay) return;
+// The archive each catalogue layer's source was created from, per map, so a date change swaps only the
+// layers whose archive changed and an opacity change touches only the paint property.
+const catalogSources = new WeakMap<maplibregl.Map, Map<string, string>>();
 
-  map.addSource("snow-model", {
-    type: "image",
-    url: overlay.imageUrl,
-    coordinates: overlay.corners as [
-      [number, number],
-      [number, number],
-      [number, number],
-      [number, number],
-    ],
-  });
-  map.addLayer(
-    {
-      id: "snow-model",
-      type: "raster",
-      source: "snow-model",
-      paint: {
-        "raster-opacity": overlay.layer === "s2_true_colour" ? 1 : 0.88,
-        "raster-fade-duration": 0,
-        "raster-resampling": overlay.layer === "observed_snow_10m" ? "nearest" : "linear",
-      },
-    },
-    map.getLayer("basins-fill") ? "basins-fill" : undefined,
-  );
+function setCatalogLayers(map: maplibregl.Map, layers: CatalogLayer[]) {
+  const sources = catalogSources.get(map) ?? new globalThis.Map<string, string>();
+  catalogSources.set(map, sources);
+  const wanted = new globalThis.Map(layers.map((layer) => [`catalog-${layer.id}`, layer]));
+  for (const [id, url] of [...sources]) {
+    // A style swap drops the layer without telling us, so a missing layer counts as stale too.
+    if (wanted.get(id)?.url !== url || !map.getLayer(id)) {
+      if (map.getLayer(id)) map.removeLayer(id);
+      if (map.getSource(id)) map.removeSource(id);
+      sources.delete(id);
+    }
+  }
+  // Under the weather overlay and the basins, above the basemap.
+  const above = () => (map.getLayer("weather-precipitation") ? "weather-precipitation" : map.getLayer("basins-fill") ? "basins-fill" : undefined);
+  for (const [id, layer] of wanted) {
+    if (!sources.has(id)) {
+      map.addSource(id, { type: "raster", url: layer.url, tileSize: 512, bounds: layer.bounds, attribution: layer.attribution });
+      map.addLayer(
+        {
+          id,
+          type: "raster",
+          source: id,
+          paint: { "raster-opacity": layer.opacity, "raster-fade-duration": 0, "raster-resampling": layer.resampling },
+        },
+        above(),
+      );
+      sources.set(id, layer.url);
+    } else {
+      map.setPaintProperty(id, "raster-opacity", layer.opacity);
+    }
+  }
+  for (const id of wanted.keys()) map.moveLayer(id, above());
 }
 
 function setWeatherLayer(map: maplibregl.Map, overlay: WeatherOverlay | null) {

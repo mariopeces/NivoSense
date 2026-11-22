@@ -171,7 +171,7 @@ def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], spec: La
             "--zoom-levels",
             f"{zooms[0]}..{zooms[1]}",
             "--resampling",
-            "nearest" if spec.categorical else "bilinear",
+            spec.display_resampling,
             "--exclude-empty-tiles",
             "--silent",
         ],
@@ -228,6 +228,7 @@ def publish(
             "zooms": zooms,
             "format": spec.tile_format,
             "quality": spec.tile_quality,
+            "resampling": spec.display_resampling,
             "rio-pmtiles": version("rio-pmtiles"),
         }
         name = f"{date}-{hashlib.sha256((pixels + json.dumps(tiling, sort_keys=True)).encode()).hexdigest()[:16]}"

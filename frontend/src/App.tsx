@@ -19,13 +19,13 @@ import { tokenPx } from "./lib/tokens";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { fetchCatalog, type CatalogState } from "./lib/catalog";
-import { buildTimeline, todayInMadrid } from "./lib/timeline";
-import { readUrlState, writeUrlState } from "./lib/urlState";
+import { STATUS_OF, buildTimeline, todayInMadrid } from "./lib/timeline";
+import { readUrlState, writeUrlState, type VisibleLayers } from "./lib/urlState";
+import { catalogRoot, entryFor, layerSpecs, pmtilesUrl } from "./lib/layers";
+import type { CatalogLayer } from "./components/Map";
 import {
   SNOW_MODEL_SCHEMA_VERSION,
-  snowOverlay,
   type BasinVolumeSeries,
-  type SnowLayerId,
   type SnowModelManifest,
 } from "./lib/snowModel";
 import {
@@ -89,8 +89,8 @@ export default function App() {
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [snowManifest, setSnowManifest] = useState<SnowModelManifest | null>(null);
   const [snowLoading, setSnowLoading] = useState(true);
-  const [snowLayerId, setSnowLayerId] = useState<SnowLayerId | null>(null);
-  const [urlLayer, setUrlLayer] = useState(initialUrl.layer);
+  const [visible, setVisible] = useState<VisibleLayers>(initialUrl.layers);
+  const [layersSettled, setLayersSettled] = useState(false);
   const [volumeSeries, setVolumeSeries] = useState<BasinVolumeSeries | null>(null);
   const [volumeLoading, setVolumeLoading] = useState(false);
   const [volumeError, setVolumeError] = useState<string | null>(null);
@@ -227,22 +227,69 @@ export default function App() {
     });
   }, [timeline, initialUrl.date]);
 
-  // The layer from a shared link applies once the snow model says which layers exist.
+  // Once the catalogue answers, a shared link keeps the layers that exist; without one, the map opens on the
+  // true colour and the first snow layer that has products.
   useEffect(() => {
-    if (!snowManifest || !urlLayer) return;
-    if (urlLayer in snowManifest.layers) setSnowLayerId(urlLayer as SnowLayerId);
-    setUrlLayer(null);
-  }, [snowManifest, urlLayer]);
+    if (layersSettled || (catalog.kind !== "ready" && catalog.kind !== "missing")) return;
+    const index = catalog.kind === "ready" ? catalog.index : null;
+    const published = (id: string) => (index?.layers[id]?.entries.length ?? 0) > 0;
+    setVisible((current) => {
+      if (initialUrl.layers.length) return current.filter((layer) => published(layer.id));
+      const specs = layerSpecs(index).filter((spec) => published(spec.id));
+      const snow = specs.find((spec) => spec.group === "nieve");
+      const image = specs.find((spec) => spec.group === "imagen");
+      return [image, snow].flatMap((spec) => (spec ? [{ id: spec.id, opacity: 100 }] : []));
+    });
+    setLayersSettled(true);
+  }, [catalog, layersSettled, initialUrl.layers]);
 
   useEffect(() => {
-    // Until the catalogue, the timeline and the manifest answer, keep what the link asked for.
+    // Until the catalogue and the timeline answer, keep what the link asked for.
     const date = selectedDate ?? (catalog.kind === "loading" || timeline ? initialUrl.date : null);
-    const layer = snowLayerId ?? urlLayer;
-    const search = writeUrlState(window.location.search, { date, layer });
+    const search = writeUrlState(window.location.search, { date, layers: visible });
     if (search !== window.location.search) {
       window.history.replaceState(window.history.state, "", `${window.location.pathname}${search}${window.location.hash}`);
     }
-  }, [selectedDate, snowLayerId, urlLayer, catalog.kind, timeline, initialUrl.date]);
+  }, [selectedDate, visible, catalog.kind, timeline, initialUrl.date]);
+
+  const toggleLayer = useCallback((id: string) => {
+    setVisible((current) =>
+      current.some((layer) => layer.id === id)
+        ? current.filter((layer) => layer.id !== id)
+        : [...current, { id, opacity: 100 }],
+    );
+  }, []);
+  const setLayerOpacity = useCallback((id: string, opacity: number) => {
+    setVisible((current) => current.map((layer) => (layer.id === id ? { ...layer, opacity } : layer)));
+  }, []);
+
+  // Draw order: the image at the bottom, then the snow layers with the top of the panel list on top.
+  const mapLayers: CatalogLayer[] = useMemo(() => {
+    if (catalog.kind !== "ready" || !catalogUrl || !selectedDate) return [];
+    const root = catalogRoot(catalogUrl);
+    const specs = layerSpecs(catalog.index);
+    const ordered = [...specs.filter((spec) => spec.group === "imagen"), ...specs.filter((spec) => spec.group === "nieve").reverse()];
+    return ordered.flatMap((spec) => {
+      const shown = visible.find((layer) => layer.id === spec.id);
+      const found = shown && entryFor(catalog.index.layers[spec.id]?.entries ?? [], selectedDate);
+      if (!shown || !found) return [];
+      return [
+        {
+          id: spec.id,
+          name: spec.copy ? t(`capa.${spec.copy}.nombre`) : spec.id,
+          url: pmtilesUrl(root, found.entry),
+          bounds: found.entry.bounds,
+          opacity: shown.opacity / 100,
+          date: found.entry.date,
+          status: STATUS_OF[found.entry.status],
+          // Data layers show their real pixels; only the true colour image is smoothed.
+          resampling: spec.ramp ? ("nearest" as const) : ("linear" as const),
+          // Every catalogue layer is made from Sentinel-2 (the model assimilates it), which asks for this credit.
+          attribution: t("mapa.atribucion_s2", { anio: found.entry.date.slice(0, 4) }),
+        },
+      ];
+    });
+  }, [catalog, catalogUrl, selectedDate, visible]);
 
   const handleDateChange = useCallback((date: string) => {
     setSelectedDate(date);
@@ -383,8 +430,6 @@ export default function App() {
     weatherManifestUrl,
   );
 
-  const activeSnowOverlay = snowOverlay(snowManifest, snowLayerId, snowManifestUrl);
-
   const handleWeatherModelChange = (modelId: string) => {
     setWeatherModelId(modelId);
     const model = weatherManifest?.models.find((item) => item.id === modelId);
@@ -431,10 +476,14 @@ export default function App() {
         <Panel section={section} open={panelVisible} sheet={sheet} onSheet={setSheet}>
           {section === "nieve" && (
             <NieveSection
-              manifest={snowManifest}
-              loading={snowLoading}
-              selected={snowLayerId}
-              onChange={setSnowLayerId}
+              catalog={catalog}
+              date={selectedDate}
+              visible={visible}
+              onToggle={toggleLayer}
+              onOpacity={setLayerOpacity}
+              onDate={handleDateChange}
+              onMethod={() => handleSection("metodo")}
+              onRetry={() => setCatalogAttempt((attempt) => attempt + 1)}
             />
           )}
           {section === "agua" && (
@@ -499,12 +548,12 @@ export default function App() {
           hidden={mobile && sheet === "full"}
           mobile={mobile}
         />
-        <Legend weatherOverlay={precipitationOverlay} snowOverlay={activeSnowOverlay} />
+        <Legend weatherOverlay={precipitationOverlay} layers={mapLayers} />
         <Map
           basinsFC={basinsFC}
           selectedBasinId={selectedBasinId}
           weatherOverlay={precipitationOverlay}
-          snowOverlay={activeSnowOverlay}
+          catalogLayers={mapLayers}
           onBasinSelect={handleBasinSelect}
           webcams={webcams}
           selectedWebcamId={selectedWebcamId}
