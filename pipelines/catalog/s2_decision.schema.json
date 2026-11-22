@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mariopeces/NivoSense/pipelines/catalog/s2_decision.schema.json",
+  "title": "Sentinel-2 pass decision",
+  "description": "What the observation pipeline decided for one Sentinel-2 pass over the domain, at s2/decisions/<date>_<orbit>.json under the catalogue root. The freshness monitor (qa/freshness.py, SLO F1) reads it to tell a pass that was rightly not published (domain under 30% covered and valid) from a missing one.",
+  "type": "object",
+  "properties": {
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "description": "UTC acquisition date." },
+    "orbit": { "type": "string", "pattern": "^R[0-9]{3}$", "description": "Relative orbit, as in the ESA product name." },
+    "scene_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "uniqueItems": true },
+    "domain_coverage": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of domain pixels inside the pass's data footprint." },
+    "domain_valid_fraction": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of domain pixels covered and valid (not cloud, cloud shadow or nodata)." },
+    "complete": { "type": "boolean", "description": "Every tile that covers the domain on this orbit was present." },
+    "listed": { "type": "boolean", "description": "Published as an observation date (README D1: at least 30% of the domain covered and valid)." },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "code_version": { "type": "string", "minLength": 1 }
+  },
+  "required": [
+    "date", "orbit", "scene_ids", "domain_coverage", "domain_valid_fraction", "complete", "listed", "decided_at", "code_version"
+  ],
+  "additionalProperties": false
+}

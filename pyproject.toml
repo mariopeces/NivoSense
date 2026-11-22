@@ -17,7 +17,7 @@ ignore = ["B905"]
 
 [tool.mypy]
 python_version = "3.11"
-files = ["pipelines", "scripts"]
+files = ["pipelines", "scripts", "qa"]
 ignore_missing_imports = true
 warn_unused_ignores = true
 
