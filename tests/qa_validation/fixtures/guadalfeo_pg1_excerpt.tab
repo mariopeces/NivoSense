@@ -1,0 +1,14 @@
+/* DATA DESCRIPTION (excerpt, header shortened):
+Citation:	Polo, María José; Herrero, Javier; Pimentel, Rafael; Pérez-Palazón, María José (2018): Meteorological observations at station PG1 within the Guadalfeo Monitoring Network (Sierra Nevada, Spain) [dataset]. PANGAEA, https://doi.org/10.1594/PANGAEA.895226, 
+Coverage:	LATITUDE: 37.049000 * LONGITUDE: -3.214000
+	DATE/TIME START: 2005-11-19T00:00:00 * DATE/TIME END: 2018-08-31T00:00:00
+	MINIMUM HEIGHT above ground: 2 m * MAXIMUM HEIGHT above ground: 2 m
+License:	Creative Commons Attribution 4.0 International (CC-BY-4.0) (URI: https://creativecommons.org/licenses/by/4.0/)
+*/
+Date/Time	Height [m]	RH [%]	TTT day m [°C]	ff day m [m/s]	Precip [mm/day]	PPPP day m [hPa]
+2009-11-22	2	36.755	8.838	3.363		764.536
+2009-11-23	2	27.743	7.280	2.762		764.955
+2009-11-24	2	25.572	6.495	2.747	0.000	764.254
+2009-11-25	2	31.462	7.546	3.430	0.000	760.676
+2009-11-26	2	86.969	6.283	2.704	4.700	759.295
+2009-11-27	2	51.638	6.201	3.997	0.000	756.283

@@ -60,3 +60,5 @@ own
 
 # Domain build downloads
 .cache/
+qa-reports/
+qa-cache/

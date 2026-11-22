@@ -1,0 +1,16 @@
+/* DATA DESCRIPTION (excerpt, header shortened):
+Citation:	Pimentel, Rafael; Herrero, Javier; Polo, María José (2017): Snow Cover Fraction (SCF) and snow depth obtained using terrestrial photography (2009-2013) in the control area Refugio Poqueira (Sierra Nevada, Spain) [dataset]. PANGAEA, https://doi.org/10.1594/PANGAEA.871706, 
+Coverage:	LATITUDE: 37.028250 * LONGITUDE: -3.323370
+	DATE/TIME START: 2009-11-15T00:00:00 * DATE/TIME END: 2013-05-31T23:59:00
+	MINIMUM ELEVATION: 2510.0 m * MAXIMUM ELEVATION: 2510.0 m
+License:	Creative Commons Attribution 3.0 Unported (CC-BY-3.0) (URI: https://creativecommons.org/licenses/by/3.0/)
+*/
+Date/Time	SCF [m**2/m**2]	Snow thick [m]
+2009-11-27	0.00	0.0000
+2009-11-28	0.00	0.0000
+2009-11-29		0.0339
+2009-11-30	0.86	0.0150
+2009-12-01	0.75	0.0027
+2009-12-02	0.32	0.0000
+2009-12-03	0.54	0.0150
+2009-12-04	0.20	0.0000
