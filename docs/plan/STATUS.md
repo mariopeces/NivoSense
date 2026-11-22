@@ -33,7 +33,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r2 on dafc7f3: all r2 gauntlets PASS on dafc7f3; merges after T0.4 (rebase onto main + minors, narrow recheck) | #14 | r2: G-Data PASS, G-Method PASS, G-Code PASS on dafc7f3 (minors) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | fixing after G-Method r1 (Q1 weighting rule, draw 3 to 100 snow points in forest and cloud edge, hash literal in test), ctx_7206dbd704a5 follow-up; G-Code r1 running | #28 | r1: G-Method FAIL (agreement 0.993 passes; weighting rule missing) |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | building, stacked on plan/t11-s2-ingest + t03 + t04 (plan-snowobs, restarted ctx_50386be264f7); Q1 scored once after T1.0 freezes | | |
-| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | r1 fixes pushed (9f3f51d on main + T1.1 dafc7f3 + T0.3 a509e11): G-Code majors and the G-Method datatake match; G-Data r1 running on eeac1c6; then G-Code r2 + G-Method r2 narrow | #22 | |
+| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | r1 fixes pushed (9f3f51d on main + T1.1 dafc7f3 + T0.3 a509e11): G-Code majors and the G-Method datatake match; G-Data r1 running on eeac1c6; combined G-Code r2 + G-Method r2 narrow running on 9f3f51d (ctx_175184c1821f) | #22 | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
