@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         navy: "#081020",
+        brand: "magenta",
       },
     },
   },
