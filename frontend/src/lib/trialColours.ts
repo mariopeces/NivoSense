@@ -1,1 +1,0 @@
-export const trial = ["rgb(calc(255) 0 255)", "rgb(var(--a) / 50%)", "oklch(70% 0.1 200)", "color(srgb 1 0 0)", "hwb(1 2% 3%)", "lab(1 2 3)", "lch(1 2 3)", "oklab(1 2 3)", "HSLA(1, 2%, 3%, .5)", "#abc", "#abcd", "#aabbcc", "#11223344"];
