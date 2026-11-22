@@ -27,7 +27,14 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # workflow_run also fires for fork pull requests from a branch named main; only
+    # successful scheduled or dispatched producer runs of this repository count.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.head_branch == 'main' &&
+       contains(fromJSON('["schedule", "workflow_dispatch"]'), github.event.workflow_run.event))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
@@ -55,7 +62,10 @@ jobs:
       - name: Check out the release
         env:
           TAG: ${{ steps.release.outputs.tag }}
-        run: git checkout --detach "refs/tags/$TAG"
+        # The release tree may predate scripts/trusted_runs.py, so keep main's copy.
+        run: |
+          cp scripts/trusted_runs.py "$RUNNER_TEMP/"
+          git checkout --detach "refs/tags/$TAG"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -72,9 +82,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Walks back through recent successful runs until one still has its artifact.
+          # Walks back through recent trusted runs (scripts/trusted_runs.py) until one
+          # still has its artifact.
           restore() {
-            for run_id in $(gh run list --workflow "$1" --branch main --status success --limit 10 --json databaseId --jq '.[].databaseId'); do
+            local runs
+            runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$1/runs?branch=main&status=success&per_page=30" |
+              python3 "$RUNNER_TEMP/trusted_runs.py" --repo "$GITHUB_REPOSITORY" --workflow-path ".github/workflows/$1")
+            for run_id in $runs; do
               rm -rf "$3"
               if gh run download "$run_id" --name "${2/RUN_ID/$run_id}" --dir "$3" 2>/dev/null; then
                 echo "Restored $1 run $run_id"
