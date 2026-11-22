@@ -134,6 +134,7 @@
     },
     "webcams": {
       "nombre": "Webcams",
+      "fuente": "Dirección General de Tráfico (DGT)",
       "descripcion": "Cámaras con su orientación y campo de visión."
     }
   },
@@ -283,7 +284,7 @@
     "limite_bosque": "Bajo arbolado la nieve se ve peor: se marca como confianza baja.",
     "volver_mapa": "Volver al mapa",
     "nieve_observada_calculo_1": "Se unen las cuatro teselas que tocan el dominio (30SVF, 30SVG, 30SWF y 30SWG) por fecha y órbita. Las nubes se filtran sobre el dominio, no sobre la tesela entera. El índice de nieve NDSI = (B03 − B11) / (B03 + B11) se calcula a 20 m con el método de dos pasadas de Theia/LIS: primero NDSI > 0,4 y rojo > 0,2; después NDSI > 0,15 y rojo > 0,04 por encima de la cota de nieve obtenida del modelo digital del terreno.",
-    "nieve_observada_calculo_2": "Las laderas en sombra del relieve, calculada con el terreno y la posición del sol, se marcan como sin dato. Bajo bosque la nieve se marca con confianza baja.",
+    "nieve_observada_calculo_2": "Las laderas en sombra del relieve, calculadas con el terreno y la posición del sol, se marcan como sin dato. Bajo bosque la nieve se marca con confianza baja.",
     "nieve_observada_validacion": "Contra una muestra de referencia congelada: al menos 1500 puntos en 12 fechas o más, etiquetados sobre color real y falso color SWIR. Objetivo: F1 de nieve de 0,85 en total y 0,70 en cada estrato (cota de nieve, sombra, bosque, borde de nube y terreno abierto).",
     "fuente_nieve_observada": "Sentinel-2 L2A (Earth Search, AWS)"
   },

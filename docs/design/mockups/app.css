@@ -157,7 +157,9 @@ button { font: inherit; color: inherit; }
 .seg.prevision { border: 1.5px dashed var(--color-status-forecast); background: var(--color-panel); }
 .seg.pendiente { border: 1px dotted var(--color-status-pending); background: var(--color-panel); }
 .seg.slot-prevision { background: var(--color-panel-soft); }
-.tl-forecast-label { position: absolute; top: 34px; font-size: var(--type-caption-size); line-height: var(--type-caption-lh); color: var(--color-status-forecast); white-space: nowrap; }
+.tl-forecast-label, .tl-today-label { position: absolute; top: 34px; font-size: var(--type-caption-size); line-height: var(--type-caption-lh); white-space: nowrap; }
+.tl-forecast-label { color: var(--color-status-forecast); padding-left: var(--space-1); }
+.tl-today-label { color: var(--color-text); font-weight: var(--font-weight-medium); transform: translateX(-100%); padding-right: var(--space-1); }
 .tl-tick { position: absolute; top: 0; width: 1px; height: 14px; background: var(--color-status-observed); border-radius: 1px; }
 .tl-months { position: absolute; left: 0; right: 0; top: 34px; height: 16px; }
 .tl-months span { position: absolute; font-size: var(--type-caption-size); line-height: var(--type-caption-lh); color: var(--color-text-muted); transform: translateX(-50%); white-space: nowrap; }
@@ -171,6 +173,7 @@ button { font: inherit; color: inherit; }
   background: var(--color-panel); display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer; font-weight: var(--font-weight-medium);
   font-size: var(--type-small-size);
 }
+.btn:disabled { color: var(--color-text-muted); background: var(--color-panel-soft); border-color: var(--color-line); border-style: dashed; cursor: not-allowed; }
 .btn.primary { background: var(--color-ink); color: var(--color-on-ink-strong); border-color: var(--color-ink); }
 .tl-legend { display: flex; gap: var(--space-4); flex-wrap: wrap; }
 .tl-legend-row { grid-column: 2 / 4; grid-row: 2; }
@@ -285,3 +288,7 @@ button { font: inherit; color: inherit; }
 .spec-strip .tl-row.daily { top: 24px; }
 .spec-strip .cap { position: absolute; top: 42px; font-size: var(--type-caption-size); line-height: var(--type-caption-lh); color: var(--color-text-muted); transform: translateX(-50%); white-space: nowrap; }
 .spec-strip .tl-today { top: 0; bottom: 18px; }
+@media (max-width: 767px) {
+  .spec-row { grid-template-columns: 120px 1fr; gap: var(--space-2) var(--space-4); }
+  .spec-row .spec-desc { grid-column: 1 / -1; }
+}

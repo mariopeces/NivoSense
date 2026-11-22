@@ -15,7 +15,9 @@ The L1C and basemap PNGs come from fetch_backgrounds.py.
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
+import sys
 import urllib.request
 from pathlib import Path
 
@@ -39,6 +41,18 @@ SOURCES = {
         "7670e3cd2a4758c1f355539ad07257d40573adcc/cmcrameri/cmaps/acton.txt"
     ),
 }
+
+LICENCES = {
+    "cmocean_ice": "MIT (cmocean, https://github.com/matplotlib/cmocean/blob/main/LICENSE.txt)",
+    "cmocean_deep": "MIT (cmocean, https://github.com/matplotlib/cmocean/blob/main/LICENSE.txt)",
+    "crameri_acton": "MIT (Scientific colour maps, Crameri; cmcrameri https://github.com/callumrollo/cmcrameri)",
+}
+
+# Fail-closed thresholds. One OKLab just-noticeable difference is about 0.02; adjacent classes must be
+# at least twice that apart in every simulation, and an ordered ramp needs at least three coloured classes.
+MIN_ADJACENT_DE = 0.04
+MIN_ORDERED_CLASSES = 3
+SIMULATIONS = ["normal", "deuteranopia", "protanopia", "tritanopia", "greyscale"]
 
 CITATIONS = {
     "cmocean_ice": (
@@ -210,7 +224,7 @@ def hex_to_rgb(h: str) -> np.ndarray:
 
 
 def rgb_to_hex(c: np.ndarray) -> str:
-    return "#" + "".join(f"{int(round(v * 255)):02X}" for v in np.clip(c, 0, 1))
+    return "#" + "".join(f"{round(float(v) * 255):02X}" for v in np.clip(c, 0, 1))
 
 
 def load_source(cache: Path, name: str) -> np.ndarray:
@@ -247,37 +261,94 @@ def resolve(cache: Path) -> dict:
             classes.append(c)
         out[layer_id] = {k: v for k, v in spec.items() if k != "classes"} | {
             "source_citation": CITATIONS[spec["source"]],
+            "source_url": SOURCES[spec["source"]],
+            "source_licence": LICENCES[spec["source"]],
             "classes": classes,
         }
     return out
 
 
-def ordered_colours(layer: dict) -> list[np.ndarray]:
-    """Colours of the ramp classes in value order (categorical: only the snow classes are ordered)."""
+def ordered_classes(layer: dict) -> list[dict]:
+    """Coloured classes in value order (categorical: only the snow classes are ordered)."""
     if layer.get("categorical"):
         keys = ["snow_low_confidence", "snow"]
-        return [hex_to_rgb(c["color"]) for k in keys for c in layer["classes"] if c["key"] == k]
-    return [hex_to_rgb(c["color"]) for c in layer["classes"] if c["color"]]
+        return [c for k in keys for c in layer["classes"] if c["key"] == k]
+    return [c for c in layer["classes"] if c["color"]]
+
+
+def ordered_colours(layer: dict) -> list[np.ndarray]:
+    return [hex_to_rgb(c["color"]) for c in ordered_classes(layer)]
+
+
+def ramp_rows(cols: np.ndarray) -> dict:
+    rows = {}
+    for kind in SIMULATIONS:
+        lab = oklab(simulate(cols, kind))
+        L = lab[:, 0]
+        d = np.diff(L)
+        mono = bool(np.all(d < 0) or np.all(d > 0))
+        de = np.linalg.norm(np.diff(lab, axis=0), axis=1)
+        rows[kind] = {
+            "L": [round(float(v), 3) for v in L],
+            "lightness_monotonic": mono,
+            "min_adjacent_deltaE_ok": round(float(de.min()), 3),
+        }
+    return rows
 
 
 def check(layers: dict) -> dict:
     report = {}
     for layer_id, layer in layers.items():
-        cols = np.array(ordered_colours(layer))
-        rows = {}
-        for kind in ["normal", "deuteranopia", "protanopia", "tritanopia", "greyscale"]:
-            lab = oklab(simulate(cols, kind))
-            L = lab[:, 0]
-            d = np.diff(L)
-            mono = bool(np.all(d < 0) or np.all(d > 0))
-            de = np.linalg.norm(np.diff(lab, axis=0), axis=1)
-            rows[kind] = {
-                "L": [round(float(v), 3) for v in L],
-                "lightness_monotonic": mono,
-                "min_adjacent_deltaE_ok": round(float(de.min()), 3),
-            }
-        report[layer_id] = rows
+        cls = ordered_classes(layer)
+        cols = np.array([hex_to_rgb(c["color"]) for c in cls])
+        # The same ramp as drawn: each class at its alpha over white (legend swatch, light basemap).
+        over_white = np.array([blend(np.ones(3), hex_to_rgb(c["color"]), c["alpha"]) for c in cls])
+        report[layer_id] = ramp_rows(cols) | {"over_white": ramp_rows(over_white)}
     return report
+
+
+def validate(layers: dict, checks: dict) -> list[str]:
+    """Every reason the ramps are not fit to publish. Empty list means valid."""
+    errors: list[str] = []
+    for lid, layer in layers.items():
+        classes = layer["classes"]
+        for c in classes:
+            name = f"{lid}/{c.get('label_es')}"
+            if not 0.0 <= c["alpha"] <= 1.0:
+                errors.append(f"{name}: alpha {c['alpha']} outside 0..1")
+            if c["color"] is not None and not (
+                isinstance(c["color"], str) and len(c["color"]) == 7 and c["color"].startswith("#")
+            ):
+                errors.append(f"{name}: colour {c['color']!r} is not #RRGGBB")
+            pos = c.get("source_position")
+            if pos is not None and not 0.0 <= pos <= 1.0:
+                errors.append(f"{name}: source position {pos} outside 0..1")
+            if c["color"] is None and c["alpha"] != 0.0 and not c.get("pattern"):
+                errors.append(f"{name}: no colour and no pattern but alpha {c['alpha']}")
+        if layer.get("categorical"):
+            keys = [c["key"] for c in classes]
+            if len(set(keys)) != len(keys):
+                errors.append(f"{lid}: duplicate class keys")
+        else:
+            coloured = [c for c in classes if c["color"]]
+            if len(coloured) < MIN_ORDERED_CLASSES:
+                errors.append(f"{lid}: {len(coloured)} coloured classes, need {MIN_ORDERED_CLASSES}")
+            for a, b in itertools.pairwise(classes):
+                if a["max"] is None or a["max"] != b["min"]:
+                    errors.append(f"{lid}: class bounds not contiguous at {a.get('label_es')} -> {b.get('label_es')}")
+                if a["min"] >= b["min"]:
+                    errors.append(f"{lid}: class minima not increasing at {b.get('label_es')}")
+            if classes[-1]["max"] is not None:
+                errors.append(f"{lid}: last class must be open (max null)")
+        for where, rows in [("flat", checks[lid]), ("over white", checks[lid]["over_white"])]:
+            for kind in SIMULATIONS:
+                row = rows[kind]
+                if not row["lightness_monotonic"]:
+                    errors.append(f"{lid}: lightness not monotonic in {kind} ({where})")
+                de = row["min_adjacent_deltaE_ok"]
+                if de < MIN_ADJACENT_DE:
+                    errors.append(f"{lid}: adjacent classes {de} < {MIN_ADJACENT_DE} in {kind} ({where})")
+    return errors
 
 
 def blend(bg: np.ndarray, rgb: np.ndarray, alpha: float) -> np.ndarray:
@@ -410,17 +481,24 @@ def overlay(layers: dict, bg_img: Image.Image, title: str, path: Path, kind: str
     img.save(path)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", type=Path, required=True)
     ap.add_argument("--l1c", type=Path, required=True)
     ap.add_argument("--basemap", type=Path, required=True)
-    args = ap.parse_args()
+    ap.add_argument("--out", type=Path, default=ROOT, help="folder for ramps.json and simulations/")
+    args = ap.parse_args(argv)
 
     layers = resolve(args.cache)
+    checks = check(layers)
+    errors = validate(layers, checks)
+    if errors:
+        # Nothing is written: a broken ramp must never reach ramps.json or the evidence images.
+        for e in errors:
+            print("RAMP ERROR:", e, file=sys.stderr)
+        return 1
     l1c = Image.open(args.l1c).convert("RGB")
     base = Image.open(args.basemap).convert("RGB")
-    checks = check(layers)
     vis = visibility(
         layers,
         {
@@ -444,9 +522,14 @@ def main() -> None:
         },
         "layers": layers,
     }
-    (ROOT / "ramps.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.out.mkdir(parents=True, exist_ok=True)
+    (args.out / "ramps.json").write_text(
+        json.dumps(doc, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
-    sim = ROOT / "simulations"
+    sim = args.out / "simulations"
     sim.mkdir(exist_ok=True)
     ladder(layers, sim / "ramps-cvd-greyscale.png")
     l1c_title = "Fondo: Sentinel-2 L1C TCI, S2C_30SVG_20260221_1_L1C (Earth Search), cresta Veleta-Mulhacén"
@@ -473,14 +556,18 @@ def main() -> None:
         )
 
     for lid, rows in checks.items():
-        bad = [k for k, v in rows.items() if not v["lightness_monotonic"]]
         print(
             lid,
-            "monotonic in all" if not bad else f"NOT monotonic in {bad}",
-            "min dE:",
-            {k: v["min_adjacent_deltaE_ok"] for k, v in rows.items()},
+            "min dE flat:",
+            {k: rows[k]["min_adjacent_deltaE_ok"] for k in SIMULATIONS},
         )
+        print(
+            lid,
+            "min dE over white:",
+            {k: rows["over_white"][k]["min_adjacent_deltaE_ok"] for k in SIMULATIONS},
+        )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
