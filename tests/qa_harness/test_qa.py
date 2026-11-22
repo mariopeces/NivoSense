@@ -61,6 +61,10 @@ class CatalogueTestCase(unittest.TestCase):
         cls._tmp.cleanup()
 
     def setUp(self) -> None:
+        # These catalogues hold a few weeks of 2026; they test the daily check, not the declared start.
+        since = mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"snow_gapfill": None})
+        since.start()
+        self.addCleanup(since.stop)
         self._case = tempfile.TemporaryDirectory()
         self.addCleanup(self._case.cleanup)
         shutil.copytree(self.template / "catalog", Path(self._case.name) / "catalog")
@@ -217,6 +221,13 @@ class CheckCatalogTests(CatalogueTestCase):
             report = check_catalog(LocalStorage(Path(tmp)), now=NOW)
         self.assertTrue(report["ok"])
         self.assertEqual(report["index"], "absent")
+
+
+class DailySinceTests(unittest.TestCase):
+    def test_the_gap_filled_layer_is_daily_from_the_start_of_the_history(self) -> None:
+        from qa.check_catalog import DAILY_SINCE
+
+        self.assertEqual(DAILY_SINCE["snow_gapfill"], "2025-10-01")
 
 
 class ThumbsTests(CatalogueTestCase):

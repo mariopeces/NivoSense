@@ -26,7 +26,7 @@ ENTRIES_PREFIX = "catalog/entries/"
 # The daily layers (README section 1) and the first day each must exist from. A layer's producing task sets its
 # date to 2025-10-01 (README D1) when its backfill lands (T1.4 gap-fill, T2.5 SWE and depth). Until then a layer
 # that has entries is checked from its first one, and one with none is reported as not live.
-DAILY_SINCE: dict[str, str | None] = {"snow_gapfill": None, "swe": None, "snow_depth": None}
+DAILY_SINCE: dict[str, str | None] = {"snow_gapfill": "2025-10-01", "swe": None, "snow_depth": None}
 # Without --start, files and thumbnails are checked for the last 35 days: a month plus the 5 days the daily
 # observation job reprocesses. A full-range check is an explicit --start/--end run (one job per month in qa.yml).
 DEFAULT_WINDOW_DAYS = 35
