@@ -18,6 +18,7 @@ from pipelines.s2.stac import COLLECTION, expected_tiles, group_acquisitions, or
 FIXTURE = Path(__file__).parent / "fixtures" / "earth_search_2026-11-05_10.json"
 # Every Earth Search item of 2026-11-17 over the domain hull, with the two 30SWG granules of one
 # datatake (generated 15:48 and 16:55 UTC).
+BASELINES_FIXTURE = Path(__file__).parent / "fixtures" / "earth_search_30SVF_2021-06-07_baselines.json"
 FIXTURE_1117 = Path(__file__).parent / "fixtures" / "earth_search_2026-11-17.json"
 DECISION_FIELDS = {
     "date",
@@ -155,11 +156,11 @@ def test_10m_band_is_averaged_and_nodata_blocks_stay_nodata():
 
 
 def test_domain_fractions_count_only_clear_classes_inside_the_domain():
-    scl = np.array([[0, 4, 8, 11], [3, 5, 2, 9]], dtype="uint8")
-    mask = np.array([[True, True, True, True], [True, True, True, False]])
+    scl = np.array([[0, 4, 8, 11, 1], [3, 10, 2, 9, 5]], dtype="uint8")
+    mask = np.array([[True, True, True, True, True], [True, True, True, False, False]])
     coverage, valid = domain_fractions(scl, mask)
-    assert coverage == pytest.approx(6 / 7)
-    assert valid == pytest.approx(4 / 7)
+    assert coverage == pytest.approx(7 / 8)
+    assert valid == pytest.approx(3 / 8)
 
 
 # Offline rasters for the read and mosaic path: tiny tiles in EPSG:32630 west of the Veleta,
@@ -261,6 +262,29 @@ def test_mosaic_applies_offset_and_fills_from_the_next_tile(tmp_path):
     assert np.allclose(mosaic.reflectance["green"][:, :50], 3000 * 0.0001 - 0.1)
     assert np.allclose(mosaic.reflectance["swir16"], 1100 * 0.0001 - 0.1)
     assert np.all(mosaic.cloud == 7)
+
+
+def test_each_granule_uses_its_own_raster_bands_offset(tmp_path):
+    """Real raster:bands of one 30SVF granule (2021-06-07) as processed with baseline 03.00
+    (offset 0) and reprocessed with 05.00 (offset -0.1): the conversion must follow each
+    asset, so a fixed offset or a rule keyed on the date fails here."""
+    real = json.loads(BASELINES_FIXTURE.read_text(encoding="utf-8"))["items"]
+    assert scale_offset(real["baseline_03_00"], "green") == (0.0001, 0.0)
+    assert scale_offset(real["baseline_05_00"], "green") == (0.0001, -0.1)
+    ids = ("S2A_T30SVF_20261110T110234_L2A", "S2A_T30SWF_20261110T110234_L2A")
+    first, second = (i for i in fixture_items() if i["id"] in ids)
+    new = localise(first, tmp_path, scl=4, green=2000, nodata_left_half=True)
+    old = localise(second, tmp_path, scl=4, green=3000)
+    for asset in ("green", "red", "swir16"):
+        new["assets"][asset]["raster:bands"] = real["baseline_05_00"]["assets"][asset]["raster:bands"]
+        old["assets"][asset]["raster:bands"] = real["baseline_03_00"]["assets"][asset]["raster:bands"]
+    acquisition = group_acquisitions([new, old])[0]
+
+    mosaic = build_mosaic(acquisition, Grid("EPSG:32630", TILE_LEFT, TILE_TOP, 20.0, 100, 100))
+
+    assert np.allclose(mosaic.reflectance["green"][:, 50:], 2000 * 0.0001 - 0.1)
+    assert np.allclose(mosaic.reflectance["green"][:, :50], 3000 * 0.0001)
+    assert np.allclose(mosaic.reflectance["swir16"][:, :50], 1100 * 0.0001)
 
 
 def run_offline(tmp_path: Path, items: list[dict], today: date) -> list[dict]:
