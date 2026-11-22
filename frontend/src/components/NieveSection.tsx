@@ -98,6 +98,7 @@ function LayerRow({
   const shown = date ? entryFor(entries, date) : null;
   const entry = shown?.entry ?? null;
   const on = opacity !== null && entry !== null;
+  const modelled = entries.some((item) => item.status === "modelled");
   const name = spec.copy ? t(`capa.${spec.copy}.nombre`) : spec.id;
   const resolution = entry ? `${entry.resolution_m} m` : spec.copy ? t(`capa.${spec.copy}.resolucion`) : "";
   const meta = spec.copy ? t("fila_capa.meta", { fuente: t(`capa.${spec.copy}.fuente`), resolucion: resolution }) : resolution;
@@ -109,7 +110,7 @@ function LayerRow({
       <div className="flex items-start gap-2 p-3 pb-2">
         <button
           type="button"
-          disabled={!entry}
+          disabled={!entry && !modelled}
           aria-pressed={on}
           aria-label={toggleLabel}
           title={entry ? toggleLabel : t("fila_capa.pendiente")}
@@ -121,6 +122,11 @@ function LayerRow({
         <div className="min-w-0 flex-1">
           <p className="m-0 font-medium">{name}</p>
           {meta && <p className="m-0 text-small text-text-muted">{meta}</p>}
+          {entry?.status === "modelled" && (
+            <p className="m-0 mt-1 text-small text-text-muted">
+              <span className="font-medium text-text">{t("fila_capa.modelo_experimental")}.</span> {t("fila_capa.modelo_aviso")}
+            </p>
+          )}
           {entry && shown?.exact && (
             <p className="tnum m-0 mt-1 text-small">{t("fila_capa.fecha_observacion", { fecha_corta: fechaCorta(entry.date) })}</p>
           )}
@@ -136,9 +142,13 @@ function LayerRow({
               </button>
             </p>
           )}
-          {!entry && <p className="m-0 mt-1 text-small text-text-muted">{t("fila_capa.pendiente_detalle")}</p>}
+          {!entry && (
+            <p className="m-0 mt-1 text-small text-text-muted">
+              {t(modelled ? "fila_capa.sin_nieve_modelada" : "fila_capa.pendiente_detalle")}
+            </p>
+          )}
           <div className="mt-2">
-            <StatusBadge status={entry ? STATUS_OF[entry.status] : "pendiente"} />
+            <StatusBadge status={entry ? STATUS_OF[entry.status] : modelled ? "modelado" : "pendiente"} />
           </div>
         </div>
         <button

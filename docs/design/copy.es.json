@@ -150,6 +150,9 @@
     "fecha_modelado": "Estado del {fecha_corta}, corregido con la pasada del {fecha_obs}",
     "sin_escena_en_fecha": "Sin escena este día. La más cercana: {fecha_corta}.",
     "ir_a_escena": "Ir al {fecha_corta}",
+    "sin_nieve_modelada": "El modelo no calcula nieve por encima de 5 mm este día.",
+    "modelo_experimental": "Modelo experimental",
+    "modelo_aviso": "Estimación del modelo, corregida con cada imagen despejada de Sentinel-2. Puede fallar donde no hay imagen.",
     "pendiente": "Aún no se publica",
     "pendiente_detalle": "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha."
   },

@@ -15,7 +15,7 @@ from . import observations as obs
 from .dem import load_elevation, slope_aspect
 from .ensemble import sample_members, tempered_weights, weighted_quantiles
 from .forcing import fetch_forcing, neighbour_weights
-from .grid import build_grid
+from .grid import Grid, build_grid
 from .outputs import (
     MIN_VISIBLE_SWE_MM,
     to_grid,
@@ -33,6 +33,7 @@ DEFAULTS = {
     "hydrological_year_start_month": 10,
     "basin_id_field": "cod_uni",
     "basin_name_field": "nom_rio_1",
+    "ski_resort": "data/ski_resort.geojson",
     "calibration_years": [],
     "forcing": {"model": "ecmwf_ifs", "spacing_deg": 0.1},
     "ensemble": {
@@ -75,6 +76,31 @@ def log(message: str) -> None:
     print(message, flush=True)
 
 
+def rasterize_geometries(
+    path: Path, grid: Grid, parts: set[str] | None = None, all_touched: bool = False
+) -> np.ndarray:
+    """Boolean mask of the model grid under the polygons of a GeoJSON, optionally only the given `part`s."""
+    import rasterio.features
+    from rasterio.warp import transform_geom
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    shapes = [
+        (transform_geom("EPSG:4326", grid.crs, feature["geometry"]), 1)
+        for feature in payload["features"]
+        if parts is None or feature["properties"].get("part") in parts
+    ]
+    if not shapes:
+        raise ValueError(f"No polygons in {path}")
+    return rasterio.features.rasterize(
+        shapes,
+        out_shape=(grid.height, grid.width),
+        transform=grid.transform,
+        fill=0,
+        all_touched=all_touched,
+        dtype="uint8",
+    ).astype(bool)
+
+
 class Static:
     """Everything that depends only on the region, not on the year or the ensemble member."""
 
@@ -87,11 +113,12 @@ class Static:
         self.grid = build_grid(region.bbox, settings["resolution_m"])
         grid = self.grid
         payload = json.loads(region.basins.read_text(encoding="utf-8"))
-        shapes, self.basin_ids, self.basin_names = [], [], []
+        shapes, self.basin_ids, self.basin_names, self.basin_domain_km2 = [], [], [], []
         for index, feature in enumerate(payload["features"]):
             shapes.append((transform_geom("EPSG:4326", grid.crs, feature["geometry"]), index))
             self.basin_ids.append(str(feature["properties"][settings["basin_id_field"]]))
             self.basin_names.append(str(feature["properties"][settings["basin_name_field"]]))
+            self.basin_domain_km2.append(float(feature["properties"]["domain_area_km2"]))
         basin_raster = rasterio.features.rasterize(
             shapes,
             out_shape=(grid.height, grid.width),
@@ -102,7 +129,12 @@ class Static:
         log("Loading the elevation model")
         elevation = load_elevation(grid, region.bbox)
         inside = (basin_raster >= 0) & ~np.isnan(elevation)
+        if region.domain is not None:
+            # The basins are clipped to the domain when built; the domain polygon is what bounds the model.
+            inside &= rasterize_geometries(region.domain, grid, parts={"domain"})
+        self.ski_resort = rasterize_geometries(Path(settings["ski_resort"]), grid, all_touched=True)
         self.cell_index = np.flatnonzero(inside.ravel())
+        self.ski_cells = self.ski_resort.ravel()[self.cell_index]
         self.elevation = elevation.ravel()[self.cell_index]
         self.basin = basin_raster.ravel()[self.cell_index].astype("int64")
         slope, aspect = slope_aspect(elevation, grid.resolution)
@@ -399,9 +431,10 @@ def operate(region_file: Path, calibration_file: Path, cache: Path, output: Path
                 "id": basin_id,
                 "name": name,
                 "area_km2": round(float(area), 1),
+                "domain_area_km2": domain_area,
             }
-            for basin_id, name, area in zip(
-                static.basin_ids, static.basin_names, static.basin_area_km2
+            for basin_id, name, area, domain_area in zip(
+                static.basin_ids, static.basin_names, static.basin_area_km2, static.basin_domain_km2
             )
         ],
         "layers": layers,

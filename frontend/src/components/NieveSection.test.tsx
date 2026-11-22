@@ -53,6 +53,39 @@ describe("NieveSection", () => {
     for (const cls of RAMPS.snow_cover_observed.classes) expect(obs.getByText(cls.label_es)).toBeTruthy();
   });
 
+  it("labels a modelled layer as an experimental model with its caveat and lets it be switched on", () => {
+    const modelled = (layer: string, unit: string) => ({
+      dates: ["2026-11-10"],
+      entries: [
+        {
+          layer,
+          date: "2026-11-10",
+          status: "modelled" as const,
+          cog: `layers/${layer}/2026/x.tif`,
+          pmtiles: `tiles/${layer}/x.pmtiles`,
+          bounds: [-3.6, 36.9, -2.6, 37.3] as [number, number, number, number],
+          resolution_m: 100,
+          bands: [layer],
+          units: [unit],
+          source_ids: ["open-meteo:ecmwf_ifs"],
+        },
+      ],
+    });
+    const index = parseCatalog({
+      schema_version: 1,
+      generated_at: "2026-11-22T00:00:00.000+00:00",
+      layers: { swe: modelled("swe", "mm"), snow_depth: modelled("snow_depth", "m") },
+    });
+    render(<Harness catalog={{ kind: "ready", index }} />);
+    const swe = within(row("Equivalente en agua (SWE)"));
+    expect(swe.getByText("Modelo experimental.")).toBeTruthy();
+    expect(swe.getByText(/corregida con cada imagen despejada de Sentinel-2/)).toBeTruthy();
+    expect(swe.queryByText("Pendiente")).toBeNull();
+    fireEvent.click(swe.getByRole("button", { name: "Mostrar Equivalente en agua (SWE)" }));
+    expect(state()).toBe("2026-11-10 swe:100");
+    expect(within(row("Espesor de nieve")).getByText("Modelo experimental.")).toBeTruthy();
+  });
+
   it("switches the true colour on, sets its opacity and shows its scene date and status", () => {
     render(<Harness />);
     const rgb = within(row("Color real"));
