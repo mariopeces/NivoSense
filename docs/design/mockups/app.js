@@ -12,6 +12,12 @@ const SCENE = {
   corners: [[-3.54062, 37.16217], [-3.18021, 37.16327], [-3.17978, 36.98299], [-3.53934, 36.9819]],
 };
 const TODAY = '2026-11-22';
+// Forecast slot after today. Length here = the 5-day horizon the live site's forecast buttons offer today;
+// in production it is the last forecast date in catalog/index.json.
+const FORECAST_DAYS = 5;
+const STALE_HOURS = 2;
+// Lucide 0.460.0 'cctv' paths, used inside the map symbol so the spec SVG and the mockup draw the same glyph.
+const CCTV_PATHS = ['M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97', 'M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z', 'M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15', 'M2 21v-4', 'M7 9h.01'];
 const SEASON_START = '2025-10-01';
 
 const BASIN_NAMES = {
@@ -34,6 +40,7 @@ const SCREENS = {
   webcams: { section: 'webcams', scene: true, sheet: 'peek', card: 'offline' },
   'webcam-live': { section: 'webcams', scene: true, sheet: 'peek', card: 'live' },
   metodo: { section: 'metodo', doc: true },
+  'timeline-estados': { section: 'nieve', doc: true, specimen: true },
   vacio: { section: 'nieve', scene: false, sheet: 'half', state: 'empty' },
   cargando: { section: 'nieve', scene: false, sheet: 'half', state: 'loading' },
   error: { section: 'nieve', scene: false, sheet: 'half', state: 'error' },
@@ -60,6 +67,18 @@ const DIAS_LARGOS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'vier
 function fechaLarga(iso) {
   const d = new Date(iso + 'T12:00:00Z');
   return `${DIAS_LARGOS[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES_LARGOS[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
+}
+function edad(ms, date) {
+  // copy formats.edad
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return t('webcam.edad_ahora');
+  if (min < 60) return t('webcam.edad_min', { n: min });
+  const h = Math.floor(min / 60);
+  if (h < 24) return t('webcam.edad_h', { n: h });
+  const d = Math.floor(h / 24);
+  if (d === 1) return t('webcam.edad_dia');
+  if (d <= 7) return t('webcam.edad_dias', { n: d });
+  return fechaCorta(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(date));
 }
 function numEs(v, dec = 1) {
   return v.toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
@@ -210,7 +229,7 @@ function panelNieve() {
     ${layerRow({ key: 'webcams', on: true })}`;
 }
 
-let BASINS, CAMS, PASSES, FLOW_GUADALFEO;
+let BASINS, CAMS, PASSES, FLOW_GUADALFEO, CETURSA;
 
 function panelAgua() {
   const feats = [...BASINS.features].sort((a, b) => b.properties.area_km2 - a.properties.area_km2);
@@ -258,24 +277,34 @@ function emptyChart(title, note) {
 }
 
 function panelWebcams() {
-  const off = CAMS.filter((c) => c.offline);
+  const pk = (c) => parseFloat((c.name.match(/PK ([0-9.]+)/) || [0, 0])[1]);
+  const off = CAMS.filter((c) => c.offline).sort((a, b) => pk(a) - pk(b));
   const live = CAMS.filter((c) => !c.offline);
   return `<div class="group-label">${esc(t('webcam.lista_vivas'))} (${live.length})</div>
     ${live.length ? '' : `<p class="small muted">${esc(t('vacio.sin_webcams'))}</p>`}
     <div class="group-label">${esc(t('webcam.lista_sin_imagen'))} (${off.length})</div>
-    ${off.map((c) => `<div class="cam-row"><span class="cam-dot off" aria-hidden="true"></span><span class="name">${esc(c.name)}</span><span class="small muted">DGT</span></div>`).join('')}
+    ${off.map((c) => `<div class="cam-row"><span class="cam-dot off" aria-hidden="true"></span><span class="name num">${esc(camName(c))}</span><span class="small muted">DGT</span></div>`).join('')}
     <div class="group-label" style="margin-top:var(--space-4)">${esc(t('webcam.proveedor_cetursa'))}</div>
     <div class="layer pending"><div class="layer-main"><div class="layer-text"><div class="layer-name">${esc(t('webcam.cetursa_alta_pendiente'))}</div><div class="pending-note">${esc(t('webcam.cetursa_alta_pendiente_detalle'))}</div><div style="margin-top:var(--space-2)">${badge('pendiente')}</div></div></div></div>
     <div class="cone-legend">${coneGlyph()}<span class="small">${esc(t('webcam.leyenda_cono'))}</span>
       <span class="cam-sym off">${icon('camera-off', 14)}</span><span class="small">${esc(t('webcam.leyenda_sin_imagen'))}</span>
       <span class="cam-sym">${icon('cctv', 14)}</span><span class="small">${esc(t('webcam.leyenda_sin_orientacion'))}</span></div>`;
 }
+function camName(c) {
+  // es-ES decimal comma in kilometre points (copy formats.numero).
+  return c.name.replace(/PK (\d+)\.(\d+)/, 'PK $1,$2');
+}
+function cctvGlyph(cx, cy, size, color) {
+  const k = size / 24;
+  return `<g transform="translate(${cx - size / 2} ${cy - size / 2}) scale(${k})" fill="none" stroke="${color}" stroke-width="${(1.75 / k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round">${CCTV_PATHS.map((d) => `<path d="${d}"/>`).join('')}</g>`;
+}
 function coneGlyph() {
   // Symbolic glyph only: not a real camera's bearing.
   return `<svg width="48" height="40" viewBox="0 0 48 40" aria-hidden="true">
     <path d="M12 28 L44 8 A38 38 0 0 1 46 30 Z" fill="var(--color-ink)" fill-opacity="0.14" stroke="var(--color-ink)" stroke-width="1.25" stroke-linejoin="round"/>
+    <g transform="translate(12 28) rotate(75)"><path d="M0 -17 L-4.5 -8 L4.5 -8 Z" fill="var(--color-ink)" stroke="var(--color-map-halo)" stroke-width="1.5" stroke-linejoin="round"/></g>
     <circle cx="12" cy="28" r="10" fill="var(--color-ink)" stroke="var(--color-map-halo)" stroke-width="2"/>
-    <path d="M12 28 L18 24.5" stroke="var(--color-on-ink-strong)" stroke-width="2" stroke-linecap="round"/></svg>`;
+    ${cctvGlyph(12, 28, 12, 'var(--color-on-ink-strong)')}</svg>`;
 }
 
 function panelMetodo() { return ''; }
@@ -295,6 +324,7 @@ function renderPanel() {
   } else {
     $('#collapse').title = t('rail.tooltip_ocultar_panel');
   }
+  if (MOBILE && S.card) $('#panel').style.display = 'none';
   if (MOBILE) {
     const h = { peek: 'var(--layout-sheet-peek)', half: 'var(--layout-sheet-half)', full: 'calc(100% - var(--layout-tabbar-height) - var(--space-12))' }[S.sheet || 'peek'];
     document.documentElement.style.setProperty('--sheet-height', h);
@@ -306,7 +336,8 @@ function dayIndex(iso) { return Math.round((Date.parse(iso) - Date.parse(SEASON_
 function renderTimeline() {
   if (S.doc || S.state === 'loading') return;
   if (MOBILE && (S.sheet === 'full' || S.card)) return;
-  const span = dayIndex(TODAY);
+  const end = new Date(Date.parse(TODAY) + FORECAST_DAYS * 864e5).toISOString().slice(0, 10);
+  const span = dayIndex(end);
   const pct = (iso) => (100 * dayIndex(iso)) / span;
   const passes = PASSES.passes.filter((p) => p.date <= TODAY);
   const empty = !S.scene;
@@ -314,7 +345,8 @@ function renderTimeline() {
   let months = '';
   for (let y = 2025, m = 9; `${y}-${String(m + 1).padStart(2, '0')}-01` <= TODAY; m = (m + 1) % 12, y += m === 0 ? 1 : 0) {
     const iso = `${y}-${String(m + 1).padStart(2, '0')}-01`;
-    const show = MOBILE ? m % 3 === 0 : true;
+    // The last month label would collide with the forecast slot label.
+    const show = (MOBILE ? m % 3 === 0 : true) && dayIndex(iso) < span - (MOBILE ? 60 : 35);
     if (show) months += `<span class="${m === 0 ? 'year' : ''}" style="left:${pct(iso)}%">${m === 0 ? y : MESES[m]}</span>`;
   }
   const cursorISO = SCENE.date;
@@ -333,14 +365,22 @@ function renderTimeline() {
   const track = empty ? '' : `
     <div class="tl-track" role="slider" tabindex="0" aria-label="${esc(t('linea_tiempo.etiqueta'))}" aria-valuetext="${esc(empty ? t('linea_tiempo.sin_datos') : fechaConDia(cursorISO))}" title="${esc(t('linea_tiempo.teclado'))}">
       <div class="tl-row obs">${ticks}</div>
-      <div class="tl-row daily" title="${esc(t('estado.tooltip_pendiente'))}"></div>
+      <div class="tl-row daily"><span class="seg pendiente" style="left:0;width:${pct(TODAY)}%" title="${esc(t('estado.tooltip_pendiente'))}"></span><span class="seg pendiente slot-prevision" style="left:${pct(TODAY)}%;right:0" title="${esc(t('linea_tiempo.tooltip_prevision_slot'))} ${esc(t('linea_tiempo.prevision_slot_pendiente'))}"></span></div>
       <div class="tl-months">${months}</div>
-      <span class="tl-today" style="left:100%"></span>${cursor}${tooltip}
+      <span class="tl-forecast-label" style="right:0">${esc(t('linea_tiempo.prevision_slot'))}</span>
+      <span class="tl-today" style="left:${pct(TODAY)}%" title="${esc(t('linea_tiempo.hoy'))}"></span>${cursor}${tooltip}
     </div>`;
   if (empty) el.classList.add('empty');
   el.innerHTML = `${dateBlock}${track}${right}${MOBILE ? '' : `<div class="tl-legend-row">${legend}</div>`}`;
   if (S.state === 'error') return;
   $('#overlays').appendChild(el);
+  const tip = el.querySelector('.tl-tooltip');
+  if (tip) {
+    // Keep the tooltip inside the viewport (it is centred on the cursor).
+    const r = tip.getBoundingClientRect();
+    if (r.left < 8) tip.style.transform = `translateX(calc(-50% + ${8 - r.left}px))`;
+    if (r.right > innerWidth - 8) tip.style.transform = `translateX(calc(-50% - ${r.right - innerWidth + 8}px))`;
+  }
 }
 
 /* ---------- overlays ---------- */
@@ -369,7 +409,7 @@ function renderOverlays(map) {
         <dt>${esc(t('info_capa.cadencia'))}</dt><dd>${esc(t('capa.color_real.cadencia'))}</dd>
         <dt>${esc(t('info_capa.fecha_dato'))}</dt><dd class="num">${esc(fechaCorta(SCENE.date))}</dd>
         <dt>${esc(t('info_capa.estado'))}</dt><dd>${badge('observado')}</dd>
-        <dt>${esc(t('info_capa.escenas'))}</dt><dd class="num" style="word-break:break-all">${items.map(esc).join('<br>')}</dd>
+        <dt>${esc(t('info_capa.escenas'))}</dt><dd class="num">${items.map((i) => esc(i).replace(/_/g, '_<wbr>')).join('<br>')}</dd>
       </dl>
       <p class="small muted" style="margin:var(--space-3) 0 0">${esc(t('capa.color_real.descripcion'))}</p>
       <a class="link" href="#">${esc(t('info_capa.metodo'))}</a>`;
@@ -388,28 +428,35 @@ function renderCard(map) {
   card.setAttribute('role', 'dialog');
   if (S.card === 'offline') {
     const cam = CAMS.find((c) => c.id === 'dgt-312');
-    card.setAttribute('aria-label', cam.name);
+    card.setAttribute('aria-label', camName(cam));
     card.innerHTML = `<div class="img off">${icon('camera-off', 32)}<div class="small" style="margin-top:var(--space-2)">${esc(t('webcam.offline_titulo'))}</div></div>
-      <div class="body"><div class="row1"><span class="cname">${esc(cam.name)}</span><span class="status off">${icon('camera-off')}${esc(t('webcam.sin_imagen'))}</span></div>
+      <div class="body"><div class="row1"><span class="cname num">${esc(camName(cam))}</span><span class="status off">${icon('camera-off')}${esc(t('webcam.sin_imagen'))}</span></div>
       <p class="small muted" style="margin:var(--space-2) 0 0">${esc(t('webcam.offline_detalle'))}</p>
       <p class="small" style="margin:var(--space-2) 0 0">${esc(t('webcam.offline_ultima_desconocida'))}</p>
       <p class="small muted" style="margin:var(--space-1) 0 0">${esc(t('webcam.orientacion_pendiente'))}</p>
       <div class="credit">${esc(t('webcam.credito_dgt'))}</div></div>`;
+    card.insertAdjacentHTML('afterbegin', '<div class="sheet-handle" aria-hidden="true"></div>');
     const pt = map.project([cam.longitude, cam.latitude]);
-    card.style.left = `${pt.x + 24}px`;
+    card.style.left = `${pt.x + 40}px`;
     card.style.top = `${Math.max(16, pt.y - 140)}px`;
   } else {
-    // Live Cetursa still (H4 credit line). Capture time is the image's HTTP Last-Modified, passed in by the screenshot script.
-    const captured = q.get('captured');
-    const shot = q.get('shot');
-    const cap = captured ? new Date(captured) : null;
+    // Cetursa still saved with its HTTP Last-Modified (mockups/data/cetursa_pradollano.json); H4 credit line.
+    // Age is measured against now (or ?now= for reproducible screenshots), so a later visit shows the real, older age.
+    const rec = CETURSA;
+    const cap = new Date(rec.http_last_modified);
+    const now = q.get('now') ? new Date(q.get('now')) : new Date();
+    const ageMs = Math.max(0, now - cap);
+    const stale = ageMs > STALE_HOURS * 3600e3;
     const fmtHora = (d) => d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-    const fmtDia = (d) => { const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(d); return fechaCorta(p); };
-    const mins = cap && shot ? Math.max(0, Math.round((new Date(shot) - cap) / 60000)) : null;
+    const fmtDia = (d) => fechaCorta(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(d));
+    const status = stale
+      ? `<span class="status" style="color:var(--color-warning)">${icon('clock')}${esc(t('webcam.antigua_corta'))}</span>`
+      : `<span class="status live"><span class="cam-dot" aria-hidden="true"></span>${esc(t('webcam.en_directo'))}</span>`;
     card.setAttribute('aria-label', 'Pradollano');
-    card.innerHTML = `<img class="img" alt="Pradollano, imagen de la cámara" src="https://recursos.sierranevada.es/_extras/fotos_camaras/pradollano/snap_c1.jpg">
-      <div class="body"><div class="row1"><span class="cname">Pradollano</span><span class="status live"><span class="cam-dot" aria-hidden="true"></span>${esc(t('webcam.en_directo'))}</span></div>
-      <p class="small num" style="margin:var(--space-2) 0 0">${cap ? esc(t('webcam.capturada', { fecha_corta: fmtDia(cap), hora: fmtHora(cap) })) + (mins != null ? ` · hace ${mins} min` : '') : ''}</p>
+    card.innerHTML = `<div class="sheet-handle" aria-hidden="true"></div><img class="img" alt="Pradollano, imagen de la cámara" src="data/${rec.file}">
+      <div class="body"><div class="row1"><span class="cname">Pradollano</span>${status}</div>
+      <p class="small num" style="margin:var(--space-2) 0 0">${esc(t('webcam.capturada', { fecha_corta: fmtDia(cap), hora: fmtHora(cap) }))} · ${esc(edad(ageMs, cap))}</p>
+      ${stale ? `<p class="small" style="margin:var(--space-1) 0 0;color:var(--color-warning)">${esc(t('webcam.imagen_antigua', { horas: STALE_HOURS }))}</p>` : ''}
       <p class="small muted" style="margin:var(--space-1) 0 0">${esc(t('webcam.orientacion_pendiente'))}</p>
       <div class="row1" style="margin-top:var(--space-2)"><span class="credit" style="margin:0">${esc(t('webcam.credito_cetursa'))}</span><a class="small" href="#">${esc(t('webcam.abrir_fuente'))}</a></div></div>`;
     card.style.right = 'calc(var(--layout-map-control) + var(--space-8))';
@@ -432,18 +479,52 @@ function renderDoc() {
       <h1>${esc(t('panel.metodo.titulo'))}</h1>
       <p class="muted">${esc(t('panel.metodo.subtitulo'))}</p>
       <h2>${sec('seccion_nieve_observada')}</h2>
-      <div class="facts small"><div><div class="muted caption">${esc(t('info_capa.fuente'))}</div>Sentinel-2 L2A (Earth Search, AWS)</div><div><div class="muted caption">${esc(t('info_capa.resolucion'))}</div>20 m</div><div><div class="muted caption">${esc(t('info_capa.cadencia'))}</div>${esc(t('capa.nieve_observada.cadencia'))}</div></div>
+      <div class="facts small"><div><div class="muted caption">${esc(t('info_capa.fuente'))}</div>${esc(t('metodo.fuente_nieve_observada'))}</div><div><div class="muted caption">${esc(t('info_capa.resolucion'))}</div>20 m</div><div><div class="muted caption">${esc(t('info_capa.cadencia'))}</div>${esc(t('capa.nieve_observada.cadencia'))}</div></div>
       <h3>${sec('como_se_calcula')}</h3>
-      <p>Se unen las cuatro teselas que tocan el dominio (30SVF, 30SVG, 30SWF y 30SWG) por fecha y órbita. Las nubes se filtran sobre el dominio, no sobre la tesela entera. El índice de nieve NDSI = (B03 − B11) / (B03 + B11) se calcula a 20 m con el método de dos pasadas de Theia/LIS: primero NDSI &gt; 0,4 y rojo &gt; 0,2; después NDSI &gt; 0,15 y rojo &gt; 0,04 por encima de la cota de nieve obtenida del modelo digital del terreno.</p>
-      <p>Las laderas en sombra del relieve, calculada con el terreno y la posición del sol, se marcan como sin dato. Bajo bosque la nieve se marca con confianza baja.</p>
+      <p>${sec('nieve_observada_calculo_1')}</p>
+      <p>${sec('nieve_observada_calculo_2')}</p>
       <h3>${sec('como_se_valida')}</h3>
-      <p>Contra una muestra de referencia congelada: al menos 1500 puntos en 12 fechas o más, etiquetados sobre color real y falso color SWIR. Objetivo: F1 de nieve de 0,85 en total y 0,70 en cada estrato (cota de nieve, sombra, bosque, borde de nube y terreno abierto).</p>
+      <p>${sec('nieve_observada_validacion')}</p>
       <div class="pend">${esc(t('metodo.resultado_pendiente'))}</div>
       <h2>${sec('seccion_limites')}</h2>
       <ul><li>${esc(t('metodo.limite_sombra'))}</li><li>${esc(t('metodo.limite_bosque'))}</li><li>${esc(t('metodo.limite_estacion'))}</li></ul>
     </article></div>`;
   $('#app').appendChild(d);
   $('#panel').style.display = 'none';
+  $('#collapse').style.display = 'none';
+}
+
+/* ---------- timeline state specimen ---------- */
+// Spec sheet for T4.2: each tick and strip state drawn with the component's own classes. No dates, no data.
+function renderTimelineStates() {
+  const d = document.createElement('main');
+  d.className = 'doc';
+  const row = (estado, glyph) => `<div class="spec-row"><div>${badge(estado)}</div><div class="spec-glyph">${glyph}</div><div class="small">${esc(t('estado.tooltip_' + estado))}</div></div>`;
+  // Schematic strip in abstract day units: 0..30 past, 30 = today, 30..36 forecast slot.
+  const u = (x) => (100 * x) / 36;
+  const seg = (cls, a, b) => `<span class="seg ${cls}" style="left:${u(a)}%;width:${u(b - a)}%"></span>`;
+  const ticks = [2, 5, 9, 14, 21, 26].map((x) => `<span class="tl-tick" style="left:${u(x)}%"></span>`).join('');
+  d.innerHTML = `<div class="doc-inner" style="grid-template-columns:1fr"><article>
+    <div class="eyebrow">${esc(t('linea_tiempo.etiqueta'))}</div>
+    <h1>${esc(t('linea_tiempo.leyenda_observado'))}, ${esc(t('linea_tiempo.leyenda_rellenado')).toLowerCase()}, ${esc(t('linea_tiempo.leyenda_modelado')).toLowerCase()} y ${esc(t('linea_tiempo.leyenda_prevision')).toLowerCase()}</h1>
+    ${row('observado', '<span class="tl-tick"></span>')}
+    ${row('rellenado', '<span class="seg rellenado"></span>')}
+    ${row('modelado', '<span class="seg modelado"></span>')}
+    ${row('prevision', '<span class="seg prevision"></span>')}
+    ${row('pendiente', '<span class="seg pendiente"></span>')}
+    <div class="spec-strip" aria-hidden="true">
+      <div class="tl-row obs">${ticks}</div>
+      <div class="tl-row daily">${seg('rellenado', 0, 12)}${seg('modelado', 12, 30)}${seg('prevision', 30, 33)}${seg('pendiente slot-prevision', 33, 36)}</div>
+      <span class="tl-today" style="left:${u(30)}%"></span>
+      <span class="cap" style="left:${u(6)}%">${esc(t('estado.rellenado'))}</span>
+      <span class="cap" style="left:${u(21)}%">${esc(t('estado.modelado'))}</span>
+      <span class="cap" style="left:${u(30)}%">${esc(t('linea_tiempo.hoy'))}</span>
+      <span class="cap" style="left:${u(33)}%">${esc(t('linea_tiempo.prevision_slot'))}</span>
+    </div>
+  </article></div>`;
+  $('#app').appendChild(d);
+  $('#panel').style.display = 'none';
+  $('#collapse').style.display = 'none';
 }
 
 /* ---------- map ---------- */
@@ -487,7 +568,7 @@ function initMap() {
     el.setAttribute('role', 'button');
     el.setAttribute('aria-label', t('webcam.tooltip_simbolo', { nombre: c.name, estado: c.offline ? t('webcam.sin_imagen') : t('webcam.en_directo') }));
     el.style.cssText = `width:24px;height:24px;border-radius:var(--radius-full);background:var(--color-panel);border:1.5px solid var(--color-text-muted);display:grid;place-items:center;color:var(--color-text-muted);box-shadow:var(--shadow-float)`;
-    if (S.card === 'offline' && c.id === 'dgt-312') el.style.cssText += ';outline:2px solid var(--color-ink);outline-offset:2px';
+    if (S.card === 'offline' && c.id === 'dgt-312') el.style.cssText += ';outline:2px solid var(--color-accent);outline-offset:2px';
     el.innerHTML = icon('camera-off', 14);
     new maplibregl.Marker({ element: el }).setLngLat([c.longitude, c.latitude]).addTo(map);
   });
@@ -499,14 +580,14 @@ function initMap() {
 
 async function main() {
   const load = (p) => fetch(p).then((r) => { if (!r.ok) throw new Error(p); return r.json(); });
-  [T, R, C, BASINS, CAMS, PASSES, FLOW_GUADALFEO] = await Promise.all([
+  [T, R, C, BASINS, CAMS, PASSES, FLOW_GUADALFEO, CETURSA] = await Promise.all([
     load('../tokens.json'), load('../ramps.json'), load('../copy.es.json'),
     load(REPO + 'data/basins.geojson'), load(REPO + 'frontend/public/data/webcams.json'),
-    load('data/s2_passes.json'), load(REPO + 'data/flow/guadalfeo.json'),
+    load('data/s2_passes.json'), load(REPO + 'data/flow/guadalfeo.json'), load('data/cetursa_pradollano.json'),
   ]);
   applyTokens(T);
   fillCopy();
-  if (S.doc) renderDoc(); else renderPanel();
+  if (S.specimen) renderTimelineStates(); else if (S.doc) renderDoc(); else renderPanel();
   renderTimeline();
   const map = initMap();
   drawIcons();
