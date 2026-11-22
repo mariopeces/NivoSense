@@ -18,7 +18,7 @@ export default function WebcamsSection({ webcams, loading, error, selectedId, on
   if (error) return <Notice error title={t("error.webcams")} />;
 
   const sorted = [...webcams].sort(byRoadPoint);
-  const live = sorted.filter((cam) => !cam.offline && safeImageUrl(cam.image_url));
+  const live = sorted.filter((cam) => cam.status === "live" && stillUrl(cam.large_url ?? cam.thumbnail_url));
   const offline = sorted.filter((cam) => !live.includes(cam));
   const list = (cams: Webcam[]) => (
     <ul className="m-0 list-none p-0">
@@ -63,7 +63,7 @@ function WebcamRow({
   selected: boolean;
   onSelect: (id: string | null) => void;
 }) {
-  const imageUrl = live ? safeImageUrl(webcam.image_url) : null;
+  const imageUrl = live ? stillUrl(webcam.large_url ?? webcam.thumbnail_url) : null;
   return (
     <li className="border-b border-line">
       <button
@@ -153,12 +153,8 @@ export function byRoadPoint(a: Webcam, b: Webcam) {
   return road(a).localeCompare(road(b), "es") || km(a) - km(b) || a.name.localeCompare(b.name, "es");
 }
 
-function safeImageUrl(value: string | null) {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
+// The ingest stores the checked stills under the site; any other path is refused.
+function stillUrl(value: string | null) {
+  if (!value || !/^data\/webcam-stills\/[\w.-]+\/[\w.-]+\.jpg$/.test(value)) return null;
+  return `${import.meta.env.BASE_URL}${value}`;
 }
