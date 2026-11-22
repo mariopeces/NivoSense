@@ -1,12 +1,23 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Webcam } from "../lib/types";
 import { byRoadPoint, cameraName, placeName } from "./WebcamsSection";
 
-const catalogue: Webcam[] = JSON.parse(
-  readFileSync(path.resolve(__dirname, "../../public/data/webcams.json"), "utf8"),
-);
+const cam = (name: string): Webcam => ({
+  id: name,
+  name,
+  location: "GRANADA",
+  provider: "DGT",
+  latitude: null,
+  longitude: null,
+  position_source: null,
+  thumbnail_url: null,
+  large_url: null,
+  captured_at: null,
+  status: "offline",
+  source_url: "https://example.org",
+  attribution: "DGT",
+});
+const catalogue: Webcam[] = ["A-395 · PK 24.95", "A-395 · PK 7.8", "A-395 · PK 12.6"].map(cam);
 
 describe("webcam rows", () => {
   it("writes DGT road points with a decimal comma and places in title case", () => {

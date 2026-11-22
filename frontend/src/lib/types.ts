@@ -74,11 +74,16 @@ export type Webcam = {
   id: string;
   name: string;
   location: string | null;
-  latitude: number;
-  longitude: number;
-  image_url: string | null;
+  provider: string;
+  // Null when no provider publishes the camera's position; it is then listed but not mapped.
+  latitude: number | null;
+  longitude: number | null;
+  position_source: string | null;
+  // Site-relative paths of the stills the ingest checked and stored; null when offline.
+  thumbnail_url: string | null;
+  large_url: string | null;
   captured_at: string | null;
-  offline: boolean;
+  status: "live" | "offline";
   source_url: string;
   attribution: string;
 };
