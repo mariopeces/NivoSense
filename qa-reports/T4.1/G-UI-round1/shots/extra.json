@@ -1,0 +1,47 @@
+{
+ "m_list_title": "Río Guadalfeo o Río Cadiar",
+ "m_url_after": "http://localhost:4181/",
+ "m_errors": [],
+ "cursor_on_basin": "pointer",
+ "from_nieve_section": "Agua",
+ "from_nieve_title": "Río Guadalfeo o Río Cadiar",
+ "url_after_select": "http://localhost:4181/",
+ "after_reload_section": "Nieve",
+ "tab_order": [
+  "NivoSense | outline=solid 2px shadow=false",
+  "Nieve | outline=solid 2px shadow=false",
+  "Mapa | outline=solid 2px shadow=false",
+  "3D | outline=solid 2px shadow=false",
+  "Ocultar | outline=solid 2px shadow=false",
+  "Sierra Nevada | outline=solid 2px shadow=false",
+  "Map | outline=solid 2px shadow=false",
+  "Acercar | outline=none 3px shadow=true",
+  "Alejar | outline=none 3px shadow=true",
+  "Orientar al norte | outline=none 3px shadow=true",
+  "Toggle attribution | outline=solid 2px shadow=true",
+  "NNieveAguaWebcamsMeteoMétodoMa | outline=none 3px shadow=false",
+  "NivoSense | outline=solid 2px shadow=false",
+  "Nieve | outline=solid 2px shadow=false",
+  "Mapa | outline=solid 2px shadow=false",
+  "3D | outline=solid 2px shadow=false",
+  "Ocultar | outline=solid 2px shadow=false",
+  "Sierra Nevada | outline=solid 2px shadow=false",
+  "Map | outline=solid 2px shadow=false",
+  "Acercar | outline=none 3px shadow=true",
+  "Alejar | outline=none 3px shadow=true",
+  "Orientar al norte | outline=none 3px shadow=true"
+ ],
+ "collapsed_kbd": 1,
+ "panel_hidden_focusable": [
+  null,
+  false,
+  "hidden"
+ ],
+ "helvetica": [
+  "absolute inset-0 maplibregl-map",
+  "maplibregl-canvas-container maplibregl-interactive maplibregl-touch-drag-pan maplibregl-touch-zoom-rotate",
+  "maplibregl-canvas"
+ ],
+ "title": "NivoSense",
+ "lang": "es"
+}

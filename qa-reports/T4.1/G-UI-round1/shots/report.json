@@ -1,0 +1,442 @@
+{
+ "1440": {
+  "sections": {
+   "nieve": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Source Serif 4": 2,
+      "Inter": 32,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 37
+    },
+    "panel_text": "Nieve\n\nSierra Nevada\n\nParque Nacional y Parque Natural con su zona periférica\n\nCapas de nieve\n\nNieve observada\n\nSentinel-2 L2A · 20 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\n\nNieve diaria\n\nNieve observada rellenada en el tiempo · 20 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\n\nEquivalente en agua (SWE)\n\nModelo de nieve NivoSense · 100 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\n\nEspesor de nieve\n\nModelo de nieve NivoSense · 100 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\nImagen\n\nColor real\n\nSentinel-2 L1C · 10 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente"
+   },
+   "agua": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Source Serif 4": 2,
+      "Inter": 22,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 38
+    },
+    "panel_text": "Agua\n\nCuencas\n\nNieve y caudal por cuenca. Elige una en el mapa o en la lista.\n\nElige una cuenca en el mapa o en la lista.\n\nRío Guadalquivir\n319,2 km²\nRío Guadalfeo o Río Cadiar\n303,6 km²\nRío Andarax\n123,1 km²\nRío Adra o Grande o Verde\n113,6 km²"
+   },
+   "webcams": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Source Serif 4": 2,
+      "Inter": 42,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 38
+    },
+    "panel_text": "Webcams\n\nCámaras\n\nCada imagen con su hora real de captura y su autor.\n\nCon imagen (0)\n\nNinguna cámara con imagen en este momento.\n\nSin imagen (8)\nA-395 · PK 12.6\nGRANADA\nSin imagen\nA-395 · PK 15.1\nGRANADA\nSin imagen\nA-395 · PK 19.9\nGRANADA\nSin imagen\nA-395 · PK 23.65\nGRANADA\nSin imagen\nA-395 · PK 24.95\nGRANADA\nSin imagen\nA-395 · PK 28.9\nGRANADA\nSin imagen\nA-395 · PK 30.92\nGRANADA\nSin imagen\nA-395 · PK 7.8\nGRANADA\nSin imagen"
+   },
+   "meteo": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Source Serif 4": 2,
+      "Inter": 14,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 36
+    },
+    "panel_text": "Meteo\n\nPrevisión\n\nGFS, ECMWF IFS y AEMET HARMONIE-AROME, cuatro pasadas al día.\n\nAún no hay previsión publicada."
+   },
+   "metodo": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Source Serif 4": 2,
+      "Inter": 46,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 39
+    },
+    "panel_text": "Método\n\nCómo se hace cada capa\n\nFuentes, procesado, validación y límites conocidos.\n\nEn esta página\nNieve observada\nFuente\nSentinel-2 L2A\nResolución\n20 m\nFrecuencia\nCada pasada despejada\n\nNieve vista por Sentinel-2 en la fecha de la pasada. Donde hay nube o sombra del relieve no se decide.\n\nNieve diaria\nFuente\nNieve observada rellenada en el tiempo\nResolución\n20 m\nFrecuencia\nDiaria\n\nProbabilidad de nieve para cada día. Los días sin imagen despejada se estiman con las observaciones anterior y siguiente, la cota de nieve y el modelo.\n\nEquivalente en agua (SWE)\nFuente\nModelo de nieve NivoSense\nResolución\n100 m\nFrecuencia\nDiaria\n\nAgua contenida en la nieve, en milímetros. Mediana del conjunto de simulaciones. Por debajo de 5 mm no se dibuja.\n\nEspesor de nieve\nFuente\nModelo de nieve NivoSense\nResolución\n100 m\nFrecuencia\nDiaria\n\nEspesor del manto en centímetros: SWE dividido por la densidad modelada. Solo donde el SWE llega a 5 mm.\n\nColor real\nFuente\nSentinel-2 L1C\nResolución\n10 m\nFrecuencia\nCada pasada\n\nImagen en color real con un ajuste de brillo pensado para la nieve, igual en todas las fechas para poder compararlas."
+   }
+  },
+  "datebar": [
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Aún no hay escenas publicadas."
+  ],
+  "rail_keys": [
+   [
+    "Agua",
+    "Agua"
+   ],
+   [
+    "Webcams",
+    "Webcams"
+   ],
+   [
+    "Método",
+    "Método"
+   ],
+   [
+    "Nieve",
+    "Nieve"
+   ],
+   [
+    "Método",
+    "Método"
+   ]
+  ],
+  "tab_after_rail": "<button type=\"button\" aria-expanded=\"false\" aria-haspopup=\"dialog\" title=\"Cambiar el mapa base\" class=\"relative flex h-rail-button w-rail-button flex-col items-",
+  "collapsed_audit": {
+   "minFont": 12,
+   "minFontEl": " :: Nieve",
+   "capsTracked": [],
+   "backdrop": [],
+   "gradients": [],
+   "textShadow": [],
+   "colouredShadows": [],
+   "fontsLoaded": [
+    "Inter 400",
+    "Inter 500",
+    "Inter 600",
+    "Source Serif 4 600"
+   ],
+   "families": {
+    "Source Serif 4": 1,
+    "Inter": 11,
+    "Helvetica Neue": 1
+   }
+  },
+  "basin_rows": 4,
+  "basin_first": "Río Guadalquivir",
+  "cuenca_text": "Agua\n\nCuencas\n\nNieve y caudal por cuenca. Elige una en el mapa o en la lista.\n\nTodas las cuencas\nRío Guadalquivir\nSuperficie\n319,2 km² en el Parque Nacional\nAgua en la nieve (hm³)\nPendiente del modelo\n\nLas series de SWE y espesor por cuenca aparecerán cuando el modelo publique su primera temporada.",
+  "cuenca_axe": {
+   "violations": [],
+   "passes": 38
+  },
+  "cuenca_audit": {
+   "minFont": 12,
+   "minFontEl": " :: Nieve",
+   "capsTracked": [],
+   "backdrop": [],
+   "gradients": [],
+   "textShadow": [],
+   "colouredShadows": [],
+   "fontsLoaded": [
+    "Inter 400",
+    "Inter 500",
+    "Inter 600",
+    "Source Serif 4 600"
+   ],
+   "families": {
+    "Source Serif 4": 3,
+    "Inter": 19,
+    "Helvetica Neue": 1
+   }
+  },
+  "map_click_title": "Río Guadalfeo o Río Cadiar",
+  "map_click_section": "Agua",
+  "after_setstyle_click_title": "Río Guadalfeo o Río Cadiar",
+  "map_controls": [
+   "Acercar",
+   "Alejar",
+   "Orientar al norte"
+  ],
+  "attribution": "Terrain Tiles: Mapzen, AWS Open Data | © Instituto Geográfico Nacional (IGN), CC BY 4.0 scne.es",
+  "console": [
+   "warning: [.WebGL-0x6ee400627800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+   "warning: [.WebGL-0x6ee400627800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+   "warning: [.WebGL-0x6ee400627800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+   "warning: [.WebGL-0x6ee400627800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "failed": [
+   "FAILED https://www.ign.es/wmts/pnoa-ma?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=OI.OrthoimageCoverage&STYLE=default&TILEMATRIXSET=GoogleMapsCompatible&TILEMATRIX=11&TILEROW=798&TILECOL=1006&FORMAT=image/jpeg net::ERR_ABORTED",
+   "FAILED https://www.ign.es/wmts/pnoa-ma?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=OI.OrthoimageCoverage&STYLE=default&TILEMATRIXSET=GoogleMapsCompatible&TILEMATRIX=11&TILEROW=798&TILECOL=1002&FORMAT=image/jpeg net::ERR_ABORTED",
+   "FAILED https://s3.amazonaws.com/elevation-tiles-prod/terrarium/10/502/397.png net::ERR_ABORTED",
+   "FAILED https://s3.amazonaws.com/elevation-tiles-prod/terrarium/10/501/397.png net::ERR_ABORTED",
+   "FAILED https://s3.amazonaws.com/elevation-tiles-prod/terrarium/10/503/397.png net::ERR_ABORTED"
+  ]
+ },
+ "375": {
+  "sections": {
+   "nieve": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Inter": 19,
+      "Source Serif 4": 1,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 36
+    },
+    "panel_text": "Nieve\n\nSierra Nevada\n\nParque Nacional y Parque Natural con su zona periférica\n\nCapas de nieve\n\nNieve observada\n\nSentinel-2 L2A · 20 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\n\nNieve diaria\n\nNieve observada rellenada en el tiempo · 20 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\n\nEquivalente en agua (SWE)\n\nModelo de nieve NivoSense · 100 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\n\nEspesor de nieve\n\nModelo de nieve NivoSense · 100 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente\nImagen\n\nColor real\n\nSentinel-2 L1C · 10 m\n\nEsta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.\n\nPendiente"
+   },
+   "agua": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Inter": 19,
+      "Source Serif 4": 1,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 38
+    },
+    "panel_text": "Agua\n\nCuencas\n\nNieve y caudal por cuenca. Elige una en el mapa o en la lista.\n\nElige una cuenca en el mapa o en la lista.\n\nRío Guadalquivir\n319,2 km²\nRío Guadalfeo o Río Cadiar\n303,6 km²\nRío Andarax\n123,1 km²\nRío Adra o Grande o Verde\n113,6 km²"
+   },
+   "webcams": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Inter": 30,
+      "Source Serif 4": 1,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 38
+    },
+    "panel_text": "Webcams\n\nCámaras\n\nCada imagen con su hora real de captura y su autor.\n\nCon imagen (0)\n\nNinguna cámara con imagen en este momento.\n\nSin imagen (8)\nA-395 · PK 12.6\nGRANADA\nSin imagen\nA-395 · PK 15.1\nGRANADA\nSin imagen\nA-395 · PK 19.9\nGRANADA\nSin imagen\nA-395 · PK 23.65\nGRANADA\nSin imagen\nA-395 · PK 24.95\nGRANADA\nSin imagen\nA-395 · PK 28.9\nGRANADA\nSin imagen\nA-395 · PK 30.92\nGRANADA\nSin imagen\nA-395 · PK 7.8\nGRANADA\nSin imagen"
+   },
+   "meteo": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Inter": 11,
+      "Source Serif 4": 1,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 35
+    },
+    "panel_text": "Meteo\n\nPrevisión\n\nGFS, ECMWF IFS y AEMET HARMONIE-AROME, cuatro pasadas al día.\n\nAún no hay previsión publicada."
+   },
+   "metodo": {
+    "audit": {
+     "minFont": 12,
+     "minFontEl": " :: Nieve",
+     "capsTracked": [],
+     "backdrop": [],
+     "gradients": [],
+     "textShadow": [],
+     "colouredShadows": [],
+     "fontsLoaded": [
+      "Inter 400",
+      "Inter 500",
+      "Inter 600",
+      "Source Serif 4 600"
+     ],
+     "families": {
+      "Inter": 27,
+      "Source Serif 4": 1,
+      "Helvetica Neue": 1
+     }
+    },
+    "axe": {
+     "violations": [],
+     "passes": 38
+    },
+    "panel_text": "Método\n\nCómo se hace cada capa\n\nFuentes, procesado, validación y límites conocidos.\n\nEn esta página\nNieve observada\nFuente\nSentinel-2 L2A\nResolución\n20 m\nFrecuencia\nCada pasada despejada\n\nNieve vista por Sentinel-2 en la fecha de la pasada. Donde hay nube o sombra del relieve no se decide.\n\nNieve diaria\nFuente\nNieve observada rellenada en el tiempo\nResolución\n20 m\nFrecuencia\nDiaria\n\nProbabilidad de nieve para cada día. Los días sin imagen despejada se estiman con las observaciones anterior y siguiente, la cota de nieve y el modelo.\n\nEquivalente en agua (SWE)\nFuente\nModelo de nieve NivoSense\nResolución\n100 m\nFrecuencia\nDiaria\n\nAgua contenida en la nieve, en milímetros. Mediana del conjunto de simulaciones. Por debajo de 5 mm no se dibuja.\n\nEspesor de nieve\nFuente\nModelo de nieve NivoSense\nResolución\n100 m\nFrecuencia\nDiaria\n\nEspesor del manto en centímetros: SWE dividido por la densidad modelada. Solo donde el SWE llega a 5 mm.\n\nColor real\nFuente\nSentinel-2 L1C\nResolución\n10 m\nFrecuencia\nCada pasada\n\nImagen en color real con un ajuste de brillo pensado para la nieve, igual en todas las fechas para poder compararlas."
+   }
+  },
+  "datebar": [
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+   "Aún no hay escenas publicadas."
+  ],
+  "rail_keys": [
+   [
+    "Agua",
+    "Agua"
+   ],
+   [
+    "Webcams",
+    "Webcams"
+   ],
+   [
+    "Método",
+    "Método"
+   ],
+   [
+    "Nieve",
+    "Nieve"
+   ],
+   [
+    "Método",
+    "Método"
+   ]
+  ],
+  "tab_after_rail": "<button type=\"button\" aria-label=\"Arrastra para ampliar o reducir\" title=\"Arrastra para ampliar o reducir\" class=\"mx-auto mt-2 hidden h-6 w-16 place-items-cente",
+  "basin_rows": 4,
+  "basin_first": "Río Guadalquivir",
+  "cuenca_text": "Agua\n\nCuencas\n\nNieve y caudal por cuenca. Elige una en el mapa o en la lista.\n\nTodas las cuencas\nRío Guadalquivir\nSuperficie\n319,2 km² en el Parque Nacional\nAgua en la nieve (hm³)\nPendiente del modelo\n\nLas series de SWE y espesor por cuenca aparecerán cuando el modelo publique su primera temporada.",
+  "cuenca_axe": {
+   "violations": [],
+   "passes": 38
+  },
+  "cuenca_audit": {
+   "minFont": 12,
+   "minFontEl": " :: Nieve",
+   "capsTracked": [],
+   "backdrop": [],
+   "gradients": [],
+   "textShadow": [],
+   "colouredShadows": [],
+   "fontsLoaded": [
+    "Inter 400",
+    "Inter 500",
+    "Inter 600",
+    "Source Serif 4 600"
+   ],
+   "families": {
+    "Inter": 16,
+    "Source Serif 4": 2,
+    "Helvetica Neue": 1
+   }
+  },
+  "map_click_title": null,
+  "map_click_section": "Agua",
+  "console": [],
+  "failed": []
+ }
+}
