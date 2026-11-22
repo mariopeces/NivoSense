@@ -29,7 +29,7 @@ These are non-negotiable:
 
 6. **Spanish UI copy.** Everything the user reads on the site is in Spanish, in one language per screen (English may come later as an option). Code, identifiers, comments, commit messages and docs for developers stay in English.
 
-7. **Commit only within the scope Mario granted (Darwin rule, gate H0).** In `mariopeces/NivoSense`, for this plan only, agents may commit to their own branch, push it and open a PR. Builders and gauntlets never push to `main` and never merge: the coordinator squash-merges after every required gauntlet passes. Release tags (`v*`) are pushed only by the coordinator, on a merged `main` commit, and only for the T0.5 hotfix and at go-live (T5.4). Today `pages.yml` still deploys the live site hourly and on every push; from T0.7 on the live site's code deploys only from a release tag (the T0.5 hotfix is the one exception before go-live), while its data refresh keeps working as today until go-live. Outside this repo and this plan, agents do not commit on Mario's behalf.
+7. **Commit only within the scope Mario granted (Darwin rule, gate H0).** In `mariopeces/NivoSense`, for this plan only, agents may commit to their own branch, push it and open a PR. Builders and gauntlets never push to `main` and never merge: the coordinator squash-merges after every required gauntlet passes. Release tags (`v*`) are pushed only by the coordinator, on a merged `main` commit, and only for the T0.5 hotfix and at go-live (T5.4). `pages.yml` runs only on `main` (hourly and after the data pipelines) and deploys the newest release tag `vMAJOR.MINOR.PATCH` on `main`, so the live site's code changes only with a release while its data keeps refreshing until go-live (`docs/runbook.md` 2.2). Outside this repo and this plan, agents do not commit on Mario's behalf.
 
 8. **No secrets, no messages on Mario's behalf.** No keys, tokens or personal data in code, logs, PRs or published files; GitHub Actions reach GCP only through Workload Identity Federation. Never send an email or message to a person for Mario; outreach is prepared as a Gmail draft only.
 
@@ -117,7 +117,7 @@ Today the site is static (GitHub Pages). Every product is produced by a schedule
 | `snow-model.yml` | daily 07:40 | Sentinel-2 10 m snow and true colour, SWE and depth maps, basin snow volume | `snow-model` |
 | `snow-observation.yml` | daily 05:35 | GFSC from CDSE, skipped without credentials | `snow-observation-<run id>` |
 
-A scheduled run that fails opens or comments on a GitHub issue titled "Scheduled workflow failed: <name>".
+A scheduled run that fails opens or comments on a GitHub issue titled "Scheduled workflow failed: <name>". `Publish site` and `Staging site` report every failed run, whatever the trigger, under "Workflow failed: <name>".
 
 Regions are described by `regions/<id>.json` (id, name, basins GeoJSON, optional `snow_model` settings). The weather and snow pipelines take `--region` and contain nothing specific to Sierra Nevada. To add a mountain range: add the file, run `Snow model` with mode `calibrate`, review the artifact, and commit it as `regions/<id>.snow-calibration.json`. The daily `operate` mode refuses to publish volumes and maps until a calibration passes its held-out gate.
 
