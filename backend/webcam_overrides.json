@@ -1,0 +1,579 @@
+{
+  "generated_by": "scripts/webcam_bearing.py",
+  "generated_at": "2026-11-22T00:50:43+00:00",
+  "method": "Bearing, field of view and range from matching the photo skyline to the skyline rendered from the Copernicus GLO-30 DEM at the provider position (pinhole camera, curvature and refraction k=0.13). range_km is the median distance to the rendered skyline inside the field of view. Unsettled cameras have no bearing and wait for a person to confirm one; their fit block is the best candidate, not a bearing.",
+  "dem": "Copernicus DEM GLO-30 (copernicus-dem-30m on AWS Open Data), resampled to 30 m EPSG:32630",
+  "peaks": "OpenStreetMap natural=peak via the Overpass API, labels only",
+  "cameras": {
+    "dgt-316": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 1054,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/316.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-317": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 1219,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/317.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-318": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 1520,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/318.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-319": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 1700,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/319.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-320": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 1772,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/320.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-312": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 1975,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/312.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-313": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2098,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/313.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "dgt-321": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 753,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://etraffic.dgt.es/camarasEtraffic/321.jpg",
+        "captured_at": "2026-11-21T23:35:03+00:00",
+        "md5": "c92fb6440dc51109074769bcad5c7de9"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "cetursa-pradollano-c1": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": null,
+      "confidence": "unsettled",
+      "reason": "no sourced camera position"
+    },
+    "cetursa-15110-2": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2603,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15110/2.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T23:38:59+00:00",
+        "md5": "01aa3856a58d9b74272c0f551317be3d"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "cetursa-15110-4": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2603,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15110/4.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T23:38:59+00:00",
+        "md5": "01aa3856a58d9b74272c0f551317be3d"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "cetursa-15111-0": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2691,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15111/0.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:08:05+00:00",
+        "md5": "838688906657ecb280ee3a5d69fe0b1f"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 203.1,
+        "fov_deg": 34.9,
+        "pitch_deg": 7.38,
+        "roll_deg": -0.66,
+        "camera_height_m": 25.0,
+        "residual_px": 16.3,
+        "tolerance_px": 292.1,
+        "uniqueness_ratio": 1.24,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 0.65,
+        "peaks_in_view": []
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 1.2x as well (needs 2x)",
+      "comparison_image": "cetursa-15111-0.jpg"
+    },
+    "cetursa-15111-1": {
+      "bearing_deg": 125.5,
+      "fov_deg": 52.2,
+      "range_km": 2.13,
+      "elevation_m": 2691,
+      "confidence": "medium",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15111/1.jpeg?&ap=1&design=v3",
+        "captured_at": "2026-11-21T17:08:05+00:00",
+        "md5": "ac235a9400114f763903b820a0e97be0"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 125.5,
+        "fov_deg": 52.2,
+        "pitch_deg": 1.9,
+        "roll_deg": -0.03,
+        "camera_height_m": 3.0,
+        "residual_px": 5.3,
+        "tolerance_px": 63.2,
+        "uniqueness_ratio": 2.0,
+        "position_spread_deg": 3.78,
+        "consistent_shifted_positions": 6,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 2.13,
+        "peaks_in_view": [
+          "Pico del Veleta (2.7 km, OSM node 132963272)",
+          "Puntal de Loma Púa (3.0 km, OSM node 6217144118)",
+          "Tajos de la Virgen Oriental (3.0 km, OSM node 13541943128)"
+        ]
+      },
+      "comparison_image": "cetursa-15111-1.jpg"
+    },
+    "cetursa-15111-2": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2691,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15111/2.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:08:05+00:00",
+        "md5": "4c0b98ade9d00d7cf91565ae0ca7ddbb"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 80.4,
+        "fov_deg": 22.0,
+        "pitch_deg": 5.81,
+        "roll_deg": 0.5,
+        "camera_height_m": 25.0,
+        "residual_px": 3.8,
+        "tolerance_px": 286.2,
+        "uniqueness_ratio": 1.93,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 1.06,
+        "peaks_in_view": []
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 1.9x as well (needs 2x)",
+      "comparison_image": "cetursa-15111-2.jpg"
+    },
+    "cetursa-15111-3": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2691,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15111/3.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:08:05+00:00",
+        "md5": "651944ff7c9b3eec1d73645a1ae5cd0a"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 91.9,
+        "fov_deg": 22.3,
+        "pitch_deg": 7.31,
+        "roll_deg": 0.16,
+        "camera_height_m": 10.0,
+        "residual_px": 3.9,
+        "tolerance_px": 278.0,
+        "uniqueness_ratio": 1.06,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 1.08,
+        "peaks_in_view": []
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 1.1x as well (needs 2x)",
+      "comparison_image": "cetursa-15111-3.jpg"
+    },
+    "cetursa-15111-4": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2691,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15111/4.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:08:05+00:00",
+        "md5": "16c92e424a55668d89dfa400ec90a3f1"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 253.5,
+        "fov_deg": 29.8,
+        "pitch_deg": 2.59,
+        "roll_deg": -0.38,
+        "camera_height_m": 10.0,
+        "residual_px": 4.9,
+        "tolerance_px": 540.7,
+        "uniqueness_ratio": 3.0,
+        "position_spread_deg": 18.23,
+        "consistent_shifted_positions": 4,
+        "skyline_columns": 0.945,
+        "median_skyline_distance_km": 0.41,
+        "peaks_in_view": []
+      },
+      "reason": "bearing moves 18.2 deg when the camera moves 150 m",
+      "comparison_image": "cetursa-15111-4.jpg"
+    },
+    "cetursa-15112-0": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 3024,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://webtvhotspot.feratel.com/hotspot/35/15112/0.jpeg?design=v3",
+        "captured_at": "2026-11-21T17:09:37+00:00",
+        "md5": "09cc87d501ada0a5acff783db2cae4fb"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 14.6,
+        "fov_deg": 34.2,
+        "pitch_deg": -8.0,
+        "roll_deg": 1.34,
+        "camera_height_m": 10.0,
+        "residual_px": 4.4,
+        "tolerance_px": 374.1,
+        "uniqueness_ratio": 1.37,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 0.594,
+        "median_skyline_distance_km": 0.51,
+        "peaks_in_view": [
+          "Morros de Camaramarila (77.0 km, OSM node 1243100106)",
+          "Morro de Lastonar (78.0 km, OSM node 1243126146)",
+          "Morra del Peleo (76.7 km, OSM node 1243143647)",
+          "Morro de Cabacillas (77.4 km, OSM node 1243160229)",
+          "Peña Campanario (76.8 km, OSM node 1243160540)",
+          "Carboneras (78.1 km, OSM node 11871425576)"
+        ]
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 1.4x as well (needs 2x)",
+      "comparison_image": "cetursa-15112-0.jpg"
+    },
+    "cetursa-15112-1": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 3024,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15112/1.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:09:37+00:00",
+        "md5": "82b2db196682d1ba263588df04869028"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 42.0,
+        "fov_deg": 98.0,
+        "pitch_deg": -23.3,
+        "roll_deg": 9.0,
+        "camera_height_m": 3.0,
+        "residual_px": 8.5,
+        "tolerance_px": 112.2,
+        "uniqueness_ratio": 0.96,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 0.515,
+        "median_skyline_distance_km": 0.48,
+        "peaks_in_view": [
+          "Mágina (74.0 km, OSM node 26864642)",
+          "Morros de Camaramarila (77.0 km, OSM node 1243100106)",
+          "Morra del Peleo (76.7 km, OSM node 1243143647)",
+          "Peña de Jaén (74.0 km, OSM node 1243160210)",
+          "Morro de Cabacillas (77.4 km, OSM node 1243160229)",
+          "Peña Campanario (76.8 km, OSM node 1243160540)",
+          "La Peña (74.9 km, OSM node 8228529545)"
+        ]
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 1.0x as well (needs 2x)",
+      "comparison_image": "cetursa-15112-1.jpg"
+    },
+    "cetursa-15113-0": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2375,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15113/0.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:11:48+00:00",
+        "md5": "ac9fd1bd0e050db5433c7a0848169ffb"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 164.4,
+        "fov_deg": 55.3,
+        "pitch_deg": 5.79,
+        "roll_deg": -0.12,
+        "camera_height_m": 3.0,
+        "residual_px": 2.2,
+        "tolerance_px": 98.4,
+        "uniqueness_ratio": 2.88,
+        "position_spread_deg": 5.56,
+        "consistent_shifted_positions": 6,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 1.22,
+        "peaks_in_view": []
+      },
+      "reason": "bearing moves 5.6 deg when the camera moves 150 m",
+      "comparison_image": "cetursa-15113-0.jpg"
+    },
+    "cetursa-15113-1": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2375,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15113/1.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:11:48+00:00",
+        "md5": "06c6f980618a2fbded22fecceb64e689"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 157.6,
+        "fov_deg": 20.2,
+        "pitch_deg": 10.46,
+        "roll_deg": -0.41,
+        "camera_height_m": 10.0,
+        "residual_px": 4.5,
+        "tolerance_px": 252.3,
+        "uniqueness_ratio": 3.05,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 1.32,
+        "peaks_in_view": []
+      },
+      "reason": "field of view 20.2 deg at the edge of the searched range",
+      "comparison_image": "cetursa-15113-1.jpg"
+    },
+    "cetursa-15113-2": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2375,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15113/2.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:11:48+00:00",
+        "md5": "312d8c52b68faeffe1a4ffec01debdde"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 123.0,
+        "fov_deg": 27.7,
+        "pitch_deg": 9.2,
+        "roll_deg": -0.81,
+        "camera_height_m": 3.0,
+        "residual_px": 6.5,
+        "tolerance_px": 193.5,
+        "uniqueness_ratio": 1.11,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 1.26,
+        "peaks_in_view": []
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 1.1x as well (needs 2x)",
+      "comparison_image": "cetursa-15113-2.jpg"
+    },
+    "cetursa-15113-3": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2375,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15113/3.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:11:48+00:00",
+        "md5": "e7eccb45a62cf9c383f9aa28c1c0c677"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 165.6,
+        "fov_deg": 105.3,
+        "pitch_deg": -5.31,
+        "roll_deg": -1.94,
+        "camera_height_m": 10.0,
+        "residual_px": 3.5,
+        "tolerance_px": 45.6,
+        "uniqueness_ratio": 2.6,
+        "position_spread_deg": 9.52,
+        "consistent_shifted_positions": 3,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 1.17,
+        "peaks_in_view": [
+          "Pico del Veleta (4.7 km, OSM node 132963272)"
+        ]
+      },
+      "reason": "bearing moves 9.5 deg when the camera moves 150 m",
+      "comparison_image": "cetursa-15113-3.jpg"
+    },
+    "cetursa-15113-5": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2375,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15113/5.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-21T17:11:48+00:00",
+        "md5": "3152cc2939adf5b00fc15e1ed10ba9a1"
+      },
+      "elevation_source": "Copernicus GLO-30 at the provider position",
+      "fit": {
+        "bearing_deg": 192.6,
+        "fov_deg": 110.0,
+        "pitch_deg": -12.77,
+        "roll_deg": -0.56,
+        "camera_height_m": 3.0,
+        "residual_px": 11.8,
+        "tolerance_px": 84.7,
+        "uniqueness_ratio": 0.74,
+        "position_spread_deg": null,
+        "consistent_shifted_positions": null,
+        "skyline_columns": 1.0,
+        "median_skyline_distance_km": 0.53,
+        "peaks_in_view": []
+      },
+      "reason": "not unique: a bearing more than 10 deg away fits 0.7x as well (needs 2x)",
+      "comparison_image": "cetursa-15113-5.jpg"
+    },
+    "cetursa-15114-0": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2137,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15114/0.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-22T00:19:13+00:00",
+        "md5": "01aa3856a58d9b74272c0f551317be3d"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "cetursa-15114-1": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2137,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15114/1.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-22T00:19:13+00:00",
+        "md5": "01aa3856a58d9b74272c0f551317be3d"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    },
+    "cetursa-15114-2": {
+      "bearing_deg": null,
+      "fov_deg": null,
+      "range_km": null,
+      "elevation_m": 2137,
+      "confidence": "unsettled",
+      "frame": {
+        "url": "https://wtvhspt.feratel.com/hotspot/35/15114/2.jpeg?design=v5&dcsdesign=feratel4",
+        "captured_at": "2026-11-22T00:19:13+00:00",
+        "md5": "01aa3856a58d9b74272c0f551317be3d"
+      },
+      "reason": "no usable frame (provider placeholder)",
+      "elevation_source": "Copernicus GLO-30 at the provider position"
+    }
+  }
+}
