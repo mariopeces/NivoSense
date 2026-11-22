@@ -13,6 +13,8 @@ from pipelines.s2.mosaic import SCL_NOT_VALID
 NDSI_SNOW = 0.4
 RED_SNOW = 0.2
 SATURATED = 255
+# Accept line of the layer: RGB and snow masks align within one 20 m pixel.
+ALIGNED_M = 20.0
 CHIP = 256
 MIN_CHIP_VALID = 0.9
 # A chip without texture gives a meaningless correlation peak (flat water, uniform cloud).
@@ -106,9 +108,11 @@ def chip_shifts(
 def alignment(rgb: np.ndarray, l2a: dict[str, np.ndarray], snow: np.ndarray, resolution: float) -> dict[str, float]:
     """Displacement of the RGB against the 20 m L2A grid, in metres, over chips: the RGB green
     against the L2A green, and the RGB brightness against the snow stand-in mask (only chips
-    with a snow edge). Scores are the chip count, the median and the largest chip shift."""
+    with a snow edge). Scores per check: chip count, median, 90th percentile and largest chip
+    shift, and the share of chips within one 20 m pixel. A single chip can fail to correlate
+    (a weak or cloud-confused snow edge), so the median and the share carry the verdict."""
     factor = rgb.shape[1] // snow.shape[0]
-    valid_rgb = blocks((rgb > 0).all(axis=0), factor).all(axis=2)
+    valid_rgb = blocks(np.asarray((rgb > 0).all(axis=0)), factor).all(axis=2)
     green = blocks(rgb[1].astype("float32"), factor).mean(axis=2) / 255
     brightness = blocks(rgb.astype("float32").mean(axis=0), factor).mean(axis=2) / 255
     l2a_green = l2a["green"]
@@ -123,5 +127,7 @@ def alignment(rgb: np.ndarray, l2a: dict[str, np.ndarray], snow: np.ndarray, res
         if shifts:
             metres = np.hypot(*np.array(shifts).T) * resolution
             scores[f"shift_{name}_median_m"] = round(float(np.median(metres)), 2)
+            scores[f"shift_{name}_p90_m"] = round(float(np.percentile(metres, 90)), 2)
             scores[f"shift_{name}_max_m"] = round(float(metres.max()), 2)
+            scores[f"shift_{name}_within_20m"] = round(float(np.mean(metres < ALIGNED_M)), 4)
     return scores
