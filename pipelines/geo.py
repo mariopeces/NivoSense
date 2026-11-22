@@ -35,3 +35,4 @@ def bbox_from_geojson(path: Path) -> tuple[float, float, float, float]:
         raise ValueError(f"No coordinates found in {path}")
     longitudes, latitudes = zip(*points)
     return min(longitudes), min(latitudes), max(longitudes), max(latitudes)
+import os
