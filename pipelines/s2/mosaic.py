@@ -84,8 +84,10 @@ def to_grid_reflectance(raw: np.ndarray, scale: float, offset: float, factor: in
 
 
 def build_mosaic(acquisition: Acquisition, grid: Grid) -> Mosaic:
-    """Mosaic of every tile of one acquisition. Tiles of one datatake hold the same values
-    where they overlap, so each pixel takes the first tile, in name order, that has data."""
+    """Mosaic of every granule of one acquisition. Sen2Cor corrects each tile on its own, so
+    overlapping granules differ slightly (clear land, 2026-10/11: median |d| 0.0006 to 0.006
+    reflectance, p95 <= 0.016); each pixel takes the first granule with data in a fixed
+    order (tile name, then latest generation) so reruns give the same mosaic."""
     import rasterio
 
     jobs = [
