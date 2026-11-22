@@ -1,0 +1,66 @@
+{
+  "layer": "rgb",
+  "date": "2026-10-09",
+  "status": "observed",
+  "cog": "layers/rgb/2026/2026-10-09-62bd5dc03d2978c5.tif",
+  "pmtiles": "tiles/rgb/2026-10-09-62bd5dc03d2978c5.pmtiles",
+  "bounds": [
+    -3.645224,
+    36.911613,
+    -2.587058,
+    37.253547
+  ],
+  "crs": "EPSG:32630",
+  "resolution_m": 10,
+  "bands": [
+    "red",
+    "green",
+    "blue"
+  ],
+  "units": [
+    "1",
+    "1",
+    "1"
+  ],
+  "value_range": [
+    [
+      1,
+      255
+    ],
+    [
+      1,
+      255
+    ],
+    [
+      1,
+      255
+    ]
+  ],
+  "nodata": 0.0,
+  "source_ids": [
+    "S2C_30SVF_20261009_0_L1C",
+    "S2C_30SVG_20261009_0_L1C",
+    "S2C_30SWF_20261009_0_L1C",
+    "S2C_30SWG_20261009_0_L1C"
+  ],
+  "input_key": "4aae799bc5d1a5d95085a8d70ba5400cf3fb50d695e4cf5778ebf1ef0433f26a",
+  "pixel_hash": "2fec380ec54313c7202033d9eb6415a4177c99aff3aaaf184eaf768aba2866cb",
+  "code_version": "fa6a74574b27e8366c85c8592133ffd1c6f03dee",
+  "qa": {
+    "flags": [],
+    "scores": {
+      "snow_pixels_10m": 152.0,
+      "snow_saturated_red": 0.0,
+      "snow_saturated_green": 0.0,
+      "snow_saturated_blue": 0.0,
+      "snow_saturated_all": 0.0,
+      "shift_l2a_green_chips": 45.0,
+      "shift_l2a_green_median_m": 0.06,
+      "shift_l2a_green_p90_m": 0.09,
+      "shift_l2a_green_max_m": 0.12,
+      "shift_l2a_green_within_20m": 1.0,
+      "shift_snow_mask_chips": 0.0
+    }
+  },
+  "created_at": "2026-11-22T06:27:44.400+00:00"
+}
