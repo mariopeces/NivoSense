@@ -13,3 +13,7 @@ eccodes==2.*
 rio-pmtiles==1.2.2
 # Catalogue writes to Google Cloud Storage with generation preconditions (ifGenerationMatch).
 google-cloud-storage==3.17.*
+# IANA time zones for zoneinfo (Europe/Madrid in the freshness SLO); Windows has no system database.
+tzdata==2026.*
+# PMTiles reader for the QA harness (header checks and thumbnails); already installed by rio-pmtiles.
+pmtiles==3.8.*
