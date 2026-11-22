@@ -1,0 +1,152 @@
+name: Observation backfill
+
+# Observed snow cover (layer snow_obs) for past dates, one job per calendar month, published to the chosen
+# catalogue. Each month job is resumable (dates already in the catalogue are skipped, republish forces them)
+# and works in windows of a week, so a rerun of a failed month continues where it stopped. The catalogue index
+# is rebuilt once, after every month has finished. True colour is not part of the backfill.
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "First date, YYYY-MM-DD"
+        type: string
+        required: true
+      end:
+        description: "Last date, YYYY-MM-DD"
+        type: string
+        required: true
+      target:
+        type: choice
+        options: [staging, prod]
+        default: staging
+      republish:
+        description: "Redo dates that already have a catalogue entry"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      months: ${{ steps.months.outputs.months }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: months
+        env:
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import calendar, json, os
+          from datetime import date
+          start, end = date.fromisoformat(os.environ["START"]), date.fromisoformat(os.environ["END"])
+          if end < start:
+              raise SystemExit("end is before start")
+          months, year, month = [], start.year, start.month
+          while (year, month) <= (end.year, end.month):
+              first = max(start, date(year, month, 1))
+              last = min(end, date(year, month, calendar.monthrange(year, month)[1]))
+              months.append({"month": f"{year}-{month:02d}", "start": first.isoformat(), "end": last.isoformat()})
+              year, month = (year + 1, 1) if month == 12 else (year, month + 1)
+          if len(months) > 120:
+              raise SystemExit("at most 120 months per run")
+          print("months=" + json.dumps(months))
+          PY
+
+  observe:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.months) }}
+    concurrency:
+      group: observation-backfill-${{ inputs.target }}-${{ matrix.month }}
+      cancel-in-progress: false
+    env:
+      TARGET: ${{ inputs.target }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+      STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
+      DATA_BUCKET: ${{ vars.DATA_BUCKET }}
+      DATA_PREFIX: ${{ vars.DATA_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pipelines/requirements.lock
+      - run: pip install --require-hashes -r pipelines/requirements.lock
+
+      - name: Authenticate
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.TARGET == 'prod' && vars.GCP_SA_PROD || vars.GCP_SA_STAGING }}
+
+      - name: Backfill ${{ matrix.month }}
+        env:
+          REPUBLISH: ${{ inputs.republish }}
+        run: >-
+          python -m pipelines.snow_obs.backfill --domain data/domain.geojson
+          --start "${{ matrix.start }}" --end "${{ matrix.end }}"
+          --work work --static-cache work/static --target "$TARGET"
+          $( [ "$REPUBLISH" = "true" ] && echo --republish )
+
+      - name: Month summary
+        if: always()
+        run: |
+          if [ -f work/backfill-summary.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          rows = json.load(open("work/backfill-summary.json"))["dates"]
+          published = sum(r["in_catalogue"] for r in rows.values())
+          print(f"${{ matrix.month }}: {len(rows)} dates with a pass, {published} in the catalogue")
+          for day, r in sorted(rows.items()):
+              if not r["in_catalogue"]:
+                  print(f"- {day} not published: complete={r['complete']} observed={r['observed_fraction']}")
+          PY
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backfill-summary-${{ matrix.month }}
+          path: work/backfill-summary.json
+          if-no-files-found: ignore
+
+  rebuild-index:
+    needs: observe
+    if: ${{ !cancelled() && needs.observe.result != 'skipped' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    concurrency:
+      group: observation-backfill-index-${{ inputs.target }}
+      cancel-in-progress: false
+    env:
+      TARGET: ${{ inputs.target }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+      STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
+      DATA_BUCKET: ${{ vars.DATA_BUCKET }}
+      DATA_PREFIX: ${{ vars.DATA_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pipelines/requirements.lock
+      - run: pip install --require-hashes -r pipelines/requirements.lock
+      - name: Authenticate
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.TARGET == 'prod' && vars.GCP_SA_PROD || vars.GCP_SA_STAGING }}
+      - name: Rebuild the catalogue index
+        run: python -m pipelines.catalog rebuild-index --target "$TARGET"

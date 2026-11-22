@@ -28,7 +28,16 @@ from pathlib import Path
 
 from .domain import Domain, Grid, convex_hull, load_domain
 from .mosaic import REFLECTANCE_ASSETS, Mosaic, build_mosaic, domain_fractions
-from .stac import Acquisition, Fetch, expected_tiles, fetch_json, group_acquisitions, reference_window, search_items
+from .stac import (
+    COLLECTION,
+    Acquisition,
+    Fetch,
+    expected_tiles,
+    fetch_json,
+    group_acquisitions,
+    reference_window,
+    search_items,
+)
 
 # Twice the 10-day repeat of one satellite, so every orbit has passed at least twice
 # even with a single satellite operating.
@@ -47,6 +56,7 @@ class Record:
     date: str
     orbit: str
     datatake: str
+    collection: str
     tiles: list[str]
     expected_tiles: list[str]
     missing_tiles: list[str]
@@ -126,7 +136,9 @@ def write_rasters(folder: Path, mosaic: Mosaic, grid: Grid) -> None:
         target.set_band_description(2, "cloud")
 
 
-def process(candidates: list[Acquisition], expected: set[str], domain: Domain, out: Path) -> Record:
+def process(
+    candidates: list[Acquisition], expected: set[str], domain: Domain, out: Path, collection: str = COLLECTION
+) -> Record:
     """Builds the record of one date and orbit from its datatakes. Each datatake is mosaicked
     on its own: two overpasses minutes apart see different clouds, so blending them would put
     a seam in the mosaic and give fractions that belong to neither."""
@@ -147,6 +159,7 @@ def process(candidates: list[Acquisition], expected: set[str], domain: Domain, o
         date=chosen.day.isoformat(),
         orbit=chosen.orbit,
         datatake=chosen.datatake,
+        collection=collection,
         tiles=list(chosen.tiles),
         expected_tiles=sorted(expected),
         missing_tiles=missing,
@@ -214,20 +227,23 @@ def run(
     fetch: Fetch = fetch_json,
     catalogue_root: Path | None = None,
     version: str | None = None,
+    collection: str = COLLECTION,
+    reprocess: bool = True,
 ) -> list[dict]:
-    """Ingest every acquisition in [start, end] and in the last REPROCESS_DAYS days; returns
-    their records in date and orbit order."""
+    """Ingest every acquisition in [start, end] and in the last REPROCESS_DAYS days (unless
+    `reprocess` is off, as for a backfill of past dates); returns their records in date and orbit order."""
     today = today or datetime.now(timezone.utc).date()
     if catalogue_root is not None and version is None:
         version = code_version()
     domain = load_domain(domain_path)
     hull = convex_hull(domain.geometries)
     records: dict[tuple[str, str], dict] = {}
-    for window_start, window_end in search_windows(start, end, today):
+    windows = search_windows(start, end, today) if reprocess else [(start, end)]
+    for window_start, window_end in windows:
         reference_start, reference_end = reference_window(window_start, window_end, REFERENCE_DAYS)
         items = [
             item
-            for item in search_items(hull, reference_start, reference_end, fetch)
+            for item in search_items(hull, reference_start, reference_end, fetch, collection)
             if domain.touches(item["geometry"])
         ]
         acquisitions = group_acquisitions(items)
@@ -239,7 +255,7 @@ def run(
         for (day, orbit), candidates in sorted(passes.items()):
             rebuilt = not is_current(out, day, orbit, candidates, expected[orbit])
             if rebuilt:
-                process(candidates, expected[orbit], domain, out)
+                process(candidates, expected[orbit], domain, out, collection)
             record = json.loads(record_path(out, day, orbit).read_text(encoding="utf-8"))
             if catalogue_root is not None and (rebuilt or not decision_path(catalogue_root, day, orbit).exists()):
                 write_decision(catalogue_root, record, version or code_version())
@@ -253,11 +269,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--start", type=date.fromisoformat, required=True)
     parser.add_argument("--end", type=date.fromisoformat, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--collection", default=COLLECTION, help="Earth Search L2A collection to read")
+    parser.add_argument(
+        "--no-reprocess", action="store_true", help="skip the search of the last days (backfill of past dates)"
+    )
     parser.add_argument("--catalogue-root", type=Path, help="write pass decisions under <root>/s2/decisions/")
     args = parser.parse_args(argv)
     if args.end < args.start:
         parser.error("--end is before --start")
-    records = run(args.domain, args.start, args.end, args.out, catalogue_root=args.catalogue_root)
+    records = run(
+        args.domain,
+        args.start,
+        args.end,
+        args.out,
+        catalogue_root=args.catalogue_root,
+        collection=args.collection,
+        reprocess=not args.no_reprocess,
+    )
     for record in records:
         print(
             f"{record['date']} {record['orbit']} tiles={','.join(record['tiles'])} "

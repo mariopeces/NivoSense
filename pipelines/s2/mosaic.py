@@ -8,6 +8,9 @@ from .stac import Acquisition
 
 REFLECTANCE_ASSETS = ("green", "red", "swir16")
 CLASS_ASSETS = ("scl", "cloud")
+# Legacy collection items point `cloud` at a JP2 in a requester-pays bucket (or lack it); nothing downstream
+# of the ingest reads it, so such items give zeros.
+OPTIONAL_ASSETS = ("cloud",)
 READ_THREADS = 8
 GDAL_OPTIONS = {
     "GDAL_DISABLE_READDIR_ON_OPEN": "EMPTY_DIR",
@@ -94,6 +97,7 @@ def build_mosaic(acquisition: Acquisition, grid: Grid) -> Mosaic:
         (index, asset, item["assets"][asset]["href"])
         for index, item in enumerate(acquisition.items)
         for asset in REFLECTANCE_ASSETS + CLASS_ASSETS
+        if asset not in OPTIONAL_ASSETS or item["assets"].get(asset, {}).get("href", "").endswith(".tif")
     ]
     with rasterio.Env(**GDAL_OPTIONS):
         with ThreadPoolExecutor(READ_THREADS) as pool:
@@ -108,7 +112,8 @@ def build_mosaic(acquisition: Acquisition, grid: Grid) -> Mosaic:
         tile_scl = raw[(index, "scl")]
         take = (scl == SCL_NODATA) & (tile_scl != SCL_NODATA)
         scl[take] = tile_scl[take]
-        cloud[take] = raw[(index, "cloud")][take]
+        if (index, "cloud") in raw:
+            cloud[take] = raw[(index, "cloud")][take]
         for asset in REFLECTANCE_ASSETS:
             band = raw[(index, asset)]
             factor = band.shape[0] // grid.height

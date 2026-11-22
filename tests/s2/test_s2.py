@@ -290,6 +290,19 @@ def test_each_granule_uses_its_own_raster_bands_offset(tmp_path):
     assert np.allclose(mosaic.reflectance["swir16"][:, :50], 1100 * 0.0001)
 
 
+def test_a_legacy_cloud_asset_that_is_not_a_cog_is_left_unread(tmp_path):
+    """Legacy collection items point `cloud` at a JP2 in a requester-pays bucket that cannot be opened here."""
+    item = next(i for i in fixture_items() if i["id"] == "S2A_T30SVF_20261110T110234_L2A")
+    legacy = localise(item, tmp_path, scl=4, green=2000)
+    legacy["assets"]["cloud"]["href"] = "s3://sentinel-s2-l2a/tiles/30/S/VF/2022/1/13/1/qi/CLD_20m.jp2"
+    acquisition = group_acquisitions([legacy])[0]
+
+    mosaic = build_mosaic(acquisition, Grid("EPSG:32630", TILE_LEFT, TILE_TOP, 20.0, 100, 100))
+
+    assert np.all(mosaic.cloud == 0)
+    assert np.all(mosaic.scl[:, 50:] == 4)
+
+
 def run_offline(tmp_path: Path, items: list[dict], today: date) -> list[dict]:
     pages = [{"type": "FeatureCollection", "features": items, "links": []}]
     return ingest.run(
