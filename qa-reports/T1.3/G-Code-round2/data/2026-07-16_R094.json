@@ -1,0 +1,107 @@
+{
+ "date": "2026-07-16",
+ "orbit": "R094",
+ "record_datatake": "GS2B_20260716T105619_048883",
+ "record_listed": true,
+ "record_valid_fraction": 0.9866,
+ "record_scene_ids": [
+  "S2B_T30SVF_20260716T110817_L2A",
+  "S2B_T30SVG_20260716T110817_L2A",
+  "S2B_T30SWF_20260716T110817_L2A",
+  "S2B_T30SWG_20260716T110817_L2A"
+ ],
+ "record_alternatives": [],
+ "process_status": "published",
+ "process_timing": {
+  "search_s": 2.0,
+  "read_s": 22.9,
+  "publish_s": 164.5,
+  "total_s": 223.7
+ },
+ "l1c_datatakes_that_day": [
+  "GS2B_20260716T105619_048883_N05.12"
+ ],
+ "published_source_ids": [
+  "S2B_30SVF_20260716_0_L1C",
+  "S2B_30SVG_20260716_0_L1C",
+  "S2B_30SWF_20260716_0_L1C",
+  "S2B_30SWG_20260716_0_L1C"
+ ],
+ "published_source_datatakes": [
+  "GS2B_20260716T105619_048883"
+ ],
+ "rgb_datatake_matches_record": true,
+ "qa": {
+  "flags": [],
+  "scores": {
+   "snow_pixels_10m": 16328.0,
+   "snow_saturated_red": 0.0,
+   "snow_saturated_green": 0.0,
+   "snow_saturated_blue": 0.0,
+   "snow_saturated_all": 0.0,
+   "shift_l2a_green_chips": 45.0,
+   "shift_l2a_green_median_m": 0.02,
+   "shift_l2a_green_p90_m": 0.04,
+   "shift_l2a_green_max_m": 0.06,
+   "shift_l2a_green_within_20m": 1.0,
+   "shift_snow_mask_chips": 0.0
+  }
+ },
+ "rgb_pixel_sha256": "e5dc12c36468ea85393a337d65d6d3e234b02b682664fa7ef769a82349c3f436",
+ "green_r_vs_l2a": {
+  "record_datatake_l1c": 0.8602,
+  "pixels_20m": 4305971
+ },
+ "scl_cloud_pixels_20m": 56683,
+ "scl_cloud_bright_in_rgb": 0.0347,
+ "scl_veg_bare_bright_in_rgb": 0.0011,
+ "snow_px_10m": 16328,
+ "red": {
+  "all8_p": {
+   "1": 51,
+   "5": 54,
+   "50": 72,
+   "95": 88
+  },
+  "snow8_p": {
+   "1": 84,
+   "5": 94,
+   "50": 134,
+   "95": 162,
+   "99": 165
+  },
+  "snow_sat_255": 0.0
+ },
+ "green": {
+  "all8_p": {
+   "1": 53,
+   "5": 55,
+   "50": 68,
+   "95": 82
+  },
+  "snow8_p": {
+   "1": 80,
+   "5": 89,
+   "50": 130,
+   "95": 158,
+   "99": 161
+  },
+  "snow_sat_255": 0.0
+ },
+ "blue": {
+  "all8_p": {
+   "1": 40,
+   "5": 43,
+   "50": 57,
+   "95": 70
+  },
+  "snow8_p": {
+   "1": 68,
+   "5": 77,
+   "50": 118,
+   "95": 147,
+   "99": 151
+  },
+  "snow_sat_255": 0.0
+ }
+}

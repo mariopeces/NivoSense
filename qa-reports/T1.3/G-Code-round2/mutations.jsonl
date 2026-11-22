@@ -1,0 +1,42 @@
+{"set": "round1", "mutation": "stretch white to 1.0", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 12 passed, 9 warnings in 4.56s"}
+{"set": "round1", "mutation": "stretch white to TCI 0.4", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 12 passed, 9 warnings in 15.74s"}
+{"set": "round1", "mutation": "stretch black to 0", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 12 passed, 9 warnings in 20.86s"}
+{"set": "round1", "mutation": "stretch gamma constant to 1", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 12 passed, 9 warnings in 9.68s"}
+{"set": "round1", "mutation": "stretch bands swapped in render", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 12 passed, 9 warnings in 5.48s"}
+{"set": "round1", "mutation": "stretch scale 254 -> 255", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 9 passed in 1.67s"}
+{"set": "round1", "mutation": "grid_10m: width not multiplied", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 8 passed in 1.38s"}
+{"set": "round1", "mutation": "grid_10m: origin shifted half pixel", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 8 passed in 2.95s"}
+{"set": "round1", "mutation": "blocks: no swapaxes", "file": "pipelines/rgb_l1c/qa.py", "result": "caught", "pytest": "1 failed, 16 passed, 15 warnings in 5.84s"}
+{"set": "round1", "mutation": "mosaic: last tile wins", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 10 passed, 6 warnings in 14.01s"}
+{"set": "round1", "mutation": "mosaic: any band instead of all", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 13 passed, 15 warnings in 5.47s"}
+{"set": "round1", "mutation": "missing L1C: no warning logged", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 28.65s"}
+{"set": "round1", "mutation": "missing tiles: no warning logged", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 20.09s"}
+{"set": "round1", "mutation": "missing L1C: status renamed", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 33.37s"}
+{"set": "round1", "mutation": "CLI default source cdse", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 22 passed, 17 warnings in 41.08s"}
+{"set": "round1", "mutation": "run() default source cdse", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 22 passed, 17 warnings in 23.87s"}
+{"set": "round1", "mutation": "aws: signed requests", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 3 passed in 7.95s"}
+{"set": "round1", "mutation": "aws: requester pays on by default", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 3 passed in 1.18s"}
+{"set": "round1", "mutation": "allowed extensions .tif only", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 3 passed in 1.63s"}
+{"set": "round1", "mutation": "allowed extensions any", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 3 passed in 1.10s"}
+{"set": "round1", "mutation": "cdse: credentials not required", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 5 passed in 1.49s"}
+{"set": "round1", "mutation": "saturation flag threshold >= -> >", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 21 passed, 17 warnings in 42.80s"}
+{"set": "round1", "mutation": "saturation flag threshold 10%", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 21 passed, 17 warnings in 42.07s"}
+{"set": "round1", "mutation": "misaligned flag threshold 40 m", "file": "pipelines/rgb_l1c/qa.py", "result": "caught", "pytest": "1 failed, 18 passed, 15 warnings in 18.67s"}
+{"set": "round1", "mutation": "saturation counts 254", "file": "pipelines/rgb_l1c/qa.py", "result": "caught", "pytest": "1 failed, 16 passed, 15 warnings in 1.67s"}
+{"set": "round1", "mutation": "LIS NDSI 0.0", "file": "pipelines/rgb_l1c/qa.py", "result": "caught", "pytest": "1 failed, 15 passed, 15 warnings in 11.79s"}
+{"set": "round1", "mutation": "best orbit: smallest valid fraction", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 19 passed, 15 warnings in 1.95s"}
+{"set": "round1", "mutation": "unlisted records included", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 19 passed, 15 warnings in 13.10s"}
+{"set": "round2", "mutation": "datatake: back to first group of the day", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 1 passed in 1.26s"}
+{"set": "round2", "mutation": "datatake: first group of the record's orbit", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 1 passed in 1.81s"}
+{"set": "round2", "mutation": "datatake: same satellite prefix only", "file": "pipelines/rgb_l1c/source.py", "result": "SURVIVED", "pytest": "23 passed, 17 warnings in 30.05s"}
+{"set": "round2", "mutation": "datatake: same timestamp day only", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 1 passed in 1.64s"}
+{"set": "round2", "mutation": "datatake: last matching group", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed, 1 passed in 1.18s"}
+{"set": "round2", "mutation": "process passes orbit not datatake", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 31.59s"}
+{"set": "round2", "mutation": "alignment_unchecked never raised", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 16 warnings in 17.63s"}
+{"set": "round2", "mutation": "alignment_unchecked: chips<1 reads as aligned (old rule)", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 21 passed, 17 warnings in 21.55s"}
+{"set": "round2", "mutation": "missing-L1C warning drops the datatake", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 27.09s"}
+{"set": "round2", "mutation": "missing tiles: computed backwards", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 32.13s"}
+{"set": "round2", "mutation": "L1C collection is L2A", "file": "pipelines/rgb_l1c/source.py", "result": "caught", "pytest": "1 failed in 3.30s"}
+{"set": "round2", "mutation": "published value_range 0..255", "file": "pipelines/rgb_l1c/run.py", "result": "caught", "pytest": "1 failed, 20 passed, 17 warnings in 40.88s"}
+{"set": "round2", "mutation": "display alpha ignores one band", "file": "pipelines/rgb_l1c/run.py", "result": "SURVIVED", "pytest": "23 passed, 17 warnings in 34.31s"}
+{"set": "round2", "mutation": "stretch: missing reflectance not marked nodata", "file": "pipelines/rgb_l1c/render.py", "result": "caught", "pytest": "1 failed, 9 passed in 1.54s"}

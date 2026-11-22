@@ -1,0 +1,114 @@
+{
+ "date": "2026-02-06",
+ "orbit": "R094",
+ "record_datatake": "GS2B_20260206T110129_046595",
+ "record_listed": false,
+ "record_valid_fraction": 0.0197,
+ "record_scene_ids": [
+  "S2B_T30SVF_20260206T110725_L2A",
+  "S2B_T30SVG_20260206T110725_L2A",
+  "S2B_T30SWF_20260206T110725_L2A",
+  "S2B_T30SWG_20260206T110725_L2A"
+ ],
+ "record_alternatives": [
+  "GS2A_20260206T110621_055504"
+ ],
+ "process_status": "published",
+ "process_timing": {
+  "search_s": 8.1,
+  "read_s": 58.4,
+  "publish_s": 500.2,
+  "total_s": 675.4
+ },
+ "l1c_datatakes_that_day": [
+  "GS2A_20260206T110621_055504_N05.12",
+  "GS2B_20260206T110129_046595_N05.12"
+ ],
+ "published_source_ids": [
+  "S2B_30SVF_20260206_1_L1C",
+  "S2B_30SVG_20260206_1_L1C",
+  "S2B_30SWF_20260206_1_L1C",
+  "S2B_30SWG_20260206_1_L1C"
+ ],
+ "published_source_datatakes": [
+  "GS2B_20260206T110129_046595"
+ ],
+ "rgb_datatake_matches_record": true,
+ "qa": {
+  "flags": [],
+  "scores": {
+   "snow_pixels_10m": 628.0,
+   "snow_saturated_red": 0.0,
+   "snow_saturated_green": 0.0,
+   "snow_saturated_blue": 0.0,
+   "snow_saturated_all": 0.0,
+   "shift_l2a_green_chips": 45.0,
+   "shift_l2a_green_median_m": 0.06,
+   "shift_l2a_green_p90_m": 0.2,
+   "shift_l2a_green_max_m": 0.39,
+   "shift_l2a_green_within_20m": 1.0,
+   "shift_snow_mask_chips": 0.0
+  }
+ },
+ "rgb_pixel_sha256": "b9e3a727c767f926ed28178cdd21eadd7fde412bfe4fed2192d184e5f8864de7",
+ "green_r_vs_l2a": {
+  "record_datatake_l1c": 0.9954,
+  "pixels_20m": 4305971,
+  "GS2A_20260206T110621_055504": 0.9498
+ },
+ "scl_cloud_pixels_20m": 4177473,
+ "scl_cloud_bright_in_rgb": 0.9678,
+ "scl_veg_bare_bright_in_rgb": 0.0041,
+ "scl_cloud_bright_in_other_rgb": {
+  "GS2A_20260206T110621_055504": 0.969
+ },
+ "snow_px_10m": 628,
+ "red": {
+  "all8_p": {
+   "1": 55,
+   "5": 96,
+   "50": 176,
+   "95": 199
+  },
+  "snow8_p": {
+   "1": 167,
+   "5": 176,
+   "50": 190,
+   "95": 198,
+   "99": 198
+  },
+  "snow_sat_255": 0.0
+ },
+ "green": {
+  "all8_p": {
+   "1": 58,
+   "5": 98,
+   "50": 181,
+   "95": 204
+  },
+  "snow8_p": {
+   "1": 171,
+   "5": 181,
+   "50": 195,
+   "95": 203,
+   "99": 204
+  },
+  "snow_sat_255": 0.0
+ },
+ "blue": {
+  "all8_p": {
+   "1": 55,
+   "5": 98,
+   "50": 184,
+   "95": 207
+  },
+  "snow8_p": {
+   "1": 176,
+   "5": 185,
+   "50": 198,
+   "95": 206,
+   "99": 207
+  },
+  "snow_sat_255": 0.0
+ }
+}
