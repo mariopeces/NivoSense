@@ -1,0 +1,5 @@
+head 9f7499a, full suite (92 tests):
+CAUGHT   play: steps every day instead of data days
+CAUGHT   play: never stops at the end
+CAUGHT   play: frame 0 ms
+MISSED   app: shared date ignored, always latest

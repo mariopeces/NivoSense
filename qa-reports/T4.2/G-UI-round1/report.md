@@ -1,8 +1,28 @@
 # T4.2 Timeline: G-UI and G-Code, round 1
 
-PR #31, head 345f466 (unchanged since dispatch). Only T4.2's commit 4bbf31e was judged; `git diff 4bbf31e 345f466 -- frontend/src` is empty.
+PR #31. I was dispatched at head 345f466 (T4.2 commit 4bbf31e). The head moved to **9f7499a** during the review, and the verdicts below are on 9f7499a.
 
-**G-UI: fail** (2 major). **G-Code: fail** (1 major).
+What changed for T4.2 between the two heads:
+- The calendar focus fix in `Timeline.tsx`.
+- `Timeline.test.tsx`, which arrived with merge 2a3dd03.
+- The `mapInset` sizes in `App.tsx`, now from tokens.
+
+The rest is the stacked branches. I re-checked 9f7499a with a new build and render (`head-9f7499a/`), plus `npm ci`, typecheck, lint, 3 full test runs and the play and App mutants again.
+
+**G-UI: fail** (M1 and M2 still reproduce on 9f7499a). **G-Code: pass** on 9f7499a. On 345f466 G-Code was a fail: the play timer had no test (G1). The new `Timeline.test.tsx` catches all three play breaks.
+
+| On 9f7499a | Result |
+|---|---|
+| typecheck / lint | exit 0; 0 errors (1 warning from before this branch, Map.tsx:227) |
+| vitest | 92/92 in each of 3 runs |
+| Play mutants (step every day, never stop, 0 ms frame) | all 3 caught |
+| App mutant (shared `d` ignored) | missed (minor) |
+| Render: keyboard scrub, play, calendar, links, console, axe | same results as below. Calendar focus now stays on 10 Nov when the mouse moves over the track (m1 fixed). axe 0 violations in 8 states. 0 console errors with the real catalogue |
+| M1 (no Hoy label or forecast slot), M2 (21x44 px mobile step buttons) | still present (`head-9f7499a/detail.txt`, `head-9f7499a/10-1440-track-end-3x.png`, `head-9f7499a/11-375-timeline-2x.png`) |
+
+The empty (404) and error (403) states in `head-9f7499a/results.json` reuse the 345f466 bundles. The only T4.2 code change in between is the calendar effect, which those states do not render.
+
+The sections below are the original round on 345f466.
 
 ## How it was checked
 
@@ -51,11 +71,11 @@ PR #31, head 345f466 (unchanged since dispatch). Only T4.2's commit 4bbf31e was 
 - That is under the 44 px touch size the class asks for and under the 24 px minimum of WCAG 2.2 SC 2.5.8.
 - To pass: prevent shrinking (`shrink-0`) or give the left column room, then re-measure 44x44 at 375.
 
-**G1 (G-Code, major): play has no test.** The timer effect in Timeline.tsx:64-77 (step to the next day with data, stop at the end, frame duration) is new behaviour, and three deliberate breaks of it pass the suite.
+**G1 (G-Code, major on 345f466; fixed on 9f7499a, where Timeline.test.tsx catches all three breaks): play has no test.** The timer effect in Timeline.tsx:64-77 (step to the next day with data, stop at the end, frame duration) is new behaviour, and three deliberate breaks of it pass the suite.
 - To pass: extract the next-frame choice into a pure function with tests, and/or add a component test with fake timers that checks the 800 ms step, skipping empty days, and stopping at the last date.
 
 **Minor (follow-ups, not blocking):**
-- **m1. Calendar focus jumps.** With focus on 10 Nov in the calendar, moving the mouse over the track sends focus back to 20 Nov. Cause: the effect in Timeline.tsx:376-383 depends on the inline `onClose`, so every Timeline re-render (hover state) runs it again and refocuses the pressed day. Focus once on mount, or keep `onClose` stable.
+- **m1. Calendar focus jumps (fixed on 9f7499a).** With focus on 10 Nov in the calendar, moving the mouse over the track sends focus back to 20 Nov. Cause: the effect in Timeline.tsx:376-383 depends on the inline `onClose`, so every Timeline re-render (hover state) runs it again and refocuses the pressed day. Focus once on mount, or keep `onClose` stable.
 - **m2. Empty state controls.** Spec 4.2 says "Última" and the calendar stay visible but disabled in the empty state. The build drops them (`09-1440-e404.png` against the `vacio` mockup).
 - **m3. Disabled button style.** Spec 4.2 says disabled buttons have a dashed `line` border on `panel-soft`. The timeline's disabled buttons keep the solid border with grey text.
 - **m4. Strip at the end of the track.** One-day status segments with a 1.5 px border are about 3 px wide at 1440, so the clear-pass cluster renders as "( (" glyphs (`10-1440-track-end-3x.png`). Consider no border radius or border under about 4 px per day.
@@ -69,11 +89,11 @@ PR #31, head 345f466 (unchanged since dispatch). Only T4.2's commit 4bbf31e was 
   "gauntlet": "G-UI",
   "task": "T4.2",
   "round": 1,
+  "head": "9f7499a",
   "verdict": "fail",
   "findings": [
-    {"severity": "major", "where": "frontend/src/components/Timeline.tsx:263-277; 1440 and 375; real T0.4 catalogue", "what": "No visible 'Hoy' label and no forecast slot: the slot exists only when the catalogue has forecast entries and is per-day scaled (about 8 px for 5 days); 'Hoy' is only a title on an aria-hidden line at the track's right edge. Spec 4.2 and the timeline mockups require a 64 px minimum slot labelled 'Previsión' and a visible 'Hoy' label.", "observed": "own render: innerText of the track has neither 'Hoy' nor 'Previsión'; today line x = track right; screenshots 01b, 10, 11", "to_pass": "always render the forecast slot (min space-16, pending on panel-soft when no forecast, prevision_slot_pendiente copy), visible 'Hoy' label, month labels near Hoy dropped"},
+    {"severity": "major", "where": "frontend/src/components/Timeline.tsx:263-277 (head 9f7499a, same code); 1440 and 375; real T0.4 catalogue", "what": "No visible 'Hoy' label and no forecast slot: the slot exists only when the catalogue has forecast entries and is per-day scaled (about 8 px for 5 days); 'Hoy' is only a title on an aria-hidden line at the track's right edge. Spec 4.2 and the timeline mockups require a 64 px minimum slot labelled 'Previsión' and a visible 'Hoy' label.", "observed": "own render: innerText of the track has neither 'Hoy' nor 'Previsión'; today line x = track right; screenshots 01b, 10, 11", "to_pass": "always render the forecast slot (min space-16, pending on panel-soft when no forecast, prevision_slot_pendiente copy), visible 'Hoy' label, month labels near Hoy dropped"},
     {"severity": "major", "where": "frontend/src/components/Timeline.tsx:29-31,168-198; 375x812", "what": "Previous, play and next buttons render 21x44 px on mobile: max-md:w-touch is shrunk by the flex column, below the 44 px touch size and the WCAG 2.2 2.5.8 24 px minimum", "observed": "getBoundingClientRect at 375: 21x44 for all three; screenshot 11-375-timeline-2x.png", "to_pass": "buttons keep 44x44 at 375 (shrink-0 or room in the column), re-measured"},
-    {"severity": "minor", "where": "Timeline.tsx:376-383; calendar open at 1440", "what": "Focus jumps back to the selected day whenever Timeline re-renders (e.g. hovering the track), because the effect depends on the inline onClose", "observed": "focus on 10 Nov -> mouse over track -> focus on 20 Nov", "to_pass": "focus once on mount or keep onClose stable"},
     {"severity": "minor", "where": "Timeline.tsx:99-108; empty state 1440 and 375", "what": "Empty state omits the disabled 'Última' and calendar buttons the spec (4.2) and the vacio mockup show", "observed": "09-1440-e404.png vs docs/design/screenshots/mockups/vacio-1440.webp", "to_pass": "render both disabled"},
     {"severity": "minor", "where": "Timeline.tsx:29-34", "what": "Disabled buttons keep a solid border; spec 4.2 asks for a dashed line border on panel-soft", "observed": "screenshots 01b, 11", "to_pass": "disabled style per spec"},
     {"severity": "minor", "where": "Timeline.tsx:38-45,234-242; 1440", "what": "About 3 px one-day segments with a 1.5 px border and radius render as '( (' glyph clusters near the clear passes", "observed": "10-1440-track-end-3x.png", "to_pass": "no border or radius on very narrow segments"},
@@ -88,14 +108,13 @@ PR #31, head 345f466 (unchanged since dispatch). Only T4.2's commit 4bbf31e was 
   "gauntlet": "G-Code",
   "task": "T4.2",
   "round": 1,
-  "verdict": "fail",
+  "head": "9f7499a",
+  "verdict": "pass",
   "findings": [
-    {"severity": "major", "where": "frontend/src/components/Timeline.tsx:64-77", "what": "The play timer (step to the next day with data, stop at the end, frame duration from the token) has no test; three deliberate breaks pass the suite", "observed": "mutations: play steps every day, play never stops, frame 0 ms: vitest src/lib src/components passes for each (qa-reports/T4.2/G-UI-round1/mutations-batch1.txt)", "to_pass": "pure next-frame function with tests and/or a fake-timer component test covering the 800 ms step, skipping empty days and stopping at the last date; the three breaks then fail"},
-    {"severity": "minor", "where": "frontend/src/App.tsx:217-225", "what": "The shared-link date wiring (keep d when it is on the track) is not covered; replacing current ?? initialUrl.date with current passes the suite", "observed": "mutation run twice on the full suite, both missed", "to_pass": "extract the choice into a tested helper"},
-    {"severity": "minor", "where": "Timeline.tsx:376-383", "what": "Calendar useEffect depends on an inline onClose, so it re-runs (refocus, listener re-bind) on every parent render", "observed": "focus jump reproduced in the browser (G-UI m1)", "to_pass": "stable callback or a mount-only focus effect"},
-    {"severity": "minor", "where": "Timeline.tsx:44,238", "what": "A pending forecast segment gets bg-panel and bg-panel-soft together; CSS order decides which wins", "observed": "code read", "to_pass": "one background class per state"},
-    {"severity": "minor", "where": "frontend/eslint/no-hard-coded-colour.test.js (T0.6, outside T4.2)", "what": "Flaky: 1 of 4 full runs failed the 'bg-navy text-slate-100 #section' valid case", "observed": "vitest runs on 345f466", "to_pass": "follow-up on the T0.6 rule test"}
+    {"severity": "minor", "where": "frontend/src/App.tsx (shared-link date selection effect)", "what": "The shared-link date wiring (keep d when it is on the track) is not covered; replacing current ?? initialUrl.date with current passes all 92 tests", "observed": "mutation on 9f7499a, full suite, missed", "to_pass": "extract the choice into a tested helper or add an App test with ?d="},
+    {"severity": "minor", "where": "Timeline.tsx:44,238", "what": "A pending forecast segment gets bg-panel and bg-panel-soft together; CSS order decides which wins", "observed": "code read", "to_pass": "one background class per state (relevant once G-UI M1 adds the slot)"},
+    {"severity": "minor", "where": "frontend/eslint/no-hard-coded-colour.test.js (T0.6, outside T4.2)", "what": "Flaky on 345f466: 1 of 4 full runs failed the 'bg-navy text-slate-100 #section' valid case; 0 of 3 on 9f7499a", "observed": "vitest runs", "to_pass": "follow-up on the T0.6 rule test"}
   ],
-  "followups": ["eslint/no-hard-coded-colour.test.js flakiness (T0.6)"]
+  "followups": ["On 345f466 the play timer was untested (3 breaks passed); fixed on 9f7499a by Timeline.test.tsx", "Calendar refocus on parent re-render fixed on 9f7499a"]
 }
 ```

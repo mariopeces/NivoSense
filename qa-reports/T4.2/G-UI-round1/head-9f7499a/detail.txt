@@ -1,0 +1,3 @@
+{"titled": [{"title": "Hoy", "text": "", "left": "100%"}], "todayLineX": [1218.28125], "cursorX": [1204.15625], "trackRight": 1218.28125, "visibleHoyText": false, "visiblePrevision": false}
+[["Fecha anterior con datos", 21, 44], ["Reproducir", 21, 44], ["Fecha siguiente con datos", 21, 44], ["Última", 90, 44], ["Elegir en el calendario", 44, 44]]
+text under 12px: []
