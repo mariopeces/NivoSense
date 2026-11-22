@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "region": "sierra-nevada",
+  "created_at": "2026-11-22T23:36:57+00:00",
+  "method": "leave-one-season-out CRPS of the prior predictive fSCA, importance reweighting of a wide base ensemble (pipelines/snow_model_v2/tuning.py)",
+  "water_years": [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "priors": {
+    "b0_median": 1.0,
+    "b0_cv": 0.4,
+    "dT_sd": 1.5
+  },
+  "all_season_crps": 0.030867213249688292,
+  "folds": [
+    {
+      "held_out": 2020,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.25,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.02943020559082359,
+      "held_out_crps_tuned": 0.03978249435074506,
+      "held_out_crps_default": 0.039403680715880934
+    },
+    {
+      "held_out": 2021,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.6,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.030485779084290024,
+      "held_out_crps_tuned": 0.03347093148263633,
+      "held_out_crps_default": 0.032952244320423096
+    },
+    {
+      "held_out": 2022,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.4,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.030445208149756167,
+      "held_out_crps_tuned": 0.03339924384928103,
+      "held_out_crps_default": 0.03339924384928103
+    },
+    {
+      "held_out": 2023,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.4,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.03126132545545298,
+      "held_out_crps_tuned": 0.028502540015100157,
+      "held_out_crps_default": 0.028502540015100157
+    },
+    {
+      "held_out": 2024,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.25,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.030475399259822775,
+      "held_out_crps_tuned": 0.03351133233674996,
+      "held_out_crps_default": 0.03285546972315679
+    },
+    {
+      "held_out": 2025,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.4,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.031248993324068868,
+      "held_out_crps_tuned": 0.02857653280340482,
+      "held_out_crps_default": 0.02857653280340482
+    },
+    {
+      "held_out": 2026,
+      "tuned": {
+        "b0_median": 1.0,
+        "b0_cv": 0.4,
+        "dT_sd": 1.5
+      },
+      "train_crps": 0.03261495190454114,
+      "held_out_crps_tuned": 0.0203807813205712,
+      "held_out_crps_default": 0.0203807813205712
+    }
+  ],
+  "fold_spread": {
+    "b0_median": {
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0,
+      "sd": 0.0
+    },
+    "b0_cv": {
+      "min": 0.25,
+      "max": 0.6,
+      "mean": 0.3857142857142857,
+      "sd": 0.10926470386270253
+    },
+    "dT_sd": {
+      "min": 1.5,
+      "max": 1.5,
+      "mean": 1.5,
+      "sd": 0.0
+    }
+  }
+}
