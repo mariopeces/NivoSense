@@ -33,10 +33,23 @@ def validate(dist: Path, config: dict[str, Any]) -> list[str]:
         return [f"{catalog_path} is not a list"]
 
     west, south, east, north = config["region"]["bbox"]
+    # Providers whose cams are listed only while they pass the check, with the page
+    # their credit must link to.
+    live_only = {
+        source.get("provider", source["id"]): source.get("page", source["url"])
+        for source in config["sources"]
+        if source.get("live_only") and source.get("enabled", True)
+    }
     errors: list[str] = []
     seen: set[str] = set()
     for camera in cameras:
         cid = camera.get("id")
+        provider = camera.get("provider")
+        if provider in live_only:
+            if camera.get("status") != "live":
+                errors.append(f"{cid}: {provider} cam listed without passing the check")
+            if camera.get("source_url") != live_only[provider]:
+                errors.append(f"{cid}: credit links to {camera.get('source_url')!r}, not {live_only[provider]!r}")
         if not cid or cid in seen:
             errors.append(f"missing or duplicate id: {cid!r}")
         seen.add(cid)

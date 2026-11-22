@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import ClassVar
 from unittest import mock
+from urllib.parse import urlparse
 
 from backend.ingest_webcams import (
     DEFAULT_CONFIG,
@@ -60,6 +61,14 @@ def without_md5(body: bytes) -> mock._patch:
 def cetursa_source() -> dict:
     config = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8"))
     return next(source for source in config["sources"] if source["id"] == "cetursa")
+
+
+DGT_PAGE = "https://www.dgt.es/conoce-el-estado-del-trafico/camaras-de-trafico/"
+
+
+def dgt_source() -> dict:
+    return {"id": "dgt", "type": "datex2", "url": "https://example.test/feed.xml", "page": DGT_PAGE,
+            "attribution": "DGT", "provider": "DGT", "live_only": True}
 
 
 def feratel_camera(camera_id: str = "cetursa-15111-0") -> dict:
@@ -375,8 +384,7 @@ class BuildCatalogTest(unittest.TestCase):
 
     def test_feed_outage_leaves_other_sources_ingesting(self) -> None:
         config = self.config(["cetursa-15111-0"])
-        config["sources"].insert(0, {"id": "dgt", "type": "datex2", "url": "https://example.test/feed.xml",
-                                     "attribution": "DGT", "provider": "DGT"})
+        config["sources"].insert(0, dgt_source())
 
         def feed_down(url: str) -> bytes:
             raise urllib.error.URLError("Name or service not known")
@@ -389,8 +397,7 @@ class BuildCatalogTest(unittest.TestCase):
 
     def test_malformed_feed_leaves_other_sources_ingesting(self) -> None:
         config = self.config(["cetursa-15111-0"])
-        config["sources"].insert(0, {"id": "dgt", "type": "datex2", "url": "https://example.test/feed.xml",
-                                     "attribution": "DGT", "provider": "DGT"})
+        config["sources"].insert(0, dgt_source())
 
         cameras, _ = build_catalog(config, self.store, lambda url: jpeg(FERATEL_FRAME), lambda url: b"<payload>")
 
@@ -414,6 +421,84 @@ class BuildCatalogTest(unittest.TestCase):
 
         self.assertEqual(cameras[0]["large_url"], cameras[0]["thumbnail_url"])
         self.assertEqual(len(list(Path(self.tmp.name).rglob("*.jpg"))), 1)
+
+
+class LiveOnlySourceTest(unittest.TestCase):
+    """DGT cams are listed only while their image passes the check (task T3.2)."""
+
+    FEED_TWO = FEED.replace(
+        '<device:device id="outside">',
+        """<device:device id="313">
+    <device:typeOfDevice>camera</device:typeOfDevice>
+    <loc:latitude>37.15</loc:latitude>
+    <loc:longitude>-3.5</loc:longitude>
+    <ext:deviceUrl>https://example.test/313.jpg</ext:deviceUrl>
+  </device:device>
+  <device:device id="outside">""",
+    )
+
+    def setUp(self) -> None:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.store = LocalStillStore(self.root, "data/webcam-stills/")
+        source = cetursa_source()
+        source["cameras"] = [c for c in source["cameras"] if c["id"] == "cetursa-15110-2"]
+        self.config = {"region": {"bbox": list(BBOX)}, "sources": [dgt_source(), source]}
+
+    def run_ingest(self, dgt_312: bytes) -> tuple[list[dict], list[dict]]:
+        def fetch(url: str) -> ImageResponse:
+            if url.endswith("/312.jpg"):
+                return jpeg(dgt_312)
+            if url.endswith("/313.jpg"):
+                return jpeg(FERATEL_FRAME_OTHER)
+            return jpeg(FERATEL_PLACEHOLDER)
+
+        return build_catalog(self.config, self.store, fetch, lambda url: self.FEED_TWO.encode())
+
+    def test_placeholder_dgt_cam_is_dropped_and_logged(self) -> None:
+        cameras, log = self.run_ingest(DGT_PLACEHOLDER)
+
+        self.assertEqual(
+            [(c["id"], c["status"]) for c in cameras],
+            [("dgt-313", "live"), ("cetursa-15110-2", "offline")],
+        )
+        record = next(r for r in log if r["id"] == "dgt-312")
+        self.assertEqual((record["catalogue"], record["problem"]), ("dropped", "provider placeholder"))
+        self.assertEqual({r["id"]: r["catalogue"] for r in log if r["catalogue"] == "kept"},
+                         {"dgt-313": "kept", "cetursa-15110-2": "kept"})
+        self.assertEqual([p.parent.name for p in self.root.rglob("*.jpg")], ["dgt-313"])
+
+    def test_unfingerprinted_dgt_placeholder_is_dropped(self) -> None:
+        with without_md5(DGT_PLACEHOLDER):
+            cameras, log = self.run_ingest(DGT_PLACEHOLDER)
+
+        self.assertNotIn("dgt-312", [c["id"] for c in cameras])
+        self.assertIn("dHash", next(r for r in log if r["id"] == "dgt-312")["problem"])
+
+    def test_every_run_checks_again(self) -> None:
+        first, _ = self.run_ingest(DGT_PLACEHOLDER)
+        second, _ = self.run_ingest(FERATEL_FRAME)
+
+        self.assertNotIn("dgt-312", [c["id"] for c in first])
+        self.assertEqual(next(c for c in second if c["id"] == "dgt-312")["status"], "live")
+
+    def test_credit_links_to_the_dgt_page_and_position_to_the_feed(self) -> None:
+        cameras, _ = self.run_ingest(FERATEL_FRAME)
+
+        dgt = next(c for c in cameras if c["id"] == "dgt-312")
+        self.assertEqual(dgt["source_url"], DGT_PAGE)
+        self.assertEqual(dgt["position_source"], "https://example.test/feed.xml")
+
+    def test_shipped_config(self) -> None:
+        config = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+        dgt = next(source for source in config["sources"] if source["id"] == "dgt")
+
+        self.assertTrue(dgt["live_only"])
+        self.assertEqual(urlparse(dgt["page"]).netloc, "www.dgt.es")
+        self.assertFalse(dgt["page"].endswith(".xml"))
+        # Bounds of data/domain.geojson (task T2.1), which contain the hackathon bbox.
+        self.assertEqual(config["region"]["bbox"], [-3.6433, 36.9129, -2.5885, 37.2532])
 
 
 class ClockTest(unittest.TestCase):
