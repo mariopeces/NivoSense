@@ -64,6 +64,26 @@ def test_no_acquisition_for_another_datatake_or_untouched_granules():
     assert source.find_acquisition(hull, date(2026, 11, 10), DATATAKE, lambda g: False, PagedFetch(pages)) is None
 
 
+def test_two_datatakes_on_one_orbit_take_the_one_the_record_kept():
+    # 2026-02-06 R094: S2A and S2B both passed the orbit. pipelines.s2 keeps GS2B (larger valid
+    # fraction, 0.0197 vs 0.0162), which sorts second; taking the first group would give the
+    # RGB of the other overpass.
+    pages = json.loads((FIXTURE.parent / "earth_search_l1c_2026-02-06.json").read_text(encoding="utf-8"))["pages"]
+    hull = {"type": "Polygon", "coordinates": [[[-3.5, 37.0], [-3.0, 37.0], [-3.0, 37.2], [-3.5, 37.0]]]}
+    kept = "GS2B_20260206T110129_046595"
+
+    acquisition = source.find_acquisition(hull, date(2026, 2, 6), kept, lambda g: True, PagedFetch(pages))
+
+    assert acquisition is not None
+    assert acquisition.datatake == kept and acquisition.orbit == "R094"
+    assert acquisition.scene_ids == (
+        "S2B_30SVF_20260206_1_L1C",
+        "S2B_30SVG_20260206_1_L1C",
+        "S2B_30SWF_20260206_1_L1C",
+        "S2B_30SWG_20260206_1_L1C",
+    )
+
+
 def test_aws_reads_unsigned_and_allows_jp2():
     options = source.gdal_options("aws", environ={})
 
