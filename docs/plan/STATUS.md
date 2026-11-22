@@ -28,7 +28,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r2 (round 3 is the last) | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | r3: fix requested by coordinator (G-Code r3 running) | #12 | r1, r2 fail; r3: G-Infra fail (pre-existing restore() trusts any head_branch main run) |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | ready, stacked on plan/t03-catalog; G-Data, G-Infra, G-Code queued | #20 | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 G-Data (G-Code r1 running) | #14 | r1: G-Data fail (late granule), G-Method PASS |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
@@ -37,7 +37,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | ready for gauntlets (G-Data, G-Method, G-Code queued for a free slot), merges after T0.3 | #15 | |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | gauntlet r1 (G-Data running; G-Method, G-Code queued), merges after T0.3 | #15 | |
 | T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | building, stacked on plan/t21-domain (plan-forcing); scores wait for T1.7 | | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
@@ -142,3 +142,4 @@ Not available until T5.1.
 - 2026-11-22: T1.1 G-Data r1 FAIL (major: a late split-datatake granule never re-opens a date already complete; both Accept lines pass). Sent to the builder. T0.7 G-Code r3 started.
 - 2026-11-22: T0.7 G-Infra r3 FAIL: all deploy paths hold; one pre-existing major (restore() trusts any head_branch main run, incl. forks). Coordinator decision recorded under Changes of approach.
 - 2026-11-22: T1.1 G-Method r1 PASS (independent query and CDSE cross-check agree on all 30 acquisitions; offsets from raster:bands; no seams). T3.1 G-Code r2 started.
+- 2026-11-22: T0.4 PR #20 ready (check_catalog, render_thumbs, freshness F1/F2, Q4 fixture with real scene ids, decision-object schema; real month checked in CI in 32.7 s; corrupt-COG and missing-day tests with mutation checks). Q4 fixture pending on T1.2 and a ski resort polygon (none in repo). T2.1 G-Data r1 started. Note sent to T1.3: PNG RGB PMTiles ~230 MB/date, use lossy tiles. Queue: T2.1 G-Method and G-Code, T4.0 G-Code, T0.4 x3, then rounds as they come.
