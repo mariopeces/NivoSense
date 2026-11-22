@@ -31,7 +31,7 @@ vi.mock("./components/Map", () => ({
 // the observation manifest that the static site does not have) answers 404.
 const FILES: Record<string, string> = {
   "/data/basins.geojson": "frontend/public/data/basins.geojson",
-  "/data/webcams.json": "frontend/public/data/webcams.json",
+  "/data/webcams.json": "frontend/src/test-fixtures/webcams.json",
   "/data/snow-model/manifest.json": "frontend/public/data/snow-model/manifest.json",
   "/weather/manifest.json": "frontend/public/weather/manifest.json",
 };
@@ -126,7 +126,7 @@ describe("App shell", { timeout: 20_000 }, () => {
     await renderApp();
     fireEvent.click(screen.getByRole("tab", { name: "Webcams" }));
     expect(await screen.findByText("Ninguna cámara con imagen en este momento.")).toBeTruthy();
-    const offline = JSON.parse(repoFile("frontend/public/data/webcams.json")).filter((c: { offline: boolean }) => c.offline);
+    const offline = JSON.parse(repoFile("frontend/src/test-fixtures/webcams.json")).filter((c: { status: string }) => c.status === "offline");
     expect(screen.getAllByText("Sin imagen", { selector: "span.text-caption" })).toHaveLength(offline.length);
   });
 });
