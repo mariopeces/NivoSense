@@ -1,0 +1,506 @@
+[
+  {
+    "id": "R1-1",
+    "origin": "round1",
+    "what": "handleBasinSelect: drop setSection(\"agua\")",
+    "file": "src/App.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/App.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 147,
+    "summary": [
+      "      Tests  1 failed | 5 passed (6)",
+      "AssertionError: expected 'Nieve' to be 'Agua' // Object.is equality"
+    ],
+    "failing": [
+      "× App shell > opens Agua and the panel when a basin is clicked on the map 1223ms",
+      "FAIL  src/App.test.tsx > App shell > opens Agua and the panel when a basin is clicked on the map"
+    ]
+  },
+  {
+    "id": "R1-2",
+    "origin": "round1",
+    "what": "rail arrow map reduced to { ArrowDown: 0 }",
+    "file": "src/components/Rail.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/Rail.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 63,
+    "summary": [
+      "      Tests  2 failed | 4 passed (6)",
+      "AssertionError: expected 'nieve' to be 'agua' // Object.is equality",
+      "AssertionError: expected 'webcams|true|claro|false' to match /^meteo\\|/"
+    ],
+    "failing": [
+      "× sectionAfterKey > steps with the arrows, wraps at both ends and jumps with Home and End 165ms",
+      "× Rail > switches section on click and on arrow keys, moving focus with the selection 1105ms",
+      "FAIL  src/components/Rail.test.tsx > sectionAfterKey > steps with the arrows, wraps at both ends and jumps with Home and End",
+      "FAIL  src/components/Rail.test.tsx > Rail > switches section on click and on arrow keys, moving focus with the selection"
+    ]
+  },
+  {
+    "id": "R1-3",
+    "origin": "round1",
+    "what": "NEXT_SHEET.full = \"full\"",
+    "file": "src/components/Panel.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/Panel.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 105,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected { peek: 'half', half: 'full', …(1) } to deeply equal { peek: 'half', half: 'full', …(1) }"
+    ],
+    "failing": [
+      "× Panel > cycles the bottom sheet peek, half, full and back to peek 301ms",
+      "FAIL  src/components/Panel.test.tsx > Panel > cycles the bottom sheet peek, half, full and back to peek"
+    ]
+  },
+  {
+    "id": "R1-4",
+    "origin": "round1",
+    "what": "deck: rename rail.tooltip_meteo -> tooltip_meteoX",
+    "file": "../docs/design/copy.es.json",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 1,
+    "caught": true,
+    "seconds": 100,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected [ 'rail.tooltip_meteo' ] to deeply equal []"
+    ],
+    "failing": [
+      "× copy deck > knows every template key the code composes, and every expansion exists 167ms",
+      "FAIL  src/lib/copy.test.ts > copy deck > knows every template key the code composes, and every expansion exists"
+    ]
+  },
+  {
+    "id": "N-1",
+    "origin": "new",
+    "what": "deck: drop estado.tooltip_observado (only reached via t(`estado.tooltip_${status}`))",
+    "file": "../docs/design/copy.es.json",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 1,
+    "caught": true,
+    "seconds": 38,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected [ 'estado.tooltip_observado' ] to deeply equal []"
+    ],
+    "failing": [
+      "× copy deck > knows every template key the code composes, and every expansion exists 216ms",
+      "FAIL  src/lib/copy.test.ts > copy deck > knows every template key the code composes, and every expansion exists"
+    ]
+  },
+  {
+    "id": "N-2",
+    "origin": "new",
+    "what": "deck: rename capa.*.cadencia of the first layer (only reached via t(`capa.${layer}.cadencia`))",
+    "file": "../docs/design/copy.es.json",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 1,
+    "caught": true,
+    "seconds": 47,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected [ 'capa.nieve_observada.cadencia' ] to deeply equal []"
+    ],
+    "failing": [
+      "× copy deck > knows every template key the code composes, and every expansion exists 130ms",
+      "FAIL  src/lib/copy.test.ts > copy deck > knows every template key the code composes, and every expansion exists"
+    ]
+  },
+  {
+    "id": "N-3",
+    "origin": "new",
+    "what": "code: new template key t(`rail.tip_${item.id}`) not in the deck",
+    "file": "src/components/Rail.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 1,
+    "caught": true,
+    "seconds": 43,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected [ 'capa.${layer}.cadencia', …(16) ] to deeply equal [ 'capa.${layer}.cadencia', …(16) ]"
+    ],
+    "failing": [
+      "× copy deck > knows every template key the code composes, and every expansion exists 406ms",
+      "FAIL  src/lib/copy.test.ts > copy deck > knows every template key the code composes, and every expansion exists"
+    ]
+  },
+  {
+    "id": "N-4",
+    "origin": "new",
+    "what": "code: ternary key typo fila_capa.ocultar -> ocultarX (first occurrence)",
+    "file": "src/components/NieveSection.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 0,
+    "caught": false,
+    "seconds": 48,
+    "summary": [
+      "      Tests  3 passed (3)"
+    ],
+    "failing": [],
+    "note": "first run reported CAUGHT only because PostCSS failed to load on this machine (no assertion); the rerun recorded here is the real result"
+  },
+  {
+    "id": "N-4b",
+    "origin": "new",
+    "what": "code: lowercase ternary key typo fila_capa.ocultar -> ocultr",
+    "file": "src/components/NieveSection.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 1,
+    "caught": true,
+    "seconds": 71,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected [ 'fila_capa.ocultr' ] to deeply equal []"
+    ],
+    "failing": [
+      "× copy deck > has every key written as a string anywhere in the interface (t() calls, ternaries, lookup tables) 200ms",
+      "FAIL  src/lib/copy.test.ts > copy deck > has every key written as a string anywhere in the interface (t() calls, ternaries, lookup tables)"
+    ]
+  },
+  {
+    "id": "N-4c",
+    "origin": "new",
+    "what": "code: camel-case typo in a literal t() key, t(\"leyenda.swe\") -> t(\"leyenda.sweTotal\")",
+    "file": "src/components/Legend.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 0,
+    "caught": false,
+    "seconds": 69,
+    "summary": [
+      "      Tests  3 passed (3)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-4d",
+    "origin": "new",
+    "what": "code: typo in the top-level section of a literal t() key, t(\"leyenda.swe\") -> t(\"leyendas.swe\")",
+    "file": "src/components/Legend.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 0,
+    "caught": false,
+    "seconds": 47,
+    "summary": [
+      "      Tests  3 passed (3)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-4d-full",
+    "origin": "new",
+    "what": "as N-4d, whole vitest suite",
+    "file": "src/components/Legend.tsx",
+    "command": "npx vitest run --testTimeout=60000",
+    "exit": 0,
+    "caught": false,
+    "seconds": 139,
+    "summary": [
+      "      Tests  65 passed (65)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-4e",
+    "origin": "new",
+    "what": "code: typo in the section of a plain t() key, t(\"rail.tooltip_mapa_base\") -> t(\"rails.tooltip_mapa_base\")",
+    "file": "src/components/Rail.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/lib/copy.test.ts",
+    "exit": 0,
+    "caught": false,
+    "seconds": 26,
+    "summary": [
+      "      Tests  3 passed (3)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-4e-full",
+    "origin": "new",
+    "what": "as N-4e, whole vitest suite",
+    "file": "src/components/Rail.tsx",
+    "command": "npx vitest run --testTimeout=60000",
+    "exit": 1,
+    "caught": true,
+    "seconds": 204,
+    "summary": [
+      "Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.",
+      "Error: Missing copy key rails.tooltip_mapa_base",
+      "     11|   if (typeof node !== \"string\") throw new Error(`Missing copy key ${ke…",
+      " ❯ recoverFromConcurrentError node_modules/react-dom/cjs/react-dom.development.js:25889:20"
+    ],
+    "failing": [
+      "× Rail > is a tablist with one selected, focusable tab per section 1221ms",
+      "× Rail > switches section on click and on arrow keys, moving focus with the selection 190ms",
+      "× Rail > collapses and reopens the panel from the rail foot 106ms",
+      "× Rail > switches the basemap from its popover and closes it with Escape 97ms",
+      "× Rail > toggles 3D terrain 482ms",
+      "× App shell > renders the rail, the Nieve panel and the map together, with honest empty states 3785ms"
+    ]
+  },
+  {
+    "id": "N-4f-full",
+    "origin": "new",
+    "what": "code: section typo in a direct t() literal on the legend path, t(\"leyenda.experimental\") -> t(\"leyendas.experimental\"); whole suite",
+    "file": "src/components/Legend.tsx",
+    "command": "npx vitest run --testTimeout=60000",
+    "exit": 0,
+    "caught": false,
+    "seconds": 169,
+    "summary": [
+      "      Tests  65 passed (65)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-5",
+    "origin": "new",
+    "what": "handleBasinSelect: drop setPanelOpen(true)",
+    "file": "src/App.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/App.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 155,
+    "summary": [
+      "      Tests  1 failed | 5 passed (6)",
+      "TestingLibraryElementError: Unable to find an accessible element with the role \"button\" and name \"Ocultar\"",
+      " ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19"
+    ],
+    "failing": [
+      "× App shell > opens Agua and the panel when a basin is clicked on the map 6068ms",
+      "FAIL  src/App.test.tsx > App shell > opens Agua and the panel when a basin is clicked on the map"
+    ]
+  },
+  {
+    "id": "N-6",
+    "origin": "new",
+    "what": "calendar enables days without a scene",
+    "file": "src/components/DateBar.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/DateBar.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 117,
+    "summary": [
+      "      Tests  1 failed | 3 passed (4)",
+      "AssertionError: expected [ 'lunes 26 de enero de 2026', …(41) ] to deeply equal [ …(3) ]"
+    ],
+    "failing": [
+      "× DateBar > offers in the calendar only the days that have a scene 573ms",
+      "FAIL  src/components/DateBar.test.tsx > DateBar > offers in the calendar only the days that have a scene"
+    ]
+  },
+  {
+    "id": "N-7",
+    "origin": "new",
+    "what": "next button never disabled (steps past the last scene)",
+    "file": "src/components/DateBar.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/DateBar.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 151,
+    "summary": [
+      "      Tests  1 failed | 3 passed (4)",
+      "AssertionError: expected false to be true // Object.is equality"
+    ],
+    "failing": [
+      "× DateBar > steps only through scene dates and stops at both ends 1630ms",
+      "FAIL  src/components/DateBar.test.tsx > DateBar > steps only through scene dates and stops at both ends"
+    ]
+  },
+  {
+    "id": "N-8",
+    "origin": "new",
+    "what": "Home jumps to the second section",
+    "file": "src/components/Rail.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/Rail.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 187,
+    "summary": [
+      "      Tests  1 failed | 5 passed (6)",
+      "AssertionError: expected 'agua' to be 'nieve' // Object.is equality"
+    ],
+    "failing": [
+      "× sectionAfterKey > steps with the arrows, wraps at both ends and jumps with Home and End 442ms",
+      "FAIL  src/components/Rail.test.tsx > sectionAfterKey > steps with the arrows, wraps at both ends and jumps with Home and End"
+    ]
+  },
+  {
+    "id": "N-9",
+    "origin": "new",
+    "what": "panel never gets is-collapsed",
+    "file": "src/components/Panel.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/Panel.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 221,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected false to be true // Object.is equality"
+    ],
+    "failing": [
+      "× Panel > is a tab panel labelled by its rail tab, marked collapsed when closed 676ms",
+      "FAIL  src/components/Panel.test.tsx > Panel > is a tab panel labelled by its rail tab, marked collapsed when closed"
+    ]
+  },
+  {
+    "id": "N-10",
+    "origin": "new",
+    "what": "desktop map inset ignores the collapsed panel",
+    "file": "src/App.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/App.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 203,
+    "summary": [
+      "      Tests  1 failed | 5 passed (6)",
+      "AssertionError: expected '384' to be '64' // Object.is equality"
+    ],
+    "failing": [
+      "× App shell > gives the map back the panel's width when the panel is collapsed 2835ms",
+      "FAIL  src/App.test.tsx > App shell > gives the map back the panel's width when the panel is collapsed"
+    ]
+  },
+  {
+    "id": "N-11",
+    "origin": "new",
+    "what": "tokens.css hand edit (one hex)",
+    "file": "src/styles/tokens.css",
+    "command": "npx vitest run --testTimeout=60000 scripts/build-tokens.test.mjs",
+    "exit": 1,
+    "caught": true,
+    "seconds": 58,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected '/* Generated by scripts/build-tokens.…' to be '/* Generated by scripts/build-tokens.…' // Object.is equality"
+    ],
+    "failing": [
+      "× design tokens > committed tokens.css matches tokens.json (run npm run tokens) 18ms",
+      "FAIL  scripts/build-tokens.test.mjs > design tokens > committed tokens.css matches tokens.json (run npm run tokens)"
+    ]
+  },
+  {
+    "id": "N-12",
+    "origin": "new",
+    "what": "tokens.json edit without regenerating tokens.css",
+    "file": "../docs/design/tokens.json",
+    "command": "npx vitest run --testTimeout=60000 scripts/build-tokens.test.mjs",
+    "exit": 1,
+    "caught": true,
+    "seconds": 53,
+    "summary": [
+      "      Tests  1 failed | 2 passed (3)",
+      "AssertionError: expected '/* Generated by scripts/build-tokens.…' to be '/* Generated by scripts/build-tokens.…' // Object.is equality"
+    ],
+    "failing": [
+      "× design tokens > committed tokens.css matches tokens.json (run npm run tokens) 178ms",
+      "FAIL  scripts/build-tokens.test.mjs > design tokens > committed tokens.css matches tokens.json (run npm run tokens)"
+    ]
+  },
+  {
+    "id": "N-13",
+    "origin": "new",
+    "what": "hard-coded hex class in a shell component",
+    "file": "src/components/Panel.tsx",
+    "command": "npx eslint .",
+    "exit": 1,
+    "caught": true,
+    "seconds": 152,
+    "summary": [
+      "  25:18  error  Hard-coded colour #ffffff: define it in src/styles/tokens.css and use the token  local/no-hard-coded-colour",
+      "✖ 2 problems (1 error, 1 warning)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-14",
+    "origin": "new",
+    "what": "inline style hex in Rail",
+    "file": "src/components/Rail.tsx",
+    "command": "npx eslint .",
+    "exit": 1,
+    "caught": true,
+    "seconds": 179,
+    "summary": [
+      "  79:52  error  Hard-coded colour #ff0000: define it in src/styles/tokens.css and use the token  local/no-hard-coded-colour",
+      "✖ 2 problems (1 error, 1 warning)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-15",
+    "origin": "new",
+    "what": "webcam PK keeps the decimal point",
+    "file": "src/components/WebcamsSection.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/components/WebcamsSection.test.ts",
+    "exit": 1,
+    "caught": true,
+    "seconds": 112,
+    "summary": [
+      "      Tests  1 failed | 1 passed (2)",
+      "AssertionError: expected 'A-395 · PK 12.6' to be 'A-395 · PK 12,6' // Object.is equality"
+    ],
+    "failing": [
+      "× webcam rows > writes DGT road points with a decimal comma and places in title case 550ms",
+      "FAIL  src/components/WebcamsSection.test.ts > webcam rows > writes DGT road points with a decimal comma and places in title case"
+    ]
+  },
+  {
+    "id": "N-16",
+    "origin": "new",
+    "what": "Agua list sorted ascending by area",
+    "file": "src/components/AguaSection.tsx",
+    "command": "npx vitest run --testTimeout=60000 src/App.test.tsx",
+    "exit": 1,
+    "caught": true,
+    "seconds": 213,
+    "summary": [
+      "      Tests  1 failed | 5 passed (6)",
+      "AssertionError: expected [ …(4) ] to deeply equal [ 'Río Guadalquivir319,2 km²', …(3) ]"
+    ],
+    "failing": [
+      "× App shell > lists the real basins by area and selects one through the same path as the map 2015ms",
+      "FAIL  src/App.test.tsx > App shell > lists the real basins by area and selects one through the same path as the map"
+    ]
+  },
+  {
+    "id": "N-17",
+    "origin": "new",
+    "what": "Map: drop the style.load handler (layers lost on setStyle)",
+    "file": "src/components/Map.tsx",
+    "command": "npx vitest run --testTimeout=60000",
+    "exit": 0,
+    "caught": false,
+    "seconds": 207,
+    "summary": [
+      "      Tests  65 passed (65)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-18",
+    "origin": "new",
+    "what": "mobile half sheet inset uses the peek height",
+    "file": "src/App.tsx",
+    "command": "npx vitest run --testTimeout=60000",
+    "exit": 0,
+    "caught": false,
+    "seconds": 172,
+    "summary": [
+      "      Tests  65 passed (65)"
+    ],
+    "failing": []
+  },
+  {
+    "id": "N-4f-r1-test",
+    "origin": "new",
+    "what": "same break as N-4f, run against the round-1 copy.test.ts (4d41315)",
+    "caught": true,
+    "summary": [
+      "AssertionError: leyendas.experimental: ... Missing copy key leyendas.experimental"
+    ]
+  }
+]
