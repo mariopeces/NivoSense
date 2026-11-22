@@ -105,7 +105,7 @@ body,
     visibility 0s linear var(--motion-duration-panel);
 }
 
-.shell-datebar {
+.shell-timeline {
   left: calc(var(--layout-rail-width) + var(--shell-panel-offset, 0px) + var(--space-6));
   right: calc(var(--space-6) + var(--layout-map-control) + var(--space-2));
   /* Clears the attribution line under it. */
@@ -134,7 +134,7 @@ body,
     transition: height var(--motion-duration-panel) var(--motion-easing-standard);
   }
 
-  .shell-datebar {
+  .shell-timeline {
     left: var(--space-3);
     right: var(--space-3);
     bottom: calc(var(--layout-tabbar-height) + var(--sheet-height, var(--layout-sheet-peek)) + var(--space-3));

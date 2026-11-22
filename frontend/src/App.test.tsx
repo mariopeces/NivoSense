@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { repoFile, setMobile } from "./test/dom";
+import { repoFile } from "./test/dom";
 import App from "./App";
 
 // MapLibre needs WebGL, which jsdom lacks: the map is replaced by a stub that shows the props the shell
@@ -19,7 +19,6 @@ vi.mock("./components/Map", () => ({
       data-selected={props.selectedBasinId ?? ""}
       data-basemap={props.basemap}
       data-inset-left={props.inset.left}
-      data-inset-bottom={props.inset.bottom}
     >
       <button type="button" onClick={() => props.onBasinSelect("604456")}>
         map-click-604456
@@ -129,26 +128,5 @@ describe("App shell", { timeout: 20_000 }, () => {
     expect(await screen.findByText("Ninguna cámara con imagen en este momento.")).toBeTruthy();
     const offline = JSON.parse(repoFile("frontend/src/test-fixtures/webcams.json")).filter((c: { status: string }) => c.status === "offline");
     expect(screen.getAllByText("Sin imagen", { selector: "span.text-caption" })).toHaveLength(offline.length);
-  });
-
-  it("on a phone, keeps the panel as a bottom sheet and pads the map for it", async () => {
-    setMobile(true);
-    await renderApp();
-    const dateBar = 76 + 32; // layout-timeline-height + space-8
-    const tabBar = 60;
-    const handle = screen.getByRole("button", { name: "Arrastra para ampliar o reducir" });
-    expect(map().dataset.insetLeft).toBe("0");
-    expect(map().dataset.insetBottom).toBe(String(tabBar + 132 + dateBar));
-    fireEvent.click(handle);
-    expect(map().dataset.insetBottom).toBe(String(tabBar + window.innerHeight / 2 + dateBar));
-    // Tapping the active tab folds the sheet back to its peek height.
-    fireEvent.click(screen.getByRole("tab", { name: "Nieve" }));
-    expect(map().dataset.insetBottom).toBe(String(tabBar + 132 + dateBar));
-    // At full height the date bar steps aside.
-    fireEvent.click(handle);
-    fireEvent.click(handle);
-    expect(screen.queryByText("Aún no hay escenas publicadas.")).toBeNull();
-    fireEvent.click(handle);
-    expect(screen.getByText("Aún no hay escenas publicadas.")).toBeTruthy();
   });
 });

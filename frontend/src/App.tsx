@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import Map from "./components/Map";
-import type { Basemap } from "./lib/basemaps";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import Map, { type Basemap } from "./components/Map";
 import Rail, { type Section } from "./components/Rail";
 import Panel, { type SheetHeight } from "./components/Panel";
-import DateBar, { type Scene } from "./components/DateBar";
+import Timeline from "./components/Timeline";
 import NieveSection from "./components/NieveSection";
 import AguaSection from "./components/AguaSection";
 import WebcamsSection from "./components/WebcamsSection";
@@ -19,7 +18,9 @@ import { useViewportHeight } from "./lib/useViewportHeight";
 import { tokenPx } from "./lib/tokens";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
-import { staticObservationScene } from "./lib/snowObservation";
+import { fetchCatalog, type CatalogState } from "./lib/catalog";
+import { buildTimeline, todayInMadrid } from "./lib/timeline";
+import { readUrlState, writeUrlState } from "./lib/urlState";
 import {
   SNOW_MODEL_SCHEMA_VERSION,
   snowOverlay,
@@ -35,15 +36,7 @@ import {
   type WeatherManifest,
   type WeatherVariable,
 } from "./lib/weather";
-import type {
-  Basin,
-  BasinSeries,
-  FlowSeries,
-  ObservationScene,
-  PredictionScene,
-  River,
-  Webcam,
-} from "./lib/types";
+import type { Basin, BasinSeries, FlowSeries, River, Webcam } from "./lib/types";
 
 type BasinFeatureCollection = {
   type: "FeatureCollection";
@@ -74,12 +67,10 @@ export default function App() {
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
   const [basinsLoading, setBasinsLoading] = useState(true);
   const [rivers, setRivers] = useState<River[]>([]);
-  const [observations, setObservations] = useState<ObservationScene[]>([]);
-  const [observationsLoading, setObservationsLoading] = useState(true);
-  const [predictions, setPredictions] = useState<PredictionScene[]>([]);
-  const [selectedObservationDate, setSelectedObservationDate] = useState<
-    string | null
-  >(null);
+  const [initialUrl] = useState(() => readUrlState(window.location.search));
+  const [catalog, setCatalog] = useState<CatalogState>({ kind: "loading" });
+  const [catalogAttempt, setCatalogAttempt] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [basinSeries, setBasinSeries] = useState<BasinSeries | null>(null);
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [seriesError, setSeriesError] = useState<string | null>(null);
@@ -99,6 +90,7 @@ export default function App() {
   const [snowManifest, setSnowManifest] = useState<SnowModelManifest | null>(null);
   const [snowLoading, setSnowLoading] = useState(true);
   const [snowLayerId, setSnowLayerId] = useState<SnowLayerId | null>(null);
+  const [urlLayer, setUrlLayer] = useState(initialUrl.layer);
   const [volumeSeries, setVolumeSeries] = useState<BasinVolumeSeries | null>(null);
   const [volumeLoading, setVolumeLoading] = useState(false);
   const [volumeError, setVolumeError] = useState<string | null>(null);
@@ -107,6 +99,7 @@ export default function App() {
     import.meta.env.VITE_API_URL ??
     (import.meta.env.DEV ? "http://localhost:8080" : "");
   const snowManifestUrl = `${import.meta.env.BASE_URL}data/snow-model/manifest.json`;
+  const catalogUrl = import.meta.env.VITE_CATALOG_URL;
   const weatherManifestUrl =
     import.meta.env.VITE_WEATHER_MANIFEST_URL ??
     `${import.meta.env.BASE_URL}weather/manifest.json`;
@@ -207,47 +200,54 @@ export default function App() {
   }, [apiUrl]);
 
   useEffect(() => {
-    if (!apiUrl) return;
-    fetch(`${apiUrl}/predictions`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((items: PredictionScene[]) => setPredictions(items))
-      .catch((err) => console.error("Failed to load predictions:", err));
-  }, [apiUrl]);
+    const controller = new AbortController();
+    setCatalog({ kind: "loading" });
+    fetchCatalog(catalogUrl, controller.signal)
+      .then(setCatalog)
+      .catch((error) => {
+        if (error.name === "AbortError") return;
+        console.error("Failed to load the catalogue:", error);
+        setCatalog({ kind: "error" });
+      });
+    return () => controller.abort();
+  }, [catalogUrl, catalogAttempt]);
+
+  const timeline = useMemo(
+    () => (catalog.kind === "ready" ? buildTimeline(catalog.index, todayInMadrid()) : null),
+    [catalog],
+  );
+
+  // A date from a shared link is kept when it is on the track; otherwise the map opens on the latest product.
+  useEffect(() => {
+    if (!timeline) return;
+    setSelectedDate((current) => {
+      const wanted = current ?? initialUrl.date;
+      if (wanted && timeline.days.some((day) => day.date === wanted)) return wanted;
+      return timeline.days[timeline.latestIndex].date;
+    });
+  }, [timeline, initialUrl.date]);
+
+  // The layer from a shared link applies once the snow model says which layers exist.
+  useEffect(() => {
+    if (!snowManifest || !urlLayer) return;
+    if (urlLayer in snowManifest.layers) setSnowLayerId(urlLayer as SnowLayerId);
+    setUrlLayer(null);
+  }, [snowManifest, urlLayer]);
 
   useEffect(() => {
-    const manifestUrl = new URL(
-      `${import.meta.env.BASE_URL}data/observations/latest/manifest.json`,
-      document.baseURI,
-    ).toString();
-    fetch(manifestUrl)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((payload: unknown) => [staticObservationScene(payload, manifestUrl)])
-      .catch(() =>
-        apiUrl
-          ? fetch(`${apiUrl}/observations`).then((r) => {
-              if (!r.ok) throw new Error(`HTTP ${r.status}`);
-              return r.json() as Promise<ObservationScene[]>;
-            })
-          : ([] as ObservationScene[]),
-      )
-      .then((items) => {
-        setObservations(items);
-        setSelectedObservationDate((current) => {
-          if (current && items.some((item) => item.date === current)) {
-            return current;
-          }
-          return items.length ? items[items.length - 1].date : null;
-        });
-      })
-      .catch((err) => console.error("Failed to load observations:", err))
-      .finally(() => setObservationsLoading(false));
-  }, [apiUrl]);
+    // Until the catalogue, the timeline and the manifest answer, keep what the link asked for.
+    const date = selectedDate ?? (catalog.kind === "loading" || timeline ? initialUrl.date : null);
+    const layer = snowLayerId ?? urlLayer;
+    const search = writeUrlState(window.location.search, { date, layer });
+    if (search !== window.location.search) {
+      window.history.replaceState(window.history.state, "", `${window.location.pathname}${search}${window.location.hash}`);
+    }
+  }, [selectedDate, snowLayerId, urlLayer, catalog.kind, timeline, initialUrl.date]);
+
+  const handleDateChange = useCallback((date: string) => {
+    setSelectedDate(date);
+    setWeatherHorizon(null);
+  }, []);
 
   const basins: Basin[] =
     basinsFC?.features.map((f) => ({
@@ -372,21 +372,6 @@ export default function App() {
     setPanelOpen(true);
   };
 
-  const selectedObservation =
-    observations.find((item) => item.date === selectedObservationDate) ?? null;
-  const selectedPrediction =
-    predictions.find((item) => item.date === selectedObservationDate) ?? null;
-  const ndsiTileUrl = selectedObservation
-    ? selectedObservation.tile_url
-      ? `${apiUrl}${selectedObservation.tile_url}`
-      : null
-    : selectedPrediction
-      ? `${apiUrl}${selectedPrediction.tile_url}`
-      : null;
-  const ndsiImage =
-    selectedObservation?.image_url && selectedObservation.image_bbox
-      ? { url: selectedObservation.image_url, bbox: selectedObservation.image_bbox }
-      : null;
   const activeWeatherModel =
     weatherManifest?.models.find((model) => model.id === weatherModelId) ??
     weatherManifest?.models[0];
@@ -408,26 +393,17 @@ export default function App() {
     }
   };
 
-  const scenes: Scene[] = useMemo(
-    () =>
-      [
-        ...observations.map((o) => ({ date: o.date, isPrediction: false })),
-        ...predictions.map((p) => ({ date: p.date, isPrediction: true })),
-      ].sort((a, b) => a.date.localeCompare(b.date)),
-    [observations, predictions],
-  );
-
   const panelVisible = mobile || panelOpen;
-  // Pixels of map covered by the rail, panel or sheet and the date bar, so fitted bounds stay visible.
+  // Pixels of map covered by the rail, panel or sheet and the timeline, so fitted bounds stay visible.
   const mapInset = useMemo(() => {
-    const dateBar = tokenPx("layout-timeline-height") + tokenPx("space-8");
+    const timelineHeight = tokenPx("layout-timeline-height") + tokenPx("space-8");
     if (!mobile) {
       const rail = tokenPx("layout-rail-width");
-      return { left: rail + (panelOpen ? tokenPx("layout-panel-width") : 0), bottom: dateBar };
+      return { left: rail + (panelOpen ? tokenPx("layout-panel-width") : 0), bottom: timelineHeight };
     }
-    // The half sheet is 50vh in the tokens; the full sheet hides the date bar and leaves only a strip of map.
+    // The half sheet is 50vh in the tokens; the full sheet hides the timeline and leaves only a strip of map.
     const sheetPx = sheet === "peek" ? tokenPx("layout-sheet-peek") : viewportHeight / 2;
-    return { left: 0, bottom: tokenPx("layout-tabbar-height") + sheetPx + dateBar };
+    return { left: 0, bottom: tokenPx("layout-tabbar-height") + sheetPx + timelineHeight };
   }, [mobile, panelOpen, sheet, viewportHeight]);
   const shellStyle = {
     "--shell-panel-offset": panelOpen ? "var(--layout-panel-width)" : "0px",
@@ -451,7 +427,7 @@ export default function App() {
       />
       <main className="absolute inset-0" aria-label={t("app.descripcion")}>
         <h1 className="sr-only">{t("app.nombre")}</h1>
-        {/* DOM order is the tab order the spec asks for: panel, date bar, then the map and its controls. */}
+        {/* DOM order is the tab order the spec asks for: panel, timeline, then the map and its controls. */}
         <Panel section={section} open={panelVisible} sheet={sheet} onSheet={setSheet}>
           {section === "nieve" && (
             <NieveSection
@@ -514,22 +490,19 @@ export default function App() {
           )}
           {section === "metodo" && <MetodoSection />}
         </Panel>
-        <DateBar
-          scenes={scenes}
-          loading={observationsLoading}
-          selectedDate={selectedObservationDate}
-          onChange={(date) => {
-            setSelectedObservationDate(date);
-            setWeatherHorizon(null);
-          }}
+        <Timeline
+          catalog={catalog}
+          model={timeline}
+          selectedDate={selectedDate}
+          onChange={handleDateChange}
+          onRetry={() => setCatalogAttempt((attempt) => attempt + 1)}
           hidden={mobile && sheet === "full"}
+          mobile={mobile}
         />
         <Legend weatherOverlay={precipitationOverlay} snowOverlay={activeSnowOverlay} />
         <Map
           basinsFC={basinsFC}
           selectedBasinId={selectedBasinId}
-          ndsiTileUrl={ndsiTileUrl}
-          ndsiImage={ndsiImage}
           weatherOverlay={precipitationOverlay}
           snowOverlay={activeSnowOverlay}
           onBasinSelect={handleBasinSelect}
