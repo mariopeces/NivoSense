@@ -1,7 +1,7 @@
 name: Observation
 
 # S2 ingest, observed snow cover and true colour for a date range, published to the staging catalogue.
-# Daily run: the last 5 days, so a late tile completes a mosaic. Manual run: any range (backfill).
+# Daily run (prod): the last 5 days, so a late tile completes a mosaic. Manual run: any range and target (backfill).
 on:
   workflow_dispatch:
     inputs:
@@ -30,10 +30,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 330
     concurrency:
-      group: observation-${{ inputs.target || 'staging' }}
+      group: observation-${{ inputs.target || 'prod' }}
       cancel-in-progress: false
     env:
-      TARGET: ${{ inputs.target || 'staging' }}
+      TARGET: ${{ inputs.target || 'prod' }}
       STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
       STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
       DATA_BUCKET: ${{ vars.DATA_BUCKET }}
