@@ -144,9 +144,7 @@ def season_seed(water_year: int) -> int:
     return water_year * 1000 + 17
 
 
-def sample_parameters(
-    n: int, water_year: int, priors: Priors | None = None, storm_count: int = 0
-) -> MemberParameters:
+def sample_parameters(n: int, water_year: int, priors: Priors | None = None, storm_count: int = 0) -> MemberParameters:
     """Latin hypercube draw of the priors, deterministic given (n, water_year, priors, storm_count)."""
     priors = priors or Priors()
     generator = np.random.default_rng(season_seed(water_year))
