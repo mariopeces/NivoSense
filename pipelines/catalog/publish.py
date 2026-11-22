@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import subprocess
 import sys
@@ -15,9 +16,9 @@ from typing import Any
 
 import numpy as np
 
-from .layers import CRS, ZOOMS, check_on_grid, get_layer
+from .layers import CRS, ZOOMS, Layer, check_on_grid, get_layer
 from .storage import IMMUTABLE, NO_CACHE, PreconditionFailed, Storage
-from .validate import validate_entry
+from .validate import dump_json, validate_entry
 
 COG_CONTENT_TYPE = "image/tiff; application=geotiff; profile=cloud-optimized"
 PMTILES_CONTENT_TYPE = "application/vnd.pmtiles"
@@ -94,14 +95,20 @@ def _check_data(
         check_on_grid(src.crs.to_string() if src.crs else "", tuple(src.transform), resolution_m)
         if src.nodata is None:
             raise ValueError(f"{path}: nodata is not set")
+        # NaN is not valid JSON, so it cannot travel in the entry, and inf would not survive either.
+        if not math.isfinite(src.nodata):
+            raise ValueError(f"{path}: nodata is {src.nodata}; use a finite sentinel such as -9999")
         if not (len(bands) == len(units) == len(value_range) == src.count):
             raise ValueError(
                 f"{path}: {src.count} bands, but {len(bands)} names, {len(units)} units and {len(value_range)} ranges"
             )
+        if not all(math.isfinite(bound) for pair in value_range for bound in pair):
+            raise ValueError(f"{path}: value_range must be finite, got {value_range}")
         for band, (low, high) in enumerate(value_range, start=1):
             data = src.read(band, masked=True)
+            if data.dtype.kind == "f" and not np.isfinite(data.filled(src.nodata)).all():
+                raise ValueError(f"{path}: band {band} has NaN or infinite pixels; set them to nodata")
             values = data.compressed()
-            values = values[~np.isnan(values)] if values.dtype.kind == "f" else values
             if values.size == 0:
                 raise ValueError(f"{path}: band {band} has no valid pixels")
             if values.min() < low or values.max() > high:
@@ -146,7 +153,7 @@ def _write_cog(source: Path, target: Path, categorical: bool) -> None:
             raise RuntimeError(f"GDAL did not write a COG layout to {target}")
 
 
-def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], categorical: bool) -> None:
+def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], spec: Layer) -> None:
     # rio-pmtiles is a rasterio CLI plugin; running it as a subprocess keeps its process pool out of ours.
     subprocess.run(
         [
@@ -157,12 +164,13 @@ def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], categori
             str(display),
             str(target),
             "--format",
-            "PNG",
+            spec.tile_format,
+            *(["--co", f"QUALITY={spec.tile_quality}"] if spec.tile_quality is not None else []),
             "--rgba",
             "--zoom-levels",
             f"{zooms[0]}..{zooms[1]}",
             "--resampling",
-            "nearest" if categorical else "bilinear",
+            "nearest" if spec.categorical else "bilinear",
             "--exclude-empty-tiles",
             "--silent",
         ],
@@ -189,14 +197,18 @@ def publish(
 
     files: `data`, a GeoTIFF on the layer's grid with nodata set; `display`, a 4-band RGBA uint8 GeoTIFF on
     the same grid, coloured by the producing pipeline, from which the PMTiles are built.
-    meta: `source_ids`, `bands`, `units`, `value_range`, `code_version`, optional `processing_baseline`,
-    `prior_state` and `qa` ({"flags": [...], "scores": {...}}).
+    meta: `source_ids`, `bands`, `units`, `value_range`, `code_version`, `processing_baseline` (required for
+    the Sentinel-2 derived observed and gap-filled layers), optional `prior_state` and `qa`
+    ({"flags": [...], "scores": {...}}).
 
     Files are named `<date>-<hash>` after their content and never overwritten. The entry is written last,
     so a crash before it leaves the catalogue as it was. Republishing the same input key is a no-op.
     """
     spec = get_layer(layer)
     dt.date.fromisoformat(date)
+    # Sentinel-2 reprocessing changes the pixels under the same scene ids, so README D3 keys on the baseline.
+    if spec.status in ("observed", "gapfilled") and not meta.get("processing_baseline"):
+        raise ValueError(f"{layer} is derived from Sentinel-2; meta needs its processing_baseline")
     source_ids = list(meta["source_ids"])
     version_ = meta["code_version"]
     key = input_key(layer, date, source_ids, version_, meta.get("processing_baseline"), meta.get("prior_state"))
@@ -210,7 +222,13 @@ def publish(
         cog = Path(tmp) / "data.tif"
         _write_cog(Path(files["data"]), cog, spec.categorical)
         pixels = pixel_hash(cog)
-        tiling = {"display": pixel_hash(Path(files["display"])), "zooms": zooms, "rio-pmtiles": version("rio-pmtiles")}
+        tiling = {
+            "display": pixel_hash(Path(files["display"])),
+            "zooms": zooms,
+            "format": spec.tile_format,
+            "quality": spec.tile_quality,
+            "rio-pmtiles": version("rio-pmtiles"),
+        }
         name = f"{date}-{hashlib.sha256((pixels + json.dumps(tiling, sort_keys=True)).encode()).hexdigest()[:16]}"
         cog_key = f"layers/{layer}/{date[:4]}/{name}.tif"
         pmtiles_key = f"tiles/{layer}/{name}.pmtiles"
@@ -252,8 +270,8 @@ def publish(
         _upload_once(storage, cog_key, cog, COG_CONTENT_TYPE)
         if not storage.exists(pmtiles_key):
             pmtiles = Path(tmp) / "tiles.pmtiles"
-            _write_pmtiles(Path(files["display"]), pmtiles, zooms, spec.categorical)
+            _write_pmtiles(Path(files["display"]), pmtiles, zooms, spec)
             _upload_once(storage, pmtiles_key, pmtiles, PMTILES_CONTENT_TYPE)
 
-    storage.write(entry_key(layer, date), json.dumps(entry, indent=2).encode(), "application/json", NO_CACHE)
+    storage.write(entry_key(layer, date), dump_json(entry, indent=2), "application/json", NO_CACHE)
     return entry

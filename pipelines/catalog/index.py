@@ -12,7 +12,7 @@ from typing import Any
 
 from .publish import entry_key
 from .storage import NO_CACHE, PreconditionFailed, Storage
-from .validate import validate_entry, validate_index
+from .validate import dump_json, validate_entry, validate_index
 
 INDEX_KEY = "catalog/index.json"
 ENTRIES_PREFIX = "catalog/entries/"
@@ -63,7 +63,7 @@ def rebuild_index(storage: Storage, attempts: int = 8) -> dict[str, Any]:
         try:
             storage.write(
                 INDEX_KEY,
-                json.dumps(index, separators=(",", ":")).encode(),
+                dump_json(index, separators=(",", ":")),
                 "application/json",
                 NO_CACHE,
                 if_generation_match=current.generation if current is not None else 0,

@@ -21,11 +21,22 @@ def _validator(definition: str) -> Any:
     )
 
 
+def dump_json(value: Any, **kwargs: Any) -> bytes:
+    """Serialise a catalogue object as strict JSON.
+
+    Python writes NaN and Infinity by default, which JSON.parse in the browser rejects, so one such value
+    would make the whole index unreadable. This raises ValueError instead.
+    """
+    return json.dumps(value, allow_nan=False, **kwargs).encode()
+
+
 def validate_entry(entry: dict[str, Any]) -> None:
-    """Raise jsonschema.ValidationError if the entry does not match the schema."""
+    """Raise jsonschema.ValidationError if the entry does not match the schema, ValueError if not strict JSON."""
+    dump_json(entry)
     _validator("entry").validate(entry)
 
 
 def validate_index(index: dict[str, Any]) -> None:
-    """Raise jsonschema.ValidationError if the index does not match the schema."""
+    """Raise jsonschema.ValidationError if the index does not match the schema, ValueError if not strict JSON."""
+    dump_json(index)
     _validator("index").validate(index)
