@@ -7,7 +7,10 @@ F1: a clear Sentinel-2 pass appears on the site within 24 h of being listed on E
     whose date has no snow_obs entry is missing, unless the observation pipeline recorded a decision object
     `s2/decisions/<date>_<orbit>.json` (schema pipelines/catalog/s2_decision.schema.json) for that same date and
     orbit saying the pass is complete and not listed, with under 30% of the domain covered and valid. A decision
-    that contradicts its key or the 30% rule is reported, never taken as an explanation.
+    that contradicts its key or the 30% rule is reported, never taken as an explanation. A decision holds only for
+    the scenes it names: when Earth Search lists a scene of the pass that is not in its scene_ids, or the pass's
+    last scene was listed after decided_at (a late tile or a reprocessing), the pass is missing again until a new
+    decision or an entry covers it.
   - A pass date with a snow_obs entry must also have its rgb entry (README D1 lists both).
 F2: the daily layers for yesterday (Europe/Madrid) exist, created by 10:00 Europe/Madrid today.
 """
@@ -42,6 +45,11 @@ F1_RGB_LAYER = "rgb"
 # README D1: an S2 date is listed when at least 30% of the domain is covered and valid.
 MIN_LISTED_VALID_FRACTION = 0.30
 F2_LAYERS = ("snow_gapfill", "swe", "snow_depth")
+# The daily layers (README section 1) and the first day each must exist from. A layer's producing task sets its
+# date to 2025-10-01 (README D1) when its backfill lands (T1.4 gap-fill, T2.5 SWE and depth). Until then a layer
+# with entries is checked from its first one, and one with none is not live: check_catalog does not count its
+# days and F2 does not count it as a breach.
+DAILY_SINCE: dict[str, str | None] = {"snow_gapfill": None, "swe": None, "snow_depth": None}
 F2_DEADLINE = dt.time(10, 0)
 MADRID = ZoneInfo("Europe/Madrid")
 # Earth Search c1 items carry no sat:relative_orbit; it is in the ESA product name (..._R094_T30SVG_...).
@@ -163,7 +171,7 @@ def check_f1(
         elif now - listed <= F1_LIMIT:
             row["state"] = "not_due"
         else:
-            decision, problem = _decision(storage, date, orbit)
+            decision, problem = _decision(storage, date, orbit, row["scenes"], listed)
             if problem is None and decision is not None:
                 row["state"] = "not_clear"
                 row["domain_coverage"] = decision["domain_coverage"]
@@ -181,8 +189,13 @@ def check_f1(
     }
 
 
-def _decision(storage: Storage, date: str, orbit: str) -> tuple[dict[str, Any] | None, str | None]:
-    """The decision object of a pass and, when it does not explain the pass as not clear, why not."""
+def _decision(
+    storage: Storage, date: str, orbit: str, scenes: list[str], listed: dt.datetime
+) -> tuple[dict[str, Any] | None, str | None]:
+    """The decision object of a pass and, when it does not explain the pass as not clear, why not.
+
+    `scenes` are the pass's scenes on Earth Search now and `listed` the latest of their `created` times.
+    """
     key = f"s2/decisions/{date}_{orbit}.json"
     blob = storage.read(key)
     if blob is None:
@@ -194,6 +207,12 @@ def _decision(storage: Storage, date: str, orbit: str) -> tuple[dict[str, Any] |
         return None, f"invalid decision {key}: {str(error).splitlines()[0]}"
     if (decision["date"], decision["orbit"]) != (date, orbit):
         return decision, f"decision {key} is for {decision['date']} {decision['orbit']}"
+    uncovered = sorted(set(scenes) - set(decision["scene_ids"]))
+    if uncovered:
+        return decision, f"stale decision: Earth Search now lists {uncovered}, not in its scene_ids"
+    if _time(decision["decided_at"]) < listed:
+        decided = _time(decision["decided_at"]).isoformat(timespec="seconds")
+        return decision, f"stale decision: decided at {decided}, before the last scene was listed"
     if not decision["complete"]:
         return decision, "decision says the pass is incomplete"
     if decision["listed"]:
@@ -217,7 +236,9 @@ def check_f2(entries: dict[str, list[dict[str, Any]]], now: dt.datetime) -> dict
     layers, breaches = {}, []
     for layer in F2_LAYERS:
         entry = next((e for e in entries.get(layer, []) if e["date"] == yesterday), None)
-        if entry is None:
+        if not entries.get(layer) and DAILY_SINCE.get(layer) is None:
+            state = "not_live"
+        elif entry is None:
             state = "missing" if due else "not_due"
         else:
             created = _time(entry["created_at"])

@@ -470,7 +470,10 @@ class F2Tests(unittest.TestCase):
         self.assertTrue(check_f2(self.entries("2026-11-21T08:59:00+00:00"), now)["ok"])
         late = check_f2(self.entries("2026-11-21T09:01:00+00:00"), now)
         self.assertEqual({b["why"] for b in late["breaches"]}, {"late"})
-        self.assertEqual(len(check_f2({}, now)["breaches"]), 3)
+        with mock.patch.dict(
+            "qa.freshness.DAILY_SINCE", dict.fromkeys(("snow_gapfill", "swe", "snow_depth"), "2025-10-01")
+        ):
+            self.assertEqual(len(check_f2({}, now)["breaches"]), 3)
         early = check_f2({}, dt.datetime(2026, 11, 21, 8, 30, tzinfo=dt.timezone.utc))
         self.assertTrue(early["ok"])
         self.assertEqual(early["layers"]["swe"]["state"], "not_due")
@@ -482,7 +485,7 @@ class F2Tests(unittest.TestCase):
         self.assertTrue(check_f2(self.entries("2026-03-29T07:30:00+00:00", "2026-03-28"), now)["ok"])
 
 
-class RegressionTests(unittest.TestCase):
+class RegressionCase(unittest.TestCase):
     """The fixture rule on test rasters: 20 m classes (0 bare, 1 snow, 255 nodata) and 100 m SWE in mm."""
 
     def setUp(self) -> None:
@@ -537,6 +540,8 @@ class RegressionTests(unittest.TestCase):
     def evaluate(self) -> dict[str, Any]:
         return evaluate(self.storage, self.fixture, index_entries(self.storage), self.folder)
 
+
+class RegressionTests(RegressionCase):
     def test_pending_until_the_model_is_published(self) -> None:
         result = self.evaluate()
         self.assertEqual(result["status"], "pending")
