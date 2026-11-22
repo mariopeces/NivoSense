@@ -130,7 +130,13 @@ def parse_datex_cameras(
     source_url: str,
     attribution: str,
     provider: str = "DGT",
+    credit_url: str | None = None,
 ) -> list[dict[str, Any]]:
+    """Cameras of a DATEX II device feed inside bbox.
+
+    source_url is the feed, kept as each camera's position source; credit_url is the
+    provider's page the card's credit links to (the feed itself when not given).
+    """
     root = ET.fromstring(xml_data)
     west, south, east, north = bbox
     cameras: list[dict[str, Any]] = []
@@ -177,7 +183,7 @@ def parse_datex_cameras(
                 "thumbnail_url": image_url,
                 "large_url": image_url,
                 "captured_at": None,
-                "source_url": source_url,
+                "source_url": credit_url or source_url,
                 "attribution": attribution,
             }
         )
@@ -433,9 +439,11 @@ def build_catalog(
 
     cameras: list[dict[str, Any]] = []
     log: list[dict[str, Any]] = []
+    live_only: set[str] = set()
     for source in config["sources"]:
         if not source.get("enabled", True):
             continue
+        first = len(cameras)
         if source["type"] == "datex2":
             # A feed outage must not stop the other providers: its cameras are left
             # out of this run (the feed is the only list of them) and the log says why.
@@ -448,6 +456,7 @@ def build_catalog(
                         source["url"],
                         source["attribution"],
                         source.get("provider", source["id"]),
+                        credit_url=source["page"],
                     )
                 )
             except (OSError, http.client.HTTPException, ET.ParseError) as exc:
@@ -456,6 +465,8 @@ def build_catalog(
             cameras.extend(static_cameras(source, bbox))  # type: ignore[arg-type]
         else:
             raise ValueError(f"Unsupported webcam source type: {source['type']}")
+        if source.get("live_only"):
+            live_only.update(camera["id"] for camera in cameras[first:])
 
     bodies: dict[str, dict[str, bytes]] = {}
     probe_log: list[dict[str, Any]] = []
@@ -469,11 +480,20 @@ def build_catalog(
         if sizes:
             bodies[camera["id"]] = sizes
     drop_shared_frames(cameras, probe_log, bodies)
+    kept: list[dict[str, Any]] = []
     for camera, record in zip(cameras, probe_log):
         if camera["id"] in bodies:
             store_stills(camera, bodies[camera["id"]], store)
             record["stored"] = [camera["thumbnail_url"], camera["large_url"]]
-    return cameras, log + probe_log
+        # A live_only source (DGT) lists hundreds of road cams, many dead for months:
+        # a failed check leaves the card out of this run instead of an offline card.
+        # Every run probes again, so a cam that comes back reappears.
+        if camera["id"] in live_only and camera["status"] != "live":
+            record["catalogue"] = "dropped"
+        else:
+            record["catalogue"] = "kept"
+            kept.append(camera)
+    return kept, log + probe_log
 
 
 def write_catalog(cameras: list[dict[str, Any]], output: Path) -> None:
@@ -498,7 +518,8 @@ def main() -> None:
         print(json.dumps(record, ensure_ascii=False))
     write_catalog(cameras, args.output)
     live = sum(camera["status"] == "live" for camera in cameras)
-    print(f"Wrote {len(cameras)} webcams ({live} live) to {args.output}")
+    dropped = sum(record.get("catalogue") == "dropped" for record in log)
+    print(f"Wrote {len(cameras)} webcams ({live} live) to {args.output}; dropped {dropped} that failed the check")
 
 
 if __name__ == "__main__":
