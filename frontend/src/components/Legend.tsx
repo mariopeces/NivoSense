@@ -52,33 +52,48 @@ function LayerChips({ layers }: { layers: CatalogLayer[] }) {
 
 const WEATHER_TITLE: Record<WeatherVariable, string> = {
   precipitation_total: "leyenda.precipitacion_acumulada",
-  snowfall: "leyenda.nieve_acumulada",
+  temperature_2m: "leyenda.temperatura",
+  wind_speed_10m: "leyenda.viento",
 };
 
 function WeatherLegend({ overlay }: { overlay: WeatherOverlay }) {
+  const precipitation = overlay.variable === "precipitation_total";
   return (
     <div className={CARD}>
       <div className="flex items-center justify-between gap-2">
         <p className="m-0 font-medium">{t(WEATHER_TITLE[overlay.variable])}</p>
         <StatusBadge status="prevision" />
       </div>
-      <Ramp
-        colours={WEATHER_PALETTES[overlay.variable]}
-        from={`${numero(palettes.min_visible_mm)} mm`}
-        to={`${numero(overlay.scaleMaxMm)} mm`}
-      />
-      <p className="mb-0 mt-1 text-caption text-text-muted">
-        {overlay.regionMaxMm < palettes.min_visible_mm
-          ? t("leyenda.sin_valores", { valor: numero(palettes.min_visible_mm) })
-          : t("leyenda.maximo_regional", { valor: numero(overlay.regionMaxMm) })}
-      </p>
+      {overlay.dry ? (
+        <>
+          <p className="mb-0 mt-2 font-medium">{t("leyenda.sin_precipitacion")}</p>
+          <p className="mb-0 mt-1 text-caption text-text-muted">
+            {t("leyenda.sin_precipitacion_detalle", { valor: numero(palettes.min_visible_mm) })}
+          </p>
+        </>
+      ) : (
+        <>
+          <Ramp
+            colours={WEATHER_PALETTES[overlay.variable]}
+            from={`${numero(precipitation ? palettes.min_visible_mm : overlay.scaleMin, precipitation ? 1 : 0)} ${overlay.units}`}
+            to={`${numero(overlay.scaleMax, precipitation ? 1 : 0)} ${overlay.units}`}
+          />
+          <p className="mb-0 mt-1 text-caption text-text-muted">
+            {precipitation
+              ? t("leyenda.maximo_regional", { valor: numero(overlay.regionMax) })
+              : t("leyenda.rango_regional", {
+                  minimo: numero(overlay.regionMin, 0),
+                  maximo: numero(overlay.regionMax, 0),
+                  unidades: overlay.units,
+                })}
+          </p>
+        </>
+      )}
       <dl className="tnum mb-0 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-line pt-2 text-caption">
         <dt className="text-text-muted">{t("leyenda.modelo")}</dt>
         <dd className="m-0 text-right">{overlay.modelName}</dd>
         <dt className="text-text-muted">{t("info_capa.resolucion")}</dt>
-        <dd className="m-0 text-right">
-          {numero(overlay.gridDegrees, 2)}° (~{Math.round(overlay.gridDegrees * 111)} km)
-        </dd>
+        <dd className="m-0 text-right">{overlay.resolution}</dd>
         <dt className="text-text-muted">{t("leyenda.pasada")}</dt>
         <dd className="m-0 text-right">
           {fechaCorta(overlay.runAt)}, {horaMadrid(overlay.runAt)}
@@ -88,7 +103,8 @@ function WeatherLegend({ overlay }: { overlay: WeatherOverlay }) {
           {fechaCorta(overlay.validAt)}, {horaMadrid(overlay.validAt)}
         </dd>
       </dl>
-      {overlay.note && <p className="mb-0 mt-2 text-caption text-warning">{overlay.note}</p>}
+      {overlay.experimental && <p className="mb-0 mt-2 text-caption text-warning">{t("leyenda.aviso_experimental")}</p>}
+      {overlay.note && <p className="mb-0 mt-2 text-caption text-text-muted">{overlay.note}</p>}
       <p className="mb-0 mt-2 text-caption text-text-muted">{overlay.attribution}</p>
     </div>
   );

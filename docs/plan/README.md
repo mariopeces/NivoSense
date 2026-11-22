@@ -24,7 +24,7 @@ A public, 100% working NivoSense in production for the Sierra Nevada Natural and
 | True colour RGB | Sentinel-2 **L1C** (Earth Search `sentinel-2-l1c`, B04/B03/B02 JP2 on AWS), own snow-aware stretch | 10 m | every S2 pass with the massif covered |
 | Wet snow (v2, optional) | Sentinel-1 RTC (Microsoft Planetary Computer, free anonymous token), change detection at -3 dB | 20 m | about 6 days |
 | Webcams | Cetursa ski resort cams (feratel, permission granted, non-profit) + live DGT cams | live | provider refresh |
-| Weather forecasts | Existing pipeline (GFS, ECMWF, AEMET) | as today | 4 runs/day |
+| Weather forecasts | Existing pipeline (AEMET HARMONIE-AROME; WeatherNext 3 pending access) | as today | 4 runs/day |
 
 ## 2. Definition of done (production)
 

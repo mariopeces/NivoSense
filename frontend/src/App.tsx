@@ -29,13 +29,13 @@ import {
   type SnowModelManifest,
 } from "./lib/snowModel";
 import {
-  WEATHER_HORIZONS,
   WEATHER_SCHEMA_VERSION,
-  weatherField,
+  defaultSelection,
   weatherOverlay,
   resolveHorizon,
   type WeatherHorizon,
   type WeatherManifest,
+  type WeatherModel,
   type WeatherVariable,
 } from "./lib/weather";
 import type { Basin, BasinSeries, FlowSeries, River, Webcam } from "./lib/types";
@@ -420,11 +420,25 @@ export default function App() {
     if (next === section && mobile) setSheet(sheet === "peek" ? "half" : "peek");
     setSection(next);
     setPanelOpen(true);
-    // Opening the forecast tab shows a forecast right away instead of an empty map until a horizon is picked.
-    if (next === "meteo" && weatherHorizon === null) {
-      setWeatherHorizon(resolveHorizon(activeWeatherModel, weatherVariable, WEATHER_HORIZONS[0]));
-    }
+    if (next === "meteo" && weatherHorizon === null) selectDefaultWeather(activeWeatherModel);
   };
+
+  // Opening the forecast tab shows something right away: the shortest horizon with data, never a dry transparent map.
+  const selectDefaultWeather = (model: WeatherModel | undefined) => {
+    const selection = defaultSelection(model);
+    if (!selection) return;
+    setWeatherVariable(selection.variable);
+    setWeatherHorizon(selection.horizon);
+  };
+
+  // The manifest can arrive after the tab was opened.
+  useEffect(() => {
+    if (section === "meteo" && weatherManifest && weatherHorizon === null) {
+      selectDefaultWeather(weatherManifest.models.find((model) => model.id === weatherModelId) ?? weatherManifest.models[0]);
+    }
+    // Only when the tab or the manifest changes: toggling the horizon off must not bring it back.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, weatherManifest]);
 
   const activeWeatherModel =
     weatherManifest?.models.find((model) => model.id === weatherModelId) ??
@@ -446,10 +460,7 @@ export default function App() {
 
   const handleWeatherModelChange = (modelId: string) => {
     setWeatherModelId(modelId);
-    const model = weatherManifest?.models.find((item) => item.id === modelId);
-    if (!weatherField(model, 24, weatherVariable)?.available) {
-      setWeatherVariable("precipitation_total");
-    }
+    selectDefaultWeather(weatherManifest?.models.find((item) => item.id === modelId));
   };
 
   const panelVisible = mobile || panelOpen;

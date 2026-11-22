@@ -8,10 +8,9 @@ _PALETTES = json.loads(Path(__file__).with_name("palettes.json").read_text(encod
 MIN_VISIBLE_MM = float(_PALETTES["min_visible_mm"])
 MIN_SCALE_MM = 1.0
 
-UNAVAILABLE_MODELS = (
-    {
-        "id": "weathernext",
-        "name": "WeatherNext 3",
-        "reason": "Data buckets require a Google account on the WeatherNext allowlist",
-    },
-)
+VARIABLES = ("precipitation_total", "temperature_2m", "wind_speed_10m")
+
+# The site shows only high-resolution models: native grid finer than this. The owner granted one exception,
+# WeatherNext 3 (0.1 degree surface grid, about 11 km); a new model needs the same explicit decision.
+MAX_RESOLUTION_KM = 5.0
+COARSE_MODELS_ALLOWED = frozenset({"weathernext"})

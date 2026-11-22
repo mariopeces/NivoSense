@@ -8,7 +8,10 @@ numpy==2.*
 rasterio==1.4.4
 pillow==11.*
 jsonschema==4.*
-eccodes==2.*
+# WeatherNext 3: Zarr v3 statistics store read lazily from Google Cloud Storage.
+xarray==2026.*
+zarr==3.*
+obstore==0.12.*
 # PMTiles builder (`rio pmtiles`).
 rio-pmtiles==1.2.2
 # Catalogue writes to Google Cloud Storage with generation preconditions (ifGenerationMatch).

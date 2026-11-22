@@ -46,7 +46,7 @@
       "minItems": 0,
       "items": {
         "type": "object",
-        "required": ["id", "name", "attribution", "run_at", "source", "grid_degrees", "horizons"],
+        "required": ["id", "name", "attribution", "run_at", "source", "grid_degrees", "resolution_km", "horizons"],
         "properties": {
           "id": { "type": "string" },
           "name": { "type": "string" },
@@ -54,11 +54,13 @@
           "run_at": { "type": "string", "format": "date-time" },
           "source": { "type": "string", "format": "uri" },
           "grid_degrees": { "type": "number", "exclusiveMinimum": 0 },
+          "resolution_km": { "type": "number", "exclusiveMinimum": 0 },
+          "experimental": { "type": "boolean" },
           "horizons": {
             "type": "object",
             "additionalProperties": {
               "type": "object",
-              "required": ["valid_at", "precipitation_total", "snowfall"]
+              "required": ["valid_at", "precipitation_total", "temperature_2m", "wind_speed_10m"]
             }
           }
         }
