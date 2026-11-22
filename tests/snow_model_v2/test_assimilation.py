@@ -150,3 +150,18 @@ def test_crps_matches_the_pairwise_definition():
     )
     assert a.crps(x, obs, w) == pytest.approx(direct)
     assert a.crps(np.broadcast_to(y[None], (members, 1, data)).copy(), obs, w) == pytest.approx(0.0, abs=1e-12)
+
+
+def test_block_holdout_holds_whole_blocks_and_about_a_third():
+    from pipelines.snow_model_v2.holdout import block_mask, split
+
+    start = DAYS[0]
+    days = [start + timedelta(days=d) for d in range(0, 120, 5)]
+    held = block_mask(days, start)
+    assert 0.25 < held.mean() < 0.45
+    runs = np.flatnonzero(np.diff(held.astype(int)))
+    assert len(runs) >= 4  # separate blocks, not scattered dates
+    fraction = np.zeros((2, len(days)))
+    obs = Observations(days, fraction, fraction + 25, fraction + 0.1, fraction)
+    train, test = split(obs, start)
+    assert len(train.days) + len(test.days) == len(days) and not set(train.days) & set(test.days)
