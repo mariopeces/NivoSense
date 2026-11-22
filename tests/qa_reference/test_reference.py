@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from pipelines.s2.domain import Grid
-from qa.reference import chips, layers, sample, strata
+from qa.reference import chips, layers, sample, score, strata
 
 REFERENCE = Path(__file__).resolve().parents[2] / "qa" / "reference"
 
@@ -196,15 +196,156 @@ class ChipsTest(unittest.TestCase):
         self.assertEqual(subset, chips.blind_subset(points))
 
 
+def synthetic_sample() -> dict:
+    """One date with a snowline at 2,400 m; draw 2 samples forest above it."""
+
+    def point(point_id, draw, in_strata, elevation, label):
+        properties = {
+            "id": point_id,
+            "draw": draw,
+            "date": "2026-01-01",
+            "stratum": in_strata[0],
+            "in_strata": in_strata,
+            "elevation_band": ">=2500" if elevation >= 2500 else "2000-2500",
+            "elevation_m": elevation,
+            "label": label,
+            "scored": label != "unsure",
+        }
+        return {"type": "Feature", "geometry": None, "properties": properties}
+
+    def cell(draw, stratum, band, pixels, points):
+        return {
+            "draw": draw,
+            "date": "2026-01-01",
+            "stratum": stratum,
+            "elevation_band": band,
+            "pixels": pixels,
+            "points": points,
+        }
+
+    return {
+        "type": "FeatureCollection",
+        "metadata": {
+            "dates": [{"date": "2026-01-01", "snowline_m": 2400.0}],
+            "supplements": {"2": {"above_snowline_m": 0.0}},
+            "cells": [
+                {
+                    "draw": 1,
+                    "date": "2026-01-01",
+                    "stratum": "forest",
+                    "elevation_band": "2000-2500",
+                    "pixels": 800,
+                    "points": 1,
+                },
+                {
+                    "draw": 1,
+                    "date": "2026-01-01",
+                    "stratum": "forest",
+                    "elevation_band": ">=2500",
+                    "pixels": 200,
+                    "points": 1,
+                },
+                {
+                    "draw": 2,
+                    "date": "2026-01-01",
+                    "stratum": "forest",
+                    "elevation_band": ">=2500",
+                    "pixels": 200,
+                    "points": 3,
+                },
+                {
+                    "draw": 1,
+                    "date": "2026-01-01",
+                    "stratum": "open_terrain",
+                    "elevation_band": ">=2500",
+                    "pixels": 400,
+                    "points": 1,
+                },
+            ],
+        },
+        "features": [
+            point("a", 1, ["forest"], 2100.0, "no_snow"),
+            point("b", 1, ["forest"], 2600.0, "snow"),
+            point("c", 2, ["forest"], 2700.0, "snow"),
+            point("d", 2, ["forest"], 2650.0, "unsure"),
+            point("e", 2, ["forest", "open_terrain"], 2800.0, "cloud"),
+        ],
+    }
+
+
+class ScoreTest(unittest.TestCase):
+    def test_inclusion_probability_sums_every_draw_and_stratum_the_pixel_is_in(self):
+        probabilities = score.inclusion_probabilities(synthetic_sample())
+        self.assertAlmostEqual(probabilities["a"], 1 / 800)
+        self.assertAlmostEqual(probabilities["b"], 1 / 200 + 3 / 200)
+        self.assertAlmostEqual(probabilities["c"], 1 / 200 + 3 / 200)
+        self.assertAlmostEqual(probabilities["e"], 1 / 200 + 3 / 200 + 1 / 400)
+
+    def test_point_below_the_snowline_gets_no_share_of_the_later_draw(self):
+        sample = synthetic_sample()
+        sample["metadata"]["supplements"]["2"]["above_snowline_m"] = 250.0
+        probabilities = score.inclusion_probabilities(sample)
+        self.assertAlmostEqual(probabilities["b"], 1 / 200)
+        self.assertAlmostEqual(probabilities["c"], 1 / 200 + 3 / 200)
+
+    def test_point_outside_every_cell_is_refused(self):
+        sample = synthetic_sample()
+        sample["metadata"]["cells"] = [c for c in sample["metadata"]["cells"] if c["elevation_band"] != "2000-2500"]
+        with self.assertRaises(ValueError):
+            score.inclusion_probabilities(sample)
+
+    def test_weighted_confusion_and_snow_f1(self):
+        sample = synthetic_sample()
+        weight = score.weights(sample)
+        points = score.scored_points(sample)
+        self.assertEqual([p["id"] for p in points], ["a", "b", "c", "e"])
+        predicted = {"a": "snow", "b": "snow", "c": "unknown", "e": "no_snow"}
+        matrix = score.confusion(points, predicted, weight)
+        self.assertAlmostEqual(matrix["no_snow"]["snow"], 800.0)
+        self.assertAlmostEqual(matrix["snow"]["snow"], 50.0)
+        self.assertAlmostEqual(matrix["snow"]["unknown"], 50.0)
+        result = score.snow_f1(matrix)
+        self.assertAlmostEqual(result["precision"], 50 / 850)
+        self.assertAlmostEqual(result["recall"], 0.5)
+        self.assertAlmostEqual(result["f1"], 100 / 950)
+        self.assertAlmostEqual(score.snow_f1(score.confusion(points, predicted))["f1"], 2 / 4)
+
+    def test_missing_prediction_is_refused(self):
+        sample = synthetic_sample()
+        with self.assertRaises(ValueError):
+            score.confusion(score.scored_points(sample), {"a": "snow"})
+
+    def test_report_scores_strata_by_membership(self):
+        sample = synthetic_sample()
+        predicted = {"a": "no_snow", "b": "snow", "c": "snow", "e": "cloud"}
+        result = score.report(sample, predicted)
+        self.assertEqual(result["open_terrain"]["weighted"]["points"], 1)
+        self.assertEqual(result["forest"]["weighted"]["f1"], 1.0)
+        self.assertEqual(result["forest"]["unsure_share"], 0.2)
+        self.assertEqual(result["overall"]["per_draw_unweighted"]["2"]["points"], 2)
+
+    def test_weighting_lowers_the_oversampled_snow_share(self):
+        rows = {row["stratum"]: row for row in score.prevalence(synthetic_sample())}
+        self.assertEqual(rows["forest"]["pooled unweighted"], 0.5)
+        self.assertAlmostEqual(
+            rows["forest"]["pooled weighted"], 100 / (800 + 50 + 50 + 1 / (1 / 200 + 3 / 200 + 1 / 400)), places=4
+        )
+
+
+FROZEN_SHA256 = "a6f2586b23df03de6b1effffaec9c55ea49a4e15d859f6323c7c2407c0d9372e"
+
+
 class FrozenSampleTest(unittest.TestCase):
+    def setUp(self):
+        self.path = REFERENCE / "snow_points.geojson"
+        self.collection = json.loads(self.path.read_text(encoding="utf-8"))
+        self.points = [feature["properties"] for feature in self.collection["features"]]
+
     def test_sample_matches_its_frozen_hash(self):
-        sample_path = REFERENCE / "snow_points.geojson"
-        expected = (REFERENCE / "snow_points.geojson.sha256").read_text(encoding="utf-8").split()[0]
-        self.assertEqual(hashlib.sha256(sample_path.read_bytes()).hexdigest(), expected)
+        self.assertEqual(hashlib.sha256(self.path.read_bytes()).hexdigest(), FROZEN_SHA256)
 
     def test_sample_meets_the_card(self):
-        collection = json.loads((REFERENCE / "snow_points.geojson").read_text(encoding="utf-8"))
-        points = [feature["properties"] for feature in collection["features"]]
+        points = self.points
         scored = [p for p in points if p["scored"]]
         self.assertTrue(all(p["scored"] == (p["label"] != "unsure") for p in points))
         self.assertGreaterEqual(len(scored), 1500)
@@ -212,9 +353,20 @@ class FrozenSampleTest(unittest.TestCase):
         self.assertIn("2026-11-20", {p["date"] for p in scored})
         self.assertEqual({p["stratum"] for p in scored}, set(strata.STRATA))
         self.assertTrue({p["label"] for p in points} <= set(chips.LABELS))
-        self.assertTrue({p["draw"] for p in points} <= {1, 2})
+        self.assertTrue({p["draw"] for p in points} <= {1, *sample.SUPPLEMENTS})
         self.assertTrue(all(p["chip_scene_id"].endswith("_L1C") for p in points))
         self.assertEqual(len({p["id"] for p in points}), len(points))
+
+    def test_forest_and_cloud_edge_hold_100_scored_snow_points(self):
+        for name in ("forest", "cloud_edge"):
+            snow = [p for p in self.points if p["stratum"] == name and p["label"] == "snow"]
+            self.assertGreaterEqual(len(snow), 100, name)
+
+    def test_stored_weights_are_the_inverse_inclusion_probabilities(self):
+        probabilities = score.inclusion_probabilities(self.collection)
+        for point in self.points:
+            self.assertAlmostEqual(point["inclusion_probability"], probabilities[point["id"]], places=7)
+            self.assertAlmostEqual(point["weight"], 1 / probabilities[point["id"]], delta=0.001)
 
 
 if __name__ == "__main__":

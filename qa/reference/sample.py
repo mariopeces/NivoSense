@@ -7,10 +7,12 @@ cloud-edge stratum) and sun angles, builds the 10 m L1C mosaic the chips are cut
 draws points per stratum and elevation band. Rerunning with the same inputs and seed draws
 the same points.
 
-    python -m qa.reference.sample --cache work/reference --out points2.geojson --supplement points.geojson
+    python -m qa.reference.sample --cache C --out points2.geojson --supplement points.geojson --draw 2
+    python -m qa.reference.sample --cache C --out points3.geojson --supplement points2.geojson --draw 3
+    python -m qa.reference.sample --cache C --out points4.geojson --supplement points3.geojson --draw 4
 
-draws the second, supplementary sample on top of the first one (see `supplement`) and writes
-both draws together.
+draw the later, snow-prone samples (`SUPPLEMENTS`) on top of the earlier ones, and write all
+draws together with the pixel and point counts of every draw cell (metadata.cells).
 """
 
 import argparse
@@ -31,14 +33,37 @@ from . import layers, strata
 DATES_PATH = Path(__file__).with_name("dates.json")
 SEED = 20261122
 POINTS_PER_STRATUM = 360
-# The first draw left snow thin where snow is rare (20 snow points in forest, 24 at cloud
-# edges, almost all of them above the date's snowline). The second draw samples only ground
-# above each date's snowline, the one place snow can be found without looking at the images,
-# with most of its points in those two strata.
-SUPPLEMENT_SEED = 20261123
-SUPPLEMENT_QUOTAS = {"snowline_band": 40, "terrain_shadow": 40, "forest": 120, "cloud_edge": 100, "open_terrain": 40}
 # Shadows are traced from terrain up to this far outside the domain.
 PAD_M = strata.SHADOW_MAX_DISTANCE_M
+
+
+@dataclass(frozen=True)
+class Supplement:
+    """A later draw on the dates that have a snowline, from the same strata and elevation
+    bands restricted to ground at least `above_snowline_m` above the date's snowline_m."""
+
+    seed: int
+    above_snowline_m: float
+    quotas: dict[str, int]
+
+
+# The first draw left snow thin where snow is rare (20 snow points in forest, 24 at cloud
+# edges, almost all of them above the date's snowline). Snow can be targeted without looking
+# at the images only through the DEM and the snowline read on the overviews: draw 2 samples
+# ground above the snowline; in draws 1 and 2 about half the forest and cloud-edge points
+# more than 500 m above it were snow, against under a tenth near it, so draw 3 samples there
+# to bring both strata to 100 scored snow points.
+SUPPLEMENTS = {
+    2: Supplement(
+        20261123,
+        0.0,
+        {"snowline_band": 40, "terrain_shadow": 40, "forest": 120, "cloud_edge": 100, "open_terrain": 40},
+    ),
+    3: Supplement(20261124, 500.0, {"forest": 200, "cloud_edge": 200}),
+    # Draw 3 ran out of cloud-edge ground 500 m above the snowline (137 of 200 points at the
+    # minimum spacing) and left cloud edge 3 snow points short of 100.
+    4: Supplement(20261125, 200.0, {"cloud_edge": 80}),
+}
 
 
 @dataclass(frozen=True)
@@ -229,11 +254,17 @@ def grid_cell(x: float, y: float, grid: Grid) -> tuple[int, int]:
     return int((grid.top - y) // grid.resolution), int((x - grid.left) // grid.resolution)
 
 
-def supplement(base: dict, domain_path: Path, cache: Path, out: Path) -> dict:
-    """Second draw on the dates that have a snowline, from the same strata and elevation bands
-    restricted to ground at or above the date's snowline_m, with `SUPPLEMENT_QUOTAS`. Points
-    keep the 200 m spacing from the first draw's points of the same date. Its `cell_pixels`
-    count the restricted cell, so design weights stay per draw."""
+def supplement_masks(
+    full: dict[str, np.ndarray], elevation: np.ndarray, snowline_m: float, plan: Supplement
+) -> dict[str, np.ndarray]:
+    above = elevation >= snowline_m + plan.above_snowline_m
+    return {name: mask & above for name, mask in full.items()}
+
+
+def supplement(base: dict, number: int, domain_path: Path, cache: Path, out: Path) -> dict:
+    """Draw `number` of `SUPPLEMENTS` on top of the points in `base`, keeping the minimum
+    spacing to every earlier point of the same date; writes all draws together."""
+    plan = SUPPLEMENTS[number]
     domain_path = domain_part(domain_path, cache)
     domain = load_domain(domain_path)
     elevation_padded, trees = static_layers(domain, cache)
@@ -245,18 +276,17 @@ def supplement(base: dict, domain_path: Path, cache: Path, out: Path) -> dict:
     for spec in specs:
         day_layers, _ = load_layers(cache, spec.day, elevation, trees)
         full = date_masks(day_layers, spec.snowline_m)
-        above = elevation >= spec.snowline_m
         full_masks.append(full)
-        masks.append({name: mask & above for name, mask in full.items()})
+        masks.append(supplement_masks(full, elevation, spec.snowline_m or 0.0, plan))
     counts = {name: [int(m[name].sum()) for m in masks] for name in strata.STRATA}
-    quotas = {name: strata.split_quota(SUPPLEMENT_QUOTAS[name], counts[name]) for name in strata.STRATA}
+    quotas = {name: strata.split_quota(plan.quotas.get(name, 0), counts[name]) for name in strata.STRATA}
 
-    features = [{**f, "properties": {**f["properties"], "draw": 1}} for f in base["features"]]
+    features = [{**f, "properties": {"draw": 1, **f["properties"]}} for f in base["features"]]
     for index, (spec, date_mask, full) in enumerate(zip(specs, masks, full_masks)):
         day = spec.day.isoformat()
         earlier = [f["properties"] for f in base["features"] if f["properties"]["date"] == day]
         day_layers, source = load_layers(cache, spec.day, elevation, trees)
-        rng = np.random.default_rng([SUPPLEMENT_SEED, index])
+        rng = np.random.default_rng([plan.seed, index])
         draws = strata.draw_points(
             date_mask,
             bands,
@@ -266,26 +296,68 @@ def supplement(base: dict, domain_path: Path, cache: Path, out: Path) -> dict:
             taken=[grid_cell(p["x"], p["y"], domain.grid) for p in earlier],
         )
         features.extend(
-            point_feature(draw, len(earlier) + number, 2, spec, metadata[day], day_layers, source, domain.grid, full)
-            for number, draw in enumerate(draws)
+            point_feature(draw, len(earlier) + n, number, spec, metadata[day], day_layers, source, domain.grid, full)
+            for n, draw in enumerate(draws)
         )
-    collection = {
+    supplements = {key: value for key, value in base["metadata"].get("supplements", {}).items()}
+    supplements[str(number)] = {
+        "seed": plan.seed,
+        "above_snowline_m": plan.above_snowline_m,
+        "quotas": plan.quotas,
+        "dates": [spec.day.isoformat() for spec in specs],
+        "restriction": f"elevation at least {plan.above_snowline_m:.0f} m above the date's snowline_m",
+    }
+    collection: dict = {
         "type": "FeatureCollection",
-        "metadata": {
-            **base["metadata"],
-            "supplement": {
-                "seed": SUPPLEMENT_SEED,
-                "quotas": SUPPLEMENT_QUOTAS,
-                "dates": [spec.day.isoformat() for spec in specs],
-                "restriction": "elevation at or above the date's snowline_m",
-                "stratum_pixels": counts,
-            },
-        },
+        "metadata": {**base["metadata"], "supplements": supplements},
         "features": features,
     }
+    collection["metadata"].pop("supplement", None)
+    collection["metadata"]["cells"] = cell_table(collection, domain, elevation, trees, bands, cache)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(collection, indent=1) + "\n", encoding="utf-8")
     return collection
+
+
+def cell_table(
+    collection: dict, domain: Domain, elevation: np.ndarray, trees: np.ndarray, bands: np.ndarray, cache: Path
+) -> list[dict]:
+    """Pixels and points drawn per (draw, date, stratum, elevation band) cell: the inclusion
+    probability of a pixel in a cell is points / pixels."""
+    drawn: dict[tuple[int, str, str, str], int] = {}
+    for feature in collection["features"]:
+        p = feature["properties"]
+        key = (p["draw"], p["date"], p["stratum"], p["elevation_band"])
+        drawn[key] = drawn.get(key, 0) + 1
+    numbers = sorted({p["properties"]["draw"] for p in collection["features"]})
+    rows = []
+    for spec in read_dates():
+        day_layers, _ = load_layers(cache, spec.day, elevation, trees)
+        full = date_masks(day_layers, spec.snowline_m)
+        for number in numbers:
+            if number == 1:
+                masks = full
+            elif spec.snowline_m is None:
+                continue
+            else:
+                masks = supplement_masks(full, elevation, float(spec.snowline_m), SUPPLEMENTS[number])
+            for name in strata.STRATA:
+                for band in range(len(strata.ELEVATION_BREAKS_M) + 1):
+                    pixels = int((masks[name] & (bands == band)).sum())
+                    band_name = strata.band_name(band)
+                    points = drawn.get((number, spec.day.isoformat(), name, band_name), 0)
+                    if pixels or points:
+                        rows.append(
+                            {
+                                "draw": number,
+                                "date": spec.day.isoformat(),
+                                "stratum": name,
+                                "elevation_band": band_name,
+                                "pixels": pixels,
+                                "points": points,
+                            }
+                        )
+    return rows
 
 
 def point_feature(
@@ -334,11 +406,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cache", type=Path, required=True, help="folder for the L1C mosaics and strata layers")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--workers", type=int, default=4)
-    parser.add_argument("--supplement", type=Path, help="points of the first draw; draws the second one on top")
+    parser.add_argument("--supplement", type=Path, help="points of the earlier draws; draws --draw on top")
+    parser.add_argument("--draw", type=int, choices=sorted(SUPPLEMENTS), default=2)
     args = parser.parse_args(argv)
     if args.supplement:
         base = json.loads(args.supplement.read_text(encoding="utf-8"))
-        collection = supplement(base, args.domain, args.cache, args.out)
+        collection = supplement(base, args.draw, args.domain, args.cache, args.out)
     else:
         collection = run(args.domain, args.cache, args.out, args.workers)
     print(f"{len(collection['features'])} points written to {args.out}")

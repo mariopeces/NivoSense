@@ -2,8 +2,8 @@
 
     python -m qa.reference.freeze --points work/reference/points.geojson --labels labels.csv
 
-Writes qa/reference/snow_points.geojson and its SHA-256 next to it. The tests check the file
-against that hash, so any later edit of the sample fails CI.
+Writes qa/reference/snow_points.geojson and prints its SHA-256. The tests hold that hash as a
+literal, so a new freeze fails CI until the test is changed in the same, reviewed commit.
 """
 
 import argparse
@@ -12,7 +12,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import strata
+from . import score, strata
 from .chips import read_labels
 
 REFERENCE = Path(__file__).parent
@@ -75,13 +75,18 @@ def design() -> dict:
             "simple random sample per date, stratum and elevation band; quotas split evenly over the dates "
             "where the stratum has pixels, then over its elevation bands; strata other than cloud_edge drawn "
             "only on SCL clear-sky pixels. Points also carry every stratum they fall in (in_strata) and the "
-            "pixel count of their draw cell (cell_pixels) for design-weighted estimates."
+            "pixel count of their draw cell (cell_pixels)."
         ),
-        "supplement": (
-            "points with draw = 2 come from a second draw (seed and quotas in metadata.supplement) on the dates "
-            "with a snowline, from the same strata and elevation bands restricted to ground at or above the "
-            "date's snowline_m, keeping the minimum spacing to the first draw; their cell_pixels count the "
-            "restricted cell. They oversample snow-prone ground: weight each draw by its own cells."
+        "supplements": (
+            "points with draw >= 2 come from later draws (seed, quotas and restriction in metadata.supplements) "
+            "on the dates with a snowline, from the same strata and elevation bands restricted to ground at "
+            "least above_snowline_m above the date's snowline_m, keeping the minimum spacing to every earlier "
+            "point. They oversample snow-prone ground."
+        ),
+        "weights": (
+            "inclusion_probability is the sum, over every draw and every stratum the pixel lies in (in_strata), "
+            "of points / pixels of its (draw, date, stratum, elevation band) cell in metadata.cells; weight is "
+            "its inverse. Q1 is scored with these weights (qa/reference/score.py and README.md)."
         ),
     }
 
@@ -94,10 +99,14 @@ def freeze(points_path: Path, labels_path: Path, out: Path = SAMPLE_PATH) -> str
     extra = sorted(set(labels) - set(ids))
     if missing or extra:
         raise ValueError(f"labels do not match the points: {len(missing)} missing, {len(extra)} unknown")
+    probabilities = score.inclusion_probabilities(collection)
     for feature in collection["features"]:
-        label = labels[feature["properties"]["id"]]
-        feature["properties"]["label"] = label
-        feature["properties"]["scored"] = label != "unsure"
+        properties = feature["properties"]
+        label = labels[properties["id"]]
+        properties["label"] = label
+        properties["scored"] = label != "unsure"
+        properties["inclusion_probability"] = round(probabilities[properties["id"]], 8)
+        properties["weight"] = round(1.0 / probabilities[properties["id"]], 3)
     collection["metadata"] = {
         "name": "NivoSense frozen snow reference sample",
         "crs_of_x_y": "EPSG:32630",
@@ -108,9 +117,7 @@ def freeze(points_path: Path, labels_path: Path, out: Path = SAMPLE_PATH) -> str
     }
     text = json.dumps(collection, indent=1, ensure_ascii=False) + "\n"
     out.write_text(text, encoding="utf-8", newline="\n")
-    digest = hashlib.sha256(out.read_bytes()).hexdigest()
-    out.with_name(out.name + ".sha256").write_text(f"{digest}  {out.name}\n", encoding="utf-8", newline="\n")
-    return digest
+    return hashlib.sha256(out.read_bytes()).hexdigest()
 
 
 def main(argv: list[str] | None = None) -> int:
