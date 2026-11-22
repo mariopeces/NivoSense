@@ -11,3 +11,9 @@ jsonschema==4.*
 eccodes==2.*
 # PMTiles builder (`rio pmtiles`).
 rio-pmtiles==1.2.2
+# Domain build (pipelines/domain): read the REDIAM WFS GML and the MITECO shapefiles, reproject, union and intersect.
+# The pyogrio wheel bundles its own GDAL, separate from rasterio's.
+geopandas==1.2.0
+pyogrio==0.13.0
+pyproj==3.7.2
+shapely==2.2.0
