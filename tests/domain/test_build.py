@@ -4,7 +4,8 @@ import unittest
 from pathlib import Path
 
 import geopandas as gpd
-from shapely.geometry import box, shape
+import shapely
+from shapely.geometry import Polygon, box, shape
 
 from pipelines.domain import build
 from pipelines.region import load_region
@@ -35,9 +36,7 @@ def parks(national, natural, official_national_ha=None, official_natural_ha=None
 
 class OutermostRiversTest(unittest.TestCase):
     def test_keeps_codes_without_a_prefix_among_candidates(self):
-        frame = gpd.GeoDataFrame(
-            {"pfafrio": ["10094", "100942", "1009484", "200134", "2001342", "200138"]}
-        )
+        frame = gpd.GeoDataFrame({"pfafrio": ["10094", "100942", "1009484", "200134", "2001342", "200138"]})
         kept = build.outermost_rivers(frame)["pfafrio"].tolist()
         self.assertEqual(kept, ["10094", "200134", "200138"])
 
@@ -132,15 +131,23 @@ class CheckTest(unittest.TestCase):
 
 class OutputTest(unittest.TestCase):
     def test_feature_collection_is_wgs84_with_rounded_coordinates(self):
-        frame = gpd.GeoDataFrame(
-            {"id": ["x"]}, geometry=[box(450000, 4100000, 451000, 4101000)], crs=build.AREA_CRS
-        )
+        frame = gpd.GeoDataFrame({"id": ["x"]}, geometry=[box(450000, 4100000, 451000, 4101000)], crs=build.AREA_CRS)
         collection = build.feature_collection(frame, "test", {"source": "unit"})
         self.assertEqual(collection["metadata"], {"source": "unit"})
         ring = collection["features"][0]["geometry"]["coordinates"][0]
         for longitude, latitude in ring:
             self.assertTrue(-4 < longitude < -3 and 37 < latitude < 38)
             self.assertEqual(round(longitude, build.COORDINATE_DECIMALS), longitude)
+
+    def test_rings_follow_rfc_7946_orientation(self):
+        clockwise = Polygon(
+            [(450000, 4100000), (450000, 4101000), (451000, 4101000), (451000, 4100000)],
+            holes=[[(450200, 4100200), (450800, 4100200), (450800, 4100800), (450200, 4100800)]],
+        )
+        frame = gpd.GeoDataFrame({"id": ["x"]}, geometry=[clockwise], crs=build.AREA_CRS)
+        geometry = shape(build.feature_collection(frame, "t", {})["features"][0]["geometry"])
+        self.assertTrue(geometry.exterior.is_ccw)
+        self.assertFalse(geometry.interiors[0].is_ccw)
 
     def test_write_json_writes_identical_copies(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -168,6 +175,57 @@ class OutputTest(unittest.TestCase):
             self.assertEqual(region["bbox"], [-3.6, 36.9, -2.6, 37.3])
             self.assertEqual(region["domain"], "data/domain.geojson")
             self.assertEqual(region["snow_model"], {"x": 1})
+
+
+class ProvenanceTest(unittest.TestCase):
+    def test_a_different_sha256_is_refused(self):
+        with self.assertRaisesRegex(ValueError, "not the recorded"):
+            build.verify_sha256("a" * 64, "b" * 64, "source")
+        build.verify_sha256("a" * 64, "a" * 64, "source")
+
+    def test_subbasin_zip_with_the_recorded_name_but_other_content_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = Path(tmp) / "A_cuencas_rios_Atl_Sur.zip"
+            fake.write_bytes(b"not the MITECO file")
+            with self.assertRaisesRegex(ValueError, "not the recorded"):
+                build.verify_subbasin_zips([fake])
+
+    def test_unrecorded_subbasin_zip_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            other = Path(tmp) / "other.zip"
+            other.write_bytes(b"")
+            with self.assertRaisesRegex(ValueError, "not one of the recorded"):
+                build.verify_subbasin_zips([other])
+
+    def test_feature_digest_changes_with_geometry_and_attributes(self):
+        row = gpd.GeoDataFrame([{"NOMBRE": "SIERRA NEVADA", "geometry": box(0, 0, 1, 1)}]).iloc[0]
+        moved = gpd.GeoDataFrame([{"NOMBRE": "SIERRA NEVADA", "geometry": box(0, 0, 1, 1.001)}]).iloc[0]
+        renamed = gpd.GeoDataFrame([{"NOMBRE": "OTRA", "geometry": box(0, 0, 1, 1)}]).iloc[0]
+        digest = build.feature_digest(row)
+        self.assertEqual(digest, build.feature_digest(row))
+        self.assertNotEqual(digest, build.feature_digest(moved))
+        self.assertNotEqual(digest, build.feature_digest(renamed))
+
+
+class SmallPartsTest(unittest.TestCase):
+    def test_detached_fragment_moves_to_the_neighbour_with_the_longest_shared_edge(self):
+        # A owns a 50 m x 50 m fragment lying against B's edge; C only touches it at a corner.
+        a = box(0, 0, 1000, 1000).union(box(1050, 0, 1100, 50))
+        b = box(1100, 0, 2000, 1000)
+        c = box(1000, -1000, 1050, 0)
+        basins = gpd.GeoDataFrame({"cod_uni": [1, 2, 3]}, geometry=[a, b, c], crs=build.AREA_CRS)
+        merged = build.merge_small_parts(basins)
+        self.assertEqual(merged.geometry[0].geom_type, "Polygon")
+        self.assertAlmostEqual(merged.geometry[1].area, b.area + 2500)
+        self.assertAlmostEqual(merged.geometry[2].area, c.area)
+        self.assertAlmostEqual(merged.geometry.area.sum(), basins.geometry.area.sum())
+
+    def test_fragment_of_one_model_cell_or_more_is_kept(self):
+        a = box(0, 0, 1000, 1000).union(box(1050, 0, 1150, 100))
+        b = box(1150, 0, 2000, 1000)
+        basins = gpd.GeoDataFrame({"cod_uni": [1, 2]}, geometry=[a, b], crs=build.AREA_CRS)
+        merged = build.merge_small_parts(basins)
+        self.assertEqual(merged.geometry[0].geom_type, "MultiPolygon")
 
 
 class LoadRegionTest(unittest.TestCase):
@@ -217,29 +275,33 @@ class CommittedOutputsTest(unittest.TestCase):
             "domain": areas["national_park_official_km2"] + areas["natural_park_official_km2"],
         }
         frame = gpd.GeoDataFrame(
-            [
-                {"part": f["properties"]["part"], "geometry": shape(f["geometry"])}
-                for f in collection["features"]
-            ],
+            [{"part": f["properties"]["part"], "geometry": shape(f["geometry"])} for f in collection["features"]],
             crs=build.OUTPUT_CRS,
         ).to_crs(build.AREA_CRS)
         for _, row in frame.iterrows():
             measured = row.geometry.area / 1e6
             self.assertLess(build.area_error(measured, official[row["part"]]), build.MAX_AREA_ERROR)
 
+    def test_no_fragment_smaller_than_a_model_cell_and_rfc_7946_rings(self):
+        for name in ("basins.geojson", "domain.geojson"):
+            for feature in self.load(name)["features"]:
+                parts = shapely.get_parts(shape(feature["geometry"]))
+                for part in parts:
+                    self.assertTrue(part.exterior.is_ccw)
+                    self.assertTrue(all(not ring.is_ccw for ring in part.interiors))
+                if name == "basins.geojson":
+                    projected = gpd.GeoSeries(list(parts), crs=build.OUTPUT_CRS).to_crs(build.AREA_CRS)
+                    self.assertTrue((projected.area >= build.MIN_PART_M2).all())
+
     def test_subbasins_cover_the_domain(self):
-        total = sum(
-            f["properties"]["domain_area_km2"] for f in self.load("basins.geojson")["features"]
-        )
+        total = sum(f["properties"]["domain_area_km2"] for f in self.load("basins.geojson")["features"])
         domain = self.load("domain.geojson")["metadata"]["areas"]["domain_km2"]
         self.assertLess(build.area_error(total, domain), build.MAX_AREA_ERROR)
 
     def test_region_bbox_contains_the_domain(self):
         region = load_region(REPO / "regions" / "sierra-nevada.json")
         domain = next(
-            shape(f["geometry"])
-            for f in self.load("domain.geojson")["features"]
-            if f["properties"]["part"] == "domain"
+            shape(f["geometry"]) for f in self.load("domain.geojson")["features"] if f["properties"]["part"] == "domain"
         )
         west, south, east, north = domain.bounds
         self.assertTrue(region.bbox[0] <= west and region.bbox[1] <= south)
