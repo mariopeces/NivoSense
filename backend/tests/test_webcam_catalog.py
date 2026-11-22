@@ -101,6 +101,8 @@ class ValidateWebcamArtifactTest(unittest.TestCase):
 
     def test_dgt_credit_to_the_feed_fails(self) -> None:
         store = LocalStillStore(self.dist / "data" / "webcam-stills", "data/webcam-stills/")
+        # The previous run saw another frame, so this one's age is bounded and it is listed.
+        store.save_state({"frames": {"dgt-312": {"sha256": "0" * 64, "captured_at": None, "confirmed": True}}})
         cameras, _ = build_catalog(
             dgt_config(),
             store,

@@ -126,20 +126,35 @@ jobs:
             cp -R snow-artifact frontend/public/data/snow-model
           fi
 
-      # The webcam frame history (per cam, the last frame and when its content was first
-      # captured) lives next to the stills on the published site. Without it capture
-      # times fall back to Last-Modified, which DGT re-stamps on unchanged frames.
+      # The webcam frame history (per cam, the last frame and whether a run saw its
+      # content appear) lives next to the stills on the published site. Without it DGT
+      # cams are held out until a later run sees a new frame (DGT re-stamps Last-Modified
+      # on frozen frames for weeks). WEBCAM_HISTORY_RESTORE tells the ingest which case
+      # applies: restored, absent (404: none published yet) or failed (any other error);
+      # both of the last two fail closed.
       - name: Restore the webcam frame history
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          site=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .html_url)
           state=frontend/public/data/webcam-stills/state.json
           mkdir -p "$(dirname "$state")"
-          if ! curl -sfL --max-time 30 "${site%/}/data/webcam-stills/state.json" -o "$state"; then
-            rm -f "$state"
-            echo "::warning::No webcam frame history on $site; capture times start from Last-Modified"
+          rm -f "$state"
+          status=failed
+          if site=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .html_url); then
+            for attempt in 1 2 3; do
+              code=$(curl -sL --max-time 30 -o "$state" -w '%{http_code}' "${site%/}/data/webcam-stills/state.json") || code=000
+              if [ "$code" = 200 ] && python -m json.tool "$state" > /dev/null; then status=restored; break; fi
+              rm -f "$state"
+              if [ "$code" = 404 ]; then status=absent; break; fi
+              sleep $((attempt * 10))
+            done
           fi
+          echo "WEBCAM_HISTORY_RESTORE=$status" >> "$GITHUB_ENV"
+          case $status in
+            restored) echo "Webcam frame history restored" ;;
+            absent) echo "::notice::No webcam frame history published yet; DGT cams wait for a new frame" ;;
+            *) echo "::warning::Webcam frame history restore failed (last HTTP ${code:-none}); DGT cams wait for a new frame" ;;
+          esac
 
       # A release with backend/validate_webcam_artifact.py writes data/webcams.json and
       # the checked stills (neither is committed): a provider outage only drops that
