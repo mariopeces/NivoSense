@@ -113,8 +113,8 @@ def class_fractions(
     count = domain.class_count
     member = (domain.class_of_cell >= 0) & usable
     ids = domain.class_of_cell[member]
-    snow_sum = np.bincount(ids, snow_c[member], count)
-    decisive_sum = np.bincount(ids, decisive_c[member], count)
+    snow_sum = np.bincount(ids, snow_c[member], count).astype("float64")
+    decisive_sum = np.bincount(ids, decisive_c[member], count).astype("float64")
     n_cells = np.bincount(ids, minlength=count).astype("float64")
 
     shadow_cells = np.zeros(count)
