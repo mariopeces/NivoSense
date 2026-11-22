@@ -80,9 +80,10 @@ def _baseline(item: dict) -> float:
 
 
 def _latest_baseline(granules: list[dict]) -> list[dict]:
-    """Granules of the highest processing baseline. One datatake can be split into several
-    granules of the same tile with complementary coverage (2026-11-17, 30SWG: 94.8% and
-    16.6% nodata), so every granule of that baseline is kept and mosaicked."""
+    """Granules of the highest processing baseline. One datatake can come as several
+    granules of the same tile (2026-11-17, 30SWG: two datastrips generated 67 min apart, the
+    later one covering half the pixels of the earlier), so the latest generation is not
+    always the most complete: every granule of that baseline is kept and mosaicked."""
     newest = max(_baseline(item) for item in granules)
     return [item for item in granules if _baseline(item) == newest]
 

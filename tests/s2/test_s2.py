@@ -16,6 +16,20 @@ from pipelines.s2.mosaic import build_mosaic, domain_fractions, read_window, sca
 from pipelines.s2.stac import COLLECTION, expected_tiles, group_acquisitions, orbit_of, search_items
 
 FIXTURE = Path(__file__).parent / "fixtures" / "earth_search_2026-11-05_10.json"
+# Every Earth Search item of 2026-11-17 over the domain hull, with the two 30SWG granules of one
+# datatake (generated 15:48 and 16:55 UTC).
+FIXTURE_1117 = Path(__file__).parent / "fixtures" / "earth_search_2026-11-17.json"
+DECISION_FIELDS = {
+    "date",
+    "orbit",
+    "scene_ids",
+    "domain_coverage",
+    "domain_valid_fraction",
+    "complete",
+    "listed",
+    "decided_at",
+    "code_version",
+}
 
 
 def fixture_pages() -> list[dict]:
@@ -153,7 +167,15 @@ def test_domain_fractions_count_only_clear_classes_inside_the_domain():
 TILE_LEFT, TILE_TOP, TILE_SIZE_M = 460000.0, 4098000.0, 2000
 
 
-def write_tile(folder: Path, name: str, pixel: int, value: int, dtype: str, nodata_left_half: bool = False) -> str:
+def write_tile(
+    folder: Path,
+    name: str,
+    pixel: int,
+    value: int,
+    dtype: str,
+    nodata_left_half: bool = False,
+    origin: tuple[float, float] = (TILE_LEFT, TILE_TOP),
+) -> str:
     size = TILE_SIZE_M // pixel
     data = np.full((size, size), value, dtype=dtype)
     if nodata_left_half:
@@ -168,14 +190,21 @@ def write_tile(folder: Path, name: str, pixel: int, value: int, dtype: str, noda
         count=1,
         dtype=dtype,
         crs="EPSG:32630",
-        transform=from_origin(TILE_LEFT, TILE_TOP, pixel, pixel),
+        transform=from_origin(origin[0], origin[1], pixel, pixel),
         nodata=0,
     ) as target:
         target.write(data, 1)
     return str(path)
 
 
-def localise(item: dict, folder: Path, scl: int, green: int, nodata_left_half: bool = False) -> dict:
+def localise(
+    item: dict,
+    folder: Path,
+    scl: int,
+    green: int,
+    nodata_left_half: bool = False,
+    origin: tuple[float, float] = (TILE_LEFT, TILE_TOP),
+) -> dict:
     local = copy.deepcopy(item)
     specs = {
         "green": (10, green, "uint16"),
@@ -186,14 +215,15 @@ def localise(item: dict, folder: Path, scl: int, green: int, nodata_left_half: b
     }
     for asset, (pixel, value, dtype) in specs.items():
         local["assets"][asset]["href"] = write_tile(
-            folder, f"{local['id']}-{asset}", pixel, value, dtype, nodata_left_half
+            folder, f"{local['id']}-{asset}", pixel, value, dtype, nodata_left_half, origin
         )
     return local
 
 
-def small_domain(folder: Path) -> Path:
-    xs = [TILE_LEFT + 500, TILE_LEFT + 1500, TILE_LEFT + 1500, TILE_LEFT + 500]
-    ys = [TILE_TOP - 500, TILE_TOP - 500, TILE_TOP - 1500, TILE_TOP - 1500]
+def small_domain(folder: Path, origin: tuple[float, float] = (TILE_LEFT, TILE_TOP)) -> Path:
+    left, top = origin
+    xs = [left + 500, left + 1500, left + 1500, left + 500]
+    ys = [top - 500, top - 500, top - 1500, top - 1500]
     lons, lats = transform("EPSG:32630", "EPSG:4326", xs, ys)
     ring = [[lon, lat] for lon, lat in zip(lons, lats)]
     path = folder / "domain.geojson"
@@ -253,9 +283,14 @@ def test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives(tmp_path):
     early = [i for i in items if i["id"] != late_tile]
 
     first = run_offline(tmp_path, early, today=date(2026, 11, 10))
-    r094 = next(r for r in first if r["orbit"] == "R094")
+    r094 = next(r for r in first if r["orbit"] == "R094" and r["date"] == "2026-11-10")
     assert r094["complete"] is False
     assert r094["missing_tiles"] == ["30SVG"]
+    assert r094["listed"] is False
+    # Every granule is in the search result, but only 30SVF and 30SVG reach this domain:
+    # 30SWF and 30SWG, and the whole R051 swath, are dropped before tiles are expected.
+    assert r094["expected_tiles"] == ["30SVF", "30SVG"]
+    assert {r["orbit"] for r in first} == {"R094"}
 
     # A later run over a later day still picks up the pending date.
     later = ingest.run(
@@ -292,9 +327,72 @@ def test_complete_unchanged_date_is_not_rebuilt(tmp_path, monkeypatch):
     assert run_offline(tmp_path, items, today=date(2026, 11, 11)) == records
 
 
-def test_incomplete_dates_past_the_retry_window_are_left_alone(tmp_path):
-    folder = tmp_path / "2026-10-01" / "R094"
-    folder.mkdir(parents=True)
-    (folder / "record.json").write_text(json.dumps({"date": "2026-10-01", "complete": False}), encoding="utf-8")
-    assert ingest.pending_start(tmp_path, date(2026, 10, 5)) == date(2026, 10, 1)
-    assert ingest.pending_start(tmp_path, date(2026, 11, 1)) is None
+def test_every_run_rechecks_the_reprocessing_window():
+    today = date(2026, 11, 18)
+    assert ingest.search_windows(today, today, today) == [(date(2026, 11, 8), today)]
+    assert ingest.search_windows(date(2025, 10, 1), date(2025, 10, 31), today) == [
+        (date(2025, 10, 1), date(2025, 10, 31)),
+        (date(2026, 11, 8), today),
+    ]
+    assert ingest.search_windows(date(2026, 10, 1), date(2026, 11, 7), today) == [(date(2026, 10, 1), today)]
+
+
+def test_late_split_granule_reopens_a_date_already_complete(tmp_path):
+    """The real 2026-11-17 R051 pass: a daily run that saw only the first 30SWG granule marks
+    the date complete; the next day's run must see the second granule and rebuild it."""
+    items = json.loads(FIXTURE_1117.read_text(encoding="utf-8"))["features"]
+    late = "S2A_T30SWG_20261117T110058_L2A"
+    footprint = next(i for i in items if i["id"] == late)["geometry"]["coordinates"][0]
+    xs, ys = transform("EPSG:4326", "EPSG:32630", [p[0] for p in footprint], [p[1] for p in footprint])
+    # A domain inside the late granule's footprint, on the 20 m lattice.
+    origin = (round(sum(xs) / len(xs), -3), round(sum(ys) / len(ys), -3))
+    rasters = tmp_path / "rasters"
+    rasters.mkdir()
+    local = [localise(i, rasters, scl=4, green=2000, origin=origin) for i in items]
+    domain = small_domain(tmp_path, origin)
+    catalogue = tmp_path / "catalogue"
+
+    def run(day: date, served: list[dict]) -> list[dict]:
+        page = {"type": "FeatureCollection", "features": served, "links": []}
+        return ingest.run(
+            domain,
+            day,
+            day,
+            tmp_path / "out",
+            day,
+            fetch=lambda request: copy.deepcopy(page),
+            catalogue_root=catalogue,
+            version="test",
+        )
+
+    first = run(date(2026, 11, 17), [i for i in local if i["id"] != late])
+    swg = [r for r in first if r["date"] == "2026-11-17" and r["orbit"] == "R051"]
+    assert len(swg) == 1 and swg[0]["complete"] is True
+    assert late not in swg[0]["scene_ids"]
+
+    second = run(date(2026, 11, 18), local)
+
+    record = next(r for r in second if r["date"] == "2026-11-17" and r["orbit"] == "R051")
+    assert late in record["scene_ids"]
+    assert "S2A_T30SWG_20261117T105237_L2A" in record["scene_ids"]
+    assert record["input_key"] != swg[0]["input_key"]
+    decision = json.loads((catalogue / "s2" / "decisions" / "2026-11-17_R051.json").read_text(encoding="utf-8"))
+    assert set(decision) == DECISION_FIELDS
+    assert decision["scene_ids"] == record["scene_ids"]
+    assert decision["code_version"] == "test"
+    assert decision["decided_at"].endswith("Z")
+
+
+def test_newer_baseline_reopens_a_complete_date(tmp_path):
+    rasters = tmp_path / "rasters"
+    rasters.mkdir()
+    items = [localise(i, rasters, scl=4, green=2000) for i in fixture_items()]
+    first = run_offline(tmp_path, items, today=date(2026, 11, 10))
+    reprocessed = copy.deepcopy(items)
+    for item in reprocessed:
+        item["properties"]["s2:processing_baseline"] = "05.14"
+
+    second = run_offline(tmp_path, reprocessed, today=date(2026, 11, 11))
+
+    assert [r["processing_baselines"][0] for r in second] == ["05.14"] * len(second)
+    assert [r["input_key"] for r in second] != [r["input_key"] for r in first]
