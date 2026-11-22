@@ -22,7 +22,6 @@ const PIPELINE_PALETTES = {
   snowfall: ["#2d236e", "#4f46e5", "#818cf8", "#c7d2fe", "#ffffff"],
 };
 const OBSERVED_SNOW = "#67e8f9";
-const OBSERVED_GAP = "rgba(120, 130, 145, 0.43)";
 const MIN_VISIBLE_MM = 0.1;
 
 function gradient(colours: string[]) {
@@ -66,7 +65,11 @@ function SnowLegend({ overlay }: { overlay: SnowOverlay }) {
             {t("leyenda.nieve")}
           </span>
           <span className="flex items-center gap-2">
-            <span className="h-4 w-4 rounded-sm border border-line-strong" style={{ background: OBSERVED_GAP }} />
+            {/* The PNG paints gaps (120, 130, 145) at alpha 110; the muted grey token at 35 % gives the same
+                colour over white within 2 levels per channel, and the baseline may not gain a new colour. */}
+            <span className="h-4 w-4 rounded-sm border border-line-strong">
+              <span className="block h-full w-full bg-text-muted opacity-35" />
+            </span>
             {t("leyenda.nube_o_sin_dato")}
           </span>
         </div>
