@@ -6,108 +6,27 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..region import load_region
-from . import aemet
-from .config import COMMON_HORIZONS_HOURS, MIN_SCALE_MM, UNAVAILABLE_MODELS
+from . import aemet, weathernext
+from .config import COMMON_HORIZONS_HOURS, MIN_SCALE_MM, VARIABLES
 from .cycles import select_latest_cycle
-from .ecmwf import PARAMETERS, EcmwfClient
-from .gfs import GfsClient, accumulation_steps
 from .manifest import Field, ModelOutput, build_manifest, write_manifest
 from .raster import (
-    build_accumulated_precipitation,
+    FIXED_SCALES,
     build_classified_field,
     build_field_image,
-    build_regional_field,
-    raster_bounds_and_maximum,
+    build_grid_field,
+    raster_bounds_and_range,
 )
 
 FINAL_HOURS = COMMON_HORIZONS_HOURS[-1]
-
-
-def build_gfs(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
-    west, south, east, north = bbox
-    # The NOMADS subset only returns cells whose centres fall inside the box.
-    client = GfsClient((west - 0.25, south - 0.25, east + 0.25, north + 0.25))
-    cycle = select_latest_cycle(
-        datetime.now(timezone.utc),
-        lambda candidate: client.is_complete(candidate, FINAL_HOURS),
-    )
-    root = output / "gfs" / cycle.strftime("%Y%m%dT%HZ")
-    inputs = {
-        step: client.download(
-            cycle, step, ("APCP",), work / "gfs" / f"apcp_f{step:03d}.grib2"
-        )
-        for step in accumulation_steps(FINAL_HOURS)
-    }
-    precipitation = {}
-    phase_files = {}
-    for horizon in COMMON_HORIZONS_HOURS:
-        destination = root / f"precipitation_total_f{horizon:03d}.tif"
-        build_accumulated_precipitation(
-            [inputs[step] for step in accumulation_steps(horizon)], destination
-        )
-        precipitation[horizon] = destination
-        try:
-            phase_files[horizon] = client.download(
-                cycle,
-                horizon,
-                ("TMP", "CRAIN", "CSNOW"),
-                root / f"phase_context_f{horizon:03d}.grib2",
-            )
-        except (OSError, RuntimeError):
-            pass
-
-    bounds, _ = raster_bounds_and_maximum(precipitation[FINAL_HOURS])
-    return ModelOutput(
-        id="gfs",
-        name="GFS",
-        attribution="NOAA NCEP Global Forecast System",
-        source="https://nomads.ncep.noaa.gov/",
-        grid_degrees=0.25,
-        cycle=cycle,
-        precipitation=Field(precipitation, bounds),
-        snowfall_reason="Instantaneous phase indicators do not provide an accumulated snowfall field",
-        phase_files=phase_files,
-    )
-
-
-def build_ecmwf(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
-    client = EcmwfClient()
-    cycle = select_latest_cycle(
-        datetime.now(timezone.utc),
-        lambda candidate: client.is_complete(candidate, FINAL_HOURS),
-        stride_hours=12,
-    )
-    root = output / "ecmwf" / cycle.strftime("%Y%m%dT%HZ")
-    fields = {}
-    for variable, parameter in PARAMETERS.items():
-        files = {}
-        for horizon in COMMON_HORIZONS_HOURS:
-            grib = client.download(
-                cycle,
-                horizon,
-                parameter,
-                work / "ecmwf" / f"{parameter}_f{horizon:03d}.grib2",
-            )
-            destination = root / f"{variable}_f{horizon:03d}.tif"
-            build_regional_field(grib, bbox, destination, 1000.0, f"{variable}_accumulated_mm")
-            files[horizon] = destination
-        bounds, _ = raster_bounds_and_maximum(files[FINAL_HOURS])
-        fields[variable] = Field(files, bounds)
-
-    return ModelOutput(
-        id="ecmwf",
-        name="ECMWF IFS",
-        attribution="ECMWF open data, CC BY 4.0",
-        source="https://www.ecmwf.int/en/forecasts/datasets/open-data",
-        grid_degrees=0.25,
-        cycle=cycle,
-        precipitation=fields["precipitation_total"],
-        snowfall=fields["snowfall"],
-    )
+AEMET_HORIZONS = tuple(h for h in COMMON_HORIZONS_HOURS if h <= aemet.MAX_HORIZON_HOURS)
+# Shown to users: AEMET publishes colour-classified images, not the physical field.
+AEMET_NOTE = "Reconstruido a partir de los mapas por clases de color de AEMET: punto medio de cada clase"
 
 
 def build_aemet(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
     archive_path = aemet.download_archive(work / "aemet" / "harmonie_pb.tar.gz")
+    reason = f"Forecast range is {aemet.MAX_HORIZON_HOURS} h"
     with tarfile.open(archive_path) as archive:
         cycle = aemet.run_cycle(archive)
         decoded = {}
@@ -116,62 +35,117 @@ def build_aemet(bbox: tuple[float, float, float, float], output: Path, work: Pat
             if member is None:
                 raise RuntimeError(f"AEMET archive entry {name} is not a file")
             decoded[end] = aemet.decode_window(member.read(), bbox)
+        instant: dict[str, dict[int, tuple]] = {}
+        for variable, product in aemet.INSTANT_PRODUCTS.items():
+            members = aemet.instant_members(archive, cycle, product)
+            instant[variable] = {}
+            for horizon in AEMET_HORIZONS:
+                handle = archive.extractfile(members[horizon]) if horizon in members else None
+                if handle is None:
+                    raise RuntimeError(f"AEMET archive lacks {variable} at {horizon} h")
+                instant[variable][horizon] = aemet.decode_instant(handle.read(), bbox)
+
     root = output / "aemet" / cycle.strftime("%Y%m%dT%HZ")
     transform = decoded[aemet.WINDOW_HOURS][3]
-    files = {}
-    for horizon in COMMON_HORIZONS_HOURS:
-        if horizon > aemet.MAX_HORIZON_HOURS:
-            continue
+    precipitation = {}
+    for horizon in AEMET_HORIZONS:
         destination = root / f"precipitation_total_f{horizon:03d}.tif"
         build_classified_field(
-            [
-                decoded[end][:3]
-                for end in range(aemet.WINDOW_HOURS, horizon + 1, aemet.WINDOW_HOURS)
-            ],
+            [decoded[end][:3] for end in range(aemet.WINDOW_HOURS, horizon + 1, aemet.WINDOW_HOURS)],
             transform,
             destination,
         )
-        files[horizon] = destination
-    bounds, _ = raster_bounds_and_maximum(files[max(files)])
+        precipitation[horizon] = destination
+    bounds, _, _ = raster_bounds_and_range(precipitation[max(precipitation)])
+    fields = {
+        "precipitation_total": Field(
+            precipitation,
+            bounds,
+            "mm",
+            missing_reason=reason,
+            note=AEMET_NOTE,
+        )
+    }
+    for variable, units in (("temperature_2m", "°C"), ("wind_speed_10m", "km/h")):
+        files = {}
+        for horizon in AEMET_HORIZONS:
+            estimate, field_transform = instant[variable][horizon]
+            destination = root / f"{variable}_f{horizon:03d}.tif"
+            build_grid_field(estimate, field_transform, destination, f"{variable}_class_midpoint", units)
+            files[horizon] = destination
+        fields[variable] = Field(
+            files,
+            raster_bounds_and_range(files[max(files)])[0],
+            units,
+            missing_reason=reason,
+            note=AEMET_NOTE,
+        )
     return ModelOutput(
         id="aemet",
         name="AEMET HARMONIE-AROME",
         attribution="AEMET, HARMONIE-AROME. Use authorised citing AEMET as author",
         source="https://www.aemet.es/es/eltiempo/prediccion/modelosnumericos/harmonie_arome",
         grid_degrees=0.025,
+        resolution_km=2.5,
         cycle=cycle,
-        precipitation=Field(
+        fields=fields,
+    )
+
+
+def build_weathernext(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
+    cycle = select_latest_cycle(
+        datetime.now(timezone.utc),
+        lambda candidate: weathernext.is_complete(candidate, FINAL_HOURS),
+    )
+    arrays, transform = weathernext.regional_fields(
+        weathernext.open_run(cycle), bbox, COMMON_HORIZONS_HOURS
+    )
+    root = output / "weathernext" / cycle.strftime("%Y%m%dT%HZ")
+    fields = {}
+    for variable, (_, _, _, units) in weathernext.SOURCES.items():
+        files = {}
+        for horizon, values in arrays[variable].items():
+            destination = root / f"{variable}_f{horizon:03d}.tif"
+            build_grid_field(values, transform, destination, f"{variable}_ensemble_mean", units)
+            files[horizon] = destination
+        fields[variable] = Field(
             files,
-            bounds,
-            missing_reason=f"Forecast range is {aemet.MAX_HORIZON_HOURS} h",
-            note="Reconstructed from AEMET colour-classified maps: class midpoints, bounds in bands 2 and 3",
-        ),
-        snowfall_reason="AEMET publishes no snowfall field",
+            raster_bounds_and_range(files[FINAL_HOURS])[0],
+            units,
+            note="Media del conjunto de 64 miembros" if variable == "precipitation_total" else None,
+        )
+    return ModelOutput(
+        id="weathernext",
+        name="WeatherNext 3 (Google DeepMind)",
+        attribution=weathernext.ATTRIBUTION,
+        source=weathernext.SOURCE_URL,
+        grid_degrees=weathernext.GRID_DEGREES,
+        resolution_km=10.0,
+        cycle=cycle,
+        fields=fields,
+        experimental=True,
     )
 
 
 def render_images(models: list[ModelOutput]) -> None:
-    for variable in ("precipitation_total", "snowfall"):
-        fields = [
-            item
-            for item in (
-                getattr(model, "precipitation" if variable == "precipitation_total" else "snowfall") for model in models
-            )
-            if item
-        ]
+    for variable in VARIABLES:
+        fields = [model.fields[variable] for model in models if variable in model.fields]
         if not fields:
             continue
         for item in fields:
-            item.maxima = {
-                horizon: raster_bounds_and_maximum(source)[1]
-                for horizon, source in item.files.items()
-            }
-        scale_max = max(MIN_SCALE_MM, *(max(item.maxima.values()) for item in fields))
+            for horizon, source in item.files.items():
+                _, minimum, maximum = raster_bounds_and_range(source)
+                item.minima[horizon], item.maxima[horizon] = minimum, maximum
+        if variable in FIXED_SCALES:
+            scale_min, scale_max = FIXED_SCALES[variable]
+        else:
+            scale_min = 0.0
+            scale_max = max(MIN_SCALE_MM, *(max(item.maxima.values()) for item in fields))
         for item in fields:
-            item.scale_max_mm = scale_max
+            item.scale_min, item.scale_max = scale_min, scale_max
             for horizon, source in item.files.items():
                 image = source.with_suffix(".png")
-                build_field_image(source, image, scale_max, variable)
+                build_field_image(source, image, scale_min, scale_max, variable)
                 item.images[horizon] = image
 
 
@@ -179,19 +153,20 @@ def run(region_file: Path, output: Path, keep_downloads: bool) -> Path:
     region = load_region(region_file)
     work = output / "work"
     models = []
-    unavailable = [dict(item) for item in UNAVAILABLE_MODELS]
+    unavailable = []
     for model_id, label, build in (
-        ("gfs", "GFS", build_gfs),
-        ("ecmwf", "ECMWF IFS", build_ecmwf),
         ("aemet", "AEMET HARMONIE-AROME", build_aemet),
+        ("weathernext", "WeatherNext 3 (Google DeepMind)", build_weathernext),
     ):
         try:
             models.append(build(region.bbox, output, work))
-        except (OSError, RuntimeError, ValueError) as error:
+        except (OSError, RuntimeError, ValueError, KeyError) as error:
             print(f"::warning::{model_id} forecast skipped: {error}", file=sys.stderr)
-            unavailable.append(
-                {"id": model_id, "name": label, "reason": f"Skipped in the latest run: {error}"}
-            )
+            # WeatherNext needs an allowlisted identity; until it works the site simply does not list it.
+            if model_id != "weathernext":
+                unavailable.append(
+                    {"id": model_id, "name": label, "reason": f"Skipped in the latest run: {error}"}
+                )
     if not models:
         raise RuntimeError("No forecast model produced data")
 

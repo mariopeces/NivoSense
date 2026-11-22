@@ -10,7 +10,7 @@ A public snow viewer for the Sierra Nevada (Spain): Natural Park, its peripheral
 - **Gap-filled snow cover** (20 m, daily).
 - **SWE and snow depth** from our own assimilating snow model (100 m, daily).
 - **True colour** from Sentinel-2 L1C (10 m).
-- **Webcams** (Cetursa / feratel and live DGT cams) and **weather forecasts** (GFS, ECMWF IFS, AEMET HARMONIE-AROME).
+- **Webcams** (Cetursa / feratel and live DGT cams) and **weather forecasts** (AEMET HARMONIE-AROME at 2.5 km, and WeatherNext 3 at 0.1 degrees as the one granted exception once its access is approved; models coarser than 5 km are not shown).
 - **Per-basin panels**: snow area, SWE, depth and river flow.
 
 ## Critical rules
@@ -58,7 +58,7 @@ NivoSense/
 ├── pipelines/                    Python package run by the workflows
 │   ├── region.py, geo.py         region config loading and shared geometry helpers
 │   ├── snow_model/               DEM, forcing, snowpack, ensemble, validation, outputs
-│   └── weather_forecasts/        GFS, ECMWF, AEMET ingest and the forecast manifest
+│   └── weather_forecasts/        AEMET and WeatherNext ingest and the forecast manifest
 ├── regions/                      sierra-nevada.json and its committed snow calibration
 ├── scripts/                      one-off and workflow helper scripts (snow observation fetch)
 ├── tests/                        unittest suites for the pipelines and scripts
@@ -113,7 +113,7 @@ Today the site is static (GitHub Pages). Every product is produced by a schedule
 | Workflow | Schedule (UTC) | Produces | Artifact |
 |---|---|---|---|
 | `pages.yml` | hourly, on push, and after the three below | webcam catalogue refresh, frontend build, deploy | the site |
-| `weather-forecasts.yml` | 05:30, 11:30, 17:30, 23:30 | GFS, ECMWF IFS and AEMET HARMONIE-AROME precipitation and snowfall at 24/48/72/120 h | `weather-forecasts` |
+| `weather-forecasts.yml` | 05:30, 11:30, 17:30, 23:30 | AEMET HARMONIE-AROME and WeatherNext 3 precipitation, temperature and wind at 24/48/72/120 h (AEMET to 48 h) | `weather-forecasts` |
 | `snow-model.yml` | daily 07:40 | Sentinel-2 10 m snow and true colour, SWE and depth maps, basin snow volume | `snow-model` |
 | `snow-observation.yml` | daily 05:35 | GFSC from CDSE, skipped without credentials | `snow-observation-<run id>` |
 

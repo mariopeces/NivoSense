@@ -63,7 +63,7 @@
     "meteo": {
       "eyebrow": "Meteo",
       "titulo": "Previsión",
-      "subtitulo": "GFS, ECMWF IFS y AEMET HARMONIE-AROME, cuatro pasadas al día."
+      "subtitulo": "Modelos de previsión sobre Sierra Nevada, con su resolución indicada."
     },
     "metodo": {
       "eyebrow": "Método",
@@ -193,9 +193,13 @@
     "media_conjunto": "Media ponderada del conjunto, {fecha_corta}",
     "experimental": "Experimental: las magnitudes no están contrastadas con medidas de campo.",
     "precipitacion_acumulada": "Precipitación acumulada (mm)",
-    "nieve_acumulada": "Nieve acumulada (mm de agua)",
-    "sin_valores": "Ningún valor por encima de {valor} mm en la zona",
+    "temperatura": "Temperatura a 2 m (°C)",
+    "viento": "Viento a 10 m (km/h)",
+    "sin_precipitacion": "Sin precipitación prevista en la zona",
+    "sin_precipitacion_detalle": "Ningún punto llega a {valor} mm en este plazo. Prueba otro plazo o la temperatura.",
     "maximo_regional": "Máximo en la zona: {valor} mm",
+    "rango_regional": "En la zona: de {minimo} a {maximo} {unidades}",
+    "aviso_experimental": "Predicción experimental, no es un aviso oficial.",
     "modelo": "Modelo",
     "pasada": "Pasada",
     "valida": "Válida para"
@@ -379,10 +383,12 @@
     "variable": "Variable",
     "horizonte": "Plazo",
     "precipitation_total": "Precipitación",
-    "snowfall": "Nieve",
+    "temperature_2m": "Temperatura",
+    "wind_speed_10m": "Viento",
+    "resolucion_modelo": "{modelo} · {resolucion}",
     "horas": "{horas} h",
     "pasada": "Pasada del {fecha_corta}, {hora}",
-    "ayuda_horizonte": "Elige un plazo para ver en el mapa la previsión acumulada hasta esa hora. Vuelve a tocarlo para quitarla.",
+    "ayuda_horizonte": "Elige un plazo para ver en el mapa la previsión a esa hora (la precipitación, acumulada hasta ella). Vuelve a tocarlo para quitarla.",
     "sin_prevision": "Aún no hay previsión publicada."
   }
 }

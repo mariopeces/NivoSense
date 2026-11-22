@@ -21,6 +21,8 @@ MAX_HORIZON_HOURS = 48
 RUN_HOURS = (0, 6, 12, 18)
 VISIBLE_ALPHA = 128
 PRECIPITATION_MEMBER = re.compile(r"down_(?P<valid>[^_]+)_61_6HH\.tif$")
+# Hourly instantaneous maps in the same archive: product 11 is temperature (deg C), 32 wind speed (km/h).
+INSTANT_PRODUCTS = {"temperature_2m": "11", "wind_speed_10m": "32"}
 ANY_MEMBER = re.compile(r"down_(?P<valid>[^_]+)_")
 
 
@@ -75,18 +77,9 @@ def precipitation_windows(archive: tarfile.TarFile, cycle: datetime) -> dict[int
     return windows
 
 
-def decode_window(
-    data: bytes, bbox: tuple[float, float, float, float]
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, Affine, tuple[float, ...]]:
-    """Reads one rendered precipitation map and recovers per-class bounds in millimetres.
-
-    The product is a colour-classified image rather than a physical field, so each
-    pixel is assigned to the legend class with the nearest colour. Returns the lower
-    bound, upper bound and estimate rasters, the window transform and the domain bounds.
-    """
+def _read_window(data: bytes, bbox: tuple[float, float, float, float]):
     import math
 
-    import numpy as np
     import rasterio
     from rasterio.windows import Window, from_bounds
 
@@ -106,7 +99,59 @@ def decode_window(
         rgba = dataset.read(window=window)
         transform = dataset.window_transform(window)
         legend = ast.literal_eval(dataset.tags()["ESCALA"])["Lista RGBA"]
+    return rgba, transform, domain, legend
 
+
+def decode_instant(
+    data: bytes, bbox: tuple[float, float, float, float]
+) -> tuple[np.ndarray, Affine]:
+    """Reads one rendered temperature or wind map as class midpoints.
+
+    Every pixel is assigned to the legend class with the nearest colour, so the field is
+    quantised to the class width (2 deg C for temperature, 10 km/h for wind). The open
+    top class takes its lower bound.
+    """
+    import numpy as np
+
+    rgba, transform, _, legend = _read_window(data, bbox)
+    classes = [
+        (float(item["Valores"][0]), None if item["Valores"][1] == "" else float(item["Valores"][1]), item["RGBA"][:3])
+        for item in legend
+    ]
+    colours = np.array([[int(c) for c in item[2]] for item in classes], dtype="int32")
+    estimates = np.array([item[0] if item[1] is None else (item[0] + item[1]) / 2 for item in classes], dtype="float32")
+    pixels = rgba[:3].transpose(1, 2, 0).astype("int32")
+    nearest = ((pixels[..., None, :] - colours) ** 2).sum(axis=-1).argmin(axis=-1)
+    estimate = np.where(rgba[3] >= VISIBLE_ALPHA, estimates[nearest], np.nan).astype("float32")
+    return estimate, transform
+
+
+def instant_members(archive: tarfile.TarFile, cycle: datetime, product: str) -> dict[int, str]:
+    """Maps each hour after the run to the archive member of an instantaneous product."""
+    pattern = re.compile(rf"down_(?P<valid>[^_]+)_{product}\.tif$")
+    members = {}
+    for name in archive.getnames():
+        match = pattern.match(name)
+        if not match:
+            continue
+        hour = (_valid_time(match["valid"]) - cycle) / timedelta(hours=1)
+        if hour == int(hour) and 0 < hour <= MAX_HORIZON_HOURS:
+            members[int(hour)] = name
+    return members
+
+
+def decode_window(
+    data: bytes, bbox: tuple[float, float, float, float]
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, Affine, tuple[float, ...]]:
+    """Reads one rendered precipitation map and recovers per-class bounds in millimetres.
+
+    The product is a colour-classified image rather than a physical field, so each
+    pixel is assigned to the legend class with the nearest colour. Returns the lower
+    bound, upper bound and estimate rasters, the window transform and the domain bounds.
+    """
+    import numpy as np
+
+    rgba, transform, domain, legend = _read_window(data, bbox)
     classes = sorted(
         (
             float(item["Valores"][0]),

@@ -3,6 +3,7 @@ import { fechaCorta, horaMadrid } from "../lib/format";
 import {
   WEATHER_HORIZONS,
   WEATHER_VARIABLES,
+  resolutionLabel,
   weatherField,
   type WeatherHorizon,
   type WeatherManifest,
@@ -41,7 +42,6 @@ export default function MeteoSection({
   const models = manifest?.models ?? [];
   if (!models.length) return <Notice title={t("meteo.sin_prevision")} />;
 
-  const unavailable = manifest?.unavailable_models ?? [];
   const model = models.find((item) => item.id === modelId);
 
   return (
@@ -60,25 +60,24 @@ export default function MeteoSection({
             {item.name}
           </button>
         ))}
-        {unavailable.map((item) => (
-          <button key={item.id} type="button" disabled title={item.reason} className={chip(false)}>
-            {item.name}
-          </button>
-        ))}
       </div>
+      {model && (
+        <p className="tnum mb-0 mt-2 text-small text-text-muted">
+          {t("meteo.resolucion_modelo", { modelo: model.name, resolucion: resolutionLabel(model) })}
+        </p>
+      )}
 
       <GroupLabel>{t("meteo.variable")}</GroupLabel>
       <div className="flex flex-wrap gap-2">
         {WEATHER_VARIABLES.map((item) => {
-          const field = weatherField(model, WEATHER_HORIZONS[0], item);
+          const field = WEATHER_HORIZONS.map((h) => weatherField(model, h, item)).find((f) => f?.available);
           return (
             <button
               key={item}
               type="button"
               onClick={() => onVariable(item)}
-              disabled={!field?.available}
+              disabled={!field}
               aria-pressed={variable === item}
-              title={field?.available ? undefined : field?.reason}
               className={chip(variable === item)}
             >
               {t(`meteo.${item}`)}

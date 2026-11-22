@@ -8,15 +8,13 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 
 from pipelines.weather_forecasts import aemet
-from pipelines.weather_forecasts.config import COMMON_HORIZONS_HOURS
-from pipelines.weather_forecasts.cycles import select_latest_cycle
-from pipelines.weather_forecasts.ecmwf import EcmwfClient
-from pipelines.weather_forecasts.gfs import accumulation_steps
-from pipelines.weather_forecasts.manifest import Field, ModelOutput, build_manifest
-from pipelines.weather_forecasts.raster import (
-    build_accumulated_precipitation,
-    build_regional_field,
+from pipelines.weather_forecasts.config import (
+    COARSE_MODELS_ALLOWED,
+    COMMON_HORIZONS_HOURS,
+    MAX_RESOLUTION_KM,
 )
+from pipelines.weather_forecasts.cycles import select_latest_cycle
+from pipelines.weather_forecasts.manifest import Field, ModelOutput, build_manifest
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SCHEMA = Path("pipelines/weather_forecasts/manifest.schema.json")
@@ -31,6 +29,14 @@ class ForecastPipelineTests(unittest.TestCase):
         Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
         self.assertEqual(payload["models"], [])
 
+    def test_every_published_model_is_high_resolution(self):
+        for path in (Path("frontend/public/weather/manifest.json"),):
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            for model in payload["models"]:
+                if model["id"] not in COARSE_MODELS_ALLOWED:
+                    self.assertLess(model["resolution_km"], MAX_RESOLUTION_KM, model["id"])
+        self.assertEqual(COARSE_MODELS_ALLOWED, {"weathernext"})
+
     def test_common_horizons(self):
         self.assertEqual(COMMON_HORIZONS_HOURS, (24, 48, 72, 120))
 
@@ -44,204 +50,141 @@ class ForecastPipelineTests(unittest.TestCase):
         selected = select_latest_cycle(now, complete.__contains__)
         self.assertEqual(selected, datetime(2026, 10, 18, 6, tzinfo=timezone.utc))
 
-    def test_accumulation_steps_use_disjoint_six_hour_windows(self):
-        self.assertEqual(accumulation_steps(24), (6, 12, 18, 24))
-        self.assertEqual(accumulation_steps(120), tuple(range(6, 121, 6)))
-        self.assertEqual(sum(6 for _ in accumulation_steps(120)), 120)
+    def _files(self, root, name, horizons):
+        files, images = {}, {}
+        for horizon in horizons:
+            files[horizon] = root / f"{name}-{horizon}.tif"
+            files[horizon].write_bytes(f"{name}-{horizon}".encode())
+            images[horizon] = root / f"{name}-{horizon}.png"
+            images[horizon].write_bytes(f"image-{name}-{horizon}".encode())
+        return files, images
 
-    def test_accumulated_raster_sums_intervals(self):
-        try:
-            import numpy as np
-            import rasterio
-            from rasterio.transform import from_origin
-        except ImportError:
-            self.skipTest("Raster dependencies are not installed")
-
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            profile = {
-                "driver": "GTiff",
-                "width": 16,
-                "height": 16,
-                "count": 1,
-                "dtype": "float32",
-                "crs": "EPSG:4326",
-                "transform": from_origin(0, 1, 0.25, 0.25),
-            }
-            inputs = []
-            for index, value in enumerate((1.25, 2.5)):
-                path = root / f"input-{index}.tif"
-                with rasterio.open(path, "w", **profile) as dataset:
-                    dataset.write(np.full((16, 16), value, dtype="float32"), 1)
-                inputs.append(path)
-            destination = root / "total.tif"
-            build_accumulated_precipitation(inputs, destination)
-            with rasterio.open(destination) as dataset:
-                self.assertTrue(np.allclose(dataset.read(1), 3.75))
-                self.assertEqual(dataset.descriptions[0], "precipitation_total_accumulated_mm")
-
-    def test_ecmwf_cycles_use_twelve_hour_stride(self):
-        selected = select_latest_cycle(
-            datetime(2026, 10, 18, 17, 30, tzinfo=timezone.utc),
-            lambda cycle: cycle.hour == 0,
-            stride_hours=12,
+    def _model(self, root, model_id, resolution_km, horizons=COMMON_HORIZONS_HOURS):
+        fields = {}
+        for variable, units in (("precipitation_total", "mm"), ("temperature_2m", "°C")):
+            files, images = self._files(root, f"{model_id}-{variable}", horizons)
+            fields[variable] = Field(
+                files,
+                [-4.0, 36.0, -2.0, 38.0],
+                units,
+                images,
+                0.0,
+                42.0,
+                {h: 1.0 for h in horizons},
+                {h: 0.0 for h in horizons},
+                missing_reason="Forecast range is 48 h",
+            )
+        return ModelOutput(
+            id=model_id,
+            name=model_id.upper(),
+            attribution="Test",
+            source="https://example.com/",
+            grid_degrees=0.025,
+            resolution_km=resolution_km,
+            cycle=datetime(2026, 10, 18, 6, tzinfo=timezone.utc),
+            fields=fields,
+            missing_reasons={"wind_speed_10m": "Not provided"},
         )
-        self.assertEqual(selected, datetime(2026, 10, 18, 0, tzinfo=timezone.utc))
 
-    def test_ecmwf_index_selects_surface_parameters_with_byte_ranges(self):
-        lines = [
-            {"levtype": "sfc", "param": "tp", "_offset": 0, "_length": 10},
-            {"levtype": "pl", "param": "tp", "_offset": 10, "_length": 5},
-            {"levtype": "sfc", "param": "sf", "_offset": 15, "_length": 7},
-        ]
-        client = EcmwfClient()
-        payload = "\n".join(json.dumps(line) for line in lines).encode()
-        client._read = lambda url, headers=None: payload
-        cycle = datetime(2026, 10, 18, tzinfo=timezone.utc)
-        self.assertEqual(client.index(cycle, 24), {"tp": (0, 10), "sf": (15, 7)})
-        self.assertTrue(client.is_complete(cycle, 24))
-
-    def test_ecmwf_regional_field_converts_metres_and_covers_region(self):
-        try:
-            import eccodes
-            import numpy as np
-            import rasterio
-        except ImportError:
-            self.skipTest("GRIB dependencies are not installed")
-
+    def test_manifest_matches_schema_and_marks_missing_horizons_and_variables(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            message = eccodes.codes_grib_new_from_samples("regular_ll_sfc_grib2")
-            for key, value in {
-                "Ni": 8,
-                "Nj": 6,
-                "latitudeOfFirstGridPointInDegrees": 40.0,
-                "latitudeOfLastGridPointInDegrees": 37.5,
-                "longitudeOfFirstGridPointInDegrees": 356.0,
-                "longitudeOfLastGridPointInDegrees": 357.75,
-                "iDirectionIncrementInDegrees": 0.25,
-                "jDirectionIncrementInDegrees": 0.5,
-            }.items():
-                eccodes.codes_set(message, key, value)
-            grid = np.arange(48, dtype="float64").reshape(6, 8) / 1000
-            eccodes.codes_set_values(message, grid.ravel())
-            source = root / "field.grib2"
-            with source.open("wb") as handle:
-                eccodes.codes_write(message, handle)
-            eccodes.codes_release(message)
-
-            destination = root / "field.tif"
-            bbox = (-3.9, 38.1, -3.2, 39.4)
-            build_regional_field(source, bbox, destination, 1000.0, "test_mm")
-            with rasterio.open(destination) as dataset:
-                data = dataset.read(1)
-                self.assertLessEqual(dataset.bounds.left, bbox[0])
-                self.assertGreaterEqual(dataset.bounds.right, bbox[2])
-                self.assertLessEqual(dataset.bounds.bottom, bbox[1])
-                self.assertGreaterEqual(dataset.bounds.top, bbox[3])
-                self.assertEqual(dataset.descriptions[0], "test_mm")
-            # Longitudes 356.0..357.75 are -4.0..-2.25 and the region starts at column 0.
-            self.assertTrue(np.allclose(data[0, 0], 1 * 8 + 0))
-
-    def test_manifest_matches_schema_and_separates_models(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-
-            def field(name, bounds):
-                files, images = {}, {}
-                for horizon in COMMON_HORIZONS_HOURS:
-                    files[horizon] = root / f"{name}-{horizon}.tif"
-                    files[horizon].write_bytes(f"{name}-{horizon}".encode())
-                    images[horizon] = root / f"{name}-{horizon}.png"
-                    images[horizon].write_bytes(f"image-{name}-{horizon}".encode())
-                return Field(
-                    files,
-                    bounds,
-                    images,
-                    42.0,
-                    {horizon: 1.0 for horizon in COMMON_HORIZONS_HOURS},
-                )
-
-            gfs = ModelOutput(
-                id="gfs",
-                name="GFS",
-                attribution="NOAA",
-                source="https://nomads.ncep.noaa.gov/",
-                grid_degrees=0.25,
-                cycle=datetime(2026, 10, 18, 6, tzinfo=timezone.utc),
-                precipitation=field("gfs", [-4.0, 36.0, -2.0, 38.0]),
-                snowfall_reason="No accumulated snowfall field",
-            )
-            ecmwf = ModelOutput(
-                id="ecmwf",
-                name="ECMWF IFS",
-                attribution="ECMWF",
-                source="https://www.ecmwf.int/en/forecasts/datasets/open-data",
-                grid_degrees=0.25,
-                cycle=datetime(2026, 10, 18, 0, tzinfo=timezone.utc),
-                precipitation=field("ecmwf-tp", [-4.0, 36.0, -2.0, 38.5]),
-                snowfall=field("ecmwf-sf", [-4.0, 36.0, -2.0, 38.5]),
-            )
-            payload = build_manifest(
-                "test-region",
-                (-4.0, 36.0, -2.0, 38.0),
-                root,
-                [gfs, ecmwf],
-                [{"id": "weathernext", "name": "WeatherNext 3", "reason": "No access"}],
-            )
-            schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-            Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
-            self.assertEqual(payload["common_horizons_hours"], [24, 48, 72, 120])
-            by_id = {model["id"]: model for model in payload["models"]}
-            for horizon in by_id["gfs"]["horizons"].values():
-                self.assertFalse(horizon["snowfall"]["available"])
-                self.assertEqual(horizon["precipitation_total"]["units"], "mm")
-            for horizon in by_id["ecmwf"]["horizons"].values():
-                self.assertTrue(horizon["snowfall"]["available"])
-                self.assertEqual(horizon["snowfall"]["units"], "mm")
-                self.assertEqual(horizon["snowfall"]["basis"], "water_equivalent")
-            self.assertEqual(payload["region"]["id"], "test-region")
-            self.assertEqual(
-                [item["id"] for item in payload["unavailable_models"]], ["weathernext"]
-            )
-
-    def test_manifest_marks_horizons_beyond_model_range_unavailable(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            files, images = {}, {}
-            for horizon in (24, 48):
-                files[horizon] = root / f"f{horizon}.tif"
-                files[horizon].write_bytes(b"tif")
-                images[horizon] = root / f"f{horizon}.png"
-                images[horizon].write_bytes(b"png")
-            model = ModelOutput(
-                id="short",
-                name="Short range",
-                attribution="Test",
-                source="https://example.com/",
-                grid_degrees=0.025,
-                cycle=datetime(2026, 10, 18, 6, tzinfo=timezone.utc),
-                precipitation=Field(
-                    files,
-                    [0, 0, 1, 1],
-                    images,
-                    5.0,
-                    {24: 1.0, 48: 2.0},
-                    missing_reason="Forecast range is 48 h",
-                    note="Classified",
-                ),
-                snowfall_reason="No snowfall field",
-            )
-            payload = build_manifest("test-region", (0, 0, 1, 1), root, [model], [])
+            model = self._model(root, "aemet", 2.5, (24, 48))
+            payload = build_manifest("test-region", (-4.0, 36.0, -2.0, 38.0), root, [model], [])
             schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
             Draft202012Validator(schema, format_checker=FormatChecker()).validate(payload)
             horizons = payload["models"][0]["horizons"]
-            self.assertTrue(horizons["48"]["precipitation_total"]["available"])
-            self.assertEqual(horizons["48"]["precipitation_total"]["note"], "Classified")
+            self.assertEqual(payload["models"][0]["resolution_km"], 2.5)
+            self.assertEqual(horizons["24"]["temperature_2m"]["units"], "°C")
+            self.assertEqual(horizons["24"]["precipitation_total"]["visualization"]["region_max"], 1.0)
             self.assertEqual(
                 horizons["120"]["precipitation_total"],
                 {"available": False, "reason": "Forecast range is 48 h"},
             )
+            self.assertEqual(
+                horizons["24"]["wind_speed_10m"], {"available": False, "reason": "Not provided"}
+            )
+
+    def test_every_model_in_the_manifest_is_finer_than_the_limit_except_the_granted_exception(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fine = self._model(root, "aemet", 2.5)
+            exception = self._model(root, "weathernext", 10.0)
+            payload = build_manifest("r", (-4.0, 36.0, -2.0, 38.0), root, [fine, exception], [])
+            for model in payload["models"]:
+                if model["id"] not in COARSE_MODELS_ALLOWED:
+                    self.assertLess(model["resolution_km"], MAX_RESOLUTION_KM)
+            for model_id, resolution in (("gfs", 25.0), ("ecmwf", 28.0), ("coarse", MAX_RESOLUTION_KM)):
+                with self.assertRaises(ValueError):
+                    build_manifest("r", (-4.0, 36.0, -2.0, 38.0), root, [self._model(root, model_id, resolution)], [])
+
+    def test_aemet_decode_instant_uses_class_midpoints(self):
+        try:
+            import numpy  # noqa: F401
+            import rasterio
+        except ImportError:
+            self.skipTest("Raster dependencies are not installed")
+
+        legend = {
+            "Producto": "11",
+            "Lista RGBA": [
+                {"Valores": [10, ""], "RGBA": ["200", "0", "0", "255"]},
+                {"Valores": [8, 10], "RGBA": ["255", "128", "0", "255"]},
+                {"Valores": [-2, 0], "RGBA": ["255", "255", "255", "255"]},
+            ],
+        }
+        import numpy as np
+        from rasterio.transform import from_origin
+
+        array = np.array(
+            [[[200, 0, 0, 255], [250, 130, 0, 255]], [[255, 255, 255, 255], [255, 255, 255, 0]]],
+            dtype="uint8",
+        ).transpose(2, 0, 1)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "t.tif"
+            with rasterio.open(
+                path, "w", driver="GTiff", width=2, height=2, count=4, dtype="uint8",
+                crs="EPSG:4326", transform=from_origin(-4.0, 38.0, 0.5, 0.5),
+            ) as dataset:
+                dataset.write(array)
+                dataset.update_tags(ESCALA=str(legend))
+            estimate, _ = aemet.decode_instant(path.read_bytes(), (-4.0, 37.0, -3.0, 38.0))
+        self.assertEqual(estimate[0].tolist(), [10.0, 9.0])
+        self.assertEqual(estimate[1][0], -1.0)
+        self.assertTrue(np.isnan(estimate[1][1]))
+
+    def test_weathernext_regional_fields_convert_units_and_accumulate(self):
+        try:
+            import numpy as np
+            import xarray as xr
+        except ImportError:
+            self.skipTest("xarray is not installed")
+        from pipelines.weather_forecasts import weathernext
+
+        lat = np.round(np.arange(36.0, 38.01, 0.1), 1)
+        lon = np.round(np.arange(355.0, 358.01, 0.1), 1)
+        lead = np.arange(1, 25) * np.timedelta64(1, "h")
+        shape = (lead.size, lat.size, lon.size)
+        dims = ("lead_time", "lat_0p1", "lon_0p1")
+        dataset = xr.Dataset(
+            {
+                "temperature_2m_mean": (dims, np.full(shape, 283.15, dtype="float32")),
+                "wind_speed_10m_mean": (dims, np.full(shape, 10.0, dtype="float32")),
+                "total_precipitation_1hr_mean": (dims, np.full(shape, 0.0005, dtype="float32")),
+            },
+            coords={"lead_time": lead, "lat_0p1": lat, "lon_0p1": lon},
+        )
+        fields, transform = weathernext.regional_fields(dataset, (-3.6433, 36.9129, -2.5885, 37.2532), (6, 24))
+        self.assertTrue(np.allclose(fields["temperature_2m"][24], 10.0))
+        self.assertTrue(np.allclose(fields["wind_speed_10m"][6], 36.0))
+        self.assertTrue(np.allclose(fields["precipitation_total"][6], 3.0))
+        self.assertTrue(np.allclose(fields["precipitation_total"][24], 12.0))
+        rows, columns = fields["temperature_2m"][24].shape
+        self.assertAlmostEqual(transform.a, 0.1)
+        self.assertLessEqual(transform.c, -3.6433)
+        self.assertGreaterEqual(transform.c + columns * 0.1, -2.5885)
+        self.assertGreaterEqual(transform.f, 37.2532)
+        self.assertLessEqual(transform.f - rows * 0.1, 36.9129)
 
     def _aemet_legend(self):
         return {
