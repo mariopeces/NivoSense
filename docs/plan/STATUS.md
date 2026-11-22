@@ -28,7 +28,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r2 (round 3 is the last) | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | r3: fix requested by coordinator (G-Code r3 running) | #12 | r1, r2 fail; r3: G-Code PASS (3f2086d), G-Infra fail (restore() trusts fork runs; fix f6b1dc6 pushed) |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | ready, stacked on plan/t03-catalog; G-Data, G-Infra, G-Code queued | #20 | |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlet r1 (G-Data running; G-Infra, G-Code queued), stacked on plan/t03-catalog | #20 | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 G-Data (G-Code r1 running) | #14 | r1: G-Data fail (late granule), G-Method PASS |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r2 (G-Data and G-Code running); catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | fixing after r2 G-Data (G-Code r2 running); catalogue output pending on T0.3 | #8 | r1 both fail; r2: G-Data fail (failed ingest ships live cards without images) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -145,3 +145,4 @@ Not available until T5.1.
 - 2026-11-22: T0.4 PR #20 ready (check_catalog, render_thumbs, freshness F1/F2, Q4 fixture with real scene ids, decision-object schema; real month checked in CI in 32.7 s; corrupt-COG and missing-day tests with mutation checks). Q4 fixture pending on T1.2 and a ski resort polygon (none in repo). T2.1 G-Data r1 started. Note sent to T1.3: PNG RGB PMTiles ~230 MB/date, use lossy tiles. Queue: T2.1 G-Method and G-Code, T4.0 G-Code, T0.4 x3, then rounds as they come.
 - 2026-11-22: T4.0 G-UI r1 FAIL (5 majors: timeline lacks gap-filled/modelled/forecast ticks and forecast slot; webcam card age missing; method strip alignment; inconsistent webcam symbols; mobile card not a bottom sheet). A, D, F, ramps and data traceability pass (201/201 timeline dates match Earth Search). Sent to the design lead; T4.1 told to re-merge. T2.1 G-Method r1 started.
 - 2026-11-22: T0.7 G-Code r3 PASS at 3f2086d. The trusted-runs fix f6b1dc6 came after it, so round 4 is narrow: G-Infra on the fork-run finding plus a regression pass, and a G-Code delta review of 3f2086d..head. T2.1 G-Code r1 started.
+- 2026-11-22: T3.1 G-Data r2 FAIL: round-1 majors fixed with live evidence; new major: a failed ingest ships the committed webcams.json pointing at unshipped stills. Fix sent (per-source isolation, no references to unshipped files, dist validation). T0.4 G-Data r1 started.
