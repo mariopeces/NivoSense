@@ -27,7 +27,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r3 (G-Infra and G-Code running) on 7277965 | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r4 narrow (G-Infra running; G-Code queued) on 0bbc81e | #12 | r1, r2 fail; r3: G-Code PASS (3f2086d), G-Infra fail (restore() trusts fork runs; fix f6b1dc6 pushed) |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r4 narrow (G-Infra and G-Code running) on 0bbc81e | #12 | r1, r2 fail; r3: G-Code PASS (3f2086d), G-Infra fail (restore() trusts fork runs; fix f6b1dc6 pushed) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlet r1 (G-Data running; G-Infra, G-Code queued), stacked on plan/t03-catalog | #20 | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
@@ -37,7 +37,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | gauntlet r1 (G-Data, G-Method, G-Code running), merges after T0.3 | #15 | r1: G-Data PASS (2095dc9; within 0.002% of official polygons); G-Method, G-Code running |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | gauntlet r1 (G-Data, G-Method, G-Code running), merges after T0.3 | #15 | r1: G-Data PASS, G-Method PASS (2095dc9); G-Code running |
 | T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | building, stacked on plan/t21-domain (plan-forcing); scores wait for T1.7 | | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
@@ -153,3 +153,4 @@ Not available until T5.1.
 - 2026-11-22: T1.1 G-Code r1 FAIL (two platforms on the same orbit and day merged into one seamed mosaic; three deliberate breaks survive the tests). Sent with the G-Data fix. T0.6 G-Code r3 started.
 - 2026-11-22: T2.1 G-Data r1 PASS (all parts within 0.002% of official polygons by symmetric difference; legal reading holds: PORN ambit 172,238 ha = PN + PNat; byte-identical rebuild; minors: ring orientation vs RFC 7946, sub-hectare fragments, name CC BY 4.0). T0.7 G-Infra r4 (narrow) started.
 - 2026-11-22: T3.3 first pass settled 1 of 12 live feratel views (15111-1, 125.5 deg); placeholder-only and unpositioned cams unsettled. Coordinator asked for a joint per-station fit, feratel pan metadata as priors, clear-frame reruns and named-peak scoring before gauntlets; whatever stays unsettled goes to Mario as a confirmation list with comparison images.
+- 2026-11-22: T2.1 G-Method r1 PASS (domain matches REDIAM Espacio Natural to 60 m2; legal reading confirmed; minors: 5 edge slivers 3,285 m2 in basins 604361/604370, EPSG wording, BOJA pages). T0.7 G-Code r4 (narrow) started.
