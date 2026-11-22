@@ -49,10 +49,13 @@ def orbit_of(item: dict) -> str:
     return f"R{match.group(1)}"
 
 
-def search_items(geometry: dict, start: date, end: date, fetch: Fetch = fetch_json) -> list[dict]:
-    """Every L2A item intersecting the geometry with a UTC acquisition date in [start, end]."""
+def search_items(
+    geometry: dict, start: date, end: date, fetch: Fetch = fetch_json, collection: str = COLLECTION
+) -> list[dict]:
+    """Every item of the collection (L2A by default) intersecting the geometry with a UTC
+    acquisition date in [start, end]."""
     body: dict[str, Any] | None = {
-        "collections": [COLLECTION],
+        "collections": [collection],
         "intersects": geometry,
         "datetime": f"{start.isoformat()}T00:00:00Z/{end.isoformat()}T23:59:59Z",
         "limit": PAGE_LIMIT,
