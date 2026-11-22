@@ -15,7 +15,7 @@ from typing import Any
 
 import numpy as np
 
-from .layers import CRS, ZOOMS, check_on_grid, get_layer
+from .layers import CRS, ZOOMS, Layer, check_on_grid, get_layer
 from .storage import IMMUTABLE, NO_CACHE, PreconditionFailed, Storage
 from .validate import validate_entry
 
@@ -146,7 +146,7 @@ def _write_cog(source: Path, target: Path, categorical: bool) -> None:
             raise RuntimeError(f"GDAL did not write a COG layout to {target}")
 
 
-def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], categorical: bool) -> None:
+def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], spec: Layer) -> None:
     # rio-pmtiles is a rasterio CLI plugin; running it as a subprocess keeps its process pool out of ours.
     subprocess.run(
         [
@@ -157,12 +157,13 @@ def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], categori
             str(display),
             str(target),
             "--format",
-            "PNG",
+            spec.tile_format,
+            *(["--co", f"QUALITY={spec.tile_quality}"] if spec.tile_quality is not None else []),
             "--rgba",
             "--zoom-levels",
             f"{zooms[0]}..{zooms[1]}",
             "--resampling",
-            "nearest" if categorical else "bilinear",
+            "nearest" if spec.categorical else "bilinear",
             "--exclude-empty-tiles",
             "--silent",
         ],
@@ -210,7 +211,13 @@ def publish(
         cog = Path(tmp) / "data.tif"
         _write_cog(Path(files["data"]), cog, spec.categorical)
         pixels = pixel_hash(cog)
-        tiling = {"display": pixel_hash(Path(files["display"])), "zooms": zooms, "rio-pmtiles": version("rio-pmtiles")}
+        tiling = {
+            "display": pixel_hash(Path(files["display"])),
+            "zooms": zooms,
+            "format": spec.tile_format,
+            "quality": spec.tile_quality,
+            "rio-pmtiles": version("rio-pmtiles"),
+        }
         name = f"{date}-{hashlib.sha256((pixels + json.dumps(tiling, sort_keys=True)).encode()).hexdigest()[:16]}"
         cog_key = f"layers/{layer}/{date[:4]}/{name}.tif"
         pmtiles_key = f"tiles/{layer}/{name}.pmtiles"
@@ -252,7 +259,7 @@ def publish(
         _upload_once(storage, cog_key, cog, COG_CONTENT_TYPE)
         if not storage.exists(pmtiles_key):
             pmtiles = Path(tmp) / "tiles.pmtiles"
-            _write_pmtiles(Path(files["display"]), pmtiles, zooms, spec.categorical)
+            _write_pmtiles(Path(files["display"]), pmtiles, zooms, spec)
             _upload_once(storage, pmtiles_key, pmtiles, PMTILES_CONTENT_TYPE)
 
     storage.write(entry_key(layer, date), json.dumps(entry, indent=2).encode(), "application/json", NO_CACHE)
