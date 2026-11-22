@@ -1,0 +1,100 @@
+name: Observation
+
+# S2 ingest, observed snow cover and true colour for a date range, published to the staging catalogue.
+# Daily run: the last 5 days, so a late tile completes a mosaic. Manual run: any range (backfill).
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "First date, YYYY-MM-DD"
+        type: string
+        required: true
+      end:
+        description: "Last date, YYYY-MM-DD"
+        type: string
+        required: true
+      target:
+        type: choice
+        options: [staging, prod]
+        default: staging
+  schedule:
+    - cron: "40 7 * * *"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  observe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    concurrency:
+      group: observation-${{ inputs.target || 'staging' }}
+      cancel-in-progress: false
+    env:
+      TARGET: ${{ inputs.target || 'staging' }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+      STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
+      DATA_BUCKET: ${{ vars.DATA_BUCKET }}
+      DATA_PREFIX: ${{ vars.DATA_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pipelines/requirements.lock
+      - run: pip install --require-hashes -r pipelines/requirements.lock
+
+      - name: Work out the range
+        id: range
+        run: |
+          if [ -n "${{ inputs.start }}" ]; then
+            echo "start=${{ inputs.start }}" >> "$GITHUB_OUTPUT"
+            echo "end=${{ inputs.end }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "start=$(date -u -d '5 days ago' +%F)" >> "$GITHUB_OUTPUT"
+            echo "end=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Authenticate
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.TARGET == 'prod' && vars.GCP_SA_PROD || vars.GCP_SA_STAGING }}
+
+      - name: Ingest Sentinel-2
+        run: >-
+          python -m pipelines.s2.ingest --domain data/domain.geojson
+          --start "${{ steps.range.outputs.start }}" --end "${{ steps.range.outputs.end }}"
+          --out work/s2
+
+      - name: Observed snow cover
+        run: >-
+          python -m pipelines.snow_obs.run --domain data/domain.geojson --s2 work/s2
+          --start "${{ steps.range.outputs.start }}" --end "${{ steps.range.outputs.end }}"
+          --out work/snow_obs --static-cache work/static --publish "$TARGET"
+
+      - name: True colour from L1C
+        run: >-
+          python -m pipelines.rgb_l1c.run --s2 work/s2 --domain data/domain.geojson
+          --start "${{ steps.range.outputs.start }}" --end "${{ steps.range.outputs.end }}"
+          --target "$TARGET"
+
+      - name: Rebuild the catalogue index
+        run: python -m pipelines.catalog rebuild-index --target "$TARGET"
+
+      - name: Report a failed scheduled run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
