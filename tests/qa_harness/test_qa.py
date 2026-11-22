@@ -474,7 +474,7 @@ class F2Tests(unittest.TestCase):
             "qa.freshness.DAILY_SINCE", dict.fromkeys(("snow_gapfill", "swe", "snow_depth"), "2025-10-01")
         ):
             self.assertEqual(len(check_f2({}, now)["breaches"]), 3)
-        early = check_f2({}, dt.datetime(2026, 11, 21, 8, 30, tzinfo=dt.timezone.utc))
+            early = check_f2({}, dt.datetime(2026, 11, 21, 8, 30, tzinfo=dt.timezone.utc))
         self.assertTrue(early["ok"])
         self.assertEqual(early["layers"]["swe"]["state"], "not_due")
 
