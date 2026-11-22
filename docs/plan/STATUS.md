@@ -25,10 +25,10 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | r3: narrow fixes requested by coordinator (G-Code r3 running) | #6 | r1, r2 both fail; r3: G-Infra fail (5 edge-case colours inside the bar) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | r3: narrow fixes requested by coordinator (G-Code r3 running) | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r4 narrow (G-Infra and G-Code running) on 0bbc81e | #12 | r1-r3 fail; r4 narrow: G-Infra PASS (0bbc81e), G-Code running |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlet r1 (G-Data running; G-Infra, G-Code queued), stacked on plan/t03-catalog | #20 | |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra r1 running; G-Code queued | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
@@ -37,18 +37,18 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | gauntlet r1 (G-Data, G-Method, G-Code running), merges after T0.3 | #15 | r1: G-Data PASS, G-Method PASS (2095dc9); G-Code running |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | fixing after r1 G-Code (deps into T0.6 locks), merges after T0.3 | #15 | r1: G-Data PASS, G-Method PASS, G-Code fail (geo deps missing from hashed locks) |
 | T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | building, stacked on plan/t21-domain (plan-forcing); scores wait for T1.7 | | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | r3 pushed (083c3b5), r3 gauntlets queued; merges after T0.7 and T0.3 | #8 | r1 both fail; r2: G-Data fail, G-Code PASS on 083c3b5 (minors: no Last-Modified shows live, frozen-camera replay, 26 MB unused large stills) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r3 (G-Data running on 083c3b5); merges after T0.7 and T0.3 | #8 | r1 both fail; r2: G-Data fail, G-Code PASS on 083c3b5 (minors: no Last-Modified shows live, frozen-camera replay, 26 MB unused large stills) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running; G-Code r1 queued) | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
-| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | building, stacked on plan/t06-ci + plan/t40-design (plan-shell, ctx_9048d1707be4) | | |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running), G-Code r1 running; ruff fix on design tools requested | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
+| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | draft PR #25, waits for T4.0 ruff fix to go green | #25 | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
 | T4.4 Basin and river panels | E | task_ff92a85a01b8 | T4.3 (T2.5 data optional, "pendiente" before) | waiting | | |
@@ -157,3 +157,4 @@ Not available until T5.1.
 - 2026-11-22: T2.1 G-Method r1 PASS (domain matches REDIAM Espacio Natural to 60 m2; legal reading confirmed; minors: 5 edge slivers 3,285 m2 in basins 604361/604370, EPSG wording, BOJA pages). T0.7 G-Code r4 (narrow) started.
 - 2026-11-22: T0.7 G-Infra r4 PASS at 0bbc81e (every attack run refused; 30 real schedule runs per producer still accepted; no regression). Minor follow-up: restore() reads one 30-run page per producer, so a flood of fork runs could stall fresh data (query by event instead). T4.0 G-UI r2 started.
 - 2026-11-22: T0.6 G-Infra r3 FAIL (named colour as var() fallback; named colours under non-colour keys and in a MapLibre legacy default; hex built in templates). Coordinator decision recorded under Changes of approach.
+- 2026-11-22: T0.6 G-Code r3 FAIL (var() fallback, colour-bearing shorthands like textDecoration/filter, a template case, escaped identifiers). Narrow fix list extended with colour-bearing shorthand properties; escaped identifiers are a follow-up. T2.1 G-Code r1 FAIL (geopandas/pyproj/pyogrio not in the hashed locks after rebase onto T0.6). T0.4 G-Data r1 FAIL (3 majors). Started: T3.1 G-Data r3, T4.0 G-Code r1, T0.4 G-Infra r1. T4.1 draft PR #25 waits for T4.0 to fix ruff in docs/design/tools.
