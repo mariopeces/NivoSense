@@ -32,7 +32,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
-| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | building, stacked on plan/t11-s2-ingest (plan-rgb, ctx_4e549ad175fb) | | |
+| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | ready, stacked on plan/t11-s2-ingest + plan/t03-catalog; G-Data, G-Method, G-Code queued | #22 | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
@@ -164,3 +164,4 @@ Not available until T5.1.
 - 2026-11-22: T0.6 narrow fixes pushed (c5fd1ba, CI green, failing proof per item). Round 4 is one combined G-Infra+G-Code worker on the four listed items, the round-3 bypasses and the diff; it takes the next free slot.
 - 2026-11-22: T4.0 G-Code r1 FAIL (two majors: '[estado.undefined]' on 7 screens; build_ramps.py writes ramps.json on a broken ramp). Sent to the design lead. T0.6 combined narrow round 4 started.
 - 2026-11-22: T0.3 r1 fixes pushed (a46b2b6: strict JSON, 18 mutations caught, GcsStorage tests, per-promote concurrency groups, tile format upstream); r2 x3 queued. T2.1 r1 fixes pushed (bad749e: geo deps in the hashed locks, sha refusal, slivers merged); narrow G-Code r2 queued. T2.2 PR #27 opened: inventory scripted; precipitation vs 6 RIA foothill stations: timing similar (r 0.65-0.73), volume differs (median ratio ARPEGE 1.09, ICON-EU 1.21, GFS 1.51, IFS 1.57, ERA5 1.74); snow scores and the recommendation wait for T1.7, so its G-Method gauntlet waits too (past-season forcing prefetch, ~25k calls over ~3 days, running locally into .cache/forcing).
+- 2026-11-22: T1.3 PR #22 ready (catalogue copy dropped in favour of T0.3 a46b2b6; CI green on eeac1c6). Gauntlet queue: T0.3 r2 x3, T2.1 G-Code r2, T1.3 r1 x3.
