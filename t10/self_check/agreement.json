@@ -1,0 +1,43 @@
+{
+  "relabelled": 175,
+  "compared": 137,
+  "agreed": 137,
+  "agreement": 1.0,
+  "cross_table": {
+    "cloud->cloud": 1,
+    "no_snow->no_snow": 106,
+    "no_snow->unsure": 1,
+    "snow->snow": 30,
+    "snow->unsure": 1,
+    "unsure->no_snow": 3,
+    "unsure->snow": 2,
+    "unsure->unsure": 31
+  },
+  "per_stratum": {
+    "cloud_edge": {
+      "compared": 16,
+      "agree": 16,
+      "agreement": 1.0
+    },
+    "forest": {
+      "compared": 27,
+      "agree": 27,
+      "agreement": 1.0
+    },
+    "open_terrain": {
+      "compared": 31,
+      "agree": 31,
+      "agreement": 1.0
+    },
+    "snowline_band": {
+      "compared": 34,
+      "agree": 34,
+      "agreement": 1.0
+    },
+    "terrain_shadow": {
+      "compared": 29,
+      "agree": 29,
+      "agreement": 1.0
+    }
+  }
+}
