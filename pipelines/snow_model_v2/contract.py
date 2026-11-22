@@ -191,4 +191,6 @@ def run_ensemble(
 
     No observation enters the run. Deterministic: the only randomness is in `parameters`.
     """
-    raise NotImplementedError("implemented in pipelines/snow_model_v2/engine.py")
+    from .engine import run_ensemble as run
+
+    return run(domain, forcing, parameters, observation_days)
