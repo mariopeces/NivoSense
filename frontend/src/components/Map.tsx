@@ -4,6 +4,7 @@ import type { StyleSpecification } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
+import { createWebcamMarkers, type WebcamMarkers } from "../lib/webcamMarkers";
 import { Protocol } from "pmtiles";
 import type { Status } from "./ui";
 import type { WeatherOverlay } from "../lib/weather";
@@ -137,6 +138,7 @@ export default function Map({
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
   const onWebcamSelectRef = useRef(onWebcamSelect);
+  const markersRef = useRef<WebcamMarkers | null>(null);
   const terrainRef = useRef(terrain);
   const insetRef = useRef(inset);
   const basemapRef = useRef(basemap);
@@ -207,9 +209,6 @@ export default function Map({
         applyBasinStyle(map, sectionRef.current);
         attachBasinInteractions(map, onBasinSelectRef, sectionRef);
       }
-      addWebcamLayers(map, webcamsRef.current);
-      applySelectedWebcam(map, selectedWebcamRef.current);
-      attachWebcamInteractions(map, onWebcamSelectRef);
       applyTerrain(map, terrainRef.current);
     };
 
@@ -217,8 +216,12 @@ export default function Map({
     map.on("style.load", setupLayers);
 
     mapRef.current = map;
+    markersRef.current = createWebcamMarkers(map, (id) => onWebcamSelectRef.current(id));
+    markersRef.current.update(webcamsRef.current, selectedWebcamRef.current);
 
     return () => {
+      markersRef.current?.destroy();
+      markersRef.current = null;
       map.remove();
       mapRef.current = null;
     };
@@ -313,133 +316,14 @@ export default function Map({
   }, [selectedBasinId, basinsFC]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-    addWebcamLayers(map, webcams);
-    applySelectedWebcam(map, selectedWebcamId);
-    attachWebcamInteractions(map, onWebcamSelectRef);
+    markersRef.current?.update(webcams, selectedWebcamId);
   }, [webcams, selectedWebcamId]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !selectedWebcamId) return;
-    const webcam = webcams.find((item) => item.id === selectedWebcamId);
-    if (!webcam) return;
-    const { longitude, latitude } = webcam;
-    if (longitude === null || latitude === null) return;
-
-    const focus = () => {
-      applySelectedWebcam(map, selectedWebcamId);
-      map.flyTo({
-        center: [longitude, latitude],
-        zoom: Math.max(map.getZoom(), 13),
-        duration: 800,
-      });
-    };
-
-    if (map.getLayer("webcams-selected")) focus();
-    else map.once("idle", focus);
-  }, [selectedWebcamId, webcams]);
 
   return <div ref={containerRef} className="absolute inset-0" />;
 }
 
 function fitPadding(inset: Props["inset"], margin: number) {
   return { top: margin, right: margin, bottom: inset.bottom + margin, left: inset.left + margin };
-}
-
-function webcamFeatureCollection(webcams: Webcam[]): GeoJSON.FeatureCollection {
-  return {
-    type: "FeatureCollection",
-    features: webcams.flatMap((webcam) =>
-      webcam.longitude === null || webcam.latitude === null
-        ? []
-        : [
-            {
-              type: "Feature" as const,
-              geometry: {
-                type: "Point" as const,
-                coordinates: [webcam.longitude, webcam.latitude],
-              },
-              properties: {
-                id: webcam.id,
-                name: webcam.name,
-                offline: webcam.status === "offline",
-              },
-            },
-          ],
-    ),
-  };
-}
-
-function addWebcamLayers(map: maplibregl.Map, webcams: Webcam[]) {
-  const data = webcamFeatureCollection(webcams);
-  const source = map.getSource("webcams");
-  if (source) {
-    (source as maplibregl.GeoJSONSource).setData(data);
-  } else {
-    map.addSource("webcams", { type: "geojson", data });
-  }
-
-  if (!map.getLayer("webcams")) {
-    map.addLayer({
-      id: "webcams",
-      type: "circle",
-      source: "webcams",
-      paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 5, 14, 8],
-        "circle-color": ["case", ["get", "offline"], token("color-panel"), token("color-ink")],
-        "circle-stroke-color": [
-          "case",
-          ["get", "offline"],
-          token("color-text-muted"),
-          token("color-map-halo"),
-        ],
-        "circle-stroke-width": 1.5,
-      },
-    });
-  }
-
-  if (!map.getLayer("webcams-selected")) {
-    map.addLayer({
-      id: "webcams-selected",
-      type: "circle",
-      source: "webcams",
-      filter: ["==", ["get", "id"], ""],
-      paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 8, 14, 11],
-        "circle-color": "transparent",
-        "circle-stroke-color": token("color-accent"),
-        "circle-stroke-width": 3,
-      },
-    });
-  }
-}
-
-function applySelectedWebcam(map: maplibregl.Map, selectedId: string | null) {
-  if (!map.getLayer("webcams-selected")) return;
-  map.setFilter("webcams-selected", ["==", ["get", "id"], selectedId ?? ""]);
-}
-
-function attachWebcamInteractions(
-  map: maplibregl.Map,
-  onSelectRef: { current: (id: string | null) => void },
-) {
-  if (!map.getLayer("webcams")) return;
-  const flagged = map as unknown as { __webcamClickAttached?: boolean };
-  if (flagged.__webcamClickAttached) return;
-  flagged.__webcamClickAttached = true;
-
-  map.on("click", "webcams", (event) => {
-    const id = event.features?.[0]?.properties?.id;
-    if (typeof id === "string") onSelectRef.current(id);
-  });
-  map.on("mouseenter", "webcams", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-  map.on("mouseleave", "webcams", () => {
-    map.getCanvas().style.cursor = "";
-  });
 }
 
 // The archive each catalogue layer's source was created from, per map, so a date change swaps only the

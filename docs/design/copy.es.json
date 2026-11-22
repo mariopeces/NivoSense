@@ -54,7 +54,7 @@
     "webcams": {
       "eyebrow": "Webcams",
       "titulo": "Cámaras",
-      "subtitulo": "Cada imagen con su hora real de captura y su autor."
+      "subtitulo": "Las cámaras están en el mapa. Pulsa una para ver su imagen y la hora real de captura."
     },
     "meteo": {
       "eyebrow": "Meteo",
@@ -290,7 +290,12 @@
     "tooltip_simbolo": "{nombre} · {estado}",
     "leyenda_cono": "Con imagen: el cono muestra hacia dónde mira la cámara y hasta dónde llega su vista.",
     "leyenda_sin_imagen": "Sin imagen ahora mismo.",
-    "leyenda_sin_orientacion": "Con imagen, orientación aún sin verificar: sin cono."
+    "leyenda_sin_orientacion": "Con imagen, orientación aún sin verificar: sin cono.",
+    "contador": "{n} cámaras con imagen",
+    "contador_una": "1 cámara con imagen",
+    "sin_posicion": "{n} sin posición en el mapa",
+    "grupo_aria": "{n} cámaras en {lugar}. Pulsa para verlas por separado",
+    "leyenda_grupo": "Varias cámaras en el mismo sitio: un punto con su número. Púlsalo para separarlas."
   },
   "metodo": {
     "indice": "En esta página",

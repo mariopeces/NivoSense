@@ -5,6 +5,7 @@ import Panel, { type SheetHeight } from "./components/Panel";
 import Timeline from "./components/Timeline";
 import NieveSection from "./components/NieveSection";
 import AguaSection from "./components/AguaSection";
+import WebcamCard from "./components/WebcamCard";
 import WebcamsSection from "./components/WebcamsSection";
 import MeteoSection from "./components/MeteoSection";
 import MetodoSection from "./components/MetodoSection";
@@ -392,15 +393,8 @@ export default function App() {
     return () => controller.abort();
   }, [selectedRiverId, apiUrl]);
 
-  const handleWebcamSelect = (webcamId: string | null) => {
-    setSelectedWebcamId(webcamId);
-    if (webcamId) {
-      setSection("webcams");
-      setPanelOpen(true);
-      setSelectedBasinId(null);
-      setSelectedRiverId(null);
-    }
-  };
+  // Cameras are chosen on the map only; selecting one leaves the open tab as it is.
+  const handleWebcamSelect = useCallback((webcamId: string | null) => setSelectedWebcamId(webcamId), []);
 
   // The one path for basin selection, from the map and from the Agua list alike.
   const handleBasinSelect = (basinId: string | null) => {
@@ -535,8 +529,6 @@ export default function App() {
               webcams={webcams}
               loading={webcamsLoading}
               error={webcamsError}
-              selectedId={selectedWebcamId}
-              onSelect={handleWebcamSelect}
             />
           )}
           {section === "meteo" && (
@@ -576,6 +568,12 @@ export default function App() {
           basemap={basemap}
           terrain={terrain}
           inset={mapInset}
+        />
+        <WebcamCard
+          webcam={webcams.find((cam) => cam.id === selectedWebcamId) ?? null}
+          mobile={mobile}
+          bottom={mapInset.bottom}
+          onClose={() => handleWebcamSelect(null)}
         />
       </main>
     </div>
