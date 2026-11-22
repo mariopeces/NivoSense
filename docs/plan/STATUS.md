@@ -27,7 +27,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r2 (round 3 is the last) | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | fixing after r2 | #12 | r1 both fail; r2: G-Code PASS, G-Infra fail (tag push runs tagged commit workflow) |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r3 (G-Infra running; G-Code queued) on 3f2086d | #12 | r1 both fail; r2: G-Code PASS, G-Infra fail (tag push runs tagged commit workflow) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r1 (G-Data, G-Method, G-Code running) | #14 | |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
@@ -137,3 +137,4 @@ None yet.
 - 2026-11-22: T0.7 G-Infra r2 FAIL (blocker): a tag push runs the tagged commit's workflow, so the round-1 pages.yml on a PR commit plus the github-pages v* tag policy (agents bypass the ruleset as admin) could deploy unmerged code. Fix sent: remove the environment tag policy at once, drop push:tags, deploy only from main-ref runs through pick_release.py, environment limited to main. T4.0 G-UI r1 started.
 - 2026-11-22: T0.7 G-Code r2 PASS at b321cf5 (minors folded into the G-Infra fix). T1.1 G-Code r1 started.
 - 2026-11-22: T0.6 G-Code r2 FAIL (colour rule: CSS custom properties, template literals, named colours in style/paint objects, baseline growth); all inside the round-3 bar plus template literals. T3.1 G-Data r2 started.
+- 2026-11-22: T0.7 round 2 fixes pushed (3f2086d): github-pages tag policy deleted (environment main-only), push:tags removed, pages.yml refuses runs off main; picker hardened. Round 3 (last) G-Infra started, G-Code queued.
