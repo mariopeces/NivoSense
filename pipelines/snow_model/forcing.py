@@ -98,6 +98,24 @@ def fetch_forcing(
         records.extend(_fetch(f"{ARCHIVE_URL}?{query}"))
         time.sleep(1)
 
+    forcing = forcing_from_records(records, start, end)
+    if complete_year:
+        cache.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(
+            path,
+            lon=forcing.lon,
+            lat=forcing.lat,
+            elevation=forcing.elevation,
+            temperature=forcing.temperature,
+            precipitation=forcing.precipitation,
+            shortwave=forcing.shortwave,
+        )
+    return forcing
+
+
+def forcing_from_records(records: list[dict], start: date, end: date) -> Forcing:
+    """Forcing arrays from Open-Meteo JSON records covering start to end, gaps filled."""
+    days = [start + timedelta(days=offset) for offset in range((end - start).days + 1)]
     unique = {}
     for record in records:
         unique[(record["latitude"], record["longitude"], record["elevation"])] = record
@@ -124,7 +142,7 @@ def fetch_forcing(
     temperature = _fill_missing(arrays["temperature_2m"], "temperature")
     precipitation = np.nan_to_num(_fill_missing(arrays["precipitation"], "precipitation"))
     shortwave = np.nan_to_num(_fill_missing(arrays["shortwave_radiation"], "shortwave radiation"))
-    forcing = Forcing(
+    return Forcing(
         days,
         np.array([record["longitude"] for record in selected], dtype="float64"),
         np.array([record["latitude"] for record in selected], dtype="float64"),
@@ -133,18 +151,6 @@ def fetch_forcing(
         np.maximum(precipitation, 0).reshape(len(selected), len(days), 24),
         shortwave.reshape(len(selected), len(days), 24).mean(axis=2),
     )
-    if complete_year:
-        cache.mkdir(parents=True, exist_ok=True)
-        np.savez_compressed(
-            path,
-            lon=forcing.lon,
-            lat=forcing.lat,
-            elevation=forcing.elevation,
-            temperature=forcing.temperature,
-            precipitation=forcing.precipitation,
-            shortwave=forcing.shortwave,
-        )
-    return forcing
 
 
 def neighbour_weights(
