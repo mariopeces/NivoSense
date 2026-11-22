@@ -37,7 +37,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | gauntlet r1 (G-Data running; G-Method, G-Code queued), merges after T0.3 | #15 | |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | gauntlet r1 (G-Data, G-Method running; G-Code queued), merges after T0.3 | #15 | |
 | T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | building, stacked on plan/t21-domain (plan-forcing); scores wait for T1.7 | | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
@@ -47,7 +47,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r1 (G-UI ctx_7b5e2a1c7dab running; G-Code queued) | #16 | |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | fixing after r1 G-UI (G-Code queued) | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
 | T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | building, stacked on plan/t06-ci + plan/t40-design (plan-shell, ctx_9048d1707be4) | | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
@@ -143,3 +143,4 @@ Not available until T5.1.
 - 2026-11-22: T0.7 G-Infra r3 FAIL: all deploy paths hold; one pre-existing major (restore() trusts any head_branch main run, incl. forks). Coordinator decision recorded under Changes of approach.
 - 2026-11-22: T1.1 G-Method r1 PASS (independent query and CDSE cross-check agree on all 30 acquisitions; offsets from raster:bands; no seams). T3.1 G-Code r2 started.
 - 2026-11-22: T0.4 PR #20 ready (check_catalog, render_thumbs, freshness F1/F2, Q4 fixture with real scene ids, decision-object schema; real month checked in CI in 32.7 s; corrupt-COG and missing-day tests with mutation checks). Q4 fixture pending on T1.2 and a ski resort polygon (none in repo). T2.1 G-Data r1 started. Note sent to T1.3: PNG RGB PMTiles ~230 MB/date, use lossy tiles. Queue: T2.1 G-Method and G-Code, T4.0 G-Code, T0.4 x3, then rounds as they come.
+- 2026-11-22: T4.0 G-UI r1 FAIL (5 majors: timeline lacks gap-filled/modelled/forecast ticks and forecast slot; webcam card age missing; method strip alignment; inconsistent webcam symbols; mobile card not a bottom sheet). A, D, F, ramps and data traceability pass (201/201 timeline dates match Earth Search). Sent to the design lead; T4.1 told to re-merge. T2.1 G-Method r1 started.
