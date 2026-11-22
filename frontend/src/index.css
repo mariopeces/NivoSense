@@ -140,3 +140,90 @@ body,
     bottom: calc(var(--layout-tabbar-height) + var(--sheet-height, var(--layout-sheet-peek)) + var(--space-3));
   }
 }
+
+/* Webcam map symbol (docs/design/mockups/webcam-symbol.svg): a disc with a Lucide glyph. With image it is
+   --color-live with a white halo, no image it is white with a muted border, selected adds an accent ring.
+   32 px on desktop, the 44 px touch target below 768 px. */
+.webcam-pin {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-map-halo);
+  background: var(--color-live);
+  color: var(--color-on-ink-strong);
+  box-shadow: var(--shadow-float);
+  cursor: pointer;
+}
+
+.webcam-pin[data-state="offline"] {
+  background: var(--color-panel);
+  border: 1.5px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+}
+
+.webcam-pin .webcam-glyph {
+  width: 18px;
+  height: 18px;
+}
+
+/* No transform here: MapLibre positions each marker with one. */
+.webcam-pin:hover {
+  box-shadow:
+    0 0 0 3px var(--color-map-halo),
+    var(--shadow-float);
+}
+
+.webcam-pin:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.webcam-pin.is-selected {
+  box-shadow:
+    0 0 0 3px var(--color-map-halo),
+    0 0 0 5px var(--color-accent),
+    var(--shadow-float);
+}
+
+.webcam-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-ink);
+  border: 1px solid var(--color-map-halo);
+  color: var(--color-on-ink-strong);
+  font-size: 11px;
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.webcam-leaders {
+  display: block;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.webcam-leaders line {
+  stroke: var(--color-ink);
+  stroke-width: 1.25;
+  stroke-opacity: 0.7;
+}
+
+@media (max-width: 767px) {
+  .webcam-pin {
+    width: var(--layout-touch-target);
+    height: var(--layout-touch-target);
+  }
+
+  .webcam-pin .webcam-glyph {
+    width: 22px;
+    height: 22px;
+  }
+}

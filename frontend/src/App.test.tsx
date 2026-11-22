@@ -122,11 +122,13 @@ describe("App shell", { timeout: 20_000 }, () => {
     expect(await screen.findByText("Río Guadalfeo o Río Cádiar")).toBeTruthy();
   });
 
-  it("shows the webcam catalogue as it is: no camera with an image today", async () => {
+  it("keeps the webcam panel to a count and a legend: the cameras are on the map only", async () => {
     await renderApp();
     fireEvent.click(screen.getByRole("tab", { name: "Webcams" }));
     expect(await screen.findByText("Ninguna cámara con imagen en este momento.")).toBeTruthy();
-    const offline = JSON.parse(repoFile("frontend/src/test-fixtures/webcams.json")).filter((c: { status: string }) => c.status === "offline");
-    expect(screen.getAllByText("Sin imagen", { selector: "span.text-caption" })).toHaveLength(offline.length);
+    expect(screen.getByText("Con imagen")).toBeTruthy();
+    expect(screen.getByText("Sin imagen")).toBeTruthy();
+    expect(screen.queryAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryByText(/PK/)).toBeNull();
   });
 });
