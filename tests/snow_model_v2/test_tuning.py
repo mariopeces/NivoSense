@@ -48,3 +48,11 @@ def test_thin_candidates_are_skipped_and_priors_load(tmp_path):
     path.write_text(json.dumps({"priors": {"b0_median": 1.25, "dT_sd": 2.0}}), encoding="utf-8")
     loaded = t.load_priors(str(path))
     assert loaded.b0_median == 1.25 and loaded.dT_sd == 2.0 and loaded.b0_cv == Priors().b0_cv
+
+
+def test_committed_priors_file_loads_and_lists_every_fold():
+    payload = json.loads(open("regions/sierra-nevada.snow-priors.json", encoding="utf-8").read())
+    assert len(payload["folds"]) == len(payload["water_years"]) >= 5
+    assert set(payload["fold_spread"]) == {"b0_median", "b0_cv", "dT_sd"}
+    priors = t.load_priors("regions/sierra-nevada.snow-priors.json")
+    assert priors.b0_median == payload["priors"]["b0_median"]
