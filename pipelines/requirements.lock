@@ -717,7 +717,9 @@ pillow==11.3.0 \
 pmtiles==3.8.1 \
     --hash=sha256:0f594a61b37fca039f06162428781f76a4233f5beea94444702f0dc41f20f007 \
     --hash=sha256:718561bb21f8c7dd5464fdcc3b9ad0e7b1c917be60ddfdf9a5ab56b8c67f7bde
-    # via rio-pmtiles
+    # via
+    #   -r requirements.in
+    #   rio-pmtiles
 proto-plus==1.29.0 \
     --hash=sha256:8acd070469a7aaf43f440b022ef9757c8cac1a9f866e933f59ae98669ddc6c8b \
     --hash=sha256:cfb4e62ad7e13dd18f346cabbda00cab39930d36a05791fd81ddb074d6ee884f
@@ -1137,6 +1139,10 @@ typing-extensions==4.16.0 \
     # via
     #   opentelemetry-api
     #   referencing
+tzdata==2026.6 \
+    --hash=sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec \
+    --hash=sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d
+    # via -r requirements.in
 urllib3==2.8.0 \
     --hash=sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3 \
     --hash=sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63

@@ -1,0 +1,28 @@
+{
+  "id": "q4_crest_2026-11-20",
+  "title": "Crest Veleta to Mulhacen, 2026-11-19/20: modelled snow where Sentinel-2 sees bare ground",
+  "plan": "docs/plan/README.md section 2, Q4",
+  "bbox": [-3.42, 37.01, -3.30, 37.07],
+  "observation_date": "2026-11-20",
+  "model_dates": ["2026-11-21", "2026-11-22", "2026-11-23", "2026-11-24", "2026-11-25"],
+  "s2_scenes": {
+    "sentinel-2-c1-l2a": ["S2A_T30SVF_20261120T110610_L2A", "S2A_T30SVG_20261120T110610_L2A"],
+    "sentinel-2-l1c": ["S2A_30SVF_20261120_1_L1C", "S2A_30SVG_20261120_0_L1C"]
+  },
+  "s2_query": "Earth Search STAC search, bbox above, 2026-11-08..2026-11-22, run 2026-11-22: passes over the box on 2026-11-08 (S2C), 2026-11-10 (S2A), 2026-11-13 (S2B) and 2026-11-20 (S2A, relative orbit R094); none on 2026-11-19 or 2026-11-21/22.",
+  "rule": {
+    "observed_layer": "snow_obs",
+    "observed_band": null,
+    "bare_values": null,
+    "model_layer": "swe",
+    "model_band": "swe",
+    "snow_threshold": 5.0,
+    "snow_threshold_source": "README Q3: model snow presence is SWE > 5 mm",
+    "max_violations": 0
+  },
+  "exclude": {
+    "name": "ski resort",
+    "geometry": null
+  },
+  "not_in_catalogue": "Q4 also scores the model state before the 2026-11-20 assimilation update (from state/2026-11-19.npz); that state is not a catalogue product and is scored by the model's own tests."
+}
