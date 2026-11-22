@@ -1,15 +1,20 @@
 {
   "region": {
     "id": "sierra-nevada",
-    "bbox": [-3.55, 36.92, -2.95, 37.18]
+    "domain": "data/domain.geojson",
+    "domain_part": "domain",
+    "domain_buffer_m": 2000,
+    "domain_note": "data/domain.geojson is the model domain built by task T2.1; cams up to 2 km outside it are kept because they look into it"
   },
   "sources": [
     {
       "id": "dgt",
       "type": "datex2",
       "url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
+      "page": "https://www.dgt.es/conoce-el-estado-del-trafico/camaras-de-trafico/",
       "attribution": "Dirección General de Tráfico (DGT)",
       "provider": "DGT",
+      "live_only": true,
       "enabled": true
     },
     {

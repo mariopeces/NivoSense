@@ -14,6 +14,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+try:
+    from backend.ingest_webcams import load_area
+except ImportError:  # run as a script, with backend/ on the path
+    from ingest_webcams import load_area  # type: ignore[no-redef]
+
 CONFIG = Path(__file__).with_name("webcam_sources.json")
 CETURSA_CREDIT = "Imagen: Cetursa Sierra Nevada / feratel"
 STILL_PATH = re.compile(
@@ -32,11 +37,24 @@ def validate(dist: Path, config: dict[str, Any]) -> list[str]:
     if not isinstance(cameras, list):
         return [f"{catalog_path} is not a list"]
 
-    west, south, east, north = config["region"]["bbox"]
+    area = load_area(config["region"])
+    # Providers whose cams are listed only while they pass the check, with the page
+    # their credit must link to.
+    live_only = {
+        source.get("provider", source["id"]): source.get("page", source["url"])
+        for source in config["sources"]
+        if source.get("live_only") and source.get("enabled", True)
+    }
     errors: list[str] = []
     seen: set[str] = set()
     for camera in cameras:
         cid = camera.get("id")
+        provider = camera.get("provider")
+        if provider in live_only:
+            if camera.get("status") != "live":
+                errors.append(f"{cid}: {provider} cam listed without passing the check")
+            if camera.get("source_url") != live_only[provider]:
+                errors.append(f"{cid}: credit links to {camera.get('source_url')!r}, not {live_only[provider]!r}")
         if not cid or cid in seen:
             errors.append(f"missing or duplicate id: {cid!r}")
         seen.add(cid)
@@ -52,8 +70,8 @@ def validate(dist: Path, config: dict[str, Any]) -> list[str]:
         if (latitude is None) != (longitude is None):
             errors.append(f"{cid}: only one of latitude and longitude is set")
         elif latitude is not None:
-            if not (west <= longitude <= east and south <= latitude <= north):
-                errors.append(f"{cid}: position outside region.bbox")
+            if not area.contains(longitude, latitude):
+                errors.append(f"{cid}: position outside the region")
             if urlparse(camera.get("position_source") or "").scheme != "https":
                 errors.append(f"{cid}: position without an https position_source")
 
