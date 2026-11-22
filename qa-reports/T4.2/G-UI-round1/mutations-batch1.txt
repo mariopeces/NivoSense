@@ -1,0 +1,20 @@
+CAUGHT   timeline: length off by one (drops today)
+CAUGHT   timeline: addDays in local time (DST)
+MISSED   timeline: addDays naive string increment (month end)
+CAUGHT   timeline: status map gapfilled<->modelled
+CAUGHT   timeline: rank order modelled before gapfilled
+CAUGHT   timeline: latest ignores today cutoff
+CAUGHT   timeline: forecast slot not split at today
+CAUGHT   timeline: shift jumps to any data day
+CAUGHT   timeline: today in UTC
+CAUGHT   timeline: durationMs ignores s unit
+CAUGHT   url: accept 2026-02-30
+CAUGHT   url: accept any layer
+CAUGHT   url: drop other params
+MISSED   url: accept d=2026-1-5 (no ISO check)
+CAUGHT   catalog: 404 treated as error
+CAUGHT   catalog: unknown status accepted
+MISSED   play: steps every day instead of data days
+MISSED   play: never stops at the end
+MISSED   play: frame 0 ms
+MISSED   app: shared date ignored, always latest

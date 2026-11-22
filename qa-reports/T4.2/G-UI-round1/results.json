@@ -1,0 +1,349 @@
+{
+ "1440_initial": {
+  "now": 415,
+  "text": "vie 20 nov 2026: Observado",
+  "max": 417,
+  "query": "?d=2026-11-20"
+ },
+ "axe": {
+  "1440": [],
+  "1440_calendar_open": [],
+  "375": [],
+  "375_calendar_open": [],
+  "e404_1440": [],
+  "e404_375": [],
+  "e403_1440": [],
+  "e403_375": []
+ },
+ "tabs_to_slider": 12,
+ "keyboard_scrub": {
+  "home": "mié 1 oct 2025: Pendiente",
+  "first_query": "?d=2025-10-01",
+  "presses": 420,
+  "distinct": 418,
+  "every_step_plus_one": true,
+  "end": "dom 22 nov 2026: Pendiente",
+  "end_query": "?d=2026-11-22",
+  "stays_at_end": true,
+  "samples": {
+   "1": [
+    1,
+    "jue 2 oct 2025: Pendiente",
+    "?d=2025-10-02"
+   ],
+   "31": [
+    31,
+    "sáb 1 nov 2025: Pendiente",
+    "?d=2025-11-01"
+   ],
+   "92": [
+    92,
+    "jue 1 ene 2026: Pendiente",
+    "?d=2026-01-01"
+   ],
+   "152": [
+    152,
+    "lun 2 mar 2026: Pendiente",
+    "?d=2026-03-02"
+   ],
+   "182": [
+    182,
+    "mié 1 abr 2026: Pendiente",
+    "?d=2026-04-01"
+   ],
+   "365": [
+    365,
+    "jue 1 oct 2026: Pendiente",
+    "?d=2026-10-01"
+   ],
+   "390": [
+    390,
+    "lun 26 oct 2026: Pendiente",
+    "?d=2026-10-26"
+   ],
+   "416": [
+    416,
+    "sáb 21 nov 2026: Pendiente",
+    "?d=2026-11-21"
+   ],
+   "417": [
+    417,
+    "dom 22 nov 2026: Pendiente",
+    "?d=2026-11-22"
+   ]
+  },
+  "crossings": [
+   "sáb 25 oct 2025: Pendiente",
+   "dom 26 oct 2025: Pendiente",
+   "mié 31 dic 2025: Pendiente",
+   "jue 1 ene 2026: Pendiente",
+   "dom 11 ene 2026: Pendiente",
+   "mié 21 ene 2026: Pendiente",
+   "sáb 31 ene 2026: Pendiente",
+   "sáb 28 feb 2026: Pendiente",
+   "dom 1 mar 2026: Pendiente",
+   "mié 11 mar 2026: Pendiente",
+   "sáb 21 mar 2026: Pendiente",
+   "sáb 28 mar 2026: Pendiente",
+   "dom 29 mar 2026: Pendiente",
+   "mar 31 mar 2026: Pendiente"
+  ]
+ },
+ "shift_keys": {
+  "home_shift_right": "sáb 24 oct 2026: Observado",
+  "again": "jue 29 oct 2026: Observado",
+  "end": "dom 22 nov 2026: Pendiente",
+  "end_shift_left": "vie 20 nov 2026: Observado"
+ },
+ "play_space": {
+  "frames": [
+   [
+    1131,
+    "jue 29 oct 2026: Observado"
+   ],
+   [
+    1856,
+    "sáb 31 oct 2026: Observado"
+   ],
+   [
+    3246,
+    "dom 8 nov 2026: Observado"
+   ],
+   [
+    3647,
+    "mar 10 nov 2026: Observado"
+   ],
+   [
+    4408,
+    "vie 13 nov 2026: Observado"
+   ],
+   [
+    5219,
+    "vie 20 nov 2026: Observado"
+   ]
+  ],
+  "button_after": "Reproducir",
+  "button_disabled": true,
+  "query_after": "?d=2026-11-20"
+ },
+ "play_pause_button": {
+  "paused_on": "mar 10 nov 2026: Observado",
+  "after_1.7s": "mar 10 nov 2026: Observado"
+ },
+ "buttons_from_pending_day": {
+  "start": "sáb 14 feb 2026: Pendiente",
+  "prev_disabled": true,
+  "next_disabled": false,
+  "after_next": "sáb 24 oct 2026: Observado"
+ },
+ "ultima": {
+  "after": "vie 20 nov 2026: Observado",
+  "disabled_now": true,
+  "query": "?d=2026-11-20"
+ },
+ "calendar": {
+  "focus_on_open": "viernes 20 de noviembre de 2026: Observado",
+  "enabled_days_in_month": [
+   "jueves 29 de octubre de 2026: Observado",
+   "sábado 31 de octubre de 2026: Observado",
+   "domingo 8 de noviembre de 2026: Observado",
+   "martes 10 de noviembre de 2026: Observado",
+   "viernes 13 de noviembre de 2026: Observado",
+   "viernes 20 de noviembre de 2026: Observado"
+  ],
+  "focus_before_hover": "martes 10 de noviembre de 2026: Observado",
+  "focus_after_hover_track": "viernes 20 de noviembre de 2026: Observado",
+  "escape_focus": "Elegir en el calendario",
+  "picked": "sábado 24 de octubre de 2026: Observado",
+  "slider_after_pick": "sáb 24 oct 2026: Observado",
+  "focus_after_pick": "Elegir en el calendario",
+  "query": "?d=2026-10-24"
+ },
+ "pointer_drag": {
+  "distinct": 101,
+  "first": 4,
+  "last": 417,
+  "query": "?d=2026-11-22"
+ },
+ "log_1440_real": {
+  "console_errors": [],
+  "page_errors": [],
+  "failed_requests": []
+ },
+ "links": {
+  "?d=2026-10-29&l=swe": {
+   "slider": "jue 29 oct 2026: Observado",
+   "query_after_load": "?d=2026-10-29&l=swe",
+   "legend": "SWE (mm)\n\nModelado\n5 mm\n50 mm\n\nMedia ponderada del conjunto, 20 nov 2026\n\nExperi",
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/real/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/real/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/real/assets/index-CgoQlNrb.js:43:33207)"
+   ]
+  },
+  "?d=2026-02-30&l=swe": {
+   "slider": "vie 20 nov 2026: Observado",
+   "query_after_load": "?l=swe&d=2026-11-20",
+   "legend": "SWE (mm)\n\nModelado\n5 mm\n50 mm\n\nMedia ponderada del conjunto, 20 nov 2026\n\nExperi",
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/real/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/real/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/real/assets/index-CgoQlNrb.js:43:33207)"
+   ]
+  },
+  "?d=garbage&l=SWE": {
+   "slider": "vie 20 nov 2026: Observado",
+   "query_after_load": "?d=2026-11-20",
+   "legend": "",
+   "console_errors": []
+  },
+  "?d=2024-01-01": {
+   "slider": "vie 20 nov 2026: Observado",
+   "query_after_load": "?d=2026-11-20",
+   "legend": "",
+   "console_errors": []
+  },
+  "?d=2026-12-25": {
+   "slider": "vie 20 nov 2026: Observado",
+   "query_after_load": "?d=2026-11-20",
+   "legend": "",
+   "console_errors": []
+  },
+  "?d=2026-11-10&l=depth&s=agua": {
+   "slider": "mar 10 nov 2026: Observado",
+   "query_after_load": "?d=2026-11-10&l=depth&s=agua",
+   "legend": "Espesor (m)\n\nModelado\n0.03 m\n0.5 m\n\nMedia ponderada del conjunto, 20 nov 2026\n\nE",
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/real/data/snow-model/depth_latest.png\n    at I9 (http://localhost:4173/real/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/real/assets/index-CgoQlNrb.js:43:33207)"
+   ]
+  },
+  "?l=nope": {
+   "slider": "vie 20 nov 2026: Observado",
+   "query_after_load": "?d=2026-11-20",
+   "legend": "",
+   "console_errors": []
+  },
+  "?d=2026-1-5": {
+   "slider": "vie 20 nov 2026: Observado",
+   "query_after_load": "?d=2026-11-20",
+   "legend": "",
+   "console_errors": []
+  },
+  "?d=2026-03-29": {
+   "slider": "dom 29 mar 2026: Pendiente",
+   "query_after_load": "?d=2026-03-29",
+   "legend": "",
+   "console_errors": []
+  }
+ },
+ "375_initial": {
+  "now": 415,
+  "text": "vie 20 nov 2026: Observado",
+  "max": 417,
+  "query": "?d=2026-11-20"
+ },
+ "375_calendar_rect": {
+  "x": 51,
+  "y": 151,
+  "width": 300,
+  "height": 316
+ },
+ "375_timeline_rect": {
+  "x": 12,
+  "y": 450,
+  "width": 351,
+  "height": 158
+ },
+ "log_375_real": {
+  "console_errors": [],
+  "page_errors": [],
+  "failed_requests": []
+ },
+ "e404_1440": {
+  "text": "Aún no hay escenas publicadas.\n\nLa línea de tiempo se llena con cada escena que se publica, desde el 1 oct 2025.",
+  "query": "?l=swe",
+  "log": {
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/e404/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/e404/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/e404/assets/index-CgoQlNrb.js:43:33207)"
+   ],
+   "page_errors": [],
+   "failed_requests": [
+    "404 https://storage.googleapis.com/nivosense-cogs/staging/catalog/index.json",
+    "404 http://localhost:4173/e404/data/snow-model/swe_latest.png"
+   ]
+  },
+  "buttons": []
+ },
+ "e404_375": {
+  "text": "Aún no hay escenas publicadas.\n\nLa línea de tiempo se llena con cada escena que se publica, desde el 1 oct 2025.",
+  "query": "?l=swe",
+  "log": {
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/e404/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/e404/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/e404/assets/index-CgoQlNrb.js:43:33207)"
+   ],
+   "page_errors": [],
+   "failed_requests": [
+    "404 https://storage.googleapis.com/nivosense-cogs/staging/catalog/index.json",
+    "404 http://localhost:4173/e404/data/snow-model/swe_latest.png"
+   ]
+  },
+  "buttons": []
+ },
+ "e403_1440": {
+  "text": "No se pudo cargar el catálogo\n\nSin catálogo no se sabe qué fechas existen. El mapa base sigue disponible.\n\nReintentar",
+  "query": "?l=swe",
+  "log": {
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 403 ()",
+    "Failed to load the catalogue: Error: HTTP 403\n    at _ke (http://localhost:4173/e403/assets/index-CgoQlNrb.js:1042:42937)",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/e403/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:33207)",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/e403/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:33207)",
+    "Failed to load resource: the server responded with a status of 403 ()",
+    "Failed to load the catalogue: Error: HTTP 403\n    at _ke (http://localhost:4173/e403/assets/index-CgoQlNrb.js:1042:42937)",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/e403/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:33207)"
+   ],
+   "page_errors": [],
+   "failed_requests": [
+    "403 https://storage.googleapis.com/nivosense-cogs/",
+    "404 http://localhost:4173/e403/data/snow-model/swe_latest.png",
+    "404 http://localhost:4173/e403/data/snow-model/swe_latest.png",
+    "403 https://storage.googleapis.com/nivosense-cogs/",
+    "404 http://localhost:4173/e403/data/snow-model/swe_latest.png"
+   ]
+  },
+  "buttons": [
+   "Reintentar"
+  ],
+  "retry_new_failed_requests": [
+   "404 http://localhost:4173/e403/data/snow-model/swe_latest.png",
+   "403 https://storage.googleapis.com/nivosense-cogs/",
+   "404 http://localhost:4173/e403/data/snow-model/swe_latest.png"
+  ]
+ },
+ "e403_375": {
+  "text": "No se pudo cargar el catálogo\n\nSin catálogo no se sabe qué fechas existen. El mapa base sigue disponible.\n\nReintentar",
+  "query": "?l=swe",
+  "log": {
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 403 ()",
+    "Failed to load the catalogue: Error: HTTP 403\n    at _ke (http://localhost:4173/e403/assets/index-CgoQlNrb.js:1042:42937)",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "ty: AJAXError: File not found (404): http://localhost:4173/e403/data/snow-model/swe_latest.png\n    at I9 (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:29785)\n    at async l (http://localhost:4173/e403/assets/index-CgoQlNrb.js:43:33207)"
+   ],
+   "page_errors": [],
+   "failed_requests": [
+    "403 https://storage.googleapis.com/nivosense-cogs/",
+    "404 http://localhost:4173/e403/data/snow-model/swe_latest.png"
+   ]
+  },
+  "buttons": [
+   "Reintentar"
+  ]
+ }
+}

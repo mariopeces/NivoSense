@@ -1,0 +1,5 @@
+CAUGHT   timeline: addDays with 30-day months (month end)
+CAUGHT   timeline: addDays never rolls the year
+CAUGHT   timeline: span by calendar months instead of days (length)
+CAUGHT   timeline: monthStarts on day 2
+MISSED   app: shared date ignored, always latest (full suite, run twice)
