@@ -39,7 +39,9 @@ LAYERS = {
         Layer("snow_depth", "modelled", 100, categorical=False),
         # WebP 85 on the full-snow date 2026-01-12, crest Veleta-Mulhacen, zoom 14: 42.8 dB PSNR against PNG
         # (75: 40.9 dB, softens snow texture; 90: 44.1 dB, 30% larger), with no visible blocking.
-        Layer("rgb", "observed", 10, categorical=False, tile_format="WEBP", tile_quality=85, display_resampling="bilinear"),
+        Layer(
+            "rgb", "observed", 10, categorical=False, tile_format="WEBP", tile_quality=85, display_resampling="bilinear"
+        ),
     )
 }
 
