@@ -25,7 +25,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | narrow fixes pushed (c5fd1ba); combined narrow round 4 takes the next free slot | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r4 narrow (combined G-Infra+G-Code running) on c5fd1ba | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | all gauntlets pass on 0bbc81e; merges right after T0.6 (rebase + 2 minors, narrow recheck) | #12 | r4 narrow: G-Infra PASS, G-Code PASS (r1-r3 fail) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra and G-Code r1 running | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
@@ -47,7 +47,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running), G-Code r1 running; ruff fix on design tools requested | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running); fixing G-Code r1 | #16 | r1: G-UI fail, G-Code fail (estado.undefined rows; build_ramps exits 0 on a broken ramp) |
 | T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | gauntlet r1 (G-UI, G-Code), stacked on plan/t06-ci + plan/t40-design | #25 | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
@@ -162,3 +162,4 @@ Not available until T5.1.
 - 2026-11-22: T4.1 PR #25 ready (tokens.css generated from tokens.json with sync test; colour baseline 102 -> 19, only the declared Legend.tsx exception; axe 0 violations on 5 sections at both sizes; CI green 44969739805). G-UI and G-Code r1 started. T0.7 fixes for its post-rebase minors committed locally (f96d6a1), waiting for T0.6 to merge.
 - 2026-11-22: T3.1 G-Data r3 PASS on 083c3b5 (failure injections all safe; placeholder detection holds for unfingerprinted variants). Both T3.1 gauntlets pass on 083c3b5; merges after T0.7 and T0.3 with a rebase and narrow recheck. Follow-ups: frozen frame re-stamped with fresh Last-Modified (sha check against prior stills once the bucket store exists), LookupError-class feed errors. T0.4 G-Code r1 started.
 - 2026-11-22: T0.6 narrow fixes pushed (c5fd1ba, CI green, failing proof per item). Round 4 is one combined G-Infra+G-Code worker on the four listed items, the round-3 bypasses and the diff; it takes the next free slot.
+- 2026-11-22: T4.0 G-Code r1 FAIL (two majors: '[estado.undefined]' on 7 screens; build_ramps.py writes ramps.json on a broken ramp). Sent to the design lead. T0.6 combined narrow round 4 started.
