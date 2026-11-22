@@ -29,11 +29,11 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | merged (65b9327) | #6 | r4 combined G-Infra+G-Code PASS on c5fd1ba (r1-r3 fail) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r2 (ctx_8b9e249a43d1; rebase onto main in the same push); then G-Code r3 full, G-Data and G-Infra narrow | #13 | r2: G-Infra PASS (2 minors), G-Data PASS (1 minor), G-Code fail (4 invariant-breaking mutations survive) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | merged (2ca6e3f); main Staging site run 44985771919 green, staging/site/index.html 200; first hourly 'Deploying release v0.1.0' still to check | #12 | r5 post-rebase G-Infra PASS on 62affed; r4 G-Infra, G-Code PASS on 0bbc81e |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlets on 667aca6: G-Data r2 (ctx_321a718d6b55), G-Infra r1 (ctx_7860b9a002e9) and G-Code r1 running | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlets on 667aca6: G-Data r2 PASS; G-Infra r1 (ctx_7860b9a002e9) and G-Code r1 running | #20 | r2: G-Data PASS on 667aca6 (2 minors); r1: G-Data fail |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r2 on dafc7f3: G-Method PASS; G-Data (ctx_6f77de1da1d6) and G-Code (ctx_42da8dfe2f2a) running | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | PR #28 re-frozen at a53a3e4 (2,065 points, 1,584 scored, 15 dates, 5 strata; SHA-256 67ee82fe...); G-Method (blind 10% relabel) and G-Code queued | #28 | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | building, stacked on plan/t11-s2-ingest + t03 + t04 (plan-snowobs, restarted ctx_50386be264f7); Q1 scored once after T1.0 freezes | | |
-| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | gauntlet r1: G-Data running (ctx_e21227784660); G-Method, G-Code queued | #22 | |
+| T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | gauntlet r1: G-Data (ctx_e21227784660) and G-Method running; G-Code queued | #22 | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
@@ -67,6 +67,7 @@ Coordinator notes on the DAG:
 - Quality bar (Mario, 2026-11-22): no gauntlet passes on claims; G-UI and G-Method look at real renders. When two options are close, choose the one a geospatial professional would trust.
 - Deps follow the dependency graph in `tasks.md` where it is stricter than a card's "Needs" line: T0.4 also waits for T0.7, T1.1 waits for T0.4, T4.1 waits for T0.6. T4.4 does not wait for T2.5 (shows "pendiente" until model data exists).
 - T0.4 card said CRS EPSG:25830, contradicting README D2 (EPSG:32630). Fixed in tasks.md on 2026-11-21 toward the definition of done (typo, no change to the DoD).
+- T1.4 and T2.5 builder briefs must set `DAILY_SINCE` to 2025-10-01 for their daily layers (T0.4 G-Data r2 minor: until it is set, a missing first day or a vanished daily layer is not caught by QA).
 - T1.0 runs in a fresh labeller worker (not the lane B builder) so it never sees classifier code.
 
 ## Soak checks
@@ -184,3 +185,4 @@ Not available until T5.1.
 - 2026-11-22: T1.0 re-frozen (a53a3e4, evidence 40ed9c1): second seeded draw (seed 20261123) of 315 points labelled blind; 2,065 points, 1,584 scored (372 snow / 1,176 no snow / 36 cloud), 481 unsure kept with scored=false; snow per stratum: snowline 80, shadow 95, forest 43, cloud edge 44, open 110. Draw 2 oversamples snow-prone ground: G-Method should judge per-draw weights for area-wide figures and whether 43-44 snow points give a usable per-stratum F1. Gauntlet queue: T0.4 G-Code r1, T1.3 G-Method and G-Code, T4.0 G-Code r2 + narrow G-UI, T3.2 G-Data, T1.0 G-Method and G-Code.
 - 2026-11-22: T3.1 rebased onto main (b30435d, reply 7074442092, CI green): only T0.6 lint conflicts; pages.yml keeps T0.7 release picking and trusted-run restore; webcam refresh and deploy gate run only when the release checkout has the validator, so v0.1.0 is unchanged. Staging shows the webcam load-error state until T0.3's publish path lands. Merges after T0.3, after a narrow G-Data/G-Code delta check on the rebased head.
 - 2026-11-22: T1.1 G-Method r2 PASS on dafc7f3 (issuecomment-7074567985): 30/30 acquisitions, same 11 listed dates; 2026-02-16 R094 (S2A/S2B same orbit), 2026-11-17 (split datatake) and 2021-12-04 (pre-04.00) each equal one datatake on 100% of domain pixels, no blending or seam. Minors: datatake rank puts valid fraction before completeness; docstring says minutes apart (gap 27-28 s). T0.4 G-Code r1 started.
+- 2026-11-22: T0.4 G-Data r2 PASS on 667aca6 (issuecomment-7074607401): every corruption caught incl. out-of-window entries and bad decision objects; F1 matches an independent Earth Search query; F2 right across Madrid DST; month jobs 25-54 s in CI. Minors: DAILY_SINCE belongs to the T1.4/T2.5 briefs (added to coordinator notes); QA run 44985060956 ran on an empty staging catalogue (real data comes with T1.5). T1.3 G-Method r1 started.
