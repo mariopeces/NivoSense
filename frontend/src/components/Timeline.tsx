@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { ArrowRightToLine, Calendar, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ArrowRightToLine, Calendar, ChevronLeft, ChevronRight, Pause, Play, Snowflake } from "lucide-react";
 import { Icon } from "../lib/icons";
 import { t } from "../lib/copy";
 import { token, tokenPx } from "../lib/tokens";
@@ -352,10 +352,11 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
               setPlaying(false);
               select(demoIndex);
             }}
+            aria-label={t("linea_tiempo.demo_nieve")}
             title={t("linea_tiempo.tooltip_demo_nieve")}
-            className={TEXT_BUTTON}
+            className={ICON_BUTTON}
           >
-            {t("linea_tiempo.demo_nieve")}
+            <Icon icon={Snowflake} />
           </button>
         )}
         <button
