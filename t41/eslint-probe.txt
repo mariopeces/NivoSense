@@ -1,0 +1,7 @@
+
+C:\Users\mario\orca\workspaces\NivoSense\plan-shell\frontend\src\components\Probe.tsx
+  1:18  error  Hard-coded colour #123456: define it in src/styles/tokens.css and use the token  local/no-hard-coded-colour
+
+✖ 1 problem (1 error, 0 warnings)
+
+exit 1
