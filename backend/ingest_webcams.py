@@ -12,12 +12,12 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, NamedTuple, Protocol
 from urllib.parse import urlparse
 
-from PIL import Image
+from PIL import Image, ImageStat
 
 ROOT = Path(__file__).parents[1]
 DEFAULT_CONFIG = Path(__file__).with_name("webcam_sources.json")
@@ -25,6 +25,9 @@ DEFAULT_OUTPUT = ROOT / "frontend" / "public" / "data" / "webcams.json"
 # Stills are served next to webcams.json by the static site; the folder is not committed.
 DEFAULT_STILLS_DIR = ROOT / "frontend" / "public" / "data" / "webcam-stills"
 DEFAULT_STILLS_PREFIX = "data/webcam-stills/"
+# Per camera, the last checked frame and the capture time of its content; the next
+# run reads it back from the published site (pages.yml).
+STATE_KEY = "state.json"
 
 # feratel localises its dead-camera frame by Accept-Language (de, es, en, fr, it, nl
 # seen on 2026-11-21; pt falls back to de). Pinning the language keeps the exact
@@ -72,6 +75,31 @@ GENERATED_ON_REQUEST_SECONDS = 2
 # between the provider's file and HTTP clocks.
 CLOCK_SKEW_SECONDS = 120
 
+# Dead-camera frames whose bytes change on every fetch (DGT burns the current time into
+# its black "No video" frame), matched by picture instead of by bytes. Only for DGT: real
+# feratel frames before dawn are as flat and dark (Cetursa at 06:24 UTC on 2026-11-22:
+# 12 views at mean 1 to 2, sd 0 to 2.8, within 8 of "No video"), and an offline card
+# for them would be false. A DGT cam whose real frame is that dark shows nothing
+# either and is dropped too.
+PICTURE_GUARD_PROVIDERS = frozenset({"DGT"})
+REFERENCE_FRAMES_DIR = Path(__file__).with_name("webcam_placeholders")
+REFERENCE_THUMB_SIZE = (64, 48)
+# Mean absolute grey-level difference between 64x48 thumbnails. Measured on
+# 2026-11-22: "No video" from 7 DGT cams lies within 4 of the reference, real DGT night
+# frames 18 or more from it; real frames lie 70 or more from "IMAGEN NO DISPONIBLE".
+REFERENCE_MAX_DIFFERENCE = 8
+# A frame whose picture (overlay bands excluded) is near-uniform and dark carries no
+# view: "No video" measures mean 0 to 3 and standard deviation 0.0, real DGT night
+# frames mean 17 or more and standard deviation 6 or more (2026-11-22).
+BLANK_MAX_MEAN = 16
+BLANK_MAX_STDDEV = 3
+# DGT and feratel burn text in the top and bottom bands.
+OVERLAY_BAND = 0.15
+
+# A frame whose content has not changed for longer than this is stale; the card's
+# stale state uses the same two hours (task T4.0 design spec).
+STALE_AFTER = timedelta(hours=2)
+
 
 class ImageResponse(NamedTuple):
     status: int
@@ -86,6 +114,83 @@ class StillStore(Protocol):
     def put(self, key: str, body: bytes, content_type: str) -> str:
         """Store body under key and return the URL the site loads it from."""
         ...
+
+    def load_state(self) -> dict[str, Any]:
+        """The frame history the previous run saved, or {} when there is none."""
+        ...
+
+    def save_state(self, state: dict[str, Any]) -> None: ...
+
+
+class Area(Protocol):
+    def contains(self, longitude: float, latitude: float) -> bool: ...
+
+
+class BoxArea(NamedTuple):
+    west: float
+    south: float
+    east: float
+    north: float
+
+    def contains(self, longitude: float, latitude: float) -> bool:
+        return self.west <= longitude <= self.east and self.south <= latitude <= self.north
+
+
+class PolygonArea:
+    """Inside a polygon or within buffer_m metres of its boundary.
+
+    Distances use an equirectangular projection about the polygon's mean latitude,
+    under 0.1 % off over the 60 km of the Sierra Nevada domain.
+    """
+
+    METRES_PER_DEGREE = 111_320.0
+
+    def __init__(self, rings: list[list[tuple[float, float]]], buffer_m: float) -> None:
+        latitudes = [lat for ring in rings for _, lat in ring]
+        self.kx = self.METRES_PER_DEGREE * math.cos(math.radians(sum(latitudes) / len(latitudes)))
+        self.rings = [[(lon * self.kx, lat * self.METRES_PER_DEGREE) for lon, lat in ring] for ring in rings]
+        self.buffer_m = buffer_m
+        xs = [x for ring in self.rings for x, _ in ring]
+        ys = [y for ring in self.rings for _, y in ring]
+        self.bounds = (min(xs) - buffer_m, min(ys) - buffer_m, max(xs) + buffer_m, max(ys) + buffer_m)
+
+    def contains(self, longitude: float, latitude: float) -> bool:
+        x, y = longitude * self.kx, latitude * self.METRES_PER_DEGREE
+        left, bottom, right, top = self.bounds
+        if not (left <= x <= right and bottom <= y <= top):
+            return False
+        inside = False
+        nearest = math.inf
+        for ring in self.rings:
+            for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1], strict=True):
+                if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+                    inside = not inside
+                dx, dy = x2 - x1, y2 - y1
+                length2 = dx * dx + dy * dy
+                t = 0.0 if length2 == 0 else max(0.0, min(1.0, ((x - x1) * dx + (y - y1) * dy) / length2))
+                nearest = min(nearest, math.hypot(x - x1 - t * dx, y - y1 - t * dy))
+        return inside or nearest <= self.buffer_m
+
+
+def load_area(region: dict[str, Any], root: Path = ROOT) -> Area:
+    """The region's domain polygon with its buffer, or its bbox when it names no domain."""
+    if "domain" not in region:
+        bbox = tuple(float(value) for value in region["bbox"])
+        if len(bbox) != 4:
+            raise ValueError("region.bbox must contain west, south, east and north")
+        return BoxArea(*bbox)
+    collection = json.loads((root / region["domain"]).read_text(encoding="utf-8"))
+    part = region.get("domain_part", "domain")
+    geometry = next(f["geometry"] for f in collection["features"] if f["properties"].get("part") == part)
+    polygons = geometry["coordinates"] if geometry["type"] == "MultiPolygon" else [geometry["coordinates"]]
+    rings = [[(float(point[0]), float(point[1])) for point in ring] for polygon in polygons for ring in polygon]
+    return PolygonArea(rings, float(region.get("domain_buffer_m", 0)))
+
+
+def as_area(area: Area | tuple[float, float, float, float]) -> Area:
+    if isinstance(area, tuple) and not isinstance(area, BoxArea):
+        return BoxArea(*area)
+    return area  # type: ignore[return-value]
 
 
 class LocalStillStore:
@@ -102,6 +207,20 @@ class LocalStillStore:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(body)
         return self.url_prefix + key
+
+    def load_state(self) -> dict[str, Any]:
+        try:
+            state = json.loads((self.root / STATE_KEY).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            # A missing or broken history only costs the earlier capture times.
+            return {}
+        return state if isinstance(state, dict) else {}
+
+    def save_state(self, state: dict[str, Any]) -> None:
+        self.root.mkdir(parents=True, exist_ok=True)
+        (self.root / STATE_KEY).write_text(
+            json.dumps(state, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+        )
 
 
 def local_name(tag: str) -> str:
@@ -126,19 +245,19 @@ def safe_http_url(value: str | None) -> str | None:
 
 def parse_datex_cameras(
     xml_data: bytes | str,
-    bbox: tuple[float, float, float, float],
+    area: Area | tuple[float, float, float, float],
     source_url: str,
     attribution: str,
     provider: str = "DGT",
     credit_url: str | None = None,
 ) -> list[dict[str, Any]]:
-    """Cameras of a DATEX II device feed inside bbox.
+    """Cameras of a DATEX II device feed inside area.
 
     source_url is the feed, kept as each camera's position source; credit_url is the
     provider's page the card's credit links to (the feed itself when not given).
     """
     root = ET.fromstring(xml_data)
-    west, south, east, north = bbox
+    area = as_area(area)
     cameras: list[dict[str, Any]] = []
 
     for device in root.iter():
@@ -160,7 +279,7 @@ def parse_datex_cameras(
             continue
         if not math.isfinite(latitude) or not math.isfinite(longitude):
             continue
-        if not (west <= longitude <= east and south <= latitude <= north):
+        if not area.contains(longitude, latitude):
             continue
 
         road = first_text(device, "roadName")
@@ -193,22 +312,22 @@ def parse_datex_cameras(
 
 def static_cameras(
     source: dict[str, Any],
-    bbox: tuple[float, float, float, float],
+    area: Area | tuple[float, float, float, float],
 ) -> list[dict[str, Any]]:
     """Cameras listed by hand in the config, each with the page its position came from.
 
     A camera whose position no provider publishes keeps latitude and longitude
     null; it is listed but not placed on the map.
     """
-    west, south, east, north = bbox
+    area = as_area(area)
     cameras: list[dict[str, Any]] = []
     for entry in source["cameras"]:
         latitude, longitude = entry.get("latitude"), entry.get("longitude")
         if (latitude is None) != (longitude is None):
             raise ValueError(f"{entry['id']}: latitude and longitude must both be set or both null")
         if latitude is not None:
-            if not (west <= longitude <= east and south <= latitude <= north):
-                raise ValueError(f"{entry['id']}: position is outside region.bbox")
+            if not area.contains(longitude, latitude):
+                raise ValueError(f"{entry['id']}: position is outside the region")
             if not entry.get("position_source"):
                 raise ValueError(f"{entry['id']}: a position needs its position_source")
         for key in ("thumbnail_url", "large_url"):
@@ -264,14 +383,53 @@ def parse_http_date(value: str | None) -> datetime | None:
 
 def dhash(body: bytes) -> int:
     with Image.open(io.BytesIO(body)) as image:
-        small = image.convert("L").resize((9, 8), Image.Resampling.LANCZOS)
-        pixels = list(small.getdata())
+        return dhash_of(image.convert("L"))
+
+
+def dhash_of(grey: Image.Image) -> int:
+    pixels = list(grey.resize((9, 8), Image.Resampling.LANCZOS).getdata())
     value = 0
     for row in range(8):
         for col in range(8):
             left, right = pixels[row * 9 + col], pixels[row * 9 + col + 1]
             value = value << 1 | (left > right)
     return value
+
+
+def thumbnail(grey: Image.Image) -> bytes:
+    return grey.resize(REFERENCE_THUMB_SIZE, Image.Resampling.BOX).tobytes()
+
+
+_reference_thumbnails: dict[str, bytes] = {}
+
+
+def reference_thumbnails() -> dict[str, bytes]:
+    if not _reference_thumbnails:
+        for path in sorted(REFERENCE_FRAMES_DIR.glob("*.jpg")):
+            with Image.open(path) as image:
+                _reference_thumbnails[path.stem] = thumbnail(image.convert("L"))
+    return _reference_thumbnails
+
+
+def picture_problem(grey: Image.Image, provider: str) -> str | None:
+    """Why the decoded picture is not a camera view, whatever its bytes."""
+    distance = min((dhash_of(grey) ^ known).bit_count() for known in PLACEHOLDER_DHASH)
+    if distance <= PLACEHOLDER_DHASH_MAX_BITS:
+        return f"looks like a provider placeholder (dHash distance {distance})"
+    if provider not in PICTURE_GUARD_PROVIDERS:
+        return None
+    width, height = grey.size
+    band = round(height * OVERLAY_BAND)
+    stat = ImageStat.Stat(grey.crop((0, band, width, height - band)))
+    mean, stddev = stat.mean[0], stat.stddev[0]
+    if mean <= BLANK_MAX_MEAN and stddev <= BLANK_MAX_STDDEV:
+        return f"blank dark frame (mean {mean:.1f}, sd {stddev:.1f})"
+    small = thumbnail(grey)
+    for name, reference in reference_thumbnails().items():
+        difference = sum(abs(a - b) for a, b in zip(small, reference, strict=True)) / len(small)
+        if difference <= REFERENCE_MAX_DIFFERENCE:
+            return f"looks like the {name} placeholder (difference {difference:.1f})"
+    return None
 
 
 def image_problem(response: ImageResponse, provider: str) -> str | None:
@@ -295,13 +453,11 @@ def image_problem(response: ImageResponse, provider: str) -> str | None:
         if modified and served and abs((served - modified).total_seconds()) <= GENERATED_ON_REQUEST_SECONDS:
             return "generated on request (Last-Modified equals Date)"
     try:
-        frame_hash = dhash(response.body)
+        with Image.open(io.BytesIO(response.body)) as image:
+            grey = image.convert("L")
     except (OSError, ValueError, SyntaxError, Image.DecompressionBombError):
         return "undecodable JPEG"
-    distance = min((frame_hash ^ known).bit_count() for known in PLACEHOLDER_DHASH)
-    if distance <= PLACEHOLDER_DHASH_MAX_BITS:
-        return f"looks like a provider placeholder (dHash distance {distance})"
-    return None
+    return picture_problem(grey, provider)
 
 
 def probe_camera_image(
@@ -422,6 +578,49 @@ def store_stills(camera: dict[str, Any], sizes: dict[str, bytes], store: StillSt
         camera[f"{size}_url"] = store.put(key, body, "image/jpeg")
 
 
+def frame_digest(sizes: dict[str, bytes]) -> str:
+    digest = hashlib.sha256()
+    for size in sorted(sizes):
+        digest.update(size.encode() + b"\0" + hashlib.sha256(sizes[size]).digest())
+    return digest.hexdigest()
+
+
+def apply_history(
+    camera: dict[str, Any],
+    record: dict[str, Any],
+    sizes: dict[str, bytes],
+    previous: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Keep the capture time of unchanged content and return the camera's new history.
+
+    DGT rewrites an unchanged file with a fresh Last-Modified (on 2026-11-22, cam 1310
+    served a 05:32 UTC frame as 05:57, then 06:02), so Last-Modified is only an upper
+    bound. The same bytes as the last run keep the earlier capture time. Identity is
+    by bytes, not by a perceptual hash: every DGT capture burns in a new clock, while a
+    perceptual hash would equate two real captures of a still scene and age a live cam.
+    """
+    digest = frame_digest(sizes)
+    if previous and previous.get("sha256") == digest:
+        earlier = parse_iso(previous.get("captured_at"))
+        current = parse_iso(camera["captured_at"])
+        if earlier and (current is None or earlier < current):
+            record["captured_at_header"] = camera["captured_at"]
+            camera["captured_at"] = earlier.isoformat()
+            record["captured_at"] = camera["captured_at"]
+        record["unchanged_since_last_run"] = True
+    return {"sha256": digest, "captured_at": camera["captured_at"]}
+
+
+def parse_iso(value: Any) -> datetime | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else None
+
+
 def load_config(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -431,11 +630,10 @@ def build_catalog(
     store: StillStore,
     fetch: Callable[[str], ImageResponse] = fetch_image,
     fetch_xml: Callable[[str], bytes] = fetch_bytes,
+    now: datetime | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    region = config["region"]
-    bbox = tuple(float(value) for value in region["bbox"])
-    if len(bbox) != 4:
-        raise ValueError("region.bbox must contain west, south, east and north")
+    now = now or datetime.now(UTC)
+    area = load_area(config["region"])
 
     cameras: list[dict[str, Any]] = []
     log: list[dict[str, Any]] = []
@@ -452,7 +650,7 @@ def build_catalog(
                 cameras.extend(
                     parse_datex_cameras(
                         feed,
-                        bbox,  # type: ignore[arg-type]
+                        area,
                         source["url"],
                         source["attribution"],
                         source.get("provider", source["id"]),
@@ -462,7 +660,7 @@ def build_catalog(
             except (OSError, http.client.HTTPException, ET.ParseError) as exc:
                 log.append({"source": source["id"], "status": "failed", "problem": f"feed unavailable: {exc}"})
         elif source["type"] == "static":
-            cameras.extend(static_cameras(source, bbox))  # type: ignore[arg-type]
+            cameras.extend(static_cameras(source, area))
         else:
             raise ValueError(f"Unsupported webcam source type: {source['type']}")
         if source.get("live_only"):
@@ -480,8 +678,28 @@ def build_catalog(
         if sizes:
             bodies[camera["id"]] = sizes
     drop_shared_frames(cameras, probe_log, bodies)
+
+    history = store.load_state().get("frames")
+    history = history if isinstance(history, dict) else {}
+    new_history: dict[str, Any] = {}
+    for camera, record in zip(cameras, probe_log, strict=True):
+        previous = history.get(camera["id"])
+        previous = previous if isinstance(previous, dict) else None
+        if camera["id"] not in bodies:
+            # An offline run keeps the history, so a frozen frame that returns keeps its age.
+            if previous:
+                new_history[camera["id"]] = previous
+            continue
+        new_history[camera["id"]] = apply_history(camera, record, bodies[camera["id"]], previous)
+        captured = parse_iso(camera["captured_at"])
+        if camera["id"] in live_only and captured and now - captured > STALE_AFTER:
+            set_offline(camera)
+            bodies.pop(camera["id"])
+            record.update(status="offline", problem=f"stale: frame captured at {captured.isoformat()}")
+    store.save_state({"frames": new_history})
+
     kept: list[dict[str, Any]] = []
-    for camera, record in zip(cameras, probe_log):
+    for camera, record in zip(cameras, probe_log, strict=True):
         if camera["id"] in bodies:
             store_stills(camera, bodies[camera["id"]], store)
             record["stored"] = [camera["thumbnail_url"], camera["large_url"]]

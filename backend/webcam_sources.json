@@ -1,8 +1,10 @@
 {
   "region": {
     "id": "sierra-nevada",
-    "bbox": [-3.6433, 36.9129, -2.5885, 37.2532],
-    "bbox_source": "bounds of data/domain.geojson, the model domain from task T2.1 (regions/sierra-nevada.json bbox)"
+    "domain": "data/domain.geojson",
+    "domain_part": "domain",
+    "domain_buffer_m": 2000,
+    "domain_note": "data/domain.geojson is the model domain built by task T2.1; cams up to 2 km outside it are kept because they look into it"
   },
   "sources": [
     {
