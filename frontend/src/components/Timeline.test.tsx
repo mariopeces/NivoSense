@@ -64,6 +64,19 @@ describe("Timeline", () => {
     expect(slider().getAttribute("aria-valuetext")).toBe("sáb 21 feb 2026: Observado");
   });
 
+  it("always shows Hoy and the forecast slot, which says it is not published yet without forecasts", () => {
+    render(<Harness />);
+    expect(screen.getByText("Hoy")).toBeTruthy();
+    const slot = screen.getByText("Previsión", { selector: "span[title]" });
+    expect(slot.getAttribute("title")).toContain("Previsión: aún no se publica");
+  });
+
+  it("keeps Última and the calendar in place, disabled, when there is nothing to show", () => {
+    render(<Timeline catalog={{ kind: "missing" }} model={null} selectedDate={null} onChange={() => {}} onRetry={() => {}} mobile={false} />);
+    expect((button(/Última/) as HTMLButtonElement).disabled).toBe(true);
+    expect((button("Elegir en el calendario") as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it("steps one day with the arrows and one pass with Shift, Home and End go to the ends", () => {
     render(<Harness />);
     fireEvent.keyDown(slider(), { key: "ArrowRight" });

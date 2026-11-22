@@ -148,3 +148,34 @@ export function durationMs(value: string): number {
 export function monthStarts(model: TimelineModel): Array<{ index: number; date: string }> {
   return model.days.flatMap((day, index) => (day.date.endsWith("-01") ? [{ index, date: day.date }] : []));
 }
+
+export type TrackGeometry = {
+  /** Width of the past part, from the first day to the end of today. */
+  pastPx: number;
+  /** Width of the forecast slot after today; it is drawn even when the catalogue has no forecast. */
+  slotPx: number;
+  /** Left edge, in px, of day position i (fractions allowed; days.length is the right end). */
+  x: (i: number) => number;
+  /** The day under a horizontal position in px. */
+  dayAt: (px: number) => number;
+};
+
+/**
+ * Pixel geometry of the track (docs/design/README.md, 4.2): the past days share the track minus the forecast
+ * slot, which keeps at least minSlotPx so "Hoy" and "Previsión" stay readable, and grows with the forecast
+ * days when they need more. The slot never takes more than half the track.
+ */
+export function trackGeometry(model: TimelineModel, widthPx: number, minSlotPx: number): TrackGeometry {
+  const past = model.todayIndex + 1;
+  const forecast = model.days.length - past;
+  const width = Math.max(widthPx, 0);
+  const slotPx = Math.min(Math.max(minSlotPx, (width * forecast) / model.days.length), width / 2);
+  const pastPx = width - slotPx;
+  const x = (i: number) => (i <= past ? (pastPx * i) / past : pastPx + (slotPx * (i - past)) / Math.max(forecast, 1));
+  const dayAt = (px: number) => {
+    if (pastPx <= 0) return 0;
+    if (px < pastPx || forecast === 0) return Math.min(past - 1, Math.max(0, Math.floor((px / pastPx) * past)));
+    return past + Math.min(forecast - 1, Math.floor(((px - pastPx) / slotPx) * forecast));
+  };
+  return { pastPx, slotPx, x, dayAt };
+}

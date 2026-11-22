@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { ArrowRightToLine, Calendar, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Icon } from "../lib/icons";
 import { t } from "../lib/copy";
-import { token } from "../lib/tokens";
+import { token, tokenPx } from "../lib/tokens";
 import { WEEKDAY_INITIALS, fechaConDia, fechaLarga, mesAnio, mesCorto } from "../lib/format";
 import type { CatalogState } from "../lib/catalog";
 import {
@@ -12,6 +12,7 @@ import {
   nextIn,
   previousIn,
   stripSegments,
+  trackGeometry,
   type TimelineModel,
 } from "../lib/timeline";
 import { StatusBadge, StatusGlyph, type Status } from "./ui";
@@ -26,12 +27,16 @@ type Props = {
   mobile: boolean;
 };
 
+// Disabled buttons follow spec 4.2 (dashed line border on panel-soft). shrink-0 keeps the 44 px touch size on
+// mobile, where the date column is narrow.
 const ICON_BUTTON =
-  "grid h-8 w-8 place-items-center rounded-md border border-line bg-panel text-text transition-colors duration-fast " +
-  "hover:bg-panel-soft disabled:cursor-not-allowed disabled:text-line-strong disabled:hover:bg-panel max-md:h-touch max-md:w-touch";
+  "grid h-8 w-8 shrink-0 place-items-center rounded-md border border-line bg-panel text-text transition-colors duration-fast " +
+  "hover:bg-panel-soft disabled:cursor-not-allowed disabled:border-dashed disabled:bg-panel-soft disabled:text-text-muted " +
+  "max-md:h-touch max-md:w-touch";
 const TEXT_BUTTON =
-  "inline-flex h-8 items-center gap-2 rounded-md border border-line bg-panel px-3 text-small font-medium " +
-  "hover:bg-panel-soft disabled:cursor-not-allowed disabled:text-text-muted disabled:hover:bg-panel max-md:h-touch";
+  "inline-flex h-8 shrink-0 items-center gap-2 rounded-md border border-line bg-panel px-3 text-small font-medium " +
+  "hover:bg-panel-soft disabled:cursor-not-allowed disabled:border-dashed disabled:bg-panel-soft disabled:text-text-muted " +
+  "max-md:h-touch";
 const SHELL = "shell-timeline absolute z-timeline mx-auto max-w-[1000px] rounded-lg bg-panel px-3 py-2 shadow-float";
 
 // Status as shape: solid tick for a clear pass; outline, half-filled, dashed and dotted day segments.
@@ -43,6 +48,8 @@ const SEGMENT: Record<Status, string> = {
   prevision: "border-[1.5px] border-dashed border-status-forecast bg-panel",
   pendiente: "border border-dotted border-status-pending bg-panel",
 };
+// The pending part of the forecast slot sits on panel-soft (spec 4.2), so it reads as not yet published.
+const SLOT_PENDING = "border border-dotted border-status-pending bg-panel-soft";
 const LEGEND: Status[] = ["observado", "rellenado", "modelado", "prevision", "pendiente"];
 
 function statusList(statuses: Status[]) {
@@ -58,6 +65,19 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
   const calendarButton = useRef<HTMLButtonElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dragging = useRef(false);
+  const [trackWidth, setTrackWidth] = useState(0);
+
+  // Positions are in px: the forecast slot has a minimum width that a percentage scale cannot give.
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const measure = () => setTrackWidth(track.getBoundingClientRect().width);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => observer.disconnect();
+  });
 
   const index = model && selectedDate ? model.days.findIndex((day) => day.date === selectedDate) : -1;
 
@@ -98,29 +118,41 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
 
   if (!model || index < 0) {
     return (
-      <div role="status" aria-label={t("linea_tiempo.etiqueta")} className={SHELL}>
-        <div className="py-1">
+      <div role="status" aria-label={t("linea_tiempo.etiqueta")} className={`${SHELL} flex items-center gap-3`}>
+        <div className="min-w-0 flex-1 py-1">
           <p className="m-0 font-semibold">{t("linea_tiempo.sin_datos")}</p>
           <p className="m-0 text-small text-text-muted">{t("linea_tiempo.sin_datos_detalle")}</p>
+        </div>
+        {/* Spec 4.2: the controls stay in place, disabled, so the bar keeps its shape when dates arrive. */}
+        <div className="flex gap-1">
+          <button type="button" disabled title={t("linea_tiempo.tooltip_ultima")} className={TEXT_BUTTON}>
+            <Icon icon={ArrowRightToLine} />
+            {t("linea_tiempo.ultima")}
+          </button>
+          <button type="button" disabled aria-label={t("linea_tiempo.calendario")} title={t("linea_tiempo.calendario")} className={ICON_BUTTON}>
+            <Icon icon={Calendar} />
+          </button>
         </div>
       </div>
     );
   }
 
   const span = model.days.length;
-  const pct = (i: number) => (100 * i) / span;
+  const geometry = trackGeometry(model, trackWidth, tokenPx("space-16"));
+  const x = geometry.x;
+  const pastEnd = model.todayIndex + 1;
+  const hasForecast = span > pastEnd;
   const day = model.days[index];
   const previous = previousIn(model.dataIndices, index);
   const next = nextIn(model.dataIndices, index);
   const latest = model.days[model.latestIndex];
-  const lastForecast = model.days.length - 1 > model.todayIndex;
 
   const select = (i: number) => onChange(model.days[i].date);
   const dayAt = (clientX: number) => {
     const rect = trackRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return index;
-    const x = Math.min(Math.max(clientX - rect.left, 0), rect.width - 1);
-    return Math.floor((x / rect.width) * span);
+    const px = Math.min(Math.max(clientX - rect.left, 0), rect.width - 1);
+    return trackGeometry(model, rect.width, tokenPx("space-16")).dayAt(px);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -151,8 +183,10 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
   };
 
   const tooltipIndex = hover;
-  const tooltipAlign =
-    tooltipIndex === null ? "" : pct(tooltipIndex) < 15 ? "translate-x-0" : pct(tooltipIndex) > 85 ? "-translate-x-full" : "-translate-x-1/2";
+  const tooltipShare = tooltipIndex === null || !trackWidth ? 0.5 : x(tooltipIndex + 0.5) / trackWidth;
+  const tooltipAlign = tooltipShare < 0.15 ? "translate-x-0" : tooltipShare > 0.85 ? "-translate-x-full" : "-translate-x-1/2";
+  // Month labels stay clear of the Hoy label at the today line.
+  const monthGap = mobile ? 56 : 48;
 
   return (
     <div
@@ -165,7 +199,7 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
         <time dateTime={day.date} title={fechaLarga(day.date)} className="tnum font-semibold">
           {fechaConDia(day.date)}
         </time>
-        <div className="mt-1 flex items-center gap-1">
+        <div className="mt-1 flex flex-wrap items-center gap-1">
           <button
             type="button"
             className={ICON_BUTTON}
@@ -226,7 +260,7 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
             <span
               key={i}
               className="absolute top-0 h-[14px] w-px rounded-[1px] bg-status-observed"
-              style={{ left: `${pct(i)}%` }}
+              style={{ left: x(i) }}
             />
           ))}
         </div>
@@ -234,18 +268,23 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
           {segments.map((segment) => (
             <span
               key={segment.start}
-              className={`absolute inset-y-0 box-border rounded-sm ${SEGMENT[segment.status]} ${
-                segment.forecastSlot && segment.status === "pendiente" ? "bg-panel-soft" : ""
+              className={`absolute inset-y-0 box-border rounded-sm ${
+                segment.forecastSlot && segment.status === "pendiente" ? SLOT_PENDING : SEGMENT[segment.status]
               }`}
-              style={{ left: `${pct(segment.start)}%`, width: `${pct(segment.end - segment.start)}%` }}
+              style={{ left: x(segment.start), width: x(segment.end) - x(segment.start) }}
             />
           ))}
+          {!hasForecast && (
+            <span
+              className={`absolute inset-y-0 box-border rounded-sm ${SLOT_PENDING}`}
+              style={{ left: x(pastEnd), width: geometry.slotPx }}
+            />
+          )}
         </div>
         <div className="absolute inset-x-0 top-[34px] h-4" aria-hidden="true">
           {months
             .filter(({ date }) => !mobile || ["01", "04", "07", "10"].includes(date.slice(5, 7)))
-            // A label near the right end would run into the forecast slot label.
-            .filter(({ index: i }) => !lastForecast || pct(i) < (mobile ? 80 : 88))
+            .filter(({ index: i }) => x(i) < x(pastEnd) - monthGap)
             .map(({ index: i, date }) => {
               const january = date.slice(5, 7) === "01";
               return (
@@ -254,31 +293,35 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
                   className={`absolute -translate-x-1/2 whitespace-nowrap text-caption ${
                     january ? "font-semibold text-text" : "text-text-muted"
                   }`}
-                  style={{ left: `${pct(i)}%` }}
+                  style={{ left: x(i) }}
                 >
                   {january ? date.slice(0, 4) : mesCorto(date)}
                 </span>
               );
             })}
-          {lastForecast && (
-            <span
-              className="absolute right-0 whitespace-nowrap text-caption text-status-forecast"
-              title={t("linea_tiempo.tooltip_prevision_slot")}
-            >
-              {t("linea_tiempo.prevision_slot")}
-            </span>
-          )}
+          <span
+            className="absolute -translate-x-full whitespace-nowrap pr-1 text-caption font-semibold text-text"
+            style={{ left: x(pastEnd) }}
+          >
+            {t("linea_tiempo.hoy")}
+          </span>
+          <span
+            className="absolute whitespace-nowrap pl-1 text-caption text-status-forecast"
+            style={{ left: x(pastEnd) }}
+            title={`${t("linea_tiempo.tooltip_prevision_slot")}${hasForecast ? "" : ` ${t("linea_tiempo.prevision_slot_pendiente")}`}`}
+          >
+            {t("linea_tiempo.prevision_slot")}
+          </span>
         </div>
         <span
           aria-hidden="true"
-          title={t("linea_tiempo.hoy")}
-          className="absolute bottom-4 top-0 w-0 border-l border-dashed border-text-muted"
-          style={{ left: `${pct(model.todayIndex + 1)}%` }}
+          className="absolute bottom-0 top-0 w-0 border-l border-dashed border-text-muted"
+          style={{ left: x(pastEnd) }}
         />
         <span
           aria-hidden="true"
           className="pointer-events-none absolute bottom-4 top-[-4px] w-[2px] -translate-x-1/2 bg-accent"
-          style={{ left: `${pct(index + 0.5)}%` }}
+          style={{ left: x(index + 0.5) }}
         >
           <span className="absolute left-1/2 top-[-4px] h-[10px] w-[10px] -translate-x-1/2 rounded-full border-2 border-panel bg-accent" />
         </span>
@@ -286,7 +329,7 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
           <span
             aria-hidden="true"
             className={`pointer-events-none absolute bottom-[calc(100%+8px)] whitespace-nowrap rounded-md bg-ink px-3 py-2 text-caption text-on-ink-strong shadow-popover ${tooltipAlign}`}
-            style={{ left: `${pct(tooltipIndex + 0.5)}%` }}
+            style={{ left: x(tooltipIndex + 0.5) }}
           >
             {t("linea_tiempo.tick_tooltip", {
               fecha_larga: fechaLarga(model.days[tooltipIndex].date),

@@ -8,6 +8,7 @@ import {
   monthStarts,
   stripSegments,
   todayInMadrid,
+  trackGeometry,
   type TimelineModel,
 } from "./timeline";
 
@@ -192,5 +193,61 @@ describe("durationMs", () => {
     expect(durationMs(" 1.5s ")).toBe(1500);
     expect(() => durationMs("")).toThrow();
     expect(() => durationMs("fast")).toThrow();
+  });
+});
+
+describe("trackGeometry", () => {
+  const today = "2026-11-22";
+
+  it("keeps a forecast slot of at least the minimum width when the catalogue has no forecast", () => {
+    const m = model([["snow_obs", "2026-11-20", "observed"]], today);
+    const g = trackGeometry(m, 600, 64);
+    expect(g.slotPx).toBe(64);
+    expect(g.pastPx).toBe(536);
+    expect(g.x(0)).toBe(0);
+    expect(g.x(m.todayIndex + 1)).toBe(536);
+    // Every position in the slot maps back to today: there is no forecast day to pick.
+    expect(g.dayAt(560)).toBe(m.todayIndex);
+    expect(g.dayAt(599)).toBe(m.todayIndex);
+  });
+
+  it("maps every past pixel to a day and back, in order", () => {
+    const m = model([["snow_obs", "2026-11-20", "observed"]], today);
+    const g = trackGeometry(m, 600, 64);
+    let previous = -1;
+    for (let px = 0; px < g.pastPx; px += 0.5) {
+      const day = g.dayAt(px);
+      expect(day).toBeGreaterThanOrEqual(previous);
+      previous = day;
+    }
+    expect(previous).toBe(m.todayIndex);
+    for (const i of [0, 100, m.todayIndex]) expect(g.dayAt(g.x(i + 0.5))).toBe(i);
+  });
+
+  it("puts forecast days inside the slot and lets it grow with them, up to half the track", () => {
+    const m = model(
+      [
+        ["snow_obs", "2026-11-20", "observed"],
+        ["swe", "2026-11-27", "forecast"],
+      ],
+      today,
+    );
+    const g = trackGeometry(m, 600, 64);
+    expect(g.slotPx).toBe(64);
+    for (let k = 1; k <= 5; k++) {
+      const i = m.todayIndex + k;
+      expect(g.x(i + 0.5)).toBeGreaterThan(g.pastPx);
+      expect(g.dayAt(g.x(i + 0.5))).toBe(i);
+    }
+    expect(g.x(m.days.length)).toBe(600);
+    const wide = trackGeometry(m, 600, 400);
+    expect(wide.slotPx).toBe(300);
+  });
+
+  it("survives a track that has not been measured yet", () => {
+    const m = model([["snow_obs", "2026-11-20", "observed"]], today);
+    const g = trackGeometry(m, 0, 64);
+    expect(g.slotPx).toBe(0);
+    expect(g.dayAt(0)).toBe(0);
   });
 });
