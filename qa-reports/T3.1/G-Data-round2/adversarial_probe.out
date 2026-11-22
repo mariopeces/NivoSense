@@ -1,0 +1,26 @@
+A. 118 distinct placeholder renditions x (LM=Date, LM=Date-3h): passed as frame = 0
+B. frozen camera: real 18:08 frame re-served with fresh Last-Modified (now-5min): status=live captured_at=2026-11-22T00:19:45+00:00 problem=None
+C. stale camera: real frame, true Last-Modified 21 Nov 17:08, served 3 days later: status=live captured_at=2026-11-21T17:08:05+00:00 problem=None
+D. clock skew: real frame with Last-Modified 50 min in the future: status=live captured_at=2026-11-22T01:14:45+00:00 problem=None
+E. real frame, no Last-Modified header: status=live captured_at=None problem=None
+F. thumbnail real, large is a placeholder 38 rendition with old LM: status=offline captured_at=None problem=provider placeholder
+G. thumbnail and large with different Last-Modified: status=offline captured_at=None problem=thumbnail and large image carry different capture times
+H. live run with only the shared-bytes guard:
+   cetursa-pradollano-c1 live None
+   cetursa-15110-2 offline identical bytes served by another camera
+   cetursa-15110-4 offline identical bytes served by another camera
+   cetursa-15111-0 live None
+   cetursa-15111-1 live None
+   cetursa-15111-2 live None
+   cetursa-15111-3 live None
+   cetursa-15111-4 live None
+   cetursa-15112-0 live None
+   cetursa-15112-1 live None
+   cetursa-15113-0 live None
+   cetursa-15113-1 live None
+   cetursa-15113-2 live None
+   cetursa-15113-3 live None
+   cetursa-15113-5 live None
+   cetursa-15114-0 offline identical bytes served by another camera
+   cetursa-15114-1 offline identical bytes served by another camera
+   cetursa-15114-2 offline identical bytes served by another camera

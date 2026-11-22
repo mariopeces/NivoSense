@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: image/jpeg
+Content-Length: 32634
+Last-Modified: Sun, 22 Nov 2026 00:23:02 GMT
+Accept-Ranges: bytes
+Cache-Control: max-age=86
+Expires: Sun, 22 Nov 2026 00:28:03 GMT
+Date: Sun, 22 Nov 2026 00:26:37 GMT
+Connection: keep-alive
+Server-Timing: cdn-cache; desc=HIT
+Server-Timing: edge; dur=3
+Server-Timing: ak_p; desc="1795307197385_389797848_291819554_398_966_4_19_-";dur=1
+
