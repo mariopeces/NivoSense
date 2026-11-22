@@ -23,7 +23,8 @@ def font(size: int) -> ImageFont.FreeTypeFont:
 
 
 def grid(items: list[tuple[str, Path]], cols: int, scale: float, out: Path) -> None:
-    imgs = [(label, Image.open(p).convert("RGB")) for label, p in items]
+    # PNG when freshly captured, WebP once converted (references are kept as WebP).
+    imgs = [(label, Image.open(p if p.exists() else p.with_suffix(".webp")).convert("RGB")) for label, p in items]
     w, h = imgs[0][1].size
     tw, th = int(w * scale), int(h * scale)
     pad, cap = 16, 30
@@ -53,7 +54,7 @@ def main() -> None:
             scale,
             ROOT / f"side-by-side-{vw}.png",
         )
-    screens = ["nieve", "capas", "nieve-info", "colapsado", "timeline", "agua", "cuenca", "webcams", "webcam-live", "metodo", "vacio", "cargando", "error"]
+    screens = ["nieve", "capas", "nieve-info", "colapsado", "timeline", "timeline-estados", "agua", "cuenca", "webcams", "webcam-live", "metodo", "vacio", "cargando", "error"]
     for vw, cols, scale in [(1440, 3, 0.4), (375, 7, 0.5)]:
         grid([(s, mock / f"{s}-{vw}.png") for s in screens], cols, scale, ROOT / f"all-screens-{vw}.png")
 

@@ -1,11 +1,11 @@
 {
-  "$about": "NivoSense Spanish UI copy deck. Every label, tooltip and empty state. Keys are stable ids for the frontend (T4.1 to T4.5, T3.4). Braced tokens like {fecha} are filled at runtime; formats are in 'formats'. Tone: plain, precise, no marketing, no exclamation marks, sentence case, 'tú' never needed (impersonal or infinitive).",
+  "$about": "NivoSense Spanish UI copy deck. Every label, tooltip and empty state. Keys are stable ids for the frontend (T4.1 to T4.5, T3.4). Braced tokens like {fecha} are filled at runtime; formats are in 'formats'. Tone: plain, precise, no marketing, no exclamation marks, sentence case, actions as short 'tú' imperatives ('Elige', 'Activa', 'Arrastra'), never 'usted'.",
   "formats": {
     "fecha_corta": "d MMM yyyy, months in lowercase without dot: '21 feb 2026'",
     "fecha_larga": "EEEE d 'de' MMMM 'de' yyyy: 'sábado 21 de febrero de 2026'",
     "hora": "HH:mm, Europe/Madrid, 24 h: '00:22'",
-    "edad": "'hace 4 min', 'hace 3 h', 'hace 2 días'; over 7 days: the fecha_corta",
-    "numero": "es-ES: thousands with a thin space only from 10 000, decimal comma: '319,2 km²', '1 250 mm'",
+    "edad": "under 1 h: 'hace 4 min' ('hace menos de 1 min' under 1 min); under 24 h: 'hace 3 h'; up to 7 days: 'hace 1 día' / 'hace 2 días'; over 7 days: the fecha_corta. Strings: webcam.edad_*",
+    "numero": "es-ES: thousands with a thin space only from 10 000, decimal comma: '319,2 km²', '1250 mm', '12 500 mm'; road kilometre points too: 'PK 12,6'",
     "unidades": "space before the unit: '20 m', '25 mm', '50 %'; units are never dropped from a value"
   },
   "app": {
@@ -145,7 +145,7 @@
     "info": "Información de {capa}",
     "meta": "{fuente} · {resolucion}",
     "fecha_observacion": "Escena del {fecha_corta}",
-    "fecha_observacion_rellenado": "Última observación real: {fecha_corta} (hace {dias} días)",
+    "fecha_observacion_rellenado": "Última observación real: {fecha_corta} ({edad})",
     "fecha_modelado": "Estado del {fecha_corta}, corregido con la pasada del {fecha_obs}",
     "sin_escena_en_fecha": "Sin escena este día. La más cercana: {fecha_corta}.",
     "ir_a_escena": "Ir al {fecha_corta}",
@@ -208,6 +208,9 @@
     "tick_tooltip": "{fecha_larga} · {estados}",
     "temporada": "Año hidrológico {inicio}-{fin}",
     "hoy": "Hoy",
+    "prevision_slot": "Previsión",
+    "prevision_slot_pendiente": "Previsión: aún no se publica",
+    "tooltip_prevision_slot": "Días después de hoy hasta el último día de previsión del catálogo.",
     "sin_datos": "Aún no hay escenas publicadas.",
     "sin_datos_detalle": "La línea de tiempo se llena con cada escena que se publica, desde el 1 oct 2025."
   },
@@ -251,6 +254,13 @@
     "sin_imagen": "Sin imagen",
     "capturada": "Captura: {fecha_corta}, {hora}",
     "edad": "{edad}",
+    "edad_ahora": "hace menos de 1 min",
+    "edad_min": "hace {n} min",
+    "edad_h": "hace {n} h",
+    "edad_dia": "hace 1 día",
+    "edad_dias": "hace {n} días",
+    "antigua_corta": "Imagen antigua",
+    "captura_desconocida": "Hora de captura no disponible",
     "credito_cetursa": "Imagen: Cetursa Sierra Nevada / feratel",
     "credito_dgt": "Imagen: Dirección General de Tráfico (DGT)",
     "abrir_fuente": "Ver en la web del proveedor",
@@ -267,7 +277,7 @@
     "lista_sin_imagen": "Sin imagen",
     "proveedor_cetursa": "Cetursa Sierra Nevada (feratel)",
     "proveedor_dgt": "DGT, cámaras de carretera",
-    "cetursa_alta_pendiente": "Cámaras de la estación: alta pendiente",
+    "cetursa_alta_pendiente": "Cámaras de la estación: pendientes de alta",
     "cetursa_alta_pendiente_detalle": "Se añadirán con su posición, orientación y crédito.",
     "tooltip_simbolo": "{nombre} · {estado}",
     "leyenda_cono": "Con imagen: el cono muestra hacia dónde mira la cámara y hasta dónde llega su vista.",
@@ -291,7 +301,11 @@
     "limite_estacion": "La nieve producida en la estación de esquí no la ve el modelo; esa zona se marca en el mapa y no cuenta en la validación.",
     "limite_sombra": "En laderas en sombra del relieve el satélite no puede decidir: se marca como sin dato, nunca como sin nieve.",
     "limite_bosque": "Bajo arbolado la nieve se ve peor: se marca como confianza baja.",
-    "volver_mapa": "Volver al mapa"
+    "volver_mapa": "Volver al mapa",
+    "nieve_observada_calculo_1": "Se unen las cuatro teselas que tocan el dominio (30SVF, 30SVG, 30SWF y 30SWG) por fecha y órbita. Las nubes se filtran sobre el dominio, no sobre la tesela entera. El índice de nieve NDSI = (B03 − B11) / (B03 + B11) se calcula a 20 m con el método de dos pasadas de Theia/LIS: primero NDSI > 0,4 y rojo > 0,2; después NDSI > 0,15 y rojo > 0,04 por encima de la cota de nieve obtenida del modelo digital del terreno.",
+    "nieve_observada_calculo_2": "Las laderas en sombra del relieve, calculada con el terreno y la posición del sol, se marcan como sin dato. Bajo bosque la nieve se marca con confianza baja.",
+    "nieve_observada_validacion": "Contra una muestra de referencia congelada: al menos 1500 puntos en 12 fechas o más, etiquetados sobre color real y falso color SWIR. Objetivo: F1 de nieve de 0,85 en total y 0,70 en cada estrato (cota de nieve, sombra, bosque, borde de nube y terreno abierto).",
+    "fuente_nieve_observada": "Sentinel-2 L2A (Earth Search, AWS)"
   },
   "vacio": {
     "sin_catalogo_titulo": "Aún no hay escenas publicadas",

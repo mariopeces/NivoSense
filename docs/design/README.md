@@ -99,6 +99,8 @@ Every number and date uses tabular figures (`tnum`).
 | Layer info | `info` |
 | Timeline | `chevron-left`, `play` / `pause`, `chevron-right`, `arrow-right-to-line`, `calendar` |
 | Camera with no image | `camera-off` |
+| Camera image older than 2 h | `clock` |
+| Camera on the map (with image) | `cctv` inside the map symbol |
 | Retry | `rotate-cw` |
 | Back | `arrow-left` |
 | Close | `x` |
@@ -170,17 +172,18 @@ Open a screen with `python -m http.server` from the repo root, then go to `/docs
 | `capas` | Layer rows expanded | Every snow layer with its inline stepped legend, units, transparent-class note, opacity slider and status badge. Pending layers keep their legend so the reader learns it, but the toggle and slider are disabled. |
 | `nieve-info` | Layer info popover | Source, resolution, frequency, date of the real observation, status, source scene ids, one-line description, link to the method. |
 | `colapsado` | Panel collapsed | Panel slides out (240 ms), the timeline re-centres, and the rail button changes to "Mostrar". |
-| `timeline` | Timeline | Date with weekday, previous / play / next, a track over the whole season (Oct 2025 to today) with observation ticks, a daily status strip and month labels, the arrebol cursor, a dashed "today" line, a tick tooltip with the long date and statuses, "Última" and a calendar button, and the status legend. |
+| `timeline` | Timeline | Date with weekday, previous / play / next, a track over the whole season (Oct 2025 to today) plus the forecast slot after "Hoy", observation ticks, the daily status strip (all Pendiente today: no gap-filled or model product exists), month labels, the arrebol cursor, a dashed "Hoy" line, a tick tooltip with the long date and statuses (kept inside the viewport), "Última" and a calendar button, and the status legend. |
+| `timeline-estados` | Timeline states (spec sheet) | Each state drawn with the component's own CSS: Observado tick (solid), Rellenado day (outline), Modelado day (half-filled), Previsión day (dashed), Pendiente (dotted), and a schematic strip in abstract day units (no dates, no data) showing their order: past days, the "Hoy" line, forecast days, then the empty rest of the forecast slot. |
 | `agua` | Basin list | The 4 basins in `data/basins.geojson`, sorted by area, with their real area. |
 | `cuenca` | Basin panel | Selected basin outlined in arrebol on the map; key figures (area real, the rest Pendiente); season charts (this season solid, last season dashed) with empty axes and a stated reason; river flow block with the real station and source, Pendiente. |
 | `webcams` | Webcam list + offline card | Cameras grouped Con imagen / Sin imagen with counts; offline card anchored to its symbol; symbol legend (cone, no image, no bearing); Cetursa block pending. |
-| `webcam-live` | Live card | Large image, En directo, real capture time and age, bearing state, credit line from gate H4, provider link. |
+| `webcam-live` | Live card | Large image, En directo, capture time and age (`formats.edad`: min, h, días, then the date), bearing state, credit line from gate H4, provider link. The age is computed against the viewer's clock, so opening the mockup later shows the real, older age; past 2 h the status becomes "Imagen antigua" (`warning`, `clock` icon) with the line "Imagen antigua: tiene más de 2 h". `?now=<ISO>` pins the clock for reproducible screenshots. On mobile it is the full-width sheet above the tab bar, the same as the offline card. |
 | `metodo` | Method page | Full-width reading view next to the rail; table of contents; facts strip (source, resolution, frequency) per layer; "how it is computed", "how it is validated", "result pending" box, known limits. Text follows README section 6. |
 | `vacio` | Empty | No catalogue yet: basemap, basins and cameras still work; panel notice; every layer Pendiente; timeline says why it is empty and from when it will fill. |
 | `cargando` | Loading | Skeleton rows, `aria-live` label, no timeline until the catalogue answers. |
 | `error` | Error | Catalogue failed: error notice with Reintentar; basemap stays usable; no timeline (dates are unknown). |
 
-Also: [`webcam-symbol.svg`](mockups/webcam-symbol.svg) ([png](screenshots/mockups/webcam-symbol.webp)), the map symbol spec for T3.4: cone geometry from θ (bearing), φ (field of view) and r (range); five states (rest, hover/focus, selected, image without verified bearing, no image).
+Also: [`webcam-symbol.svg`](mockups/webcam-symbol.svg) ([png](screenshots/mockups/webcam-symbol.webp)), the map symbol spec for T3.4: cone geometry from θ (bearing), φ (field of view) and r (range); five states (rest, hover/focus, selected, image without verified bearing, no image). The SVG and the mockups use the same glyphs: an ink disc with Lucide `cctv` for a camera with an image, a white disc with a `text-muted` border and Lucide `camera-off` for no image. **What rotates to the bearing is the notch on the disc rim**; the `cctv` glyph stays upright so it stays legible. A camera without a verified bearing has no notch and no cone.
 
 ### 4.1 Layout rules
 
@@ -204,7 +207,7 @@ Also: [`webcam-symbol.svg`](mockups/webcam-symbol.svg) ([png](screenshots/mockup
   - full, leaving 48 px of map.
 - The timeline sits above the sheet in peek and half, and hides when the sheet is full or a card is open.
 - Map controls are 44 px; the attribution collapses to an `info` button.
-- The webcam card becomes a sheet above the tab bar.
+- The webcam card (live or offline) becomes a full-width sheet above the tab bar and replaces the panel sheet while it is open.
 - Map tools (basemap, 3D) move into the Nieve panel header on mobile (T4.5).
 
 ### 4.2 Interaction
@@ -231,6 +234,7 @@ Also: [`webcam-symbol.svg`](mockups/webcam-symbol.svg) ([png](screenshots/mockup
 **Timeline content:**
 
 - Ticks come only from `catalog/index.json`.
+- **Forecast days** sit after the "Hoy" line, in a forecast slot that runs to the last forecast date in the catalogue (the mockup draws 5 days, the horizon of the live site's forecast buttons today). Forecast days with a product are drawn dashed (Previsión); the rest of the slot is Pendiente on a `panel-soft` ground. The slot is labelled "Previsión". Nothing in the slot is drawn as observed.
 - The daily strip shows, per day, the best status available (Observado > Rellenado > Modelado > Previsión); days with nothing are dotted (Pendiente).
 - Picking a date with no product for a layer keeps the layer visible at its nearest date and says so in the row ("Sin escena este día. La más cercana: …").
 
@@ -238,7 +242,7 @@ Also: [`webcam-symbol.svg`](mockups/webcam-symbol.svg) ([png](screenshots/mockup
 
 [`copy.es.json`](copy.es.json) has every string.
 
-- **Tone:** plain and precise, impersonal, no exclamation marks, no marketing words.
+- **Tone:** plain and precise; actions as short "tú" imperatives ("Elige", "Activa"), never "usted"; no exclamation marks, no marketing words.
 - **Formats:** dates like "21 feb 2026"; the long form "sábado 21 de febrero de 2026" in tooltips; Europe/Madrid time "00:22"; "hace 4 min"; a space before units ("20 m", "25 mm", "50 %"); decimal comma; a thin space for thousands only from 10 000.
 - **Status words:** Observado, Rellenado, Modelado, Previsión, Pendiente. Each has a one-sentence tooltip.
 - **Credit lines:** Cetursa uses the exact gate H4 line, "Imagen: Cetursa Sierra Nevada / feratel". DGT: "Imagen: Dirección General de Tráfico (DGT)", linked to the DGT page (T3.2).
@@ -255,7 +259,7 @@ Nothing in the mockups is invented. Every value traces to a file or a live sourc
 | River station "Órgiva · Río Guadalfeo", source Hidrosur | `data/flow/guadalfeo.json`. Its series is marked `PLACEHOLDER` in the file, so the mockup shows the flow as Pendiente, not the numbers. |
 | Timeline ticks | Every S2 L1C pass over tiles 30SVF/30SVG/30SWF/30SWG from 2025-10-01 to 2026-11-20 listed on Earth Search ([`mockups/data/s2_passes.json`](mockups/data/s2_passes.json), `tools/fetch_s2_passes.py`). They are shown without the domain cloud filter that the catalogue (D1) will apply, so production will have fewer ticks. None of these products is published yet. |
 | "Color real" image and its four scene ids | Real S2 L1C TCI of 2026-02-21 (ESA's TCI stretch, not the snow stretch T1.3 will make), cropped to the crest ([`mockups/data/l1c_tci_20260221.jpg`](mockups/data/l1c_tci_20260221.jpg), `tools/fetch_backgrounds.py`). It stands in for the RGB layer to show the filled state; T1.3 has not published it. Contains modified Copernicus Sentinel data 2026. |
-| Pradollano live image and its capture time | `recursos.sierranevada.es/.../pradollano/snap_c1.jpg` (the URL named in T3.1), hot-linked; capture time is its HTTP `Last-Modified` at screenshot time (night image, 00:38 on 22 Nov). Its map position is not in the catalogue yet (T3.1), so the card is shown unanchored and the camera is not drawn on the map. |
+| Pradollano image and its capture time | One still of `recursos.sierranevada.es/.../pradollano/snap_c1.jpg` (the URL named in T3.1), saved with its HTTP `Last-Modified` (2026-11-22 00:25:38 UTC) in [`mockups/data/cetursa_pradollano.json`](mockups/data/cetursa_pradollano.json), shown with the H4 credit line. Its map position is not in the catalogue yet (T3.1), so the card is shown unanchored and the camera is not drawn on the map. |
 | Snow layers, SWE, depth, basin series, snow area | Not produced yet: every one is Pendiente with its legend. |
 | Bearings and cones | Not measured yet (T3.3): no camera shows a cone or a rotated icon on the map; the cone is specified with symbolic θ, φ, r in `webcam-symbol.svg`. |
 
@@ -265,12 +269,12 @@ Nothing in the mockups is invented. Every value traces to a file or a live sourc
 |---|---|---|
 | A. Visual system | Colours, type, radius, shadow from tokens only | Pass. `app.css` and `app.js` contain no colour literals (only `var(--…)` set from `tokens.json`, plus ramp colours read from `ramps.json`). |
 | A | One display face + Inter, loaded | Pass: Source Serif 4 + Inter from Google Fonts. |
-| A | No text under 12 px | Pass: the smallest computed font size measured on all 13 screens at 1440 is 12 px. |
+| A | No text under 12 px | Pass: the smallest computed font size measured on all 14 screens at 1440 is 12 px. |
 | A | No all-caps blocks with wide tracking; no glow or glassmorphism | Pass: sentence case everywhere, letter-spacing 0; plain shadows, no `backdrop-filter`. |
 | B. Layout | Dark rail + light collapsible panel; only timeline, legend chip and controls float; map is the hero | Pass: `nieve`, `colapsado`, mobile tab bar + sheet. |
 | C. Information | Source, resolution, real observation date, status on every layer; units; honest empty and offline states | Pass: layer rows and `nieve-info`; legends carry units; `vacio`, `cargando`, `error`, offline card, Pendiente everywhere data is missing. |
 | D. Interaction | Timeline over the whole history; keyboard; URL state; distinct hover and selected | Specified in 4.2; the mockup timeline spans 2025-10-01 to today. Behaviour is verified on the real build in T4.2. |
-| E. Webcams | Icon to bearing, cone from bearing/FOV/range, card with large image, age and credit, offline state | Pass at spec level: `webcam-symbol.svg`, `webcam-live`, `webcams`. Pending on T3.3 for real bearings: no cone is drawn until then. |
+| E. Webcams | Icon to bearing, cone from bearing/FOV/range, card with large image, age and credit, offline state | Pass at spec level: `webcam-symbol.svg` and the mockups share one symbol system; `webcam-live` always shows capture time and age; both cards are sheets on mobile. Pending on T3.3 for real bearings: no cone is drawn until then. |
 
 The side-by-side sheets show the references and the current site next to the mockup: [1440](screenshots/side-by-side-1440.webp), [375](screenshots/side-by-side-375.webp).
 
