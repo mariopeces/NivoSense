@@ -176,6 +176,8 @@ class RunTest(unittest.TestCase):
             second = run.run(self.domain_path, self.tmp / "s2", day, day, self.tmp / "b", target="staging",
                              version="test", fetch=fake_fetch)[0]
         self.assertEqual(first["entry"], second["entry"])
+        written = json.loads((self.tmp / "b" / "2026-11-20" / "summary.json").read_text())
+        self.assertEqual(written["entry"], second["entry"])
         storage = LocalStorage(self.tmp / "catalogue" / "staging")
         blob = storage.read("catalog/entries/snow_obs/2026-11-20.json")
         self.assertIsNotNone(blob)
