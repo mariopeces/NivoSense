@@ -1,0 +1,16 @@
+caught   listing threshold 0.30 -> 0.05 (G-Code): test_listing_follows_the_30_percent_rule_and_needs_every_tile
+caught   listed ignores complete (G-Data/G-Code): test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives
+caught   scale/offset of items[0] for every tile (G-Code): test_each_granule_uses_its_own_raster_bands_offset
+caught   hard-coded offset -0.1 (G-Method): test_each_granule_uses_its_own_raster_bands_offset
+caught   offset ignored: test_10m_band_is_averaged_and_nodata_blocks_stay_nodata
+caught   footprint filter removed from run() (G-Data/G-Code/G-Method): test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives
+caught   datatakes of one orbit and day merged (G-Code): test_two_satellites_on_one_orbit_stay_separate_acquisitions
+caught   no reprocessing window (G-Data): test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives
+caught   input key ignores baseline: test_newer_baseline_reopens_a_complete_date
+caught   newest granule only (split datatake dropped): test_reprocessed_granule_replaces_the_older_one
+caught   complete always True: test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives
+caught   SCL 3 cloud shadow counted valid: test_domain_fractions_count_only_clear_classes_inside_the_domain
+caught   SCL 10 cirrus counted valid (G-Method): test_domain_fractions_count_only_clear_classes_inside_the_domain
+caught   cloud filter added to the search: test_search_follows_post_pages_and_sends_the_geometry
+caught   10 m nodata blocks kept: test_10m_band_is_averaged_and_nodata_blocks_stay_nodata
+15/15 caught
