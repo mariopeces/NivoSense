@@ -1,0 +1,163 @@
+{
+ "split_granules": [
+  {
+   "s2:generation_time": "2026-11-17T15:48:04.000000Z",
+   "s2:datatake_id": "GS2A_20261117T105241_059565_N05.13",
+   "s2:processing_baseline": "05.13",
+   "created": "2026-11-17T17:03:01.080Z",
+   "id": "S2A_T30SWG_20261117T105237_L2A"
+  },
+  {
+   "s2:generation_time": "2026-11-17T16:55:03.000000Z",
+   "s2:datatake_id": "GS2A_20261117T105241_059565_N05.13",
+   "s2:processing_baseline": "05.13",
+   "created": "2026-11-17T18:07:58.371Z",
+   "id": "S2A_T30SWG_20261117T110058_L2A"
+  }
+ ],
+ "A": {
+  "hidden_first": "S2A_T30SWG_20261117T110058_L2A",
+  "second_run_today": "2026-11-18",
+  "first": {
+   "scene_ids": [
+    "S2A_T30SWG_20261117T105237_L2A"
+   ],
+   "complete": true,
+   "domain_coverage": 0.1014,
+   "domain_valid_fraction": 0.0009,
+   "input_key": "9a4914d0529ba1ee1ea775f979f4c96516e9e8d58eb2fd66927a65659de36b38"
+  },
+  "second": {
+   "scene_ids": [
+    "S2A_T30SWG_20261117T110058_L2A",
+    "S2A_T30SWG_20261117T105237_L2A"
+   ],
+   "complete": true,
+   "domain_coverage": 0.1014,
+   "domain_valid_fraction": 0.0009,
+   "input_key": "9386c516581ae1f4a647afe5fa562b24b74fed957e091942ea8131968a587a96"
+  },
+  "decision_first": [
+   "S2A_T30SWG_20261117T105237_L2A"
+  ],
+  "decision_second": [
+   "S2A_T30SWG_20261117T110058_L2A",
+   "S2A_T30SWG_20261117T105237_L2A"
+  ],
+  "decision_matches_record": true
+ },
+ "B": {
+  "hidden_first": "S2A_T30SWG_20261117T105237_L2A",
+  "second_run_today": "2026-11-18",
+  "first": {
+   "scene_ids": [
+    "S2A_T30SWG_20261117T110058_L2A"
+   ],
+   "complete": true,
+   "domain_coverage": 0.0354,
+   "domain_valid_fraction": 0.0,
+   "input_key": "b143c0205b2be3d75527e992f2b44365a6e94e987fa0a96b333c2bdc520fbfe4"
+  },
+  "second": {
+   "scene_ids": [
+    "S2A_T30SWG_20261117T110058_L2A",
+    "S2A_T30SWG_20261117T105237_L2A"
+   ],
+   "complete": true,
+   "domain_coverage": 0.1014,
+   "domain_valid_fraction": 0.0009,
+   "input_key": "9386c516581ae1f4a647afe5fa562b24b74fed957e091942ea8131968a587a96"
+  },
+  "decision_first": [
+   "S2A_T30SWG_20261117T110058_L2A"
+  ],
+  "decision_second": [
+   "S2A_T30SWG_20261117T110058_L2A",
+   "S2A_T30SWG_20261117T105237_L2A"
+  ],
+  "decision_matches_record": true
+ },
+ "C": {
+  "hidden_first": "S2A_T30SWG_20261117T110058_L2A",
+  "second_run_today": "2026-11-28",
+  "first": {
+   "scene_ids": [
+    "S2A_T30SWG_20261117T105237_L2A"
+   ],
+   "complete": true,
+   "domain_coverage": 0.1014,
+   "domain_valid_fraction": 0.0009,
+   "input_key": "9a4914d0529ba1ee1ea775f979f4c96516e9e8d58eb2fd66927a65659de36b38"
+  },
+  "second": {
+   "scene_ids": [
+    "S2A_T30SWG_20261117T105237_L2A"
+   ],
+   "complete": true,
+   "domain_coverage": 0.1014,
+   "domain_valid_fraction": 0.0009,
+   "input_key": "9a4914d0529ba1ee1ea775f979f4c96516e9e8d58eb2fd66927a65659de36b38"
+  },
+  "decision_first": [
+   "S2A_T30SWG_20261117T105237_L2A"
+  ],
+  "decision_second": [
+   "S2A_T30SWG_20261117T105237_L2A"
+  ],
+  "decision_matches_record": true
+ },
+ "D": {
+  "svf_original": "S2A_T30SVF_20261110T110234_L2A",
+  "svf_synthetic": "S2A_T30SVF_20261110T110234_N0514_L2A",
+  "before": {
+   "scene_ids": [
+    "S2A_T30SVF_20261110T110234_L2A",
+    "S2A_T30SVG_20261110T110234_L2A",
+    "S2A_T30SWF_20261110T110234_L2A",
+    "S2A_T30SWG_20261110T110234_L2A"
+   ],
+   "processing_baselines": [
+    "05.13",
+    "05.13",
+    "05.13",
+    "05.13"
+   ],
+   "input_key": "0eebbbcb7b5f034af41e98b8084de8c5a0b60d67a6e915d8fc29a0e9b53ee68a",
+   "complete": true,
+   "domain_valid_fraction": 0.837
+  },
+  "after": {
+   "scene_ids": [
+    "S2A_T30SVF_20261110T110234_N0514_L2A",
+    "S2A_T30SVG_20261110T110234_L2A",
+    "S2A_T30SWF_20261110T110234_L2A",
+    "S2A_T30SWG_20261110T110234_L2A"
+   ],
+   "processing_baselines": [
+    "05.14",
+    "05.13",
+    "05.13",
+    "05.13"
+   ],
+   "input_key": "e3a7d0e78a53753c60b56ddeee78ae8f29e1dcf5706f084516380d720e7bcf57",
+   "complete": true,
+   "domain_valid_fraction": 0.837
+  },
+  "rasters_rewritten": true,
+  "decision_scene_ids": [
+   "S2A_T30SVF_20261110T110234_N0514_L2A",
+   "S2A_T30SVG_20261110T110234_L2A",
+   "S2A_T30SWF_20261110T110234_L2A",
+   "S2A_T30SWG_20261110T110234_L2A"
+  ]
+ },
+ "E": {
+  "unchanged": true,
+  "files": [
+   "record.json",
+   "reflectance.tif",
+   "classes.tif",
+   "2026-11-17_R051.json"
+  ]
+ }
+}

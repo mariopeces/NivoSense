@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-10",
+  "orbit": "R094",
+  "scene_ids": [
+    "S2A_T30SVF_20261110T110234_L2A",
+    "S2A_T30SVG_20261110T110234_L2A",
+    "S2A_T30SWF_20261110T110234_L2A",
+    "S2A_T30SWG_20261110T110234_L2A"
+  ],
+  "domain_coverage": 1.0,
+  "domain_valid_fraction": 0.837,
+  "complete": true,
+  "listed": true,
+  "decided_at": "2026-11-22T05:14:20Z",
+  "code_version": "dafc7f3e785b1c7422ae4ecf329cb2fdd9e0e1ff"
+}

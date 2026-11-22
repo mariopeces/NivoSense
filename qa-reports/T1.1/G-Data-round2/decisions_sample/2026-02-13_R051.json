@@ -1,0 +1,13 @@
+{
+  "date": "2026-02-13",
+  "orbit": "R051",
+  "scene_ids": [
+    "S2B_T30SWG_20260213T105338_L2A"
+  ],
+  "domain_coverage": 0.0947,
+  "domain_valid_fraction": 0.0193,
+  "complete": true,
+  "listed": false,
+  "decided_at": "2026-11-22T04:32:43Z",
+  "code_version": "dafc7f3e785b1c7422ae4ecf329cb2fdd9e0e1ff"
+}

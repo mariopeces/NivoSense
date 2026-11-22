@@ -1,0 +1,6 @@
+Deliberate breaks of pipelines/s2/ingest.py at dafc7f3, `pytest tests/s2` (22 tests at head, all pass):
+REPROCESS_DAYS = -1 (no recheck window)                         -> 3 failed (caught)
+input_key ignores processing baseline                           -> 1 failed (caught)
+is_current = "a record exists" (input key not compared)         -> 3 failed (caught)
+decision not rewritten when a pass is rebuilt                   -> 1 failed (caught)
+input_key hashes only the first datatake of a pass              -> 22 passed (NOT caught; minor 1)

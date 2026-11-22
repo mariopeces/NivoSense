@@ -1,0 +1,20 @@
+[
+ {
+  "date": "2026-02-13",
+  "orbit": "R051",
+  "reflectance.tif": true,
+  "reflectance.tif_sha": "307d8ebf67798f89aafdaa99eaaacbb2f2ca7ec1ccc97c9d8d7849372e273c47",
+  "classes.tif": true,
+  "classes.tif_sha": "1c3118d8058eafabc26ffdd5991cc2a8736e74e03c2a6685f237916e76b47d19",
+  "record.json": true
+ },
+ {
+  "date": "2026-02-16",
+  "orbit": "R094",
+  "reflectance.tif": true,
+  "reflectance.tif_sha": "63633198b41e11f80010085d4bba306b3bfb30dfbb0d9b888e67df082d5735da",
+  "classes.tif": true,
+  "classes.tif_sha": "c772670b4b706f5ec56808ccf1507c49a621df8082478be08bea469478e2c2e1",
+  "record.json": true
+ }
+]
