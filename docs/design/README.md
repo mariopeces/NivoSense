@@ -48,7 +48,7 @@ NivoSense is a scientific viewer of one massif. The design has to look like an i
 
 An offline camera is a state, not an error: it uses `text-muted`, not `danger`.
 
-**Type.** Inter 400/500/600 and Source Serif 4 600, both OFL and both on Google Fonts. Scale in px (size/line):
+**Type.** Inter 400/500/600 and Source Serif 4 600 (variable, with the optical-size axis), both OFL. Versions are pinned to the Fontsource npm packages `@fontsource/inter@5.1.0` and `@fontsource-variable/source-serif-4@5.1.0`; the mockup loads them from jsDelivr with SRI on every stylesheet (`mockups/index.html`), and T4.1 installs the same versions from npm and self-hosts them. Scale in px (size/line):
 
 | Style | Size/line | Font | Used for |
 |---|---|---|---|
@@ -79,6 +79,16 @@ Every number and date uses tabular figures (`tnum`).
 - 240 ms for the panel and the sheet;
 - 800 ms per frame when the timeline plays, waiting for the tiles before it steps;
 - every duration drops to 0 under `prefers-reduced-motion`.
+
+**How tokens become CSS variables.** This is the contract T4.1 implements (the mockup does the same in `applyTokens()` in `mockups/app.js`):
+
+- The name is the token path joined with `-`; keys starting with `$` are metadata and never emitted. `color.ink` becomes `--color-ink`, `space.4` becomes `--space-4`, `motion.duration.fast` becomes `--motion-duration-fast`.
+- Scalar values are emitted as they are written, units included (`64px`, `120ms`, `50vh`). `layout.sheet-half` is a viewport unit on purpose; it is valid CSS though not a W3C `dimension`.
+- Arrays: `font.family.*` becomes a comma-separated stack with multi-word names quoted (`'Source Serif 4', Georgia, serif`); `motion.easing.*` becomes `cubic-bezier(a, b, c, d)`.
+- Typography composites (`type.<style>`) split into four variables: `--type-<style>-size` and `--type-<style>-lh` in px, `--type-<style>-weight` as a number, and `--type-<style>-family`, which is `var(--font-family-<body|display>)`. The `family` field names a key of `font.family`; it is a reference, not the W3C `{alias}` syntax.
+- `shadow.*` values are complete CSS `box-shadow` strings and are emitted unchanged.
+- Tokens with `$type: "other"` are prose for people (`motion.reduced`, `icon.set`, `icon.stroke`, `basemap.*`) and are not emitted, with one exception: `font.feature.numbers` is a valid `font-feature-settings` value and is emitted as `--font-feature-numbers`.
+- Tailwind: every emitted variable goes into `theme.extend` under its group (`colors.ink: 'var(--color-ink)'`, `spacing['4']: 'var(--space-4)'`, and so on), so classes and CSS read the same values.
 
 **Icons.** One set: [Lucide](https://lucide.dev) 0.460.0 (ISC licence), `lucide-react` in the app.
 
@@ -125,7 +135,7 @@ Each ramp samples a published, perceptually uniform colour map at fixed position
 | SWE (`swe`) | cmocean **deep** ([Thyng et al. 2016](https://doi.org/10.5670/oceanog.2016.66), built for water depth) | a different hue path from the snow layers (yellow-green, teal, navy), so SWE is never mistaken for cover | < 5 mm transparent (README section 6); 5–25 mm light green at alpha 0.4, so **trace snow never reads as solid cover**; 25–50, 50–100, 100–200, 200–400, 400–800, ≥ 800 mm |
 | Snow depth (`snow_depth`) | Crameri **acton** ([Crameri 2018](https://doi.org/10.5281/zenodo.1243862); [Crameri et al. 2020](https://doi.org/10.1038/s41467-020-19160-7)), light to dark | a third hue family (lilac to violet) and different units: depth and SWE can't be confused when you switch between them | drawn only where SWE ≥ 5 mm (same mask); < 25 cm at alpha 0.5; 25–50, 50–100, 100–150, 150–200, 200–300, ≥ 300 cm |
 
-Source files are fetched from pinned commits (cmocean `59c3500`, cmcrameri `7670e3c`). The class breaks are display choices, not data. T4.3 and G-Data check them against the real value range once T2.5 publishes, and change them here (rerun the builder) if the data asks for it.
+Source files are fetched from pinned commits (cmocean `59c3500`, cmcrameri `7670e3c`). Both are MIT-licensed; each layer in `ramps.json` carries `source_url` (the pinned file) and `source_licence` next to `source_citation`, because the pipelines read the JSON, not the script. The class breaks are display choices, not data. T4.3 and G-Data check them against the real value range once T2.5 publishes, and change them here (rerun the builder) if the data asks for it.
 
 **Checks** (`tools/build_ramps.py`; results are stored in `ramps.json` under `colour_checks`):
 
@@ -135,6 +145,17 @@ Source files are fetched from pinned commits (cmocean `59c3500`, cmcrameri `7670
 | Observed snow (snow vs low confidence) | yes, all five | 0.225 / 0.222 / 0.236 / 0.222 / 0.224 |
 | SWE | yes, all five | 0.107 / 0.099 / 0.107 / 0.097 / 0.100 |
 | Depth | yes, all five | 0.062 / 0.050 / 0.049 / 0.066 / 0.056 |
+
+The same checks are also run on each ramp as drawn, every class at its alpha over white (the legend swatch and the light basemap); they are stored under `colour_checks.results.<layer>.over_white`. The smallest adjacent distance there is 0.053 (depth, protanopia).
+
+**The builder fails closed.** `build_ramps.py` exits 1 and writes nothing (no `ramps.json`, no images) when any ramp:
+
+- loses lightness order in any of the five simulations, flat or over white;
+- has two adjacent classes closer than 0.04 in OKLab (twice a just-noticeable difference) in any of them;
+- has fewer than three coloured classes, class bounds that are not contiguous and increasing, or a closed last class;
+- has an alpha outside 0 to 1, a malformed colour, or a source position outside 0 to 1.
+
+`tests/design/test_build_ramps.py` runs the builder on deliberately broken ramps (the SWE 50–100 mm class faded to alpha 0.05, two depth classes swapped, and four structural faults) and checks that each one exits 1 with nothing written.
 
 How these numbers were produced:
 
@@ -149,6 +170,8 @@ How these numbers were produced:
 - The **light basemap** background is IGN Base gris over the same extent.
 
 `colour_checks.visibility_mean_deltaE_ok` gives each class's mean OKLab shift over bright and dark pixels. Every class after the first shifts the background by at least 0.11 over dark terrain in the L1C, at least 0.15 over bright snow in the L1C, and at least 0.11 over the IGN basemap. The first class of each ramp is faint on purpose: 0.04 to 0.08 over bright pixels, still above a just-noticeable difference. Cloud over bright snow shifts the colour only 0.03; its dot pattern carries it.
+
+**Known limit: order over dark terrain.** Because alpha rises with the class, the composite over dark rock in the L1C flattens: G-UI round 2 measured CAM02-UCS J′ 53.9 / 55.2 / 53.9 for probability 10–30 / 30–50 / 50–70 % over a dark-rock median, adjacent ΔE down to 1.0 in greyscale and 1.8 for depth in deuteranopia. Each class is still visible against the background, but the order between neighbours is not reliable there. The builder does not gate on dark backgrounds. T4.3 and G-Data recheck this on real products; if it matters on real data, the fix is a constant alpha from the second class up, changed here and rebuilt.
 
 **Evidence images:**
 
@@ -169,7 +192,7 @@ Open a screen with `python -m http.server` from the repo root, then go to `/docs
 | id | Screen | What it specifies |
 |---|---|---|
 | `nieve` | Shell, Nieve section | Rail with brand mark, five sections and map tools at the foot; 320 px panel with eyebrow, serif title and subtitle; grouped layer rows; legend chip on the map naming the visible layer and its date; map controls top right; attribution bottom right; bottom-centred timeline. |
-| `capas` | Layer rows expanded | Every snow layer with its inline stepped legend, units, transparent-class note, opacity slider and status badge. Pending layers keep their legend so the reader learns it, but the toggle and slider are disabled. |
+| `capas` | Layer rows expanded | Every snow layer with its inline stepped legend, units, transparent-class note, opacity slider and status badge. Reference layers (Cuencas, Webcams) have no product status and no date, so their rows show source but no badge. Pending layers keep their legend so the reader learns it, but the toggle and slider are disabled. |
 | `nieve-info` | Layer info popover | Source, resolution, frequency, date of the real observation, status, source scene ids, one-line description, link to the method. |
 | `colapsado` | Panel collapsed | Panel slides out (240 ms), the timeline re-centres, and the rail button changes to "Mostrar". |
 | `timeline` | Timeline | Date with weekday, previous / play / next, a track over the whole season (Oct 2025 to today) plus the forecast slot after "Hoy", observation ticks, the daily status strip (all Pendiente today: no gap-filled or model product exists), month labels, the arrebol cursor, a dashed "Hoy" line, a tick tooltip with the long date and statuses (kept inside the viewport), "Última" and a calendar button, and the status legend. |
@@ -228,13 +251,14 @@ Also: [`webcam-symbol.svg`](mockups/webcam-symbol.svg) ([png](screenshots/mockup
 - Hover: background `panel-soft` (rail: `ink-raised`).
 - Selected: arrebol (rail bar, basin outline, camera ring) plus a stronger border.
 - Hover and selected never share a look.
+- Disabled buttons have a dashed `line` border on `panel-soft` with `text-muted` text, so they never look like enabled ones. In the empty state "Última" and the calendar are both disabled until the catalogue has dates.
 
 **URL** keeps section, date, visible layers with opacity, selected basin and selected camera, for example `?s=nieve&d=2026-02-21&l=rgb:100,obs:80&b=604456`. Basins are keyed by `cod_uni`.
 
 **Timeline content:**
 
 - Ticks come only from `catalog/index.json`.
-- **Forecast days** sit after the "Hoy" line, in a forecast slot that runs to the last forecast date in the catalogue (the mockup draws 5 days, the horizon of the live site's forecast buttons today). Forecast days with a product are drawn dashed (Previsión); the rest of the slot is Pendiente on a `panel-soft` ground. The slot is labelled "Previsión". Nothing in the slot is drawn as observed.
+- **Forecast days** sit after the "Hoy" line, in a forecast slot that runs to the last forecast date in the catalogue (the mockup draws 5 days, the horizon of the live site's forecast buttons today). Forecast days with a product are drawn dashed (Previsión); the rest of the slot is Pendiente on a `panel-soft` ground. The slot is labelled "Previsión", left-aligned at the "Hoy" line, and the line carries a "Hoy" label to its left. At season scale five days would be a few pixels wide, so the slot is at least `space-16` (64 px) wide and past days share the rest of the track. Month labels closer than about a month to "Hoy" are dropped so they never collide with it. Nothing in the slot is drawn as observed.
 - The daily strip shows, per day, the best status available (Observado > Rellenado > Modelado > Previsión); days with nothing are dotted (Pendiente).
 - Picking a date with no product for a layer keeps the layer visible at its nearest date and says so in the row ("Sin escena este día. La más cercana: …").
 
@@ -268,7 +292,7 @@ Nothing in the mockups is invented. Every value traces to a file or a live sourc
 | Section | Check | Result and evidence |
 |---|---|---|
 | A. Visual system | Colours, type, radius, shadow from tokens only | Pass. `app.css` and `app.js` contain no colour literals (only `var(--…)` set from `tokens.json`, plus ramp colours read from `ramps.json`). |
-| A | One display face + Inter, loaded | Pass: Source Serif 4 + Inter from Google Fonts. |
+| A | One display face + Inter, loaded | Pass: Source Serif 4 + Inter, version-pinned Fontsource packages with SRI. |
 | A | No text under 12 px | Pass: the smallest computed font size measured on all 14 screens at 1440 is 12 px. |
 | A | No all-caps blocks with wide tracking; no glow or glassmorphism | Pass: sentence case everywhere, letter-spacing 0; plain shadows, no `backdrop-filter`. |
 | B. Layout | Dark rail + light collapsible panel; only timeline, legend chip and controls float; map is the hero | Pass: `nieve`, `colapsado`, mobile tab bar + sheet. |
@@ -284,15 +308,19 @@ The side-by-side sheets show the references and the current site next to the moc
 
 ## 8. Rebuilding the evidence
 
-From the repo root (Python with numpy, Pillow and rasterio; Playwright for the screenshots):
+From the repo root (Python with numpy, Pillow and rasterio; Playwright with Chromium for the screenshots):
 
 ```
-python -I docs/design/tools/fetch_backgrounds.py <tmp>/bg
+python -I docs/design/tools/fetch_backgrounds.py <tmp>/bg          # also writes mockups/data/l1c_tci_20260221.jpg
 python -I docs/design/tools/build_ramps.py --cache <tmp>/ramps --l1c <tmp>/bg/l1c_tci_20260221.png --basemap <tmp>/bg/ign_base_gris.png
 python -I docs/design/tools/fetch_s2_passes.py 2026-11-21 docs/design/mockups/data/s2_passes.json
-# serve the repo root, screenshot every ?s=<id> at 1440x900 and 375x812 into screenshots/mockups/*.png
-python -I docs/design/tools/compose_evidence.py   # sheets, then PNG to WebP
+python -I docs/design/tools/fetch_webcam_still.py                  # only to replace the Cetursa still; a rerun gets today's image
+python -I docs/design/tools/capture_mockups.py                     # checks every screen, writes screenshots/mockups/*.png
+python -I docs/design/tools/compose_evidence.py                    # sheets, then PNG to WebP
+python -m pytest tests/design
 ```
+
+`capture_mockups.py` serves the repo root itself and pins the clock 41 minutes after the stored still's capture time. It fails (exit 1) if any screen at either size shows a copy fallback (`[some.key]`), an unfilled `{placeholder}`, `undefined` or `NaN` in its text or in a `title`, `aria-label` or `alt`, or logs a console error. `--check` runs the same checks without writing screenshots.
 
 ## 9. Out of scope here, for the tasks that follow
 

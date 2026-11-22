@@ -6,6 +6,9 @@
 2. IGN Base gris (ign.es WMTS, CC BY 4.0 scne.es) for the same extent.
 
 Usage: python -I docs/design/tools/fetch_backgrounds.py <out_dir>
+
+Also writes the mockup copy of the L1C window, docs/design/mockups/data/l1c_tci_20260221.jpg
+(Pillow JPEG quality 86, default 4:2:0 subsampling; byte-identical to the committed file).
 """
 
 from __future__ import annotations
@@ -59,9 +62,13 @@ def fetch_ign(out: Path, z: int = 13) -> None:
     mosaic.crop(tuple(int(v) for v in box)).resize(SIZE, Image.LANCZOS).save(out)
 
 
+MOCKUP_JPG = Path(__file__).resolve().parents[1] / "mockups" / "data" / "l1c_tci_20260221.jpg"
+
+
 if __name__ == "__main__":
     d = Path(sys.argv[1])
     d.mkdir(parents=True, exist_ok=True)
     fetch_l1c(d / "l1c_tci_20260221.png")
+    Image.open(d / "l1c_tci_20260221.png").convert("RGB").save(MOCKUP_JPG, quality=86)
     fetch_ign(d / "ign_base_gris.png")
     print("ok", d)
