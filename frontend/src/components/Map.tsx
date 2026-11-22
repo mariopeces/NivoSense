@@ -6,6 +6,9 @@ import { bboxOfGeometry } from "../lib/geo";
 import type { Webcam } from "../lib/types";
 import type { SnowOverlay } from "../lib/snowModel";
 import type { WeatherOverlay } from "../lib/weather";
+import { t } from "../lib/copy";
+import { token } from "../lib/tokens";
+import type { Basemap } from "../lib/basemaps";
 
 maplibregl.setWorkerUrl(workerUrl);
 
@@ -14,31 +17,54 @@ const SIERRA_NEVADA_BOUNDS: [[number, number], [number, number]] = [
   [-2.95, 37.18],
 ];
 
-const SATELLITE_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    imagery: {
-      type: "raster",
-      tiles: [
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      ],
-      tileSize: 256,
-      attribution: "Esri / Maxar / Earthstar Geographics",
-    },
-    "esri-labels": {
-      type: "raster",
-      tiles: [
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-      ],
-      tileSize: 256,
-      attribution: "Esri",
-    },
-  },
-  layers: [
-    { id: "imagery", type: "raster", source: "imagery" },
-    { id: "labels", type: "raster", source: "esri-labels" },
-  ],
+const IGN_ATTRIBUTION = t("mapa.atribucion_ign");
+
+function ignWmts(service: string, layer: string) {
+  return (
+    `https://www.ign.es/wmts/${service}?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=${layer}` +
+    "&STYLE=default&TILEMATRIXSET=GoogleMapsCompatible&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg"
+  );
+}
+
+// Basemaps from the design spec: IGN Base gris by default (grey with hillshade, so it never competes with
+// the data colours) and the IGN PNOA orthophoto for detail.
+const BASEMAP_TILES: Record<Basemap, string> = {
+  claro: ignWmts("ign-base", "IGNBase-gris"),
+  ortofoto: ignWmts("pnoa-ma", "OI.OrthoimageCoverage"),
 };
+
+// Terrain for the 3D view: AWS Open Data Terrain Tiles (Mapzen terrarium encoding), open and CORS-enabled.
+const TERRAIN_TILES = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
+const TERRAIN_EXAGGERATION = 1.3;
+const TERRAIN_PITCH = 60;
+
+function baseStyle(basemap: Basemap): StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      basemap: {
+        type: "raster",
+        tiles: [BASEMAP_TILES[basemap]],
+        tileSize: 256,
+        maxzoom: basemap === "claro" ? 17 : 19,
+        attribution: IGN_ATTRIBUTION,
+      },
+      terrain: {
+        type: "raster-dem",
+        tiles: [TERRAIN_TILES],
+        tileSize: 256,
+        maxzoom: 15,
+        encoding: "terrarium",
+        attribution: "Terrain Tiles: Mapzen, AWS Open Data",
+      },
+    },
+    layers: [{ id: "basemap", type: "raster", source: "basemap" }],
+  };
+}
+
+function applyTerrain(map: maplibregl.Map, on: boolean) {
+  map.setTerrain(on ? { source: "terrain", exaggeration: TERRAIN_EXAGGERATION } : null);
+}
 
 type FC = {
   type: "FeatureCollection";
@@ -63,6 +89,10 @@ type Props = {
   webcams: Webcam[];
   selectedWebcamId: string | null;
   onWebcamSelect: (id: string | null) => void;
+  basemap: Basemap;
+  terrain: boolean;
+  /** Map pixels hidden behind the rail and panel, so fitted bounds stay in the visible part. */
+  inset: { left: number; bottom: number };
 };
 
 export default function Map({
@@ -76,6 +106,9 @@ export default function Map({
   webcams,
   selectedWebcamId,
   onWebcamSelect,
+  basemap,
+  terrain,
+  inset,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -89,6 +122,9 @@ export default function Map({
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
   const onWebcamSelectRef = useRef(onWebcamSelect);
+  const terrainRef = useRef(terrain);
+  const insetRef = useRef(inset);
+  const basemapRef = useRef(basemap);
 
   useEffect(() => {
     basinsFCRef.current = basinsFC;
@@ -131,17 +167,29 @@ export default function Map({
   }, [onWebcamSelect]);
 
   useEffect(() => {
+    insetRef.current = inset;
+  }, [inset]);
+
+  useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: SATELLITE_STYLE,
+      style: baseStyle(basemapRef.current),
       bounds: SIERRA_NEVADA_BOUNDS,
-      fitBoundsOptions: { padding: 60 },
+      fitBoundsOptions: { padding: fitPadding(insetRef.current, 60) },
       attributionControl: { compact: true },
+      locale: {
+        "NavigationControl.ZoomIn": t("mapa.acercar"),
+        "NavigationControl.ZoomOut": t("mapa.alejar"),
+        "NavigationControl.ResetBearing": t("mapa.norte"),
+        "Map.Title": t("mapa.titulo"),
+        "AttributionControl.ToggleAttribution": t("mapa.alternar_atribucion"),
+        "AttributionControl.MapFeedback": t("mapa.comentarios_mapa"),
+      },
     });
 
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
     const setupLayers = () => {
       setNdsiLayer(map, ndsiTileUrlRef.current, ndsiImageRef.current);
@@ -155,6 +203,7 @@ export default function Map({
       addWebcamLayers(map, webcamsRef.current);
       applySelectedWebcam(map, selectedWebcamRef.current);
       attachWebcamInteractions(map, onWebcamSelectRef);
+      applyTerrain(map, terrainRef.current);
     };
 
     map.on("load", setupLayers);
@@ -167,6 +216,22 @@ export default function Map({
       mapRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || basemapRef.current === basemap) return;
+    basemapRef.current = basemap;
+    // A full style swap: custom sources and layers come back through the style.load handler.
+    map.setStyle(baseStyle(basemap), { diff: false });
+  }, [basemap]);
+
+  useEffect(() => {
+    terrainRef.current = terrain;
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    applyTerrain(map, terrain);
+    map.easeTo({ pitch: terrain ? TERRAIN_PITCH : 0, duration: 600 });
+  }, [terrain]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -211,19 +276,19 @@ export default function Map({
         );
         if (feature) {
           map.fitBounds(bboxOfGeometry(feature.geometry), {
-            padding: 80,
+            padding: fitPadding(insetRef.current, 80),
             duration: 800,
           });
         }
       } else {
         map.fitBounds(SIERRA_NEVADA_BOUNDS, {
-          padding: 60,
+          padding: fitPadding(insetRef.current, 60),
           duration: 600,
         });
       }
     };
 
-    if (map.getLayer("basins-fill-selected")) {
+    if (map.getLayer("basins-halo-selected")) {
       apply();
     } else {
       map.once("idle", apply);
@@ -260,6 +325,10 @@ export default function Map({
   }, [selectedWebcamId, webcams]);
 
   return <div ref={containerRef} className="absolute inset-0" />;
+}
+
+function fitPadding(inset: Props["inset"], margin: number) {
+  return { top: margin, right: margin, bottom: inset.bottom + margin, left: inset.left + margin };
 }
 
 function webcamFeatureCollection(webcams: Webcam[]): GeoJSON.FeatureCollection {
@@ -302,9 +371,14 @@ function addWebcamLayers(map: maplibregl.Map, webcams: Webcam[]) {
       source: "webcams",
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 5, 14, 8],
-        "circle-color": "#0f172a",
-        "circle-stroke-color": ["case", ["get", "offline"], "#64748b", "#67e8f9"],
-        "circle-stroke-width": 2,
+        "circle-color": ["case", ["get", "offline"], token("color-panel"), token("color-ink")],
+        "circle-stroke-color": [
+          "case",
+          ["get", "offline"],
+          token("color-text-muted"),
+          token("color-map-halo"),
+        ],
+        "circle-stroke-width": 1.5,
       },
     });
   }
@@ -316,11 +390,10 @@ function addWebcamLayers(map: maplibregl.Map, webcams: Webcam[]) {
       source: "webcams",
       filter: ["==", ["get", "id"], ""],
       paint: {
-        "circle-radius": 11,
-        "circle-color": "#22d3ee",
-        "circle-stroke-color": "#cffafe",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 8, 14, 11],
+        "circle-color": "transparent",
+        "circle-stroke-color": token("color-accent"),
         "circle-stroke-width": 3,
-        "circle-blur": 0.05,
       },
     });
   }
@@ -477,10 +550,20 @@ function addBasinsLayers(map: maplibregl.Map, fc: FC) {
       id: "basins-fill",
       type: "fill",
       source: "basins",
+      // Invisible: it only gives the basins a click target; the outlines carry the drawing.
       paint: {
-        "fill-color": "#67e8f9",
-        "fill-opacity": 0.18,
+        "fill-color": token("color-ink"),
+        "fill-opacity": 0,
       },
+    });
+  }
+
+  if (!map.getLayer("basins-halo")) {
+    map.addLayer({
+      id: "basins-halo",
+      type: "line",
+      source: "basins",
+      paint: { "line-color": token("color-map-halo"), "line-width": 3.5, "line-opacity": 0.9 },
     });
   }
 
@@ -489,24 +572,17 @@ function addBasinsLayers(map: maplibregl.Map, fc: FC) {
       id: "basins-line",
       type: "line",
       source: "basins",
-      paint: {
-        "line-color": "#67e8f9",
-        "line-width": 2,
-        "line-opacity": 0.85,
-      },
+      paint: { "line-color": token("color-ink"), "line-width": 1.25 },
     });
   }
 
-  if (!map.getLayer("basins-fill-selected")) {
+  if (!map.getLayer("basins-halo-selected")) {
     map.addLayer({
-      id: "basins-fill-selected",
-      type: "fill",
+      id: "basins-halo-selected",
+      type: "line",
       source: "basins",
       filter: ["==", ["get", "cod_uni"], -1],
-      paint: {
-        "fill-color": "#22d3ee",
-        "fill-opacity": 0.35,
-      },
+      paint: { "line-color": token("color-map-halo"), "line-width": 6 },
     });
   }
 
@@ -516,19 +592,15 @@ function addBasinsLayers(map: maplibregl.Map, fc: FC) {
       type: "line",
       source: "basins",
       filter: ["==", ["get", "cod_uni"], -1],
-      paint: {
-        "line-color": "#a5f3fc",
-        "line-width": 3.5,
-        "line-blur": 0.5,
-      },
+      paint: { "line-color": token("color-accent"), "line-width": 3 },
     });
   }
 }
 
 function applySelected(map: maplibregl.Map, selectedId: string | null) {
-  if (!map.getLayer("basins-fill-selected")) return;
+  if (!map.getLayer("basins-halo-selected")) return;
   const codUni = selectedId ? Number(selectedId) : -1;
-  map.setFilter("basins-fill-selected", ["==", ["get", "cod_uni"], codUni]);
+  map.setFilter("basins-halo-selected", ["==", ["get", "cod_uni"], codUni]);
   map.setFilter("basins-line-selected", ["==", ["get", "cod_uni"], codUni]);
 }
 

@@ -1,4 +1,5 @@
 @import "maplibre-gl/dist/maplibre-gl.css";
+@import "./styles/tokens.css";
 
 @tailwind base;
 @tailwind components;
@@ -9,69 +10,133 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  background: #081020;
-  color: #e2e8f0;
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  background: var(--color-panel-soft);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-lh);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* MapLibre overrides for dark theme */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.tnum {
+  font-feature-settings: var(--font-feature-numbers);
+}
+
+/* MapLibre controls restyled to the spec: white, hairline dividers, float shadow, 36 px (44 px on mobile). */
 .maplibregl-ctrl-top-right {
-  top: 88px !important;
+  top: var(--space-2);
+  right: var(--space-2);
 }
 
 .maplibregl-ctrl-group {
-  background: rgba(8, 16, 32, 0.75) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6) !important;
+  background: var(--color-panel);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group:not(:empty) {
+  box-shadow: var(--shadow-float);
 }
 
 .maplibregl-ctrl-group button {
-  background-color: transparent !important;
+  width: var(--layout-map-control);
+  height: var(--layout-map-control);
+  background-color: var(--color-panel);
+  color: var(--color-text);
 }
 
 .maplibregl-ctrl-group button + button {
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-top: 1px solid var(--color-line);
 }
 
-.maplibregl-ctrl-group button span {
-  filter: invert(1) brightness(1.2) hue-rotate(180deg);
+.maplibregl-ctrl-group button:not(:disabled):hover {
+  background-color: var(--color-panel-soft);
 }
 
+.maplibregl-ctrl-attrib.maplibregl-compact,
 .maplibregl-ctrl-attrib {
-  background: rgba(8, 16, 32, 0.65) !important;
-  color: rgba(148, 163, 184, 0.8) !important;
-  backdrop-filter: blur(8px);
-  font-size: 10px !important;
+  background: var(--color-panel);
+  color: var(--color-text-muted);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  border-radius: var(--radius-sm);
+}
+
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl {
+  margin: 0 var(--space-2) var(--space-1) 0;
 }
 
 .maplibregl-ctrl-attrib a {
-  color: rgba(103, 232, 249, 0.8) !important;
+  color: var(--color-text-muted);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@media (max-width: 767px) {
+  .maplibregl-ctrl-group button {
+    width: var(--layout-touch-target);
+    height: var(--layout-touch-target);
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Shell layout. The panel keeps its visibility through the slide-out so it leaves the tab order only once
+   it is off screen. */
+.shell-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--layout-rail-width);
+  width: var(--layout-panel-width);
+  transition:
+    transform var(--motion-duration-panel) var(--motion-easing-standard),
+    visibility 0s linear 0s;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.15);
-  border-radius: 4px;
+.shell-panel.is-collapsed {
+  transform: translateX(calc(-1 * var(--layout-panel-width) - var(--space-4)));
+  visibility: hidden;
+  transition:
+    transform var(--motion-duration-panel) var(--motion-easing-standard),
+    visibility 0s linear var(--motion-duration-panel);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.3);
+.shell-datebar {
+  left: calc(var(--layout-rail-width) + var(--shell-panel-offset, 0px) + var(--space-6));
+  right: calc(var(--space-6) + var(--layout-map-control) + var(--space-2));
+  /* Clears the attribution line under it. */
+  bottom: var(--space-8);
+  transition: left var(--motion-duration-panel) var(--motion-easing-standard);
+}
+
+.shell-legend {
+  left: calc(var(--layout-rail-width) + var(--shell-panel-offset, 0px) + var(--space-4));
+  top: var(--space-4);
+  transition: left var(--motion-duration-panel) var(--motion-easing-standard);
+}
+
+@media (max-width: 767px) {
+  .shell-panel,
+  .shell-panel.is-collapsed {
+    left: 0;
+    right: 0;
+    top: auto;
+    width: auto;
+    bottom: var(--layout-tabbar-height);
+    height: var(--sheet-height, var(--layout-sheet-peek));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: none;
+    visibility: visible;
+    transition: height var(--motion-duration-panel) var(--motion-easing-standard);
+  }
+
+  .shell-datebar {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(var(--layout-tabbar-height) + var(--sheet-height, var(--layout-sheet-peek)) + var(--space-3));
+  }
 }

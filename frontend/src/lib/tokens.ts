@@ -1,0 +1,14 @@
+// MapLibre paint properties and Recharts SVG attributes need resolved colour values, not var(): read them
+// from the CSS variables that src/styles/tokens.css defines on :root.
+export function token(name: string): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
+  if (!value) throw new Error(`Missing design token --${name}`);
+  return value;
+}
+
+/** A px dimension token as a number, e.g. tokenPx("layout-rail-width") === 64. */
+export function tokenPx(name: string): number {
+  const value = token(name);
+  if (!value.endsWith("px")) throw new Error(`Design token --${name} is ${value}, not a px value`);
+  return parseFloat(value);
+}
