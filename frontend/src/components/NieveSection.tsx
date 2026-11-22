@@ -24,7 +24,10 @@ const SNOW_ROWS: Row[] = [
   { copy: "swe", status: "modelado", layer: "swe" },
   { copy: "espesor", status: "modelado", layer: "depth" },
 ];
-const IMAGE_ROWS: Row[] = [{ copy: "color_real", status: "observado", layer: "s2_true_colour", todaySource: "Sentinel-2 L2A" }];
+const IMAGE_ROWS: Row[] = [
+  { copy: "color_real", status: "observado", layer: "s2_true_colour", todaySource: "Sentinel-2 L2A" },
+];
+export const ROWS = [...SNOW_ROWS, ...IMAGE_ROWS];
 
 export default function NieveSection({ manifest, loading, selected, onChange }: Props) {
   if (loading) return <Skeleton label={t("cargando.catalogo")} />;

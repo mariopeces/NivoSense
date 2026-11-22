@@ -46,7 +46,7 @@ const SEGMENT: Record<Status, string> = {
 const LEGEND: Status[] = ["observado", "rellenado", "modelado", "prevision", "pendiente"];
 
 function statusList(statuses: Status[]) {
-  return (statuses.length ? statuses : (["pendiente"] as Status[])).map((s) => t(`estado.${s}`)).join(", ");
+  return (statuses.length ? statuses : (["pendiente"] as Status[])).map((status) => t(`estado.${status}`)).join(", ");
 }
 
 // The map date over the whole history in catalog/index.json: a track with a tick per clear pass, a daily
@@ -373,14 +373,18 @@ function DayCalendar({
   const lastMonth = model.days[model.days.length - 1].date.slice(0, 7);
   const days = calendarDays(visibleMonth);
 
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  // Mount only: a parent re-render while the calendar is open must not pull focus back to the selected day.
   useEffect(() => {
     ref.current?.querySelector<HTMLButtonElement>("[aria-pressed=true]")?.focus();
     const onKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, []);
 
   return (
     <div

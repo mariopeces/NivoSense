@@ -17,6 +17,8 @@ const BADGE: Record<Status, { text: string; border: string; glyph: string }> = {
   pendiente: { text: "text-status-pending", border: "border-dotted", glyph: "border-[1.5px] border-dotted border-current" },
 };
 
+export const STATUSES = Object.keys(BADGE) as Status[];
+
 export function StatusBadge({ status }: { status: Status }) {
   const style = BADGE[status];
   return (

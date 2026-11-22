@@ -2,7 +2,6 @@ export const SNOW_MODEL_SCHEMA_VERSION = 1;
 
 export type SnowLayerId = "s2_true_colour" | "observed_snow_10m" | "swe" | "depth";
 
-
 export type Quantiles = { p10: number; p50: number; p90: number };
 
 export type SnowLayerInfo = {

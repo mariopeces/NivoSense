@@ -5,10 +5,8 @@ import { t } from "../lib/copy";
 import { numero } from "../lib/format";
 import type { Basin } from "../lib/types";
 
-export type BasinRow = Basin;
-
 type Props = {
-  basins: BasinRow[];
+  basins: Basin[];
   loading: boolean;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
