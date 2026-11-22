@@ -76,7 +76,8 @@ def cog_problems(path: Path) -> list[str]:
                 for level in src.overviews(band):
                     src.read(band, out_shape=(max(1, src.height // level), max(1, src.width // level)))
     except RasterioError as error:
-        problems.append(f"unreadable: {error}")
+        # rasterio wraps the GDAL error that says which block failed; report that one.
+        problems.append(f"unreadable: {error.__cause__ or error}")
     return problems
 
 
