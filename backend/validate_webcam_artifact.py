@@ -14,6 +14,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+try:
+    from backend.ingest_webcams import load_area
+except ImportError:  # run as a script, with backend/ on the path
+    from ingest_webcams import load_area  # type: ignore[no-redef]
+
 CONFIG = Path(__file__).with_name("webcam_sources.json")
 CETURSA_CREDIT = "Imagen: Cetursa Sierra Nevada / feratel"
 STILL_PATH = re.compile(
@@ -32,7 +37,7 @@ def validate(dist: Path, config: dict[str, Any]) -> list[str]:
     if not isinstance(cameras, list):
         return [f"{catalog_path} is not a list"]
 
-    west, south, east, north = config["region"]["bbox"]
+    area = load_area(config["region"])
     # Providers whose cams are listed only while they pass the check, with the page
     # their credit must link to.
     live_only = {
@@ -65,8 +70,8 @@ def validate(dist: Path, config: dict[str, Any]) -> list[str]:
         if (latitude is None) != (longitude is None):
             errors.append(f"{cid}: only one of latitude and longitude is set")
         elif latitude is not None:
-            if not (west <= longitude <= east and south <= latitude <= north):
-                errors.append(f"{cid}: position outside region.bbox")
+            if not area.contains(longitude, latitude):
+                errors.append(f"{cid}: position outside the region")
             if urlparse(camera.get("position_source") or "").scheme != "https":
                 errors.append(f"{cid}: position without an https position_source")
 

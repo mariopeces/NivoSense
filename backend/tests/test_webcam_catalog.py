@@ -1,6 +1,7 @@
 import subprocess
 import tempfile
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 
 from backend.ingest_webcams import LocalStillStore, build_catalog, write_catalog
@@ -105,6 +106,7 @@ class ValidateWebcamArtifactTest(unittest.TestCase):
             store,
             lambda url: jpeg(FERATEL_FRAME if url.startswith("https://example.test/") else FERATEL_PLACEHOLDER),
             lambda url: FEED.encode(),
+            now=datetime(2026, 11, 21, 17, 10, tzinfo=UTC),
         )
         write_catalog(cameras, self.dist / "data" / "webcams.json")
         self.assertEqual(validate(self.dist, dgt_config()), [])

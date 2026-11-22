@@ -126,6 +126,21 @@ jobs:
             cp -R snow-artifact frontend/public/data/snow-model
           fi
 
+      # The webcam frame history (per cam, the last frame and when its content was first
+      # captured) lives next to the stills on the published site. Without it capture
+      # times fall back to Last-Modified, which DGT re-stamps on unchanged frames.
+      - name: Restore the webcam frame history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          site=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .html_url)
+          state=frontend/public/data/webcam-stills/state.json
+          mkdir -p "$(dirname "$state")"
+          if ! curl -sfL --max-time 30 "${site%/}/data/webcam-stills/state.json" -o "$state"; then
+            rm -f "$state"
+            echo "::warning::No webcam frame history on $site; capture times start from Last-Modified"
+          fi
+
       # A release with backend/validate_webcam_artifact.py writes data/webcams.json and
       # the checked stills (neither is committed): a provider outage only drops that
       # provider's cameras, and a crash fails the run so the last good deploy stays up.
