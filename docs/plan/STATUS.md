@@ -27,7 +27,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r3 (G-Infra and G-Code running) on 7277965 | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
-| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r4 narrow (G-Infra and G-Code running) on 0bbc81e | #12 | r1, r2 fail; r3: G-Code PASS (3f2086d), G-Infra fail (restore() trusts fork runs; fix f6b1dc6 pushed) |
+| T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r4 narrow (G-Infra and G-Code running) on 0bbc81e | #12 | r1-r3 fail; r4 narrow: G-Infra PASS (0bbc81e), G-Code running |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlet r1 (G-Data running; G-Infra, G-Code queued), stacked on plan/t03-catalog | #20 | |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
@@ -47,7 +47,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | r1 fixes pushed (7fd78a9), G-UI r2 and G-Code r1 queued | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running; G-Code r1 queued) | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
 | T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | building, stacked on plan/t06-ci + plan/t40-design (plan-shell, ctx_9048d1707be4) | | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
@@ -154,3 +154,4 @@ Not available until T5.1.
 - 2026-11-22: T2.1 G-Data r1 PASS (all parts within 0.002% of official polygons by symmetric difference; legal reading holds: PORN ambit 172,238 ha = PN + PNat; byte-identical rebuild; minors: ring orientation vs RFC 7946, sub-hectare fragments, name CC BY 4.0). T0.7 G-Infra r4 (narrow) started.
 - 2026-11-22: T3.3 first pass settled 1 of 12 live feratel views (15111-1, 125.5 deg); placeholder-only and unpositioned cams unsettled. Coordinator asked for a joint per-station fit, feratel pan metadata as priors, clear-frame reruns and named-peak scoring before gauntlets; whatever stays unsettled goes to Mario as a confirmation list with comparison images.
 - 2026-11-22: T2.1 G-Method r1 PASS (domain matches REDIAM Espacio Natural to 60 m2; legal reading confirmed; minors: 5 edge slivers 3,285 m2 in basins 604361/604370, EPSG wording, BOJA pages). T0.7 G-Code r4 (narrow) started.
+- 2026-11-22: T0.7 G-Infra r4 PASS at 0bbc81e (every attack run refused; 30 real schedule runs per producer still accepted; no regression). Minor follow-up: restore() reads one 30-run page per producer, so a flood of fork runs could stall fresh data (query by event instead). T4.0 G-UI r2 started.
