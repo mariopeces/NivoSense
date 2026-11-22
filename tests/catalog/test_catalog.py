@@ -416,6 +416,20 @@ class StrictJsonTests(CatalogTestCase):
                 publish("swe", "2026-11-20", self.swe_files(swe, nodata), self.swe_meta(), self.storage)
         self.assertEqual(self.storage.list(""), [])
 
+    def test_nan_pixels_hidden_by_a_mask_band_are_refused(self) -> None:
+        swe = np.full((32, 32), 120.0, np.float32)
+        swe[0, :10] = np.nan
+        files = self.swe_files(swe, -9999.0)
+        with rasterio.open(files["data"], "r+") as dst:
+            mask = np.full((32, 32), 255, np.uint8)
+            mask[0, :10] = 0
+            dst.write_mask(mask)
+        with rasterio.open(files["data"]) as src:
+            self.assertTrue(src.read(1, masked=True).mask[0, :10].all(), "the NaN pixels are masked")
+        with self.assertRaisesRegex(ValueError, "NaN or infinite pixels"):
+            publish("swe", "2026-11-20", files, self.swe_meta(), self.storage)
+        self.assertEqual(self.storage.list(""), [])
+
     def test_nan_pixels_with_a_numeric_nodata_are_refused(self) -> None:
         swe = np.full((32, 32), 120.0, np.float32)
         swe[0, :10] = np.nan
@@ -522,6 +536,8 @@ class TileFormatTests(CatalogTestCase):
         for label, spec in {
             "png": base,
             "png again": base,
+            # Only the format changes here: both use the encoder default quality.
+            "webp": dataclasses.replace(base, tile_format="WEBP"),
             "webp 85": dataclasses.replace(base, tile_format="WEBP", tile_quality=85),
             "webp 90": dataclasses.replace(base, tile_format="WEBP", tile_quality=90),
         }.items():
@@ -530,7 +546,7 @@ class TileFormatTests(CatalogTestCase):
                 entry = publish("snow_obs", "2026-11-20", product(self.inputs, "a"), meta(), storage)
             names[label] = (entry["cog"], entry["pmtiles"], entry["pixel_hash"])
         self.assertEqual(names["png"], names["png again"])
-        self.assertEqual(len({names[label][1] for label in ("png", "webp 85", "webp 90")}), 3)
+        self.assertEqual(len({names[label][1] for label in ("png", "webp", "webp 85", "webp 90")}), 4)
         self.assertEqual(len({names[label][2] for label in names}), 1, "the data pixels do not change")
 
     def test_rgb_tiles_are_webp(self) -> None:
@@ -549,19 +565,36 @@ class TileFormatTests(CatalogTestCase):
 
 
 class LocalLockTests(CatalogTestCase):
-    def test_a_lock_left_by_a_killed_process_is_recovered(self) -> None:
-        lock = self.storage.root / ".lock"
-        lock.write_text("12345")
-        old = lock.stat().st_mtime - 3600
-        os.utime(lock, (old, old))
-        self.storage.write("catalog/x.json", b"{}", "application/json", NO_CACHE)
-        self.assertFalse(lock.exists())
+    def test_a_process_killed_while_holding_the_lock_does_not_block_others(self) -> None:
+        import subprocess
+        import sys
 
-    def test_a_fresh_lock_held_too_long_names_the_file(self) -> None:
-        (self.storage.root / ".lock").write_text("12345")
-        with mock.patch("pipelines.catalog.storage.LOCK_TIMEOUT_S", 0.05):
-            with self.assertRaisesRegex(TimeoutError, r"\.lock"):
-                self.storage.write("catalog/x.json", b"{}", "application/json", NO_CACHE)
+        holder = (
+            "import os, sys\n"
+            "from pipelines.catalog.storage import _try_lock\n"
+            "fd = os.open(sys.argv[1], os.O_CREAT | os.O_RDWR)\n"
+            "assert _try_lock(fd)\n"
+            "os._exit(0)\n"
+        )
+        lock = self.storage.root / ".lock"
+        subprocess.run([sys.executable, "-c", holder, str(lock)], check=True, cwd=Path(__file__).parents[2])
+        self.assertTrue(lock.exists(), "the killed holder left its lock file")
+        with mock.patch("pipelines.catalog.storage.LOCK_TIMEOUT_S", 1.0):
+            self.storage.write("catalog/x.json", b"{}", "application/json", NO_CACHE)
+
+    def test_a_lock_held_too_long_names_the_file(self) -> None:
+        from pipelines.catalog.storage import _try_lock, _unlock
+
+        fd = os.open(self.storage.root / ".lock", os.O_CREAT | os.O_RDWR)
+        try:
+            self.assertTrue(_try_lock(fd))
+            with mock.patch("pipelines.catalog.storage.LOCK_TIMEOUT_S", 0.05):
+                with self.assertRaisesRegex(TimeoutError, r"\.lock"):
+                    self.storage.write("catalog/x.json", b"{}", "application/json", NO_CACHE)
+            _unlock(fd)
+        finally:
+            os.close(fd)
+        self.storage.write("catalog/x.json", b"{}", "application/json", NO_CACHE)
 
 
 class GridAndConfigTests(unittest.TestCase):
