@@ -108,7 +108,7 @@ jobs:
     needs: plan
     runs-on: ubuntu-24.04
     # The card's budget: the harness finishes in under 10 minutes on a month of data.
-    timeout-minutes: 2
+    timeout-minutes: 10
     permissions:
       contents: read
       id-token: write
@@ -159,7 +159,6 @@ jobs:
           [ -n "$END" ] && args+=(--end "$END")
           [ "$FRESHNESS" = true ] || args+=(--no-freshness)
           [ "$ALLOW_ABSENT" = true ] && args+=(--allow-absent)
-          sleep 600
           python -m qa "${args[@]}"
 
       - name: Keep the report and thumbnails
