@@ -1,4 +1,6 @@
+import inspect
 import json
+import logging
 from datetime import date
 from pathlib import Path
 
@@ -17,6 +19,8 @@ from pipelines.s2.stac import Acquisition, group_acquisitions
 FIXTURE = Path(__file__).parent / "fixtures" / "earth_search_l1c_2026-11-10.json"
 # A 20 m grid inside tile 30SVF (tile corner 399960, 4100040), 8 x 6 pixels.
 GRID_20 = Grid("EPSG:32630", 450000.0, 4100000.0, 20.0, 8, 6)
+# s2:datatake_id of the fixture granules without the baseline suffix, as pipelines.s2 records it.
+DATATAKE = "GS2A_20261110T110211_059465"
 
 
 def fixture_items() -> list[dict]:
@@ -36,25 +40,28 @@ class PagedFetch:
 # --- source ---------------------------------------------------------------------------------
 
 
-def test_finds_the_l1c_acquisition_of_the_date_and_orbit():
+def test_finds_the_l1c_acquisition_of_the_record_datatake():
     fetch = PagedFetch(json.loads(FIXTURE.read_text(encoding="utf-8"))["pages"])
     hull = {"type": "Polygon", "coordinates": [[[-3.5, 37.0], [-3.0, 37.0], [-3.0, 37.2], [-3.5, 37.0]]]}
 
-    acquisition = source.find_acquisition(hull, date(2026, 11, 10), "R094", lambda geometry: True, fetch)
+    acquisition = source.find_acquisition(hull, date(2026, 11, 10), DATATAKE, lambda geometry: True, fetch)
 
     assert fetch.bodies[0]["collections"] == ["sentinel-2-l1c"]
     assert fetch.bodies[0]["datetime"] == "2026-11-10T00:00:00Z/2026-11-10T23:59:59Z"
     assert acquisition is not None
     assert acquisition.tiles == ("30SVF", "30SVG", "30SWF", "30SWG")
     assert acquisition.scene_ids[0] == "S2A_30SVF_20261110_1_L1C"
+    assert (acquisition.orbit, acquisition.datatake) == ("R094", DATATAKE)
 
 
-def test_no_acquisition_for_another_orbit_or_untouched_granules():
+def test_no_acquisition_for_another_datatake_or_untouched_granules():
     pages = json.loads(FIXTURE.read_text(encoding="utf-8"))["pages"]
     hull = {"type": "Point", "coordinates": [-3.3, 37.1]}
+    # Same day and orbit, the other satellite: must not be taken for the record's pass.
+    other = "GS2B_20261110T105619_049999"
 
-    assert source.find_acquisition(hull, date(2026, 11, 10), "R051", lambda g: True, PagedFetch(pages)) is None
-    assert source.find_acquisition(hull, date(2026, 11, 10), "R094", lambda g: False, PagedFetch(pages)) is None
+    assert source.find_acquisition(hull, date(2026, 11, 10), other, lambda g: True, PagedFetch(pages)) is None
+    assert source.find_acquisition(hull, date(2026, 11, 10), DATATAKE, lambda g: False, PagedFetch(pages)) is None
 
 
 def test_aws_reads_unsigned_and_allows_jp2():
@@ -159,7 +166,9 @@ def test_reads_and_mosaics_tiles_first_with_data(tmp_path, monkeypatch):
             path = tmp_path / f"{name}_{asset}.tif"
             write_tile(path, grid.left, grid.top, data)
             hrefs[name][asset] = str(path)
-    acquisition = Acquisition(date(2026, 11, 10), "R094", (fake_item("A", hrefs["A"]), fake_item("B", hrefs["B"])))
+    acquisition = Acquisition(
+        date(2026, 11, 10), "R094", DATATAKE, (fake_item("A", hrefs["A"]), fake_item("B", hrefs["B"]))
+    )
     monkeypatch.setattr(render, "asset_href", lambda item, asset, src: item["assets"][asset]["href"])
 
     reflectance = render.read_reflectance(acquisition, grid, "aws")
@@ -176,11 +185,59 @@ def test_misaligned_tile_is_rejected(tmp_path, monkeypatch):
         path = tmp_path / f"{asset}.tif"
         write_tile(path, grid.left + 5, grid.top, np.ones((grid.height, grid.width), dtype="uint16"))
         hrefs[asset] = str(path)
-    acquisition = Acquisition(date(2026, 11, 10), "R094", (fake_item("A", hrefs),))
+    acquisition = Acquisition(date(2026, 11, 10), "R094", DATATAKE, (fake_item("A", hrefs),))
     monkeypatch.setattr(render, "asset_href", lambda item, asset, src: item["assets"][asset]["href"])
 
     with pytest.raises(ValueError, match="not aligned"):
         render.read_reflectance(acquisition, grid, "aws")
+
+
+def test_render_applies_the_shipped_stretch_per_band():
+    # The calibrated constants (render.py) pinned by value: changing them changes every RGB.
+    black = {"red": 0.023, "green": 0.040, "blue": 0.065}
+    white = {"red": 1.61, "green": 1.43, "blue": 1.45}
+    assert (render.BLACK, render.WHITE, render.GAMMA) == (
+        tuple(black.values()),
+        tuple(white.values()),
+        2.2,
+    )
+    mid = 0.5
+    # Per band: its own black, its own white, and a mid value that differs per band if any
+    # constant is applied to the wrong band or gamma changes.
+    reflectance = {
+        band: np.array([[black[band], white[band], mid]], dtype="float32") for band in ("red", "green", "blue")
+    }
+
+    rgb = render.render(reflectance, np.ones((1, 3), dtype=bool))
+
+    for index, band in enumerate(("red", "green", "blue")):
+        expected_mid = 1 + round(254 * ((mid - black[band]) / (white[band] - black[band])) ** (1 / 2.2))
+        assert rgb[index, 0].tolist() == [1, 255, expected_mid], band
+    assert len({int(v) for v in rgb[:, 0, 2]}) == 3
+
+
+def test_mosaic_takes_a_tile_only_where_all_three_bands_have_data(tmp_path, monkeypatch):
+    grid = render.grid_10m(GRID_20)
+    hrefs: dict[str, dict[str, str]] = {"A": {}, "B": {}}
+    for asset in ("red", "green", "blue"):
+        a = np.full((grid.height, grid.width), 3000, dtype="uint16")
+        if asset == "blue":
+            a[:, :4] = 0  # tile A has red and green but no blue in the first 4 columns
+        b = np.full((grid.height, grid.width), 2000, dtype="uint16")
+        for name, data in (("A", a), ("B", b)):
+            path = tmp_path / f"{name}_{asset}.tif"
+            write_tile(path, grid.left, grid.top, data)
+            hrefs[name][asset] = str(path)
+    acquisition = Acquisition(
+        date(2026, 11, 10), "R094", DATATAKE, (fake_item("A", hrefs["A"]), fake_item("B", hrefs["B"]))
+    )
+    monkeypatch.setattr(render, "asset_href", lambda item, asset, src: item["assets"][asset]["href"])
+
+    reflectance = render.read_reflectance(acquisition, grid, "aws")
+
+    for band in ("red", "green", "blue"):
+        np.testing.assert_allclose(reflectance[band][:, :4], 0.1, atol=1e-6)
+        np.testing.assert_allclose(reflectance[band][:, 4:], 0.2, atol=1e-6)
 
 
 def test_render_crops_to_the_domain_and_marks_missing_bands():
@@ -310,7 +367,7 @@ def write_l2a(folder: Path, grid: Grid, green: np.ndarray, snow: np.ndarray) -> 
         target.write(np.zeros(green.shape, dtype="uint8"), 2)
 
 
-def test_process_publishes_through_the_catalogue_and_logs_missing_l1c(tmp_path, monkeypatch):
+def test_process_publishes_through_the_catalogue_and_logs_missing_l1c(tmp_path, monkeypatch, caplog):
     grid20 = Grid("EPSG:32630", 450000.0, 4100000.0, 20.0, 64, 48)
     domain = Domain((), grid20, np.ones((48, 64), dtype=bool))
     grid10 = render.grid_10m(grid20)
@@ -321,21 +378,31 @@ def test_process_publishes_through_the_catalogue_and_logs_missing_l1c(tmp_path, 
     record = {
         "date": "2026-11-10",
         "orbit": "R094",
+        "datatake": DATATAKE,
         "tiles": ["30SVF", "30SVG"],
         "listed": True,
         "domain_valid_fraction": 0.8,
     }
     write_l2a(write_record(s2_out, "2026-11-10", "R094", True, 0.8, record["tiles"]), grid20, green20, snow)
     l1c = [i for i in group_acquisitions(fixture_items()) if i.orbit == "R094"][0]
-    acquisition = Acquisition(l1c.day, l1c.orbit, tuple(i for i in l1c.items if "30SVF" in i["id"]))
+    acquisition = Acquisition(l1c.day, l1c.orbit, l1c.datatake, tuple(i for i in l1c.items if "30SVF" in i["id"]))
     up = np.repeat(np.repeat(green20, 2, axis=0), 2, axis=1).astype("float32")
-    monkeypatch.setattr(run, "find_acquisition", lambda *args: acquisition)
+    searched = []
+    monkeypatch.setattr(
+        run, "find_acquisition", lambda hull, day, datatake, touches: searched.append(datatake) or acquisition
+    )
     monkeypatch.setattr(run, "read_reflectance", lambda *args: {"red": up, "green": up, "blue": up})
     monkeypatch.setattr(run, "code_version", lambda: "test")
     storage = LocalStorage(tmp_path / "catalog")
 
-    result = run.process(record, domain, {}, inside, s2_out, storage, "aws")
+    with caplog.at_level(logging.WARNING, logger="rgb_l1c"):
+        result = run.process(record, domain, {}, inside, s2_out, storage, "aws")
 
+    assert searched == [DATATAKE]
+    assert any(
+        r.levelno == logging.WARNING and "2026-11-10 R094" in r.getMessage() and "30SVG" in r.getMessage()
+        for r in caplog.records
+    )
     assert result["status"] == "published"
     assert result["l1c_missing_tiles"] == ["30SVG"]
     assert "l1c_tiles_missing" in result["qa"]["flags"]
@@ -349,12 +416,31 @@ def test_process_publishes_through_the_catalogue_and_logs_missing_l1c(tmp_path, 
         assert Reader(MmapSource(tiles)).header()["tile_type"] == TileType.WEBP
 
     monkeypatch.setattr(run, "find_acquisition", lambda *args: None)
-    assert run.process(record, domain, {}, inside, s2_out, storage, "aws")["status"] == "l1c_missing"
+    caplog.clear()
+    with caplog.at_level(logging.WARNING, logger="rgb_l1c"):
+        assert run.process(record, domain, {}, inside, s2_out, storage, "aws")["status"] == "l1c_missing"
+    assert [r.levelno for r in caplog.records] == [logging.WARNING]
+    message = caplog.records[0].getMessage()
+    assert "2026-11-10 R094" in message and DATATAKE in message and "no L1C" in message
 
 
 def test_qa_flags():
-    clean = {"snow_saturated_red": 0.002, "shift_l2a_green_median_m": 0.1}
+    clean = {"snow_saturated_red": 0.002, "shift_l2a_green_chips": 45.0, "shift_l2a_green_median_m": 0.1}
 
     assert run.qa_flags(clean, []) == []
     assert run.qa_flags({**clean, "snow_saturated_blue": 0.01}, []) == ["snow_saturated"]
     assert run.qa_flags({**clean, "shift_l2a_green_median_m": 20.0}, ["30SVG"]) == ["l1c_tiles_missing", "misaligned"]
+    assert run.qa_flags({"snow_saturated_red": 0.0, "shift_l2a_green_chips": 0.0}, []) == ["alignment_unchecked"]
+
+
+def test_source_defaults_to_unsigned_aws(tmp_path, monkeypatch):
+    assert inspect.signature(run.run).parameters["source"].default == "aws"
+    calls = []
+    monkeypatch.setattr(run, "run", lambda *args: calls.append(args) or [])
+    monkeypatch.setattr(run, "storage_from_env", lambda target: target)
+    monkeypatch.setattr(logging, "basicConfig", lambda **kwargs: None)
+
+    run.main(["--s2", str(tmp_path), "--domain", "d.geojson", "--start", "2026-11-01", "--end", "2026-11-21"])
+
+    assert calls[0][-1] == "aws"
+    assert source.AWS == "aws" and source.gdal_options(source.AWS, environ={})["AWS_NO_SIGN_REQUEST"] == "YES"

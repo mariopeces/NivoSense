@@ -39,14 +39,17 @@ class MissingCredentials(RuntimeError):
 def find_acquisition(
     hull: dict,
     day: date,
-    orbit: str,
+    datatake: str,
     touches: Callable[[dict], bool],
     fetch: Fetch = fetch_json,
 ) -> Acquisition | None:
-    """The L1C acquisition of one UTC date and relative orbit, from the granules that touch the
-    domain, newest processing baseline per tile; None when Earth Search lists none."""
+    """The L1C acquisition of the same datatake as the L2A record (s2:datatake_id without its
+    baseline suffix, shared by L1C and L2A of one overpass), from the granules that touch the
+    domain, newest processing baseline per tile; None when Earth Search lists none. Matching
+    the datatake, not only the orbit, keeps the RGB on the pass the snow mask was made from
+    when two satellites cross the same orbit that day."""
     items = [item for item in search_items(hull, day, day, fetch, COLLECTION) if touches(item["geometry"])]
-    return next((a for a in group_acquisitions(items) if a.day == day and a.orbit == orbit), None)
+    return next((a for a in group_acquisitions(items) if a.day == day and a.datatake == datatake), None)
 
 
 def gdal_options(source: str, environ: os._Environ[str] | dict[str, str] = os.environ) -> dict[str, str]:

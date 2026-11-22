@@ -30,13 +30,15 @@ def measure(s2_out: Path, domain_path: Path, day: date) -> dict:
     domain = load_domain(domain_path)
     grid = grid_10m(domain.grid)
     record = observation_dates(s2_out, day, day)[0]
-    acquisition = find_acquisition(convex_hull(domain.geometries), day, record["orbit"], domain.touches)
+    acquisition = find_acquisition(convex_hull(domain.geometries), day, record["datatake"], domain.touches)
     if acquisition is None:
         raise RuntimeError(f"No L1C for {day}")
     reflectance = read_reflectance(acquisition, grid, AWS)
     inside = domain_mask(domain.geometries, grid)
     l2a, scl = qa.read_l2a(s2_out / record["date"] / record["orbit"])
-    snow = np.repeat(np.repeat(qa.snow_mask(l2a, scl) & domain.mask, 2, axis=0), 2, axis=1) & inside
+    factor = grid.width // domain.grid.width
+    snow20 = qa.snow_mask(l2a, scl) & domain.mask
+    snow = np.repeat(np.repeat(snow20, factor, axis=0), factor, axis=1) & inside
     result: dict = {"date": record["date"], "orbit": record["orbit"], "snow_pixels_10m": int(snow.sum())}
     for asset in RGB_ASSETS:
         band = reflectance[asset]

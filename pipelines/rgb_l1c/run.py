@@ -4,12 +4,13 @@ catalogue as layer `rgb`.
     python -m pipelines.rgb_l1c.run --s2 work/s2 --domain data/domain.geojson \\
         --start 2026-10-01 --end 2026-11-21 --target staging [--source aws]
 
-The observation dates and orbits come from the records of pipelines.s2 in --s2 (records with
-`listed` true; when two orbits of one date are listed, the one with the larger valid fraction).
-For each, the L1C granules of the same date and orbit are read, mosaicked, cropped to the domain,
-stretched and published. A date without L1C on Earth Search is logged and skipped.
+The observation dates come from the records of pipelines.s2 in --s2 (records with `listed`
+true; when two orbits of one date are listed, the one with the larger valid fraction). For each,
+the L1C granules of the record's datatake are read, mosaicked, cropped to the domain, stretched
+and published. A date without L1C on Earth Search is logged and skipped.
 --source picks how the JP2 files are reached: `aws` (default, unsigned), or the fallbacks
-`aws-requester-pays` and `cdse`, which need credentials in the environment.
+`aws-requester-pays` and `cdse`, which need credentials in the environment and have not been
+run against those services yet.
 """
 
 import argparse
@@ -26,8 +27,6 @@ import numpy as np
 from pipelines.catalog import code_version, publish, storage_from_env
 from pipelines.catalog.storage import Storage
 from pipelines.s2.domain import Domain, Grid, convex_hull, load_domain
-from pipelines.s2.ingest import read_records
-from pipelines.s2.stac import Fetch, fetch_json
 
 from . import qa
 from .render import NODATA, domain_mask, grid_10m, read_reflectance, render
@@ -43,7 +42,8 @@ log = logging.getLogger("rgb_l1c")
 def observation_dates(s2_out: Path, start: date, end: date) -> list[dict]:
     """One record per listed date in [start, end]: the orbit with the largest valid fraction."""
     best: dict[str, dict] = {}
-    for record in read_records(s2_out):
+    for path in sorted(s2_out.glob("*/*/record.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
         if not record["listed"] or not start <= date.fromisoformat(record["date"]) <= end:
             continue
         current = best.get(record["date"])
@@ -86,7 +86,11 @@ def qa_flags(scores: dict[str, float], missing_tiles: list[str]) -> list[str]:
         flags.append("l1c_tiles_missing")
     if max(scores.get(f"snow_saturated_{band}", 0.0) for band in ("red", "green", "blue")) >= MAX_SNOW_SATURATED:
         flags.append("snow_saturated")
-    if scores.get("shift_l2a_green_median_m", 0.0) >= qa.ALIGNED_M:
+    if not scores.get("shift_l2a_green_chips"):
+        # No chip was clear and textured enough to correlate (a cloudy date): not checked,
+        # which must not read as aligned.
+        flags.append("alignment_unchecked")
+    elif scores["shift_l2a_green_median_m"] >= qa.ALIGNED_M:
         flags.append("misaligned")
     return flags
 
@@ -99,16 +103,20 @@ def process(
     s2_out: Path,
     storage: Storage,
     source: str,
-    fetch: Fetch = fetch_json,
 ) -> dict:
     """Build and publish the RGB of one observation record; returns a summary line."""
     day, orbit = date.fromisoformat(record["date"]), record["orbit"]
     summary: dict = {"date": record["date"], "orbit": orbit}
     started = time.monotonic()
-    acquisition = find_acquisition(hull, day, orbit, domain.touches, fetch)
+    acquisition = find_acquisition(hull, day, record["datatake"], domain.touches)
     summary["search_s"] = round(time.monotonic() - started, 1)
     if acquisition is None:
-        log.warning("%s %s: no L1C granule on Earth Search; no RGB for this date", record["date"], orbit)
+        log.warning(
+            "%s %s: no L1C granule of datatake %s on Earth Search; no RGB for this date",
+            record["date"],
+            orbit,
+            record["datatake"],
+        )
         return {**summary, "status": "l1c_missing"}
     missing = sorted(set(record["tiles"]) - set(acquisition.tiles))
     if missing:
@@ -180,7 +188,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--start", type=date.fromisoformat, required=True)
     parser.add_argument("--end", type=date.fromisoformat, required=True)
     parser.add_argument("--target", choices=["staging", "prod"], default="staging")
-    parser.add_argument("--source", choices=SOURCES, default=AWS, help="where the L1C JP2 files are read from")
+    parser.add_argument(
+        "--source",
+        choices=SOURCES,
+        default=AWS,
+        help="where the L1C JP2 files are read from; the two fallbacks are untested until their credentials exist",
+    )
     args = parser.parse_args(argv)
     if args.end < args.start:
         parser.error("--end is before --start")
