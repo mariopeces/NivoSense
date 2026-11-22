@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .domain import Grid
-from .stac import Acquisition
+from .stac import LEGACY_COLLECTION, Acquisition
 
 REFLECTANCE_ASSETS = ("green", "red", "swir16")
 CLASS_ASSETS = ("scl", "cloud")
@@ -39,6 +39,15 @@ class Mosaic:
 
 
 def scale_offset(item: dict, asset: str) -> tuple[float, float]:
+    """Scale and offset of the digital numbers of one asset, from its raster:bands.
+
+    Exception: the legacy collection declares offset -0.1 for baseline 04.00 and later (including the 05.xx
+    reprocessing of older dates) but stores digital numbers with the +1000 already removed and clipped at 1
+    (green over 30SVG, 2024-03-13, baseline 05.10: legacy p1/p50/p99 500/1218/2574, c1 1500/2218/3574, the
+    same pixels one thousand apart; legacy 02.11 and 05.00 of 2019-04-29 agree within a few percent). Applying
+    the declared offset there makes reflectance 0.1 too low, so its offset is 0."""
+    if item.get("collection") == LEGACY_COLLECTION:
+        return 0.0001, 0.0
     bands = item["assets"][asset].get("raster:bands")
     if not bands or "scale" not in bands[0] or "offset" not in bands[0]:
         raise ValueError(f"{item['id']} asset {asset} has no raster:bands scale and offset")

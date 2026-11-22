@@ -290,6 +290,17 @@ def test_each_granule_uses_its_own_raster_bands_offset(tmp_path):
     assert np.allclose(mosaic.reflectance["swir16"][:, :50], 1100 * 0.0001)
 
 
+def test_the_legacy_collection_ignores_the_declared_offset():
+    """Measured on green of 30SVG 2024-03-13 (baseline 05.10): the legacy digital numbers are the c1 ones minus 1000."""
+    declared = {"assets": {"green": {"raster:bands": [{"scale": 0.0001, "offset": -0.1}]}}}
+    legacy = {**declared, "collection": "sentinel-2-l2a"}
+    c1 = {**declared, "collection": "sentinel-2-c1-l2a"}
+    assert scale_offset(c1, "green") == (0.0001, -0.1)
+    assert scale_offset(legacy, "green") == (0.0001, 0.0)
+    c1_dn, legacy_dn = 2218, 1218
+    assert c1_dn * 0.0001 - 0.1 == pytest.approx(legacy_dn * 0.0001)
+
+
 def test_a_legacy_cloud_asset_that_is_not_a_cog_is_left_unread(tmp_path):
     """Legacy collection items point `cloud` at a JP2 in a requester-pays bucket that cannot be opened here."""
     item = next(i for i in fixture_items() if i["id"] == "S2A_T30SVF_20261110T110234_L2A")
