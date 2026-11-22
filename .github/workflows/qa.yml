@@ -121,7 +121,7 @@ jobs:
       cancel-in-progress: false
     env:
       TARGET: ${{ inputs.target || 'staging' }}
-      ROOT: ${{ inputs.root }}
+      ROOT: ${{ inputs.root || '_scratch/t04-evidence-98f90df/staging' }}
       START: ${{ matrix.range.start }}
       END: ${{ matrix.range.end }}
       FRESHNESS: ${{ matrix.range.freshness }}
