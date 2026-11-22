@@ -34,8 +34,11 @@ def publish_observation(storage: LocalStorage, folder: Path, day: str, classes: 
                  "uint8", 255)
     display = write(folder / f"{day}-rgba.tif", np.full((4, ROWS, COLS), 255), "uint8", None)
     meta = {
-        "source_ids": [f"scene-{day}"], "bands": ["class", "confidence", "flags"], "units": ["class", "class", "bitmask"],
-        "value_range": [[0, 3], [0, 2], [0, 15]], "code_version": "test",
+        "source_ids": [f"scene-{day}"],
+        "bands": ["class", "confidence", "flags"],
+        "units": ["class", "class", "bitmask"],
+        "value_range": [[0, 3], [0, 2], [0, 15]],
+        "code_version": "test",
     }
     publish("snow_obs", day, {"data": data, "display": display}, meta, storage)
 
