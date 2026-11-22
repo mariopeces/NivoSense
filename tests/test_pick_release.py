@@ -64,12 +64,13 @@ def test_no_release_fails(repo):
         pick_release("main")
 
 
-def test_pushed_tag_must_be_the_newest_release(repo):
+def test_tag_on_a_tree_is_skipped_not_fatal(repo):
     run("tag", "v0.1.0")
-    commit("second")
-    run("tag", "v0.2.0")
-    assert pick_release("main", pushed_tag="v0.2.0") == "v0.2.0"
-    with pytest.raises(ReleaseError, match="not the newest"):
-        pick_release("main", pushed_tag="v0.1.0")
-    with pytest.raises(ReleaseError, match="not the newest"):
-        pick_release("main", pushed_tag="vtest")
+    run("tag", "v6.0.0", "HEAD^{tree}")
+    assert pick_release("main") == "v0.1.0"
+
+
+def test_missing_main_ref_fails(repo):
+    run("tag", "v0.1.0")
+    with pytest.raises(ReleaseError, match="not a commit"):
+        pick_release("refs/remotes/origin/main")

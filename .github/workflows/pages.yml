@@ -2,11 +2,11 @@ name: Publish site
 
 # The live site's code comes only from a release: a tag vMAJOR.MINOR.PATCH on a
 # main commit (scripts/pick_release.py). Every run deploys the newest release with
-# fresh data; a pushed tag that is not that release fails. Pages serves one
-# artifact, so a data refresh is a redeploy of the same tagged code.
+# fresh data. Pages serves one artifact, so a data refresh is a redeploy of the same
+# tagged code. There is deliberately no tag trigger: a tag-push run would execute
+# the workflow file of the tagged commit, which may be unmerged code. Only runs on
+# main (also enforced by the github-pages environment) can deploy.
 on:
-  push:
-    tags: ["v*"]
   workflow_run:
     workflows: ["Update snow observation", "Weather forecasts", "Snow model"]
     types: [completed]
@@ -35,6 +35,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Only main deploys the live site
+        run: test "$GITHUB_REF" = refs/heads/main
       # Full history and tags, so the picker can check that a release tag is on main.
       - uses: actions/checkout@v4
         with:
@@ -42,9 +44,7 @@ jobs:
       - name: Pick the release
         id: release
         run: |
-          pushed=()
-          if [ "$GITHUB_REF_TYPE" = tag ]; then pushed=(--pushed-tag "$GITHUB_REF_NAME"); fi
-          tag=$(python3 scripts/pick_release.py --main-ref refs/remotes/origin/main "${pushed[@]}")
+          tag=$(python3 scripts/pick_release.py --main-ref refs/remotes/origin/main)
           echo "Deploying release $tag ($(git rev-parse "refs/tags/$tag^{commit}"))"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Check out the release

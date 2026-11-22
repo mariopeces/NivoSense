@@ -1,8 +1,9 @@
 """Pick the release tag the live site deploys.
 
 A release is a tag named vMAJOR.MINOR.PATCH whose commit is on main. Any other
-tag (vtest, v1.0.0-rc1, a tag on an unmerged branch) is ignored, so a stray tag
-can never reach the live site.
+tag (vtest, v1.0.0-rc1, a tag on an unmerged branch, a tag on a tree or blob) is
+ignored, so a stray tag can never reach the live site and cannot stop the
+hourly data refresh either.
 """
 
 from __future__ import annotations
@@ -24,13 +25,19 @@ def git(*args: str) -> subprocess.CompletedProcess[str]:
 
 
 def is_on_main(tag: str, main_ref: str) -> bool:
-    result = git("merge-base", "--is-ancestor", f"refs/tags/{tag}^{{commit}}", main_ref)
+    commit = git("rev-parse", "--verify", "--quiet", f"refs/tags/{tag}^{{commit}}")
+    if commit.returncode != 0:
+        print(f"::warning::tag {tag} does not point to a commit; ignored", file=sys.stderr)
+        return False
+    result = git("merge-base", "--is-ancestor", commit.stdout.strip(), main_ref)
     if result.returncode not in (0, 1):
         raise ReleaseError(f"git merge-base failed for {tag}: {result.stderr.strip()}")
     return result.returncode == 0
 
 
-def newest_release(main_ref: str) -> str:
+def pick_release(main_ref: str) -> str:
+    if git("rev-parse", "--verify", "--quiet", f"{main_ref}^{{commit}}").returncode != 0:
+        raise ReleaseError(f"{main_ref} is not a commit; fetch main with full history first")
     listed = git("tag", "--list", "v*")
     if listed.returncode != 0:
         raise ReleaseError(f"git tag failed: {listed.stderr.strip()}")
@@ -44,22 +51,12 @@ def newest_release(main_ref: str) -> str:
     return max(versions)[1]
 
 
-def pick_release(main_ref: str, pushed_tag: str | None = None) -> str:
-    newest = newest_release(main_ref)
-    if pushed_tag is not None and pushed_tag != newest:
-        raise ReleaseError(
-            f"pushed tag {pushed_tag} is not the newest release on {main_ref} ({newest}); not deploying it"
-        )
-    return newest
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--main-ref", default="refs/remotes/origin/main")
-    parser.add_argument("--pushed-tag", help="tag that triggered the run; it must be the newest release")
     args = parser.parse_args()
     try:
-        print(pick_release(args.main_ref, args.pushed_tag))
+        print(pick_release(args.main_ref))
     except ReleaseError as error:
         print(f"::error::{error}", file=sys.stderr)
         return 1

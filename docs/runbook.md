@@ -270,27 +270,26 @@ Previews are kept under `site/pr-<n>/` by the workflow, not by IAM: the staging 
 
 ### 2.2 Releases
 
-A release is a tag `vMAJOR.MINOR.PATCH` (no suffix) on a commit of `main`. `pages.yml` deploys only the newest release (`scripts/pick_release.py`): the hourly and post-pipeline runs rebuild it with fresh data, and a tag push that is not the newest release fails the run. Any other tag (`vtest`, `v1.0.0-rc1`, a tag on a branch) is ignored. Only the coordinator pushes release tags, on a merged `main` commit (AGENTS.md rule 7).
+A release is a tag `vMAJOR.MINOR.PATCH` (no suffix) on a commit of `main`. `pages.yml` runs only on `refs/heads/main` (hourly, after the three data pipelines, or on demand) and deploys the newest release (`scripts/pick_release.py`) with fresh data. Any other tag (`vtest`, `v1.0.0-rc1`, a tag on a branch commit, a tag on a tree) is ignored. Pushing a tag deploys nothing by itself: the next main run picks it up, or a dispatch on `main` deploys it at once. There is no tag trigger on purpose, because a tag-push run would execute the workflow file of the tagged commit, which may be unmerged code. Only the coordinator pushes release tags, on a merged `main` commit (AGENTS.md rule 7).
 
 ```sh
-git fetch origin main
+git fetch origin main --tags
 git tag -a v0.2.0 -m "<what changed>" origin/main
+python scripts/pick_release.py                                   # dry run: must print v0.2.0
 git push origin v0.2.0
-gh run list -R mariopeces/NivoSense --workflow pages.yml -L 3   # the tag run logs "Deploying release v0.2.0 (<sha>)"
-python scripts/pick_release.py                                   # dry run locally after git fetch --tags
+gh workflow run pages.yml -R mariopeces/NivoSense --ref main     # or wait for the hourly run
+gh run list -R mariopeces/NivoSense --workflow pages.yml -L 3   # the run logs "Deploying release v0.2.0 (<sha>)"
 ```
 
-Rolling back by pushing an older tag is refused (it is not the newest release); see the T5.3 follow-up.
+The newest release by number always wins, so a rollback by an older tag is not possible; see the T5.3 follow-up.
 
 ### 2.3 Repository settings
 
 ```sh
-# The github-pages environment allowed only branch main; tag deploys need a tag policy.
+# github-pages environment: deployments only from branch main (the policy that existed before T0.7).
 R=repos/mariopeces/NivoSense/environments/github-pages/deployment-branch-policies
-gh api -X POST $R -f name='v[0-9]*.[0-9]*.[0-9]*' -f type=tag
 gh api $R --jq '.branch_policies[] | {name,type}'
 # {"name":"main","type":"branch"}
-# {"name":"v[0-9]*.[0-9]*.[0-9]*","type":"tag"}
 
 # Only repository admins may create, move or delete v* tags.
 gh api -X POST repos/mariopeces/NivoSense/rulesets --input - <<'JSON'
@@ -309,6 +308,13 @@ gh api repos/mariopeces/NivoSense/rulesets --jq '.[] | {id,name,target,enforceme
 gh label create staging-preview -R mariopeces/NivoSense --description "Publish a staging site preview for this PR" --color 0E8A16
 ```
 
-Every agent pushes as the repository admin, so the ruleset stops other writers, not an agent; the release check in `pick_release.py` is what keeps a stray tag off the live site.
+Every agent pushes as the repository admin, so the ruleset stops other writers, not an agent. What keeps a stray tag off the live site is that only main runs deploy and that `pick_release.py` accepts only release tags on `main`.
 
-Log: 2026-11-22, the tag policy was first created as `v*` (id 67721681) and replaced by the pattern above (id 67722504) after review; ruleset `release-tags` id 27815705.
+Log, 2026-11-22: a tag deployment policy was added to `github-pages` (first `v*`, id 67721681, then `v[0-9]*.[0-9]*.[0-9]*`, id 67722504) and removed after review, because a tag-push run executes the tagged commit's workflow file. Removal:
+
+```sh
+gh api -X DELETE $R/67721681   # replaced earlier the same day
+gh api -X DELETE $R/67722504
+```
+
+Ruleset `release-tags` id 27815705.
