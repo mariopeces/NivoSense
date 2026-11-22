@@ -1,0 +1,47 @@
+{
+ "check": "check_catalog",
+ "catalogue": "GcsStorage(gs://nivosense-cogs/staging/_scratch/t12-evidence/)",
+ "generated_at": "2026-11-22T06:24:29+00:00",
+ "range": {
+  "start": "2025-10-01",
+  "end": "2026-11-21",
+  "default_window": false
+ },
+ "entries_checked": 15,
+ "layers": {
+  "snow_depth": {
+   "entries": 0,
+   "first": null,
+   "last": null,
+   "checked_files": 0,
+   "daily": "not live: no entry and no declared start"
+  },
+  "snow_gapfill": {
+   "entries": 0,
+   "first": null,
+   "last": null,
+   "checked_files": 0,
+   "daily": "not live: no entry and no declared start"
+  },
+  "snow_obs": {
+   "entries": 15,
+   "first": "2025-11-03",
+   "last": "2026-11-20",
+   "checked_files": 15
+  },
+  "swe": {
+   "entries": 0,
+   "first": null,
+   "last": null,
+   "checked_files": 0,
+   "daily": "not live: no entry and no declared start"
+  }
+ },
+ "errors": [],
+ "index": {
+  "generated_at": "2026-11-22T06:21:54+00:00",
+  "entries_digest": "bbf653857f2044528306a4c82703cf61b53e8ade8c2d12c6d6144a8714648882"
+ },
+ "ok": true,
+ "duration_s": 59.2
+}

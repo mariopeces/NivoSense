@@ -1,0 +1,24 @@
+{
+ "check": "regression_fixtures",
+ "fixtures": [
+  {
+   "id": "q4_crest_2026-11-20",
+   "title": "Crest Veleta to Mulhacen, 2026-11-19/20: modelled snow where Sentinel-2 sees bare ground",
+   "s2_scenes": {
+    "sentinel-2-c1-l2a": [
+     "S2A_T30SVF_20261120T110610_L2A",
+     "S2A_T30SVG_20261120T110610_L2A"
+    ],
+    "sentinel-2-l1c": [
+     "S2A_30SVF_20261120_1_L1C",
+     "S2A_30SVG_20261120_0_L1C"
+    ]
+   },
+   "status": "pending",
+   "pending": [
+    "no swe entry for 2026-11-21, 2026-11-22, 2026-11-23, 2026-11-24, 2026-11-25"
+   ]
+  }
+ ],
+ "ok": true
+}

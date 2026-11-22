@@ -1,0 +1,35 @@
+{
+  "date": "2026-01-27",
+  "orbit": "R094",
+  "datatake": "GS2B_20260127T110229_046452",
+  "scene_ids": [
+    "S2B_T30SVF_20260127T110245_L2A",
+    "S2B_T30SVG_20260127T110245_L2A",
+    "S2B_T30SWF_20260127T110245_L2A",
+    "S2B_T30SWG_20260127T110245_L2A"
+  ],
+  "processing_baselines": [
+    "05.11",
+    "05.11",
+    "05.11",
+    "05.11"
+  ],
+  "s2_input_key": "ee6f1e7a6571444982dca2039f2b1c8a3360c5c60c4a742aa160a0349336403b",
+  "ingest_listed": false,
+  "ingest_valid_fraction": 0.0308,
+  "sun_azimuth_deg": 159.321,
+  "sun_elevation_deg": 31.95,
+  "snowline_m": null,
+  "domain_pixels": 4305971,
+  "counts": {
+    "no_snow": 127436,
+    "snow": 2956,
+    "cloud": 4172698,
+    "unknown": 2881
+  },
+  "observed_fraction": 0.0303,
+  "snow_fraction_of_observed": 0.0227,
+  "bright_snow_pixels": 701,
+  "pass2_snow_pixels": 0,
+  "published": false
+}

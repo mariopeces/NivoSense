@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-20",
+  "bbox_lonlat": [
+    -3.42,
+    37.01,
+    -3.3,
+    37.07
+  ],
+  "pixels_in_box": 179225,
+  "outside_resort": {
+    "no_snow": 150861,
+    "snow": 3,
+    "cloud": 288,
+    "unknown": 14932
+  },
+  "inside_resort": {
+    "no_snow": 12775,
+    "snow": 262,
+    "cloud": 61,
+    "unknown": 43
+  },
+  "snow_outside_resort_flags": {
+    "terrain_shadow": 0,
+    "pass2": 0,
+    "bright_snow_fix": 0
+  }
+}

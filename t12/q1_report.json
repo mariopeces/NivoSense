@@ -1,0 +1,3315 @@
+{
+  "check": "q1_snow_reference",
+  "thresholds": {
+    "overall_f1": 0.85,
+    "stratum_f1": 0.7
+  },
+  "overall": {
+    "points": 1584,
+    "matrix": {
+      "snow": {
+        "no_snow": 7,
+        "snow": 352,
+        "cloud": 13,
+        "unknown": 0,
+        "nodata": 0
+      },
+      "no_snow": {
+        "no_snow": 1024,
+        "snow": 40,
+        "cloud": 73,
+        "unknown": 39,
+        "nodata": 0
+      },
+      "cloud": {
+        "no_snow": 12,
+        "snow": 3,
+        "cloud": 21,
+        "unknown": 0,
+        "nodata": 0
+      }
+    },
+    "tp": 352,
+    "fp": 43,
+    "fn": 20,
+    "precision": 0.8911,
+    "recall": 0.9462,
+    "f1": 0.9179,
+    "f1_where_observed": 0.9374,
+    "clear_points_observed": 0.9193
+  },
+  "by_stratum": {
+    "cloud_edge": {
+      "points": 237,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 32,
+          "cloud": 12,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 121,
+          "snow": 5,
+          "cloud": 37,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 7,
+          "snow": 2,
+          "cloud": 21,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 32,
+      "fp": 7,
+      "fn": 12,
+      "precision": 0.8205,
+      "recall": 0.7273,
+      "f1": 0.7711,
+      "f1_where_observed": 0.9275,
+      "clear_points_observed": 0.7633
+    },
+    "forest": {
+      "points": 370,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 43,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 293,
+          "snow": 17,
+          "cloud": 7,
+          "unknown": 6,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 4,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 43,
+      "fp": 17,
+      "fn": 0,
+      "precision": 0.7167,
+      "recall": 1.0,
+      "f1": 0.835,
+      "f1_where_observed": 0.835,
+      "clear_points_observed": 0.9645
+    },
+    "open_terrain": {
+      "points": 362,
+      "matrix": {
+        "snow": {
+          "no_snow": 3,
+          "snow": 107,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 247,
+          "snow": 1,
+          "cloud": 3,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 1,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 107,
+      "fp": 1,
+      "fn": 3,
+      "precision": 0.9907,
+      "recall": 0.9727,
+      "f1": 0.9817,
+      "f1_where_observed": 0.9817,
+      "clear_points_observed": 0.9917
+    },
+    "snowline_band": {
+      "points": 299,
+      "matrix": {
+        "snow": {
+          "no_snow": 4,
+          "snow": 75,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 199,
+          "snow": 11,
+          "cloud": 8,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 75,
+      "fp": 12,
+      "fn": 5,
+      "precision": 0.8621,
+      "recall": 0.9375,
+      "f1": 0.8982,
+      "f1_where_observed": 0.9091,
+      "clear_points_observed": 0.9698
+    },
+    "terrain_shadow": {
+      "points": 316,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 95,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 164,
+          "snow": 6,
+          "cloud": 18,
+          "unknown": 33,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 95,
+      "fp": 6,
+      "fn": 0,
+      "precision": 0.9406,
+      "recall": 1.0,
+      "f1": 0.9694,
+      "f1_where_observed": 0.9694,
+      "clear_points_observed": 0.8386
+    }
+  },
+  "by_in_strata": {
+    "cloud_edge": {
+      "points": 273,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 40,
+          "cloud": 12,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 142,
+          "snow": 7,
+          "cloud": 40,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 7,
+          "snow": 3,
+          "cloud": 21,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 40,
+      "fp": 10,
+      "fn": 12,
+      "precision": 0.8,
+      "recall": 0.7692,
+      "f1": 0.7843,
+      "f1_where_observed": 0.9195,
+      "clear_points_observed": 0.781
+    },
+    "forest": {
+      "points": 632,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 55,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 493,
+          "snow": 22,
+          "cloud": 30,
+          "unknown": 26,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 4,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 55,
+      "fp": 23,
+      "fn": 1,
+      "precision": 0.7051,
+      "recall": 0.9821,
+      "f1": 0.8209,
+      "f1_where_observed": 0.8333,
+      "clear_points_observed": 0.9091
+    },
+    "open_terrain": {
+      "points": 362,
+      "matrix": {
+        "snow": {
+          "no_snow": 3,
+          "snow": 107,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 247,
+          "snow": 1,
+          "cloud": 3,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 1,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 107,
+      "fp": 1,
+      "fn": 3,
+      "precision": 0.9907,
+      "recall": 0.9727,
+      "f1": 0.9817,
+      "f1_where_observed": 0.9817,
+      "clear_points_observed": 0.9917
+    },
+    "snowline_band": {
+      "points": 462,
+      "matrix": {
+        "snow": {
+          "no_snow": 4,
+          "snow": 95,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 317,
+          "snow": 28,
+          "cloud": 15,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 95,
+      "fp": 29,
+      "fn": 5,
+      "precision": 0.7661,
+      "recall": 0.95,
+      "f1": 0.8482,
+      "f1_where_observed": 0.8559,
+      "clear_points_observed": 0.9631
+    },
+    "terrain_shadow": {
+      "points": 365,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 121,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 178,
+          "snow": 7,
+          "cloud": 19,
+          "unknown": 39,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 121,
+      "fp": 7,
+      "fn": 1,
+      "precision": 0.9453,
+      "recall": 0.9918,
+      "f1": 0.968,
+      "f1_where_observed": 0.9719,
+      "clear_points_observed": 0.8384
+    }
+  },
+  "by_date": {
+    "2025-11-03": {
+      "points": 83,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 52,
+          "snow": 0,
+          "cloud": 9,
+          "unknown": 4,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 9,
+          "snow": 0,
+          "cloud": 9,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.8
+    },
+    "2025-11-28": {
+      "points": 106,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 24,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 74,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 6,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 24,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.96,
+      "recall": 0.96,
+      "f1": 0.96,
+      "f1_where_observed": 0.96,
+      "clear_points_observed": 0.9434
+    },
+    "2025-12-18": {
+      "points": 106,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 46,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 43,
+          "snow": 1,
+          "cloud": 8,
+          "unknown": 3,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 2,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 46,
+      "fp": 3,
+      "fn": 1,
+      "precision": 0.9388,
+      "recall": 0.9787,
+      "f1": 0.9583,
+      "f1_where_observed": 0.9892,
+      "clear_points_observed": 0.8824
+    },
+    "2026-01-07": {
+      "points": 118,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 58,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 40,
+          "snow": 9,
+          "cloud": 4,
+          "unknown": 2,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 58,
+      "fp": 9,
+      "fn": 5,
+      "precision": 0.8657,
+      "recall": 0.9206,
+      "f1": 0.8923,
+      "f1_where_observed": 0.928,
+      "clear_points_observed": 0.9068
+    },
+    "2026-01-12": {
+      "points": 101,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 48,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 51,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 48,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.96,
+      "recall": 1.0,
+      "f1": 0.9796,
+      "f1_where_observed": 0.9796,
+      "clear_points_observed": 1.0
+    },
+    "2026-02-16": {
+      "points": 103,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 39,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 47,
+          "snow": 3,
+          "cloud": 3,
+          "unknown": 3,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 39,
+      "fp": 3,
+      "fn": 6,
+      "precision": 0.9286,
+      "recall": 0.8667,
+      "f1": 0.8966,
+      "f1_where_observed": 0.9512,
+      "clear_points_observed": 0.8911
+    },
+    "2026-02-21": {
+      "points": 114,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 23,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 78,
+          "snow": 5,
+          "cloud": 1,
+          "unknown": 7,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 23,
+      "fp": 5,
+      "fn": 0,
+      "precision": 0.8214,
+      "recall": 1.0,
+      "f1": 0.902,
+      "f1_where_observed": 0.902,
+      "clear_points_observed": 0.9298
+    },
+    "2026-03-13": {
+      "points": 104,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 26,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 56,
+          "snow": 5,
+          "cloud": 15,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 26,
+      "fp": 5,
+      "fn": 0,
+      "precision": 0.8387,
+      "recall": 1.0,
+      "f1": 0.9123,
+      "f1_where_observed": 0.9123,
+      "clear_points_observed": 0.8447
+    },
+    "2026-03-25": {
+      "points": 110,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 24,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 77,
+          "snow": 5,
+          "cloud": 1,
+          "unknown": 2,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 24,
+      "fp": 5,
+      "fn": 1,
+      "precision": 0.8276,
+      "recall": 0.96,
+      "f1": 0.8889,
+      "f1_where_observed": 0.8889,
+      "clear_points_observed": 0.9727
+    },
+    "2026-04-14": {
+      "points": 115,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 22,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 83,
+          "snow": 3,
+          "cloud": 4,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 2,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 22,
+      "fp": 3,
+      "fn": 0,
+      "precision": 0.88,
+      "recall": 1.0,
+      "f1": 0.9362,
+      "f1_where_observed": 0.9362,
+      "clear_points_observed": 0.9558
+    },
+    "2026-04-27": {
+      "points": 108,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 14,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 80,
+          "snow": 1,
+          "cloud": 8,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 3,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 14,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.875,
+      "recall": 1.0,
+      "f1": 0.9333,
+      "f1_where_observed": 0.9655,
+      "clear_points_observed": 0.9135
+    },
+    "2026-05-12": {
+      "points": 112,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 12,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 88,
+          "snow": 2,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 12,
+      "fp": 2,
+      "fn": 3,
+      "precision": 0.8571,
+      "recall": 0.8,
+      "f1": 0.8276,
+      "f1_where_observed": 0.8889,
+      "clear_points_observed": 0.9364
+    },
+    "2026-05-27": {
+      "points": 115,
+      "matrix": {
+        "snow": {
+          "no_snow": 2,
+          "snow": 13,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 95,
+          "snow": 1,
+          "cloud": 4,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 13,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.9286,
+      "recall": 0.8667,
+      "f1": 0.8966,
+      "f1_where_observed": 0.8966,
+      "clear_points_observed": 0.9652
+    },
+    "2026-06-13": {
+      "points": 109,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 3,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 93,
+          "snow": 2,
+          "cloud": 8,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 3,
+      "fp": 2,
+      "fn": 1,
+      "precision": 0.6,
+      "recall": 0.75,
+      "f1": 0.6667,
+      "f1_where_observed": 0.6667,
+      "clear_points_observed": 0.9252
+    },
+    "2026-11-20": {
+      "points": 80,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 67,
+          "snow": 0,
+          "cloud": 3,
+          "unknown": 9,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 1,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.8481
+    }
+  },
+  "by_stratum_and_date": {
+    "cloud_edge 2025-11-03": {
+      "points": 16,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 3,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 4,
+          "snow": 0,
+          "cloud": 9,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 1.0
+    },
+    "cloud_edge 2025-12-18": {
+      "points": 14,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 4,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 5,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 4,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.8889,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.8182
+    },
+    "cloud_edge 2026-01-07": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 12,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 5,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 12,
+      "fp": 0,
+      "fn": 5,
+      "precision": 1.0,
+      "recall": 0.7059,
+      "f1": 0.8276,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.7083
+    },
+    "cloud_edge 2026-02-16": {
+      "points": 16,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 4,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 2,
+          "snow": 1,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 4,
+      "fp": 1,
+      "fn": 5,
+      "precision": 0.8,
+      "recall": 0.4444,
+      "f1": 0.5714,
+      "f1_where_observed": 0.8889,
+      "clear_points_observed": 0.5
+    },
+    "cloud_edge 2026-02-21": {
+      "points": 15,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 13,
+          "snow": 1,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": 0.0,
+      "f1_where_observed": 0.0,
+      "clear_points_observed": 0.9333
+    },
+    "cloud_edge 2026-03-13": {
+      "points": 12,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 3,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 4,
+          "snow": 0,
+          "cloud": 4,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.6364
+    },
+    "cloud_edge 2026-03-25": {
+      "points": 12,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 7,
+          "snow": 2,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 2,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6667,
+      "f1_where_observed": 0.6667,
+      "clear_points_observed": 0.9167
+    },
+    "cloud_edge 2026-04-14": {
+      "points": 19,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 12,
+          "snow": 0,
+          "cloud": 4,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 2,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.7647
+    },
+    "cloud_edge 2026-04-27": {
+      "points": 20,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 10,
+          "snow": 0,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 3,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6667,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.6875
+    },
+    "cloud_edge 2026-05-12": {
+      "points": 19,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 10,
+          "snow": 1,
+          "cloud": 4,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "f1_where_observed": 0.0,
+      "clear_points_observed": 0.6471
+    },
+    "cloud_edge 2026-05-27": {
+      "points": 32,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 4,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 24,
+          "snow": 0,
+          "cloud": 4,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.875
+    },
+    "cloud_edge 2026-06-13": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 0,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.7619
+    },
+    "cloud_edge 2026-11-20": {
+      "points": 15,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 11,
+          "snow": 0,
+          "cloud": 3,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 1,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.7857
+    },
+    "forest 2025-11-03": {
+      "points": 19,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 14,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 4,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.9333
+    },
+    "forest 2025-11-28": {
+      "points": 31,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 4,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 26,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.9677
+    },
+    "forest 2025-12-18": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 1,
+          "cloud": 1,
+          "unknown": 2,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "f1_where_observed": 0.9091,
+      "clear_points_observed": 0.875
+    },
+    "forest 2026-01-07": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 9,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 9,
+          "snow": 4,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 9,
+      "fp": 4,
+      "fn": 0,
+      "precision": 0.6923,
+      "recall": 1.0,
+      "f1": 0.8182,
+      "f1_where_observed": 0.8182,
+      "clear_points_observed": 0.9167
+    },
+    "forest 2026-01-12": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 19,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.7143,
+      "recall": 1.0,
+      "f1": 0.8333,
+      "f1_where_observed": 0.8333,
+      "clear_points_observed": 1.0
+    },
+    "forest 2026-02-16": {
+      "points": 28,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 7,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 19,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 7,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.7778,
+      "recall": 1.0,
+      "f1": 0.875,
+      "f1_where_observed": 0.875,
+      "clear_points_observed": 1.0
+    },
+    "forest 2026-02-21": {
+      "points": 30,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 6,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 20,
+          "snow": 3,
+          "cloud": 0,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 6,
+      "fp": 3,
+      "fn": 0,
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1": 0.8,
+      "f1_where_observed": 0.8,
+      "clear_points_observed": 0.9667
+    },
+    "forest 2026-03-13": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 2,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.7143,
+      "recall": 1.0,
+      "f1": 0.8333,
+      "f1_where_observed": 0.8333,
+      "clear_points_observed": 0.9565
+    },
+    "forest 2026-03-25": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 21,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1": 0.8,
+      "f1_where_observed": 0.8,
+      "clear_points_observed": 1.0
+    },
+    "forest 2026-04-14": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 24,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": 0.0,
+      "f1_where_observed": 0.0,
+      "clear_points_observed": 1.0
+    },
+    "forest 2026-04-27": {
+      "points": 21,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 20,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.9524
+    },
+    "forest 2026-05-12": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 25,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 1.0
+    },
+    "forest 2026-05-27": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 24,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 1.0
+    },
+    "forest 2026-06-13": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 22,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.9565
+    },
+    "forest 2026-11-20": {
+      "points": 22,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 20,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 2,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.9091
+    },
+    "open_terrain 2025-11-03": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 22,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 1,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.9565
+    },
+    "open_terrain 2025-11-28": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 7,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 18,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.875,
+      "f1": 0.9333,
+      "f1_where_observed": 0.9333,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2025-12-18": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 14,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 10,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 14,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.9231
+    },
+    "open_terrain 2026-01-07": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 17,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 8,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 17,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-01-12": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 14,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 12,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 14,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-02-16": {
+      "points": 20,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 8,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 12,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-02-21": {
+      "points": 21,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 7,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 14,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-03-13": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 9,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 13,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 9,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.9,
+      "recall": 1.0,
+      "f1": 0.9474,
+      "f1_where_observed": 0.9474,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-03-25": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 7,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 17,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-04-14": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 9,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 17,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 9,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-04-27": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 4,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 19,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-05-12": {
+      "points": 27,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 8,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 18,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 8,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.8889,
+      "f1": 0.9412,
+      "f1_where_observed": 0.9412,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-05-27": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 3,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 23,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-06-13": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 25,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "precision": null,
+      "recall": 0.0,
+      "f1": 0.0,
+      "f1_where_observed": 0.0,
+      "clear_points_observed": 1.0
+    },
+    "open_terrain 2026-11-20": {
+      "points": 19,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 19,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2025-11-28": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 18,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2025-12-18": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 12,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 9,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 12,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.9231,
+      "recall": 0.9231,
+      "f1": 0.9231,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.9545
+    },
+    "snowline_band 2026-01-07": {
+      "points": 21,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 14,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.7143,
+      "recall": 1.0,
+      "f1": 0.8333,
+      "f1_where_observed": 0.8333,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-01-12": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 13,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 12,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-02-16": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 12,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 11,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 12,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.9231,
+      "f1": 0.96,
+      "f1_where_observed": 0.96,
+      "clear_points_observed": 0.96
+    },
+    "snowline_band 2026-02-21": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 24,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": 0.0,
+      "f1_where_observed": 0.0,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-03-13": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 20,
+          "snow": 0,
+          "cloud": 5,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.8
+    },
+    "snowline_band 2026-03-25": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 1,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 17,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 2,
+      "fn": 1,
+      "precision": 0.7143,
+      "recall": 0.8333,
+      "f1": 0.7692,
+      "f1_where_observed": 0.7692,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-04-14": {
+      "points": 20,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 5,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 14,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 5,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "f1_where_observed": 0.9091,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-04-27": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 6,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 16,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 6,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8571,
+      "recall": 1.0,
+      "f1": 0.9231,
+      "f1_where_observed": 0.9231,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-05-12": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 4,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 20,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 4,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.8889,
+      "f1_where_observed": 0.8889,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-05-27": {
+      "points": 18,
+      "matrix": {
+        "snow": {
+          "no_snow": 2,
+          "snow": 6,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 9,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 6,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.8571,
+      "recall": 0.75,
+      "f1": 0.8,
+      "f1_where_observed": 0.8,
+      "clear_points_observed": 1.0
+    },
+    "snowline_band 2026-06-13": {
+      "points": 21,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 2,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 2,
+          "cloud": 2,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 2,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6667,
+      "f1_where_observed": 0.6667,
+      "clear_points_observed": 0.9048
+    },
+    "terrain_shadow 2025-11-03": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 13,
+          "snow": 0,
+          "cloud": 7,
+          "unknown": 4,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.5417
+    },
+    "terrain_shadow 2025-11-28": {
+      "points": 26,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 8,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 12,
+          "snow": 1,
+          "cloud": 0,
+          "unknown": 5,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 8,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8889,
+      "recall": 1.0,
+      "f1": 0.9412,
+      "f1_where_observed": 0.9412,
+      "clear_points_observed": 0.8077
+    },
+    "terrain_shadow 2025-12-18": {
+      "points": 19,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 11,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 4,
+          "snow": 0,
+          "cloud": 3,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 11,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.7895
+    },
+    "terrain_shadow 2026-01-07": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 15,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 4,
+          "snow": 3,
+          "cloud": 0,
+          "unknown": 2,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 15,
+      "fp": 3,
+      "fn": 0,
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "f1_where_observed": 0.9091,
+      "clear_points_observed": 0.9167
+    },
+    "terrain_shadow 2026-01-12": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 16,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 8,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 1.0
+    },
+    "terrain_shadow 2026-02-16": {
+      "points": 14,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 8,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 3,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 3,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.7857
+    },
+    "terrain_shadow 2026-02-21": {
+      "points": 23,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 10,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 7,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 6,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.7391
+    },
+    "terrain_shadow 2026-03-13": {
+      "points": 21,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 9,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 4,
+          "snow": 2,
+          "cloud": 5,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 9,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.8182,
+      "recall": 1.0,
+      "f1": 0.9,
+      "f1_where_observed": 0.9,
+      "clear_points_observed": 0.7143
+    },
+    "terrain_shadow 2026-03-25": {
+      "points": 25,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 8,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 2,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.92
+    },
+    "terrain_shadow 2026-04-14": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 7,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 16,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.9583
+    },
+    "terrain_shadow 2026-04-27": {
+      "points": 21,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 3,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 0,
+          "cloud": 2,
+          "unknown": 1,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f1_where_observed": 1.0,
+      "clear_points_observed": 0.8571
+    },
+    "terrain_shadow 2026-05-12": {
+      "points": 16,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 0,
+          "cloud": 1,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.9375
+    },
+    "terrain_shadow 2026-05-27": {
+      "points": 15,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 15,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 1.0
+    },
+    "terrain_shadow 2026-06-13": {
+      "points": 16,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 16,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 1.0
+    },
+    "terrain_shadow 2026-11-20": {
+      "points": 24,
+      "matrix": {
+        "snow": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        },
+        "no_snow": {
+          "no_snow": 17,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 7,
+          "nodata": 0
+        },
+        "cloud": {
+          "no_snow": 0,
+          "snow": 0,
+          "cloud": 0,
+          "unknown": 0,
+          "nodata": 0
+        }
+      },
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "f1_where_observed": null,
+      "clear_points_observed": 0.7083
+    }
+  },
+  "failures": [],
+  "ok": true
+}
