@@ -1,31 +1,22 @@
-import type { SnowOverlay } from "../lib/snowModel";
 import type { WeatherOverlay, WeatherVariable } from "../lib/weather";
+import palettes from "../../../pipelines/weather_forecasts/palettes.json";
 import { t } from "../lib/copy";
 import { fechaCorta, horaMadrid, numero } from "../lib/format";
+import type { CatalogLayer } from "./Map";
 import { StatusBadge } from "./ui";
 
 type Props = {
   weatherOverlay: WeatherOverlay | null;
-  snowOverlay: SnowOverlay | null;
+  /** Bottom to top, as drawn. */
+  layers: CatalogLayer[];
 };
 
-// These are data colours, not UI tokens: each one copies the palette that today's pipelines bake into the
-// PNG on the map (PALETTES and SNOW_RGB in pipelines/snow_model/outputs.py, PALETTES in
-// pipelines/weather_forecasts/raster.py, both interpolated at stops 0, 0.2, 0.45, 0.7 and 1), so the legend
-// says exactly what the image shows. They go when the pipelines colour with docs/design/ramps.json and the
-// legends read that file.
-const STOPS = [0, 20, 45, 70, 100];
-const PIPELINE_PALETTES = {
-  swe: ["#142163", "#2f61d6", "#60a5fa", "#bae6fd", "#ffffff"],
-  depth: ["#3c2878", "#6366f1", "#81b4fa", "#cfe9fe", "#ffffff"],
-  precipitation_total: ["#082f49", "#0e7490", "#06b6d4", "#22d3ee", "#ecfeff"],
-  snowfall: ["#2d236e", "#4f46e5", "#818cf8", "#c7d2fe", "#ffffff"],
-};
-const OBSERVED_SNOW = "#67e8f9";
-const MIN_VISIBLE_MM = 0.1;
+// The weather images are painted by pipelines/weather_forecasts/raster.py from the same palettes file, so the
+// legend shows exactly the colours on the map.
+const WEATHER_PALETTES = palettes.palettes as Record<WeatherVariable, string[]>;
 
 function gradient(colours: string[]) {
-  return `linear-gradient(to right, ${colours.map((c, i) => `${c} ${STOPS[i]}%`).join(", ")})`;
+  return `linear-gradient(to right, ${colours.map((c, i) => `${c} ${palettes.stops[i] * 100}%`).join(", ")})`;
 }
 
 const CARD = "shell-legend absolute z-map-controls w-[280px] rounded-md bg-panel px-3 py-2 shadow-float max-md:hidden";
@@ -42,62 +33,20 @@ function Ramp({ colours, from, to }: { colours: string[]; from: string; to: stri
   );
 }
 
-function SnowLegend({ overlay }: { overlay: SnowOverlay }) {
-  const { info } = overlay;
-  const date = fechaCorta(info.date);
-  if (overlay.layer === "s2_true_colour") {
-    return (
-      <div className={CARD}>
-        <p className="m-0 font-medium">{t("leyenda.chip_mapa", { capa: t("capa.color_real.nombre"), fecha_corta: date })}</p>
-        <p className="tnum mb-0 mt-1 text-caption text-text-muted">
-          {t("leyenda.despejado", { valor: Math.round((info.valid_fraction ?? 0) * 100) })}
-        </p>
-      </div>
-    );
-  }
-  if (overlay.layer === "observed_snow_10m") {
-    return (
-      <div className={CARD}>
-        <p className="m-0 font-medium">{t("leyenda.chip_mapa", { capa: t("capa.nieve_observada.nombre"), fecha_corta: date })}</p>
-        <div className="mt-2 grid gap-1 text-caption">
-          <span className="flex items-center gap-2">
-            <span className="h-4 w-4 rounded-sm border border-line-strong" style={{ background: OBSERVED_SNOW }} />
-            {t("leyenda.nieve")}
-          </span>
-          <span className="flex items-center gap-2">
-            {/* The PNG paints gaps (120, 130, 145) at alpha 110; the muted grey token at 35 % gives the same
-                colour over white within 2 levels per channel, and the baseline may not gain a new colour. */}
-            <span className="h-4 w-4 rounded-sm border border-line-strong">
-              <span className="block h-full w-full bg-text-muted opacity-35" />
-            </span>
-            {t("leyenda.nube_o_sin_dato")}
-          </span>
-        </div>
-        <p className="tnum mb-0 mt-2 text-caption text-text-muted">
-          {t("leyenda.despejado_nieve", {
-            valor: Math.round((info.valid_fraction ?? 0) * 100),
-            nieve: numero((info.snow_fraction_of_valid ?? 0) * 100),
-          })}
-        </p>
-      </div>
-    );
-  }
-  const swe = overlay.layer === "swe";
-  const unit = swe ? "mm" : "m";
+// One line per visible catalogue layer, top layer first: what is on the map and the date of its data, which
+// can differ from the map date when the layer has no product that day. The classes live in the panel rows.
+function LayerChips({ layers }: { layers: CatalogLayer[] }) {
   return (
-    <div className={CARD}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="m-0 font-medium">{t(swe ? "leyenda.swe" : "leyenda.espesor_m")}</p>
-        <StatusBadge status="modelado" />
-      </div>
-      <Ramp
-        colours={PIPELINE_PALETTES[overlay.layer]}
-        from={`${info.minimum_visible} ${unit}`}
-        to={`${info.scale_max} ${unit}`}
-      />
-      <p className="tnum mb-0 mt-1 text-caption text-text-muted">{t("leyenda.media_conjunto", { fecha_corta: date })}</p>
-      <p className="mb-0 mt-1 text-caption text-warning">{t("leyenda.experimental")}</p>
-    </div>
+    <ul className={`${CARD} m-0 grid list-none gap-1`}>
+      {[...layers].reverse().map((layer) => (
+        <li key={layer.id} className="flex items-center justify-between gap-2">
+          <span className="tnum min-w-0 font-medium">
+            {t("leyenda.chip_mapa", { capa: layer.name, fecha_corta: fechaCorta(layer.date) })}
+          </span>
+          <StatusBadge status={layer.status} />
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -114,13 +63,13 @@ function WeatherLegend({ overlay }: { overlay: WeatherOverlay }) {
         <StatusBadge status="prevision" />
       </div>
       <Ramp
-        colours={PIPELINE_PALETTES[overlay.variable]}
-        from={`${numero(MIN_VISIBLE_MM)} mm`}
+        colours={WEATHER_PALETTES[overlay.variable]}
+        from={`${numero(palettes.min_visible_mm)} mm`}
         to={`${numero(overlay.scaleMaxMm)} mm`}
       />
       <p className="mb-0 mt-1 text-caption text-text-muted">
-        {overlay.regionMaxMm < MIN_VISIBLE_MM
-          ? t("leyenda.sin_valores", { valor: numero(MIN_VISIBLE_MM) })
+        {overlay.regionMaxMm < palettes.min_visible_mm
+          ? t("leyenda.sin_valores", { valor: numero(palettes.min_visible_mm) })
           : t("leyenda.maximo_regional", { valor: numero(overlay.regionMaxMm) })}
       </p>
       <dl className="tnum mb-0 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-line pt-2 text-caption">
@@ -145,8 +94,8 @@ function WeatherLegend({ overlay }: { overlay: WeatherOverlay }) {
   );
 }
 
-export default function Legend({ weatherOverlay, snowOverlay }: Props) {
+export default function Legend({ weatherOverlay, layers }: Props) {
   if (weatherOverlay) return <WeatherLegend overlay={weatherOverlay} />;
-  if (snowOverlay) return <SnowLegend overlay={snowOverlay} />;
+  if (layers.length) return <LayerChips layers={layers} />;
   return null;
 }

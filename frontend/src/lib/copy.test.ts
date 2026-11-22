@@ -6,14 +6,14 @@ import { t } from "./copy";
 import { BASEMAPS } from "./basemaps";
 import { WEATHER_VARIABLES } from "./weather";
 import { SECTIONS } from "../components/Rail";
-import { ROWS } from "../components/NieveSection";
+import { LAYER_SPECS } from "./layers";
 import { LAYERS } from "../components/MetodoSection";
 import { STATUSES } from "../components/ui";
 
 // t() throws on a missing key and nothing catches it at render, so every key the interface can ask for must
 // exist. Composed keys are checked by expanding each template over the values it can take at render.
 const sections = SECTIONS.map((s) => s.id);
-const rowCopy = ROWS.map((r) => r.copy);
+const specCopy = LAYER_SPECS.map((spec) => spec.copy);
 const TEMPLATES: Record<string, readonly string[]> = {
   "rail.${item.id}": sections,
   "rail.tooltip_${item.id}": sections,
@@ -23,9 +23,11 @@ const TEMPLATES: Record<string, readonly string[]> = {
   "estado.${status}": STATUSES,
   "estado.tooltip_${status}": STATUSES,
   "linea_tiempo.leyenda_${status}": STATUSES,
-  "capa.${row.copy}.nombre": rowCopy,
-  "capa.${row.copy}.fuente": rowCopy,
-  "capa.${row.copy}.resolucion": rowCopy,
+  "capa.${spec.copy}.nombre": specCopy,
+  "capa.${spec.copy}.fuente": specCopy,
+  "capa.${spec.copy}.resolucion": specCopy,
+  "capa.${spec.copy}.cadencia": specCopy,
+  "capa.${spec.copy}.descripcion": specCopy,
   "capa.${layer}.nombre": LAYERS,
   "capa.${layer}.fuente": LAYERS,
   "capa.${layer}.resolucion": LAYERS,

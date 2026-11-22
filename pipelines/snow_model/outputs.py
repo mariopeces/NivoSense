@@ -3,15 +3,12 @@ from pathlib import Path
 
 import numpy as np
 
+from ..ramps import colour_values, ramps
 from .grid import Grid
 
-PALETTES = {
-    "swe": ((20, 33, 99), (47, 97, 214), (96, 165, 250), (186, 230, 253), (255, 255, 255)),
-    "depth": ((60, 40, 120), (99, 102, 241), (129, 180, 250), (207, 233, 254), (255, 255, 255)),
-}
-STOPS = np.array([0.0, 0.2, 0.45, 0.7, 1.0])
-MIN_VISIBLE_SWE_MM = 5.0
-MIN_VISIBLE_DEPTH_M = 0.03
+# README section 6: SWE under 5 mm is drawn transparent, and depth only where SWE reaches it. The ramp holds
+# the threshold so the image and the legend share it.
+MIN_VISIBLE_SWE_MM = float(ramps()["swe"]["transparent_below"])
 SNOW_RGB = (103, 232, 249)
 
 
@@ -44,18 +41,11 @@ def write_geotiff(path: Path, bands: list[tuple[np.ndarray, str]], grid: Grid) -
             output.set_band_description(index, description)
 
 
-def write_field_png(
-    path: Path, values: np.ndarray, scale_max: float, palette: str, minimum: float
-) -> None:
+def write_field_png(path: Path, values: np.ndarray, ramp_id: str) -> None:
+    """RGBA image of a model field in the stepped classes of its ramp in docs/design/ramps.json."""
     from PIL import Image
 
-    normalized = np.clip(np.nan_to_num(values) / max(scale_max, 1e-6), 0, 1)
-    channels = [
-        np.interp(normalized, STOPS, [color[channel] for color in PALETTES[palette]])
-        for channel in range(3)
-    ]
-    alpha = np.where(np.nan_to_num(values) >= minimum, 235, 0)
-    rgba = np.stack(channels + [alpha], axis=-1).astype("uint8")
+    rgba = colour_values(values, ramp_id)
     path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(rgba, mode="RGBA").save(path, optimize=True)
 

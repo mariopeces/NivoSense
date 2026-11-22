@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -10,22 +11,15 @@ if TYPE_CHECKING:
     from affine import Affine
     from rasterio.crs import CRS
 
+# The frontend legend reads the same file, so it always shows the colours painted here.
+PALETTES_JSON = Path(__file__).with_name("palettes.json")
+_PALETTES = json.loads(PALETTES_JSON.read_text(encoding="utf-8"))
 PALETTES = {
-    "precipitation_total": (
-        (8, 47, 73),
-        (14, 116, 144),
-        (6, 182, 212),
-        (34, 211, 238),
-        (236, 254, 255),
-    ),
-    "snowfall": (
-        (45, 35, 110),
-        (79, 70, 229),
-        (129, 140, 248),
-        (199, 210, 254),
-        (255, 255, 255),
-    ),
+    variable: tuple(tuple(int(colour[i : i + 2], 16) for i in (1, 3, 5)) for colour in colours)
+    for variable, colours in _PALETTES["palettes"].items()
 }
+STOPS = tuple(float(stop) for stop in _PALETTES["stops"])
+ALPHA = int(_PALETTES["alpha"])
 
 
 def _write_field(
@@ -184,12 +178,12 @@ def build_field_image(source: Path, destination: Path, scale_max_mm: float, vari
         data = dataset.read(1, masked=True).astype("float32")
     denominator = scale_max_mm if scale_max_mm > 0 else 1.0
     normalized = np.clip(data.filled(0) / denominator, 0, 1)
-    stops = np.array([0.0, 0.2, 0.45, 0.7, 1.0], dtype="float32")
+    stops = np.array(STOPS, dtype="float32")
     red, green, blue = (
         np.interp(normalized, stops, [color[channel] for color in PALETTES[variable]])
         for channel in range(3)
     )
-    alpha = np.where((~data.mask) & (data.filled(0) >= MIN_VISIBLE_MM), 220, 0)
+    alpha = np.where((~data.mask) & (data.filled(0) >= MIN_VISIBLE_MM), ALPHA, 0)
     rgba = np.stack([red, green, blue, alpha], axis=-1).astype("uint8")
     image = Image.fromarray(rgba, mode="RGBA")
     image = image.resize((image.width * 64, image.height * 64), Image.Resampling.NEAREST)
