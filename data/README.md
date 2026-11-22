@@ -4,25 +4,31 @@ Geometrías estáticas que consume el backend y el frontend. Los ficheros de est
 
 Sistema de coordenadas: **EPSG:4326** (lat/lon).
 
-## `basins.geojson`
+## `domain.geojson` and `basins.geojson`
 
-Cuencas hidrográficas de la región de interés.
+Built by `python -m pipelines.domain.build` (never edited by hand), which also writes the byte-identical copies in `frontend/public/data/` and the `bbox` of `regions/sierra-nevada.json`. Source URLs, licences and retrieval dates are in each file's `metadata.sources`; areas are planar km2 in EPSG:25830.
 
-Esquema esperado por feature:
+`domain.geojson` holds three features (`part`): `domain` (Espacio Natural Sierra Nevada, the union of the two parks), `national_park` (MITECO ENP 2025) and `natural_park` (REDIAM RENPA; per Decreto 238/2011 it is the peripheral protection zone of the National Park).
+
+`basins.geojson` holds the outermost rivers of MITECO "Subcuencas de ríos completos clasificadas según Pfafstetter modificado" that touch the domain, clipped to it:
 
 ```json
 {
   "type": "Feature",
-  "geometry": { "type": "Polygon", "coordinates": [...] },
+  "geometry": { "type": "MultiPolygon", "coordinates": [...] },
   "properties": {
-    "id": "genil",
-    "name": "Cuenca del Genil",
-    "area_km2": 312.5
+    "COD_MAR": "M",
+    "cod_uni": 604456,
+    "pfafrio": "200134",
+    "nom_rio_1": "RIO GUADALFEO O RIO CADIAR",
+    "Cuen_Tipo": null,
+    "source_area_km2": 1302.072,
+    "domain_area_km2": 492.346
   }
 }
 ```
 
-`geometry` puede ser `Polygon` o `MultiPolygon`.
+`source_area_km2` is the whole sub-basin as published by MITECO; `domain_area_km2` is the part inside the domain. `sources/` keeps the clipped MITECO sub-basin copy the build reads (Fuente: Ministerio para la Transición Ecológica y el Reto Demográfico).
 
 ## `routes.geojson`
 

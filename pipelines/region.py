@@ -21,6 +21,6 @@ def load_region(path: Path) -> Region:
         id=payload["id"],
         name=payload["name"],
         basins=basins,
-        bbox=bbox_from_geojson(basins),
+        bbox=tuple(payload["bbox"]) if "bbox" in payload else bbox_from_geojson(basins),
         settings=payload,
     )

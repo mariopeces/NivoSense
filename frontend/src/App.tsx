@@ -45,6 +45,7 @@ type BasinFeatureCollection = {
     properties: {
       cod_uni: number;
       nom_rio_1: string;
+      domain_area_km2?: number;
       area_km2?: number;
       [k: string]: unknown;
     };
@@ -253,7 +254,7 @@ export default function App() {
     basinsFC?.features.map((f) => ({
       id: String(f.properties.cod_uni),
       name: prettifyBasinName(f.properties.nom_rio_1),
-      areaKm2: typeof f.properties.area_km2 === "number" ? f.properties.area_km2 : undefined,
+      areaKm2: [f.properties.domain_area_km2, f.properties.area_km2].find((v) => typeof v === "number"),
     })) ?? [];
 
   const selectedBasin = basins.find((b) => b.id === selectedBasinId) ?? null;
