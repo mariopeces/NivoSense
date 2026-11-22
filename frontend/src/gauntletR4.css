@@ -1,0 +1,11 @@
+/* Gauntlet T0.6 round 4 probes */
+.g1 { color: var(--missing, red); }
+.g2 { color: var(--x,purple); border-color: var(--a, var(--b, gold)); }
+.g3 { --accent: var(--x, navy); box-shadow: 0 0 1px var(--x, teal); }
+.g4 { background: maroon; border: 1px solid olive; outline: 1px solid aqua; text-shadow: 0 0 1px tan; }
+.g5 { text-decoration: underline coral; filter: drop-shadow(0 0 1px khaki); backdrop-filter: drop-shadow(0 0 1px linen); }
+.g6 { column-rule: 1px solid wheat; caret-color: azure; accent-color: beige; fill: ivory; stroke: indigo; --accent: orange; }
+/* Round 3 G-Code item 1 and 4 (escapes are out of scope) */
+.g7 { color: var(--missing-token, red); }
+.g8 { color: var(--a, var(--b, green)); }
+.g9 { color: r\65 d; }
