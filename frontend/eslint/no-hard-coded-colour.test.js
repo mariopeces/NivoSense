@@ -1,5 +1,6 @@
 import css from "@eslint/css";
 import { RuleTester } from "eslint";
+import tseslint from "typescript-eslint";
 import { describe, it } from "vitest";
 import rule from "./no-hard-coded-colour.js";
 
@@ -84,6 +85,14 @@ new RuleTester({ languageOptions: jsx, linterOptions: { noInlineConfig: true } }
       ].join("\n"),
       options: options(),
       errors: ["red", "blue", "gold", "teal", "navy", "olive", "lime", "plum", "tan"].map(colour),
+    },
+    {
+      // A computed custom property key with a cast, as React's style typing needs.
+      filename: file,
+      code: 'const a = { ["--glow" as string]: "coral" };',
+      languageOptions: { parser: tseslint.parser },
+      options: options(),
+      errors: [colour("coral")],
     },
     {
       // MapLibre legacy functions: colours in `default` and `stops` belong to the paint key; expression fallbacks.

@@ -98,6 +98,8 @@ function keyName(node) {
   if (node.type === "Identifier" || node.type === "JSXIdentifier") return node.name;
   if (node.type === "Literal" && typeof node.value === "string") return node.value;
   if (node.type === "JSXNamespacedName") return node.name.name;
+  // A computed key with a cast, as in `["--accent" as string]: ...` (React's style typing needs it).
+  if (node.type === "TSAsExpression" || node.type === "TSSatisfiesExpression") return keyName(node.expression);
   return null;
 }
 
