@@ -6,6 +6,7 @@ import {
   durationMs,
   keyTarget,
   monthStarts,
+  spreadLabels,
   stripSegments,
   todayInMadrid,
   trackGeometry,
@@ -249,5 +250,23 @@ describe("trackGeometry", () => {
     const g = trackGeometry(m, 0, 64);
     expect(g.slotPx).toBe(0);
     expect(g.dayAt(0)).toBe(0);
+  });
+});
+
+describe("spreadLabels", () => {
+  it("keeps every label when there is room", () => {
+    const labels = [0, 40, 80].map((x) => ({ x, wide: false }));
+    expect(spreadLabels(labels, 10, 32, 4)).toHaveLength(3);
+  });
+
+  it("drops initials that touch the year label and keeps the year", () => {
+    const labels = [
+      { x: 0, wide: false },
+      { x: 12, wide: false },
+      { x: 30, wide: true },
+      { x: 60, wide: false },
+    ];
+    const kept = spreadLabels(labels, 10, 32, 4);
+    expect(kept.map((l) => l.x)).toEqual([0, 30, 60]);
   });
 });

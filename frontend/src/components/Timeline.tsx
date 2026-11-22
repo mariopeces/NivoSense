@@ -3,12 +3,13 @@ import { ArrowRightToLine, Calendar, ChevronLeft, ChevronRight, Pause, Play } fr
 import { Icon } from "../lib/icons";
 import { t } from "../lib/copy";
 import { token, tokenPx } from "../lib/tokens";
-import { WEEKDAY_INITIALS, fechaConDia, fechaLarga, mesAnio, mesCorto } from "../lib/format";
+import { WEEKDAY_INITIALS, fechaConDia, fechaLarga, mesAnio, mesLargo, mesInicial } from "../lib/format";
 import type { CatalogState } from "../lib/catalog";
 import {
   durationMs,
   keyTarget,
   monthStarts,
+  spreadLabels,
   nextIn,
   previousIn,
   stripSegments,
@@ -284,23 +285,25 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
           )}
         </div>
         <div className="absolute inset-x-0 top-[34px] h-4" aria-hidden="true">
-          {months
-            .filter(({ date }) => !mobile || ["01", "04", "07", "10"].includes(date.slice(5, 7)))
-            .filter(({ index: i }) => x(i) < x(pastEnd) - monthGap)
-            .map(({ index: i, date }) => {
-              const january = date.slice(5, 7) === "01";
-              return (
-                <span
-                  key={date}
-                  className={`absolute -translate-x-1/2 whitespace-nowrap text-caption ${
-                    january ? "font-semibold text-text" : "text-text-muted"
-                  }`}
-                  style={{ left: x(i) }}
-                >
-                  {january ? date.slice(0, 4) : mesCorto(date)}
-                </span>
-              );
-            })}
+          {spreadLabels(
+            months
+              .filter(({ index: i }) => x(i) < x(pastEnd) - monthGap)
+              .map(({ index, date }) => ({ date, x: x(index), wide: date.slice(5, 7) === "01" })),
+            10,
+            32,
+            4,
+          ).map(({ date, x: left, wide: january }) => (
+            <span
+              key={date}
+              className={`absolute -translate-x-1/2 whitespace-nowrap text-caption ${
+                january ? "font-semibold text-text" : "text-text-muted"
+              }`}
+              style={{ left }}
+              title={january ? `${mesLargo(date)} ${date.slice(0, 4)}` : mesLargo(date)}
+            >
+              {january ? date.slice(0, 4) : mesInicial(date)}
+            </span>
+          ))}
           <span
             className="absolute -translate-x-full whitespace-nowrap pr-1 text-caption font-semibold text-text"
             style={{ left: x(pastEnd) }}

@@ -179,3 +179,17 @@ export function trackGeometry(model: TimelineModel, widthPx: number, minSlotPx: 
   };
   return { pastPx, slotPx, x, dayAt };
 }
+
+/**
+ * Drops month labels that would touch their neighbour. Labels are centred on their x; the year label
+ * (January) is wider than an initial and wins a collision, so the year never disappears.
+ */
+export function spreadLabels<T extends { x: number; wide: boolean }>(labels: T[], initialPx: number, yearPx: number, gapPx: number): T[] {
+  const half = (l: T) => (l.wide ? yearPx : initialPx) / 2;
+  const kept: T[] = [];
+  const ordered = [...labels.filter((l) => l.wide), ...labels.filter((l) => !l.wide)];
+  for (const label of ordered) {
+    if (!kept.some((k) => Math.abs(k.x - label.x) < half(k) + half(label) + gapPx)) kept.push(label);
+  }
+  return kept.sort((a, b) => a.x - b.x);
+}
