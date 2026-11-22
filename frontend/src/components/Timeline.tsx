@@ -146,6 +146,8 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
   const previous = previousIn(model.dataIndices, index);
   const next = nextIn(model.dataIndices, index);
   const latest = model.days[model.latestIndex];
+  // The massif is bare in autumn: a way into the deep-snow scenes of March 2025 shows what the layers do with snow.
+  const demoIndex = [...model.dataIndices].reverse().find((i) => model.days[i].date.startsWith("2025-03"));
 
   const select = (i: number) => onChange(model.days[i].date);
   const dayAt = (clientX: number) => {
@@ -340,6 +342,19 @@ export default function Timeline({ catalog, model, selectedDate, onChange, onRet
       </div>
 
       <div className="relative flex items-center gap-1 justify-self-end max-md:col-start-2 max-md:row-start-1">
+        {demoIndex !== undefined && !day.date.startsWith("2025-03") && (
+          <button
+            type="button"
+            onClick={() => {
+              setPlaying(false);
+              select(demoIndex);
+            }}
+            title={t("linea_tiempo.tooltip_demo_nieve")}
+            className={TEXT_BUTTON}
+          >
+            {t("linea_tiempo.demo_nieve")}
+          </button>
+        )}
         <button
           type="button"
           disabled={latest.date === day.date}
