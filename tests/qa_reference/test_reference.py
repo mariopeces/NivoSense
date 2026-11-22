@@ -85,12 +85,26 @@ class StrataTest(unittest.TestCase):
             for b in draws[i + 1 :]:
                 self.assertGreaterEqual(math.hypot(a.row - b.row, a.col - b.col) * 20.0, strata.MIN_SPACING_M)
 
+    def test_second_draw_keeps_its_distance_from_the_first(self):
+        masks = {name: np.zeros((60, 60), dtype=bool) for name in strata.STRATA}
+        masks["forest"][:, :] = True
+        bands = np.zeros((60, 60), dtype="int8")
+        earlier = [(30, 30)]
+        draws = strata.draw_points(masks, bands, {"forest": 5}, np.random.default_rng(3), 20.0, taken=earlier)
+        self.assertEqual(len(draws), 5)
+        self.assertTrue(all(math.hypot(d.row - 30, d.col - 30) * 20.0 >= strata.MIN_SPACING_M for d in draws))
+        self.assertEqual(earlier, [(30, 30)])
+
     def test_elevation_bands(self):
         bands = strata.elevation_band(np.array([1000.0, 1500.0, 2499.0, 3400.0]))
         self.assertEqual([strata.band_name(int(b)) for b in bands], ["<1500", "1500-2000", "2000-2500", ">=2500"])
 
 
 class SampleHelpersTest(unittest.TestCase):
+    def test_grid_cell_of_a_pixel_centre(self):
+        grid = Grid("EPSG:32630", 1000.0, 5000.0, 20.0, 3, 2)
+        self.assertEqual(sample.grid_cell(1050.0, 4970.0, grid), (1, 2))
+
     def test_single_tile_needs_all_four_cells_from_one_tile(self):
         source = np.array([[0, 0, 1, 1], [0, 0, 1, 0], [-1, -1, 2, 2], [-1, -1, 2, 2]], dtype="int8")
         self.assertEqual(sample.single_tile(source).tolist(), [[True, False], [False, True]])
@@ -191,11 +205,14 @@ class FrozenSampleTest(unittest.TestCase):
     def test_sample_meets_the_card(self):
         collection = json.loads((REFERENCE / "snow_points.geojson").read_text(encoding="utf-8"))
         points = [feature["properties"] for feature in collection["features"]]
-        self.assertGreaterEqual(len(points), 1500)
-        self.assertGreaterEqual(len({p["date"] for p in points}), 12)
-        self.assertIn("2026-11-20", {p["date"] for p in points})
-        self.assertEqual({p["stratum"] for p in points}, set(strata.STRATA))
+        scored = [p for p in points if p["scored"]]
+        self.assertTrue(all(p["scored"] == (p["label"] != "unsure") for p in points))
+        self.assertGreaterEqual(len(scored), 1500)
+        self.assertGreaterEqual(len({p["date"] for p in scored}), 12)
+        self.assertIn("2026-11-20", {p["date"] for p in scored})
+        self.assertEqual({p["stratum"] for p in scored}, set(strata.STRATA))
         self.assertTrue({p["label"] for p in points} <= set(chips.LABELS))
+        self.assertTrue({p["draw"] for p in points} <= {1, 2})
         self.assertTrue(all(p["chip_scene_id"].endswith("_L1C") for p in points))
         self.assertEqual(len({p["id"] for p in points}), len(points))
 

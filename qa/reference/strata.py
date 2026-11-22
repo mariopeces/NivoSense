@@ -179,11 +179,13 @@ def draw_points(
     rng: np.random.Generator,
     resolution: float,
     min_spacing: float = MIN_SPACING_M,
+    taken: list[tuple[int, int]] | None = None,
 ) -> list[Draw]:
     """Simple random sample of each (stratum, elevation band) cell, quotas split evenly over
     the bands of a stratum; candidates closer than `min_spacing` to a point already drawn on
-    the date are skipped. Strata are drawn in `STRATA` order."""
-    taken: list[tuple[int, int]] = []
+    the date (including the `taken` (row, col) cells of an earlier draw) are skipped. Strata
+    are drawn in `STRATA` order."""
+    taken = list(taken or [])
     spacing_px = min_spacing / resolution
     draws: list[Draw] = []
     band_count = len(ELEVATION_BREAKS_M) + 1

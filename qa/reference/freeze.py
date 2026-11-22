@@ -41,6 +41,7 @@ PROTOCOL = {
         "snow in SWIR false colour is cyan or blue (low B11), cloud is white or pink (high B11)",
         "cloud shadow on clear ground is not cloud: label what the ground shows, or unsure if too dark",
         "points were labelled in a shuffled order per date, without their stratum shown",
+        "unsure points stay in the file with scored = false and are left out of every score",
     ],
     "labeller": "LLM labelling agent (Claude), blind to every snow classifier in the repository",
 }
@@ -76,6 +77,12 @@ def design() -> dict:
             "only on SCL clear-sky pixels. Points also carry every stratum they fall in (in_strata) and the "
             "pixel count of their draw cell (cell_pixels) for design-weighted estimates."
         ),
+        "supplement": (
+            "points with draw = 2 come from a second draw (seed and quotas in metadata.supplement) on the dates "
+            "with a snowline, from the same strata and elevation bands restricted to ground at or above the "
+            "date's snowline_m, keeping the minimum spacing to the first draw; their cell_pixels count the "
+            "restricted cell. They oversample snow-prone ground: weight each draw by its own cells."
+        ),
     }
 
 
@@ -88,7 +95,9 @@ def freeze(points_path: Path, labels_path: Path, out: Path = SAMPLE_PATH) -> str
     if missing or extra:
         raise ValueError(f"labels do not match the points: {len(missing)} missing, {len(extra)} unknown")
     for feature in collection["features"]:
-        feature["properties"]["label"] = labels[feature["properties"]["id"]]
+        label = labels[feature["properties"]["id"]]
+        feature["properties"]["label"] = label
+        feature["properties"]["scored"] = label != "unsure"
     collection["metadata"] = {
         "name": "NivoSense frozen snow reference sample",
         "crs_of_x_y": "EPSG:32630",
