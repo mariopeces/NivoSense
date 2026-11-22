@@ -444,7 +444,7 @@ def build_catalog(
                 cameras.extend(
                     parse_datex_cameras(
                         feed,
-                        bbox,  # type: ignore[arg-type]
+                        bbox,
                         source["url"],
                         source["attribution"],
                         source.get("provider", source["id"]),
@@ -453,7 +453,7 @@ def build_catalog(
             except (OSError, http.client.HTTPException, ET.ParseError) as exc:
                 log.append({"source": source["id"], "status": "failed", "problem": f"feed unavailable: {exc}"})
         elif source["type"] == "static":
-            cameras.extend(static_cameras(source, bbox))  # type: ignore[arg-type]
+            cameras.extend(static_cameras(source, bbox))
         else:
             raise ValueError(f"Unsupported webcam source type: {source['type']}")
 

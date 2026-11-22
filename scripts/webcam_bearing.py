@@ -798,9 +798,7 @@ def locate_view(
         found.sort(key=lambda item: -item[0])
         return found
 
-    coarse = scan(
-        MATCH_PX_PER_DEG, np.arange(fov_range[0], fov_range[1] + 0.1, 4.0), np.arange(-16, 17, 4), None
-    )
+    coarse = scan(MATCH_PX_PER_DEG, np.arange(fov_range[0], fov_range[1] + 0.1, 4.0), np.arange(-16, 17, 4), None)
     score, fov, pitch, centre, _ = coarse[0]
     profiles = np.max([item[4] for item in coarse], axis=0)
     columns_deg = np.arange(profiles.size) / MATCH_PX_PER_DEG
