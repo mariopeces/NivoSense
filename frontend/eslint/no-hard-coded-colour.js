@@ -7,11 +7,19 @@ import path from "node:path";
 // A colour function (matched to its balanced closing parenthesis) or a hex colour, also URL-encoded (%23) in data URIs.
 const START =
   /(?<![a-z-])(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|color)\(|(?:#|%23)(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})(?![0-9a-z_-])/gi;
-const HEX_FRAGMENT = /(?:#|%23)[0-9a-f]{1,7}$/i;
-const WORD =/(?<![\w-])[a-z]+(?![\w-])/gi;
+// Stands for a dynamic interpolation in a template literal's text.
+const HOLE = "\uE000";
+// A hex colour whose digits come (partly) from an interpolation: `#${x}`, `#ff${x}`.
+const HEX_FRAGMENT = /(?:#|%23)[0-9a-f]{0,7}\uE000/gi;
+const WORD = /(?<![\w-])[a-z]+(?![\w-])/gi;
 const MAPLIBRE_COLOUR_EXPRESSIONS = new Set("rgb rgba hsl hsla".split(" "));
-// Keys whose string values are colours: style objects and props, SVG and Recharts props, MapLibre paint properties.
-const COLOUR_KEY = /colou?r|fill|stroke|background|border|outline|shadow|stop/i;
+// Keys whose string values are or contain colours: style objects and props (colour shorthands and composites such
+// as border, box-shadow, text-decoration, filter: drop-shadow(), column-rule), SVG and Recharts props, MapLibre paint
+// properties, CSS custom properties.
+const COLOUR_KEY = /colou?r|fill|stroke|background|border|outline|shadow|stop|decoration|filter|column-?rule|^--/i;
+// Keys of a legacy MapLibre function object (`{ type, property, default, stops }`): their colours belong to the
+// paint key that holds the object.
+const LEGACY_FUNCTION_KEYS = new Set(["default", "stops"]);
 const MAPLIBRE_SETTERS = new Set(["setPaintProperty", "setLayoutProperty"]);
 // CSS properties whose values hold names, not colours (a "snow" animation, a "Tan" font).
 const CSS_NAME_PROPERTY = /^(animation|font|grid|transition|will-change|content|counter|quotes|list-style-type)/i;
@@ -70,10 +78,19 @@ function colourValues(text) {
 
 const namedColours = (text) => (text.match(WORD) ?? []).map((w) => w.toLowerCase()).filter((w) => NAMED.has(w));
 
-// The text of a template literal whose interpolations are all literals (`#${"ff00ff"}`), else null.
-function staticTemplate(node) {
-  if (!node.expressions.every((e) => e.type === "Literal")) return null;
-  return node.quasis.map((q, i) => (q.value.cooked ?? q.value.raw) + (node.expressions[i]?.value ?? "")).join("");
+// The text of a template literal with literal and nested template interpolations inlined (`#${"ff00ff"}`,
+// `#${`ff00ff`}`) and every other interpolation replaced by HOLE.
+function templateText(node) {
+  return node.quasis
+    .map((quasi, i) => {
+      const expression = node.expressions[i];
+      let inlined = "";
+      if (expression?.type === "Literal") inlined = String(expression.value);
+      else if (expression?.type === "TemplateLiteral") inlined = templateText(expression);
+      else if (expression) inlined = HOLE;
+      return (quasi.value.cooked ?? quasi.value.raw) + inlined;
+    })
+    .join("");
 }
 
 function keyName(node) {
@@ -91,7 +108,13 @@ function colourContextKey(node) {
   for (let parent = node.parent; parent; current = parent, parent = parent.parent) {
     switch (parent.type) {
       case "Property":
-        return parent.value === current ? keyName(parent.key) : null;
+        if (parent.value !== current) return null;
+        if (LEGACY_FUNCTION_KEYS.has(keyName(parent.key)) && parent.parent.type === "ObjectExpression") {
+          current = parent.parent;
+          parent = current;
+          break;
+        }
+        return keyName(parent.key);
       case "JSXAttribute":
         return keyName(parent.name);
       case "AssignmentExpression":
@@ -186,12 +209,16 @@ export default {
     };
 
     const checkString = (node, text) => {
-      add({ node }, colourValues(text));
+      add({ node }, colourValues(text).map((value) => value.replaceAll(HOLE, "${}")));
+      for (const fragment of text.matchAll(HEX_FRAGMENT)) {
+        const digits = fragment[0].slice(0, -1);
+        if (colourValues(digits).length === 0) add({ node }, [`${normalise(digits)}\${}`]);
+      }
       if (namedColoursAnywhere) {
         if (NAMED.has(text.trim().toLowerCase())) add({ node }, [text.trim().toLowerCase()]);
         return;
       }
-      const key = colourContextKey(node.type === "TemplateElement" ? node.parent : node);
+      const key = colourContextKey(node);
       if (key && COLOUR_KEY.test(key)) add({ node }, namedColours(text));
     };
 
@@ -199,21 +226,12 @@ export default {
 
     return {
       // JavaScript and TypeScript
+      // Literals and templates interpolated into a template are checked as part of the outer template's text.
       Literal(node) {
-        const inStaticTemplate = node.parent.type === "TemplateLiteral" && staticTemplate(node.parent) !== null;
-        if (typeof node.value === "string" && !inStaticTemplate) checkString(node, node.value);
+        if (typeof node.value === "string" && node.parent.type !== "TemplateLiteral") checkString(node, node.value);
       },
       TemplateLiteral(node) {
-        const text = staticTemplate(node);
-        if (text !== null) checkString(node, text);
-      },
-      TemplateElement(node) {
-        if (staticTemplate(node.parent) !== null) return;
-        const text = node.value.cooked ?? node.value.raw;
-        checkString(node, text);
-        // A hex colour completed by an interpolation, as in `#ff${x}`.
-        const fragment = node.tail ? null : HEX_FRAGMENT.exec(text);
-        if (fragment && colourValues(fragment[0]).length === 0) add({ node }, [`${normalise(fragment[0])}\${}`]);
+        if (node.parent.type !== "TemplateLiteral") checkString(node, templateText(node));
       },
       ArrayExpression(node) {
         const [head] = node.elements;
@@ -230,7 +248,8 @@ export default {
         const value = text.slice(text.indexOf(":") + 1);
         add({ loc: node.loc }, colourValues(value));
         if (!CSS_NAME_PROPERTY.test(node.property)) {
-          add({ loc: node.loc }, namedColours(value.replace(/var\([^)]*\)/g, "")));
+          // Drop custom property names (`--red`), keep var() fallbacks (`var(--x, red)`).
+          add({ loc: node.loc }, namedColours(value.replace(/--[\w-]+/g, "")));
         }
       },
       Atrule(node) {
