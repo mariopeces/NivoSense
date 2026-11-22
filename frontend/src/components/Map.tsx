@@ -9,6 +9,7 @@ import type { Status } from "./ui";
 import type { WeatherOverlay } from "../lib/weather";
 import { t } from "../lib/copy";
 import { token } from "../lib/tokens";
+import { basinStyle } from "../lib/basinStyle";
 
 maplibregl.setWorkerUrl(workerUrl);
 // Catalogue tiles are PMTiles archives read by HTTP range requests straight from the bucket (no tile server).
@@ -96,6 +97,8 @@ type FC = {
 type Props = {
   basinsFC: FC | null;
   selectedBasinId: string | null;
+  /** The active tab; the basins are only drawn in full on "agua". */
+  section: string;
   weatherOverlay: WeatherOverlay | null;
   /** Bottom to top. */
   catalogLayers: CatalogLayer[];
@@ -112,6 +115,7 @@ type Props = {
 export default function Map({
   basinsFC,
   selectedBasinId,
+  section,
   weatherOverlay,
   catalogLayers,
   onBasinSelect,
@@ -129,6 +133,7 @@ export default function Map({
   const weatherOverlayRef = useRef<WeatherOverlay | null>(null);
   const catalogLayersRef = useRef<CatalogLayer[]>([]);
   const onBasinSelectRef = useRef(onBasinSelect);
+  const sectionRef = useRef(section);
   const webcamsRef = useRef<Webcam[]>([]);
   const selectedWebcamRef = useRef<string | null>(null);
   const onWebcamSelectRef = useRef(onWebcamSelect);
@@ -198,8 +203,9 @@ export default function Map({
       setCatalogLayers(map, catalogLayersRef.current);
       if (basinsFCRef.current) {
         addBasinsLayers(map, basinsFCRef.current);
-        applySelected(map, selectedRef.current);
-        attachBasinInteractions(map, onBasinSelectRef);
+        applySelected(map, selectedRef.current, sectionRef.current);
+        applyBasinStyle(map, sectionRef.current);
+        attachBasinInteractions(map, onBasinSelectRef, sectionRef);
       }
       addWebcamLayers(map, webcamsRef.current);
       applySelectedWebcam(map, selectedWebcamRef.current);
@@ -239,9 +245,19 @@ export default function Map({
     if (!map || !basinsFC) return;
     if (!map.isStyleLoaded()) return;
     addBasinsLayers(map, basinsFC);
-    applySelected(map, selectedBasinId);
-    attachBasinInteractions(map, onBasinSelectRef);
+    applySelected(map, selectedBasinId, sectionRef.current);
+    applyBasinStyle(map, sectionRef.current);
+    attachBasinInteractions(map, onBasinSelectRef, sectionRef);
   }, [basinsFC]);
+
+  useEffect(() => {
+    sectionRef.current = section;
+    const map = mapRef.current;
+    // No isStyleLoaded() guard: it stays false while tiles load, which would skip the switch.
+    if (!map) return;
+    applyBasinStyle(map, section);
+    applySelected(map, selectedRef.current, section);
+  }, [section]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -260,7 +276,7 @@ export default function Map({
     if (!map || !basinsFC) return;
 
     const apply = () => {
-      applySelected(map, selectedBasinId);
+      applySelected(map, selectedBasinId, sectionRef.current);
       if (selectedBasinId) {
         const feature = basinsFC.features.find(
           (f) => String(f.properties.cod_uni) === selectedBasinId,
@@ -498,7 +514,7 @@ function addBasinsLayers(map: maplibregl.Map, fc: FC) {
       id: "basins-fill",
       type: "fill",
       source: "basins",
-      // Invisible: it only gives the basins a click target; the outlines carry the drawing.
+      // Light fill on the Agua tab only (applyBasinStyle); at opacity 0 it still takes clicks.
       paint: {
         "fill-color": token("color-ink"),
         "fill-opacity": 0,
@@ -545,9 +561,18 @@ function addBasinsLayers(map: maplibregl.Map, fc: FC) {
   }
 }
 
-function applySelected(map: maplibregl.Map, selectedId: string | null) {
+function applyBasinStyle(map: maplibregl.Map, section: string) {
+  if (!map.getLayer("basins-fill")) return;
+  const style = basinStyle(section);
+  map.setPaintProperty("basins-fill", "fill-opacity", style.fillOpacity);
+  map.setPaintProperty("basins-line", "line-width", style.lineWidth);
+  map.setPaintProperty("basins-line", "line-opacity", style.lineOpacity);
+  map.setPaintProperty("basins-halo", "line-opacity", style.haloOpacity);
+}
+
+function applySelected(map: maplibregl.Map, selectedId: string | null, section: string) {
   if (!map.getLayer("basins-halo-selected")) return;
-  const codUni = selectedId ? Number(selectedId) : -1;
+  const codUni = selectedId && basinStyle(section).interactive ? Number(selectedId) : -1;
   map.setFilter("basins-halo-selected", ["==", ["get", "cod_uni"], codUni]);
   map.setFilter("basins-line-selected", ["==", ["get", "cod_uni"], codUni]);
 }
@@ -555,6 +580,7 @@ function applySelected(map: maplibregl.Map, selectedId: string | null) {
 function attachBasinInteractions(
   map: maplibregl.Map,
   onSelectRef: { current: (id: string | null) => void },
+  sectionRef: { current: string },
 ) {
   if (!map.getLayer("basins-fill")) return;
 
@@ -563,6 +589,7 @@ function attachBasinInteractions(
   flagged.__basinClickAttached = true;
 
   map.on("click", "basins-fill", (e) => {
+    if (!basinStyle(sectionRef.current).interactive) return;
     const feature = e.features?.[0];
     if (!feature) return;
     const codUni = feature.properties?.cod_uni;
@@ -571,6 +598,7 @@ function attachBasinInteractions(
   });
 
   map.on("mouseenter", "basins-fill", () => {
+    if (!basinStyle(sectionRef.current).interactive) return;
     map.getCanvas().style.cursor = "pointer";
   });
   map.on("mouseleave", "basins-fill", () => {

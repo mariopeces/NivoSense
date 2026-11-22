@@ -553,6 +553,7 @@ export default function App() {
         <Map
           basinsFC={basinsFC}
           selectedBasinId={selectedBasinId}
+          section={section}
           weatherOverlay={precipitationOverlay}
           catalogLayers={mapLayers}
           onBasinSelect={handleBasinSelect}

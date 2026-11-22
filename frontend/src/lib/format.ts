@@ -20,6 +20,15 @@ export function mesCorto(iso: string) {
   return MONTHS_SHORT[utcDate(iso).getUTCMonth()];
 }
 
+/** One-letter month for the narrow timeline track: E F M A M J J A S O N D. */
+export function mesInicial(iso: string) {
+  return MONTHS_LONG[utcDate(iso).getUTCMonth()][0].toUpperCase();
+}
+
+export function mesLargo(iso: string) {
+  return MONTHS_LONG[utcDate(iso).getUTCMonth()];
+}
+
 export function numero(value: number, decimals = 1) {
   const fixed = Math.abs(value).toFixed(decimals);
   const [whole, fraction] = fixed.split(".");
