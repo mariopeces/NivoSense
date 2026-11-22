@@ -6,7 +6,7 @@ from scripts.pick_release import ReleaseError, pick_release
 
 
 def run(*args):
-    subprocess.run(["git", *args], check=True, capture_output=True, text=True)
+    subprocess.run(["git", *args], check=True, capture_output=True, encoding="utf-8")
 
 
 def commit(message):
@@ -35,7 +35,7 @@ def test_newest_semver_tag_on_main_wins_by_number(repo):
 def test_stray_names_are_ignored(repo):
     run("tag", "v0.1.0")
     commit("second")
-    for name in ("vtest", "v1.0.0-rc1", "v2", "v2.0", "v01.0.0", "version-3.0.0"):
+    for name in ("vtest", "v1.0.0-rc1", "v2", "v2.0", "v01.0.0", "version-3.0.0", "v9.0.1١", "v1x2y3"):
         run("tag", name)
     assert pick_release("main") == "v0.1.0"
 

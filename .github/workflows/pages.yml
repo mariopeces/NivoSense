@@ -18,7 +18,6 @@ on:
 permissions:
   contents: read
   actions: read
-  issues: write
   pages: write
   id-token: write
 
@@ -34,6 +33,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      ignored_tags: ${{ steps.release.outputs.ignored_tags }}
     steps:
       - name: Only main deploys the live site
         run: test "$GITHUB_REF" = refs/heads/main
@@ -44,7 +45,11 @@ jobs:
       - name: Pick the release
         id: release
         run: |
-          tag=$(python3 scripts/pick_release.py --main-ref refs/remotes/origin/main)
+          status=0
+          tag=$(python3 scripts/pick_release.py --main-ref refs/remotes/origin/main 2> pick.log) || status=$?
+          cat pick.log >&2
+          if grep -q '^::warning::' pick.log; then echo "ignored_tags=true" >> "$GITHUB_OUTPUT"; fi
+          test "$status" = 0
           echo "Deploying release $tag ($(git rev-parse "refs/tags/$tag^{commit}"))"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Check out the release
@@ -138,12 +143,25 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Report a failed run
-        if: failure()
+  # A separate job, so a run the github-pages environment refuses is reported too.
+  report:
+    needs: publish
+    if: always() && (needs.publish.result == 'failure' || needs.publish.outputs.ignored_tags == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or comment on the issue
         env:
           GH_TOKEN: ${{ github.token }}
+          FAILED: ${{ needs.publish.result == 'failure' }}
         run: |
-          title="Workflow failed: ${{ github.workflow }}"
+          if [ "$FAILED" = true ]; then
+            title="Workflow failed: ${{ github.workflow }}"
+          else
+            title="Release tags ignored: ${{ github.workflow }}"
+          fi
           body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then

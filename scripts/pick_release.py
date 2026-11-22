@@ -13,7 +13,8 @@ import re
 import subprocess
 import sys
 
-RELEASE_TAG = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+# [0-9], not \d: \d also matches non-ASCII digits such as U+0661.
+RELEASE_TAG = re.compile(r"^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 
 
 class ReleaseError(RuntimeError):
@@ -21,7 +22,7 @@ class ReleaseError(RuntimeError):
 
 
 def git(*args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], capture_output=True, text=True, check=False)
+    return subprocess.run(["git", *args], capture_output=True, encoding="utf-8", check=False)
 
 
 def is_on_main(tag: str, main_ref: str) -> bool:
