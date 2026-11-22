@@ -70,12 +70,17 @@ with open(out / "qa.md", "w") as f:
 
 # Timing per date from the run log.
 with open(out / "timing.md", "w") as f:
-    f.write("| date | search s | read JP2 s | publish (COG + PMTiles) s | total s |\n|---|---|---|---|---|\n")
+    f.write("| date | search s | read JP2 s | publish (COG + PMTiles) s | total s | COG MB | PMTiles MB |\n"
+            "|---|---|---|---|---|---|---|\n")
     for line in log_text.splitlines():
         if " INFO {" in line:
             r = json.loads(line.split(" INFO ", 1)[1])
             if r["status"] == "published":
-                f.write(f"| {r['date']} | {r['search_s']} | {r['read_s']} | {r['publish_s']} | {r['total_s']} |\n")
+                e = entries[r["date"]]
+                cog_mb = (root / e["cog"]).stat().st_size / 1e6
+                tiles_mb = (root / e["pmtiles"]).stat().st_size / 1e6
+                f.write(f"| {r['date']} | {r['search_s']} | {r['read_s']} | {r['publish_s']} | {r['total_s']} | "
+                        f"{cog_mb:.1f} | {tiles_mb:.1f} |\n")
 
 # Mask offsets: agreement of the 20 m snow stand-in (upsampled to 10 m) with a bright-RGB mask
 # (mean DN >= 140, i.e. about 0.4 reflectance through the stretch) at 10 m offsets -3..3.
