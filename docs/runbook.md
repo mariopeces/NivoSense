@@ -258,7 +258,7 @@ gh variable list -R mariopeces/NivoSense
 
 | Site | URL | Built from | Workflow |
 |---|---|---|---|
-| Live | https://mariopeces.github.io/NivoSense/ | the newest release tag (2.2), with data restored from the legacy pipeline artifacts | `pages.yml` |
+| Live | https://mariopeces.github.io/NivoSense/ | the newest release tag (2.2), with data restored from the legacy pipeline artifacts of trusted runs only (`scripts/trusted_runs.py`: successful schedule or dispatch runs of the producing workflow, in this repository, on a commit of `main`) | `pages.yml` |
 | Staging | `https://storage.googleapis.com/${STAGING_BUCKET}/${STAGING_PREFIX}site/index.html` (today https://storage.googleapis.com/nivosense-cogs/staging/site/index.html) | `main`, on every push that touches `frontend/` | `staging-site.yml` |
 | PR preview | `.../${STAGING_PREFIX}site/pr-<n>/index.html` | the PR head, while the PR has the label `staging-preview` | `staging-site.yml` |
 
@@ -307,6 +307,8 @@ gh api repos/mariopeces/NivoSense/rulesets --jq '.[] | {id,name,target,enforceme
 # Label that asks for a PR preview.
 gh label create staging-preview -R mariopeces/NivoSense --description "Publish a staging site preview for this PR" --color 0E8A16
 ```
+
+The main-only rule holds only for jobs that declare `environment: github-pages`: GitHub lets a deploy job without it publish to Pages from any branch, so every Pages deploy job must declare that environment.
 
 Every agent pushes as the repository admin, so the ruleset stops other writers, not an agent. What keeps a stray tag off the live site is that only main runs deploy and that `pick_release.py` accepts only release tags on `main`.
 

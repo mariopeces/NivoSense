@@ -30,10 +30,7 @@ def is_on_main(tag: str, main_ref: str) -> bool:
     if commit.returncode != 0:
         print(f"::warning::tag {tag} does not point to a commit; ignored", file=sys.stderr)
         return False
-    result = git("merge-base", "--is-ancestor", commit.stdout.strip(), main_ref)
-    if result.returncode not in (0, 1):
-        raise ReleaseError(f"git merge-base failed for {tag}: {result.stderr.strip()}")
-    return result.returncode == 0
+    return git("merge-base", "--is-ancestor", commit.stdout.strip(), main_ref).returncode == 0
 
 
 def pick_release(main_ref: str) -> str:
