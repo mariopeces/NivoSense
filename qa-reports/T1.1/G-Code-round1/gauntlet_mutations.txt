@@ -1,0 +1,10 @@
+listing threshold 0.30->0.05 => 16 passed in 10.21s
+listed from coverage not valid => 1 failed, 15 passed in 13.88s
+one scale/offset for all tiles => 16 passed in 11.36s
+group by date only (orbit ignored) => 4 failed, 12 passed in 14.57s
+keep every baseline => 1 failed, 15 passed in 17.66s
+keep only newest granule per tile => 2 failed, 14 passed in 21.52s
+complete always True => 1 failed, 15 passed in 15.19s
+no footprint filter => 16 passed in 22.83s
+SCL 2 (shadow) counted not valid => 1 failed, 15 passed in 28.41s
+10m nodata block kept (nanmean) => 1 failed, 15 passed in 26.37s

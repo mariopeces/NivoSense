@@ -1,0 +1,2 @@
+2021-12-09/R094 baselines ['05.00'] swir16 match DN*scale+offset: 200 mismatch: 0 | mean |diff| if offset ignored: 0.1
+2026-11-10/R094 baselines ['05.13'] swir16 match DN*scale+offset: 200 mismatch: 0 | mean |diff| if offset ignored: 0.1

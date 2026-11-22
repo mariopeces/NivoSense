@@ -1,0 +1,47 @@
+{
+  "gauntlet": "G-Code",
+  "task": "T1.1",
+  "round": 1,
+  "verdict": "fail",
+  "findings": [
+    {
+      "severity": "major",
+      "where": "pipelines/s2/stac.py:82-105, pipelines/s2/mosaic.py:86-88; dates 2026-02-03, 02-06, 02-13, 02-16, 02-23, 08-29",
+      "what": "S2A and S2B datatakes on the same relative orbit and day are treated as split granules of one datatake and mixed pixel by pixel in one mosaic",
+      "observed": "2026-02-13 R051 30SWG: the two datatakes disagree on SCL in 469,083 of 1,360,375 shared pixels; the mosaic is S2B plus a 22,447 px S2A strip at the swath edge, with a visible seam (zoom_20260213_R051_swathedge.png); the record (0.0958/0.0193) matches neither acquisition",
+      "to_pass": "group split granules by s2:datatake_id; record each datatake separately or pick one by a stated rule; test with two datatakes on one day"
+    },
+    {
+      "severity": "major",
+      "where": "tests/s2/test_s2.py",
+      "what": "Tests do not pin the 30% listing rule (Accept: 2026-11-05 out), per-item scale/offset, or that run() applies the footprint filter",
+      "observed": "deliberate breaks MIN_LISTED_VALID_FRACTION=0.05, scale_offset(acquisition.items[0]) for all tiles, and footprint filter removed from ingest.run all pass 16/16 tests (gauntlet_mutations.txt)",
+      "to_pass": "tests that fail on each break: threshold straddled near 0.30, two tiles with different offsets, run() with a non-touching granule checking tiles and expected tiles"
+    },
+    {
+      "severity": "minor",
+      "where": "pipelines/s2/mosaic.py:87-88; 2026-11-10 R094",
+      "what": "Docstring claims tiles of one datatake hold the same values in overlaps; they do not (Sen2Cor runs per tile)",
+      "observed": "overlap samples: 0-2% swir16 DN identical, median |dDN| 12-41, SCL agreement 53.8-100% (gauntlet_overlap_20261110.txt); no seam visible at 80 m",
+      "to_pass": "correct the comment; state the deterministic tie rule"
+    },
+    {
+      "severity": "minor",
+      "where": "pipelines/s2/ingest.py:102-108",
+      "what": "An incomplete record can be listed=true",
+      "observed": "2026-11-10 R094 with 30SVG withheld: complete=False, listed=True, valid 0.3561",
+      "to_pass": "document that listed implies nothing about completeness, or require complete for listed"
+    },
+    {
+      "severity": "minor",
+      "where": "pipelines/s2/ingest.py:55-62, 119-125; 2026-11-17 R051",
+      "what": "A late split granule for a tile already present is never revisited by the daily run (disclosed in Found, not done)",
+      "observed": "large 30SWG granule withheld: complete=True, coverage 0.0354 instead of 0.1014; a run 2 days later does not revisit the date",
+      "to_pass": "none for this card; covered by T1.6's 5-day re-run"
+    }
+  ],
+  "followups": [
+    "c1 on Earth Search returns no items over the domain bbox for 2022-01-20..30, 2022-06-01..10 and 2017-07; check coverage before T1.7 calibration seasons",
+    "rasterio 1.4.4 + numpy 2.5 DeprecationWarning from source.read (as noted by the builder)"
+  ]
+}

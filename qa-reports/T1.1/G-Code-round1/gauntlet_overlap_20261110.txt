@@ -1,0 +1,6 @@
+T30SVF T30SVG px 40000 swir16 DN identical 1.7% median|dDN| 16 SCL identical 95.3%
+T30SVF T30SWF px 40000 swir16 DN identical 0.0% median|dDN| 13 SCL identical 100.0%
+T30SVF T30SWG px 40000 swir16 DN identical 2.1% median|dDN| 12 SCL identical 92.7%
+T30SVG T30SWF px 40000 swir16 DN identical 1.6% median|dDN| 18 SCL identical 98.6%
+T30SVG T30SWG px 40000 swir16 DN identical 0.4% median|dDN| 41 SCL identical 53.8%
+T30SWF T30SWG px 40000 swir16 DN identical 1.1% median|dDN| 27 SCL identical 99.7%

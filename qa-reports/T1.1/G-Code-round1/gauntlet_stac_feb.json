@@ -1,0 +1,364 @@
+[
+ {
+  "date": "2026-02-03",
+  "datatake": "GS2B_20260203T105139_046552_N05.11",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20260203T105140_L2A"
+  ],
+  "baselines": [
+   "05.11"
+  ],
+  "eo_cloud_cover": [
+   89.5
+  ],
+  "coverage": 0.0958,
+  "footprint_cov": 0.0963,
+  "valid": 0.0,
+  "listed": false
+ },
+ {
+  "date": "2026-02-03",
+  "datatake": "GS2A_20260203T105211_055461_N05.11",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20260203T105731_L2A"
+  ],
+  "baselines": [
+   "05.11"
+  ],
+  "eo_cloud_cover": [
+   89.2
+  ],
+  "coverage": 0.0977,
+  "footprint_cov": 0.0982,
+  "valid": 0.0001,
+  "listed": false
+ },
+ {
+  "date": "2026-02-06",
+  "datatake": "GS2B_20260206T110129_046595_N05.12",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2B_T30SVF_20260206T110725_L2A",
+   "S2B_T30SVG_20260206T110725_L2A",
+   "S2B_T30SWF_20260206T110725_L2A",
+   "S2B_T30SWG_20260206T110725_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   90.8,
+   83.4,
+   95.9,
+   70.7
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.0004,
+  "listed": false
+ },
+ {
+  "date": "2026-02-06",
+  "datatake": "GS2A_20260206T110621_055504_N05.12",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20260206T110618_L2A",
+   "S2A_T30SVG_20260206T110618_L2A",
+   "S2A_T30SWF_20260206T110618_L2A",
+   "S2A_T30SWG_20260206T110618_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   90.3,
+   83.4,
+   95.8,
+   70.9
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.001,
+  "listed": false
+ },
+ {
+  "date": "2026-02-08",
+  "datatake": "GS2C_20260208T105211_007457_N05.12",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20260208T110043_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   43.3
+  ],
+  "coverage": 0.0993,
+  "footprint_cov": 0.1,
+  "valid": 0.0564,
+  "listed": false
+ },
+ {
+  "date": "2026-02-11",
+  "datatake": "GS2C_20260211T110201_007500_N05.12",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2C_T30SVF_20260211T110201_L2A",
+   "S2C_T30SVG_20260211T110201_L2A",
+   "S2C_T30SWF_20260211T110201_L2A",
+   "S2C_T30SWG_20260211T110201_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   53.3,
+   93.5,
+   94.4,
+   98.7
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.1226,
+  "listed": false
+ },
+ {
+  "date": "2026-02-13",
+  "datatake": "GS2B_20260213T105039_046695_N05.12",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20260213T105338_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   68.1
+  ],
+  "coverage": 0.0947,
+  "footprint_cov": 0.0951,
+  "valid": 0.0193,
+  "listed": false
+ },
+ {
+  "date": "2026-02-13",
+  "datatake": "GS2A_20260213T105111_055604_N05.12",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20260213T105732_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   67.5
+  ],
+  "coverage": 0.0958,
+  "footprint_cov": 0.0963,
+  "valid": 0.0191,
+  "listed": false
+ },
+ {
+  "date": "2026-02-16",
+  "datatake": "GS2B_20260216T110029_046738_N05.12",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2B_T30SVF_20260216T110708_L2A",
+   "S2B_T30SVG_20260216T110708_L2A",
+   "S2B_T30SWF_20260216T110708_L2A",
+   "S2B_T30SWG_20260216T110708_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   14.4,
+   38.9,
+   59.5,
+   44.3
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.8965,
+  "listed": true
+ },
+ {
+  "date": "2026-02-16",
+  "datatake": "GS2A_20260216T110621_055647_N05.12",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20260216T110619_L2A",
+   "S2A_T30SVG_20260216T110619_L2A",
+   "S2A_T30SWF_20260216T110619_L2A",
+   "S2A_T30SWG_20260216T110619_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   14.7,
+   41.0,
+   59.5,
+   44.4
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.8942,
+  "listed": true
+ },
+ {
+  "date": "2026-02-18",
+  "datatake": "GS2C_20260218T105111_007600_N05.12",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20260218T105835_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   76.7
+  ],
+  "coverage": 0.1031,
+  "footprint_cov": 0.1037,
+  "valid": 0.0513,
+  "listed": false
+ },
+ {
+  "date": "2026-02-21",
+  "datatake": "GS2C_20260221T110101_007643_N05.12",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2C_T30SVF_20260221T111037_L2A",
+   "S2C_T30SVG_20260221T111037_L2A",
+   "S2C_T30SWF_20260221T111037_L2A",
+   "S2C_T30SWG_20260221T111037_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 1.0,
+  "listed": true
+ },
+ {
+  "date": "2026-02-23",
+  "datatake": "GS2B_20260223T105019_046838_N05.12",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20260223T105521_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   2.5
+  ],
+  "coverage": 0.0995,
+  "footprint_cov": 0.1002,
+  "valid": 0.0995,
+  "listed": false
+ },
+ {
+  "date": "2026-02-23",
+  "datatake": "GS2A_20260223T105111_055747_N05.12",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20260223T105732_L2A"
+  ],
+  "baselines": [
+   "05.12"
+  ],
+  "eo_cloud_cover": [
+   2.5
+  ],
+  "coverage": 0.1016,
+  "footprint_cov": 0.102,
+  "valid": 0.1016,
+  "listed": false
+ }
+]

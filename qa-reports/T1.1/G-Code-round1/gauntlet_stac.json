@@ -1,0 +1,790 @@
+[
+ {
+  "date": "2026-10-01",
+  "datatake": "GS2B_20261001T104839_049984_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20261001T105105_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   68.0
+  ],
+  "coverage": 0.1003,
+  "footprint_cov": 0.1009,
+  "valid": 0.044,
+  "listed": false
+ },
+ {
+  "date": "2026-10-01",
+  "datatake": "GS2A_20261001T105811_058893_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20261001T110509_L2A",
+   "S2A_T30SVG_20261001T110509_L2A",
+   "S2A_T30SWF_20261001T110509_L2A",
+   "S2A_T30SWG_20261001T110509_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   72.7,
+   88.7,
+   38.1,
+   50.0
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.5766,
+  "listed": true
+ },
+ {
+  "date": "2026-10-04",
+  "datatake": "GS2B_20261004T105909_050027_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2B_T30SVF_20261004T110902_L2A",
+   "S2B_T30SVG_20261004T110902_L2A",
+   "S2B_T30SWF_20261004T110902_L2A",
+   "S2B_T30SWG_20261004T110902_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   93.7,
+   57.2,
+   98.1,
+   92.5
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.0025,
+  "listed": false
+ },
+ {
+  "date": "2026-10-06",
+  "datatake": "GS2C_20261006T104921_010889_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20261006T105724_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   99.9
+  ],
+  "coverage": 0.1048,
+  "footprint_cov": 0.1056,
+  "valid": 0.0,
+  "listed": false
+ },
+ {
+  "date": "2026-10-08",
+  "datatake": "GS2A_20261008T105041_058993_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20261008T105527_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   88.9
+  ],
+  "coverage": 0.1049,
+  "footprint_cov": 0.1055,
+  "valid": 0.0065,
+  "listed": false
+ },
+ {
+  "date": "2026-10-09",
+  "datatake": "GS2C_20261009T105951_010932_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2C_T30SVF_20261009T110044_L2A",
+   "S2C_T30SVG_20261009T110044_L2A",
+   "S2C_T30SWF_20261009T110044_L2A",
+   "S2C_T30SWG_20261009T110044_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   7.9,
+   9.0,
+   4.1,
+   9.9
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.6246,
+  "listed": true
+ },
+ {
+  "date": "2026-10-11",
+  "datatake": "GS2B_20261011T104949_050127_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20261011T105459_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   19.9
+  ],
+  "coverage": 0.0991,
+  "footprint_cov": 0.0997,
+  "valid": 0.0966,
+  "listed": false
+ },
+ {
+  "date": "2026-10-11",
+  "datatake": "GS2A_20261011T105911_059036_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20261011T110232_L2A",
+   "S2A_T30SVG_20261011T110232_L2A",
+   "S2A_T30SWF_20261011T110232_L2A",
+   "S2A_T30SWG_20261011T110232_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   58.2,
+   18.6,
+   84.8,
+   28.5
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.9716,
+  "listed": true
+ },
+ {
+  "date": "2026-10-14",
+  "datatake": "GS2B_20261014T110009_050170_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2B_T30SVF_20261014T110803_L2A",
+   "S2B_T30SVG_20261014T110803_L2A",
+   "S2B_T30SWF_20261014T110803_L2A",
+   "S2B_T30SWG_20261014T110803_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   3.4,
+   7.7,
+   8.3,
+   24.2
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.3597,
+  "listed": true
+ },
+ {
+  "date": "2026-10-16",
+  "datatake": "GS2C_20261016T105031_011032_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20261016T105026_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   53.3
+  ],
+  "coverage": 0.1032,
+  "footprint_cov": 0.104,
+  "valid": 0.0619,
+  "listed": false
+ },
+ {
+  "date": "2026-10-18",
+  "datatake": "GS2A_20261018T105001_059136_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20261018T105141_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   99.7
+  ],
+  "coverage": 0.103,
+  "footprint_cov": 0.1037,
+  "valid": 0.0,
+  "listed": false
+ },
+ {
+  "date": "2026-10-19",
+  "datatake": "GS2C_20261019T110051_011075_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2C_T30SVF_20261019T110351_L2A",
+   "S2C_T30SVG_20261019T110351_L2A",
+   "S2C_T30SWF_20261019T110351_L2A",
+   "S2C_T30SWG_20261019T110351_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   87.3,
+   93.1,
+   88.5,
+   83.7
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.0015,
+  "listed": false
+ },
+ {
+  "date": "2026-10-21",
+  "datatake": "GS2B_20261021T105059_050270_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20261021T105513_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   3.9
+  ],
+  "coverage": 0.097,
+  "footprint_cov": 0.0977,
+  "valid": 0.0949,
+  "listed": false
+ },
+ {
+  "date": "2026-10-21",
+  "datatake": "GS2A_20261021T110021_059179_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20261021T110937_L2A",
+   "S2A_T30SVG_20261021T110937_L2A",
+   "S2A_T30SWF_20261021T110937_L2A",
+   "S2A_T30SWG_20261021T110937_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   2.2,
+   9.5,
+   4.2,
+   3.4
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.9999,
+  "listed": true
+ },
+ {
+  "date": "2026-10-24",
+  "datatake": "GS2B_20261024T110129_050313_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2B_T30SVF_20261024T110854_L2A",
+   "S2B_T30SVG_20261024T110854_L2A",
+   "S2B_T30SWF_20261024T110854_L2A",
+   "S2B_T30SWG_20261024T110854_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   22.7,
+   43.5,
+   33.4,
+   59.0
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.9709,
+  "listed": true
+ },
+ {
+  "date": "2026-10-26",
+  "datatake": "GS2C_20261026T105131_011175_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20261026T105823_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   6.6
+  ],
+  "coverage": 0.0984,
+  "footprint_cov": 0.0992,
+  "valid": 0.0984,
+  "listed": false
+ },
+ {
+  "date": "2026-10-28",
+  "datatake": "GS2A_20261028T105051_059279_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20261028T105751_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   0.3
+  ],
+  "coverage": 0.0976,
+  "footprint_cov": 0.0982,
+  "valid": 0.0976,
+  "listed": false
+ },
+ {
+  "date": "2026-10-29",
+  "datatake": "GS2C_20261029T110151_011218_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2C_T30SVF_20261029T110555_L2A",
+   "S2C_T30SVG_20261029T110555_L2A",
+   "S2C_T30SWF_20261029T110555_L2A",
+   "S2C_T30SWG_20261029T110555_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   1.2,
+   4.5,
+   0.0,
+   1.2
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.9987,
+  "listed": true
+ },
+ {
+  "date": "2026-10-31",
+  "datatake": "GS2B_20261031T105159_050413_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20261031T105655_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   5.2
+  ],
+  "coverage": 0.0973,
+  "footprint_cov": 0.0979,
+  "valid": 0.0846,
+  "listed": false
+ },
+ {
+  "date": "2026-10-31",
+  "datatake": "GS2A_20261031T110121_059322_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20261031T110430_L2A",
+   "S2A_T30SVG_20261031T110430_L2A",
+   "S2A_T30SWF_20261031T110430_L2A",
+   "S2A_T30SWG_20261031T110430_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   8.2,
+   18.8,
+   0.0,
+   4.2
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.9815,
+  "listed": true
+ },
+ {
+  "date": "2026-11-05",
+  "datatake": "GS2C_20261105T105221_011318_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20261105T105426_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   12.9
+  ],
+  "coverage": 0.0943,
+  "footprint_cov": 0.0948,
+  "valid": 0.0706,
+  "listed": false
+ },
+ {
+  "date": "2026-11-07",
+  "datatake": "GS2A_20261107T105151_059422_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2A_T30SWG_20261107T105327_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   14.5
+  ],
+  "coverage": 0.1009,
+  "footprint_cov": 0.1015,
+  "valid": 0.0596,
+  "listed": false
+ },
+ {
+  "date": "2026-11-08",
+  "datatake": "GS2C_20261108T110251_011361_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2C_T30SVF_20261108T110802_L2A",
+   "S2C_T30SVG_20261108T110802_L2A",
+   "S2C_T30SWF_20261108T110802_L2A",
+   "S2C_T30SWG_20261108T110802_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   95.5,
+   96.5,
+   97.8,
+   99.9
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.0011,
+  "listed": false
+ },
+ {
+  "date": "2026-11-10",
+  "datatake": "GS2B_20261110T105159_050556_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20261110T105459_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   2.9
+  ],
+  "coverage": 0.0952,
+  "footprint_cov": 0.0956,
+  "valid": 0.0915,
+  "listed": false
+ },
+ {
+  "date": "2026-11-10",
+  "datatake": "GS2A_20261110T110211_059465_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20261110T110234_L2A",
+   "S2A_T30SVG_20261110T110234_L2A",
+   "S2A_T30SWF_20261110T110234_L2A",
+   "S2A_T30SWG_20261110T110234_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   11.1,
+   0.4,
+   41.4,
+   6.2
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.837,
+  "listed": true
+ },
+ {
+  "date": "2026-11-13",
+  "datatake": "GS2B_20261113T110219_050599_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2B_T30SVF_20261113T110242_L2A",
+   "S2B_T30SVG_20261113T110242_L2A",
+   "S2B_T30SWF_20261113T110242_L2A",
+   "S2B_T30SWG_20261113T110242_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   35.3,
+   11.5,
+   65.3,
+   18.9
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.6938,
+  "listed": true
+ },
+ {
+  "date": "2026-11-15",
+  "datatake": "GS2C_20261115T105321_011461_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2C_T30SWG_20261115T105631_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   75.6
+  ],
+  "coverage": 0.0959,
+  "footprint_cov": 0.0963,
+  "valid": 0.0576,
+  "listed": false
+ },
+ {
+  "date": "2026-11-17",
+  "datatake": "GS2A_20261117T105241_059565_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 2,
+  "ids": [
+   "S2A_T30SWG_20261117T105237_L2A",
+   "S2A_T30SWG_20261117T110058_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   99.7,
+   97.8
+  ],
+  "coverage": 0.1014,
+  "footprint_cov": 0.1021,
+  "valid": 0.0009,
+  "listed": false
+ },
+ {
+  "date": "2026-11-20",
+  "datatake": "GS2B_20261120T105249_050699_N05.13",
+  "orbit": "R051",
+  "tiles": [
+   "30SWG"
+  ],
+  "n_granules": 1,
+  "ids": [
+   "S2B_T30SWG_20261120T105830_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   24.6
+  ],
+  "coverage": 0.0963,
+  "footprint_cov": 0.0968,
+  "valid": 0.0951,
+  "listed": false
+ },
+ {
+  "date": "2026-11-20",
+  "datatake": "GS2A_20261120T110301_059608_N05.13",
+  "orbit": "R094",
+  "tiles": [
+   "30SVF",
+   "30SVG",
+   "30SWF",
+   "30SWG"
+  ],
+  "n_granules": 4,
+  "ids": [
+   "S2A_T30SVF_20261120T110610_L2A",
+   "S2A_T30SVG_20261120T110610_L2A",
+   "S2A_T30SWF_20261120T110610_L2A",
+   "S2A_T30SWG_20261120T110610_L2A"
+  ],
+  "baselines": [
+   "05.13"
+  ],
+  "eo_cloud_cover": [
+   58.2,
+   77.3,
+   30.1,
+   8.5
+  ],
+  "coverage": 1.0,
+  "footprint_cov": 1.0,
+  "valid": 0.9863,
+  "listed": true
+ }
+]

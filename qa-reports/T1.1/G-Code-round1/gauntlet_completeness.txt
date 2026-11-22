@@ -1,0 +1,6 @@
+missing-tile first run  2026-11-10 R094 tiles ['30SVF', '30SWF', '30SWG'] missing ['30SVG'] complete False cov 0.4524 valid 0.3561 n_scenes 3
+missing-tile later run  2026-11-10 R094 tiles ['30SVF', '30SVG', '30SWF', '30SWG'] missing [] complete True cov 1.0 valid 0.837 n_scenes 4
+split-late first run  2026-11-17 R051 tiles ['30SWG'] missing [] complete True cov 0.1014 valid 0.0009 n_scenes 1
+split-late later run  2026-11-17 R051 NOT REVISITED (record complete, date outside the run range)
+split-late-other first run  2026-11-17 R051 tiles ['30SWG'] missing [] complete True cov 0.0354 valid 0.0 n_scenes 1
+split-late-other later run  2026-11-17 R051 NOT REVISITED (record complete, date outside the run range)
