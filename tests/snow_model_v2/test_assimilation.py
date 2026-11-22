@@ -131,3 +131,22 @@ def test_es_mda_pulls_observable_parameters_to_the_truth_and_is_deterministic():
 def test_inverse_inflation_factors_sum_to_one():
     assert sum(1.0 / a.ES_MDA_ITERATIONS for _ in range(a.ES_MDA_ITERATIONS)) == pytest.approx(1.0)
     assert effective_size(np.full(10, 0.1)) == pytest.approx(10.0)
+
+
+def test_crps_matches_the_pairwise_definition():
+    rng = np.random.default_rng(2)
+    members, data = 40, 7
+    x = rng.uniform(0, 1, (members, 1, data))
+    w = rng.uniform(0.1, 1, members)
+    w /= w.sum()
+    y = rng.uniform(0, 1, (1, data))
+    obs = Observations(DAYS[:1], y, np.full((1, data), 25.0), np.full((1, data), 0.1), np.zeros((1, data)))
+    direct = np.mean(
+        [
+            (w * np.abs(x[:, 0, d] - y[0, d])).sum()
+            - 0.5 * (w[:, None] * w[None, :] * np.abs(x[:, 0, d][:, None] - x[:, 0, d][None, :])).sum()
+            for d in range(data)
+        ]
+    )
+    assert a.crps(x, obs, w) == pytest.approx(direct)
+    assert a.crps(np.broadcast_to(y[None], (members, 1, data)).copy(), obs, w) == pytest.approx(0.0, abs=1e-12)

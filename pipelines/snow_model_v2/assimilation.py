@@ -157,6 +157,23 @@ def reliability(
     }
 
 
+def crps(predicted: np.ndarray, observations: Observations, weights: np.ndarray) -> float:
+    """Mean continuous ranked probability score of the weighted ensemble against the usable observed fractions.
+
+    Uses CRPS = E|X - y| - 0.5 E|X - X'| with the pair term from the sorted ensemble, so the cost is N log N
+    per datum, not N^2.
+    """
+    usable = observations.usable
+    x = predicted[:, usable].astype("float64")
+    y = observations.fraction[usable]
+    order = np.argsort(x, axis=0)
+    sorted_x = np.take_along_axis(x, order, axis=0)
+    w = weights[order]
+    upper = np.cumsum(w, axis=0)
+    pair = 2.0 * (w * sorted_x * (upper + (upper - w) - 1.0)).sum(axis=0)
+    return float(np.mean((weights[:, None] * np.abs(x - y[None])).sum(axis=0) - 0.5 * pair))
+
+
 def _clip_unit(u: np.ndarray) -> np.ndarray:
     return np.clip(u, 1e-6, 1 - 1e-6)
 
