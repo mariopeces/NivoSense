@@ -141,7 +141,7 @@ describe("NieveSection", () => {
     const onRetry = vi.fn();
     const { rerender } = render(<Harness catalog={{ kind: "missing" }} />);
     expect(screen.getByText("Aún no hay escenas publicadas")).toBeTruthy();
-    expect(screen.getAllByText("Pendiente")).toHaveLength(5);
+    expect(screen.getAllByText("Pendiente")).toHaveLength(4);
     rerender(<Harness catalog={{ kind: "error" }} onRetry={onRetry} />);
     expect(screen.getByRole("alert").textContent).toContain("No se pudo cargar el catálogo");
     fireEvent.click(screen.getByRole("button", { name: /Reintentar/ }));
@@ -149,5 +149,13 @@ describe("NieveSection", () => {
     rerender(<Harness catalog={{ kind: "loading" }} />);
     expect(screen.getAllByRole("status").some((el) => el.getAttribute("aria-busy") === "true")).toBe(true);
     expect(screen.queryByText("Color real")).toBeNull();
+  });
+
+  it("shows the daily snow layer as locked: lock icon, disabled toggle, muted card", () => {
+    render(<Harness catalog={{ kind: "missing" }} />);
+    const toggle = screen.getByRole("button", { name: "Nieve diaria: Próximamente" }) as HTMLButtonElement;
+    expect(toggle.disabled).toBe(true);
+    expect(toggle.closest("[data-locked]")).toBeTruthy();
+    expect(screen.getByText("Todavía no está disponible. Estamos trabajando en esta capa.")).toBeTruthy();
   });
 });
