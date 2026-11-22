@@ -5,3 +5,10 @@ export function token(name: string): string {
   if (!value) throw new Error(`Missing design token --${name}`);
   return value;
 }
+
+/** A px dimension token as a number, e.g. tokenPx("layout-rail-width") === 64. */
+export function tokenPx(name: string): number {
+  const value = token(name);
+  if (!value.endsWith("px")) throw new Error(`Design token --${name} is ${value}, not a px value`);
+  return parseFloat(value);
+}

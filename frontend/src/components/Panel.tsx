@@ -4,7 +4,7 @@ import type { Section } from "./Rail";
 
 export type SheetHeight = "peek" | "half" | "full";
 
-const NEXT_SHEET: Record<SheetHeight, SheetHeight> = { peek: "half", half: "full", full: "peek" };
+export const NEXT_SHEET: Record<SheetHeight, SheetHeight> = { peek: "half", half: "full", full: "peek" };
 
 type Props = {
   section: Section;

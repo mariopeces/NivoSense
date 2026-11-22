@@ -338,7 +338,10 @@
     "atribucion_ign": "© Instituto Geográfico Nacional (IGN), CC BY 4.0 scne.es",
     "atribucion_s2": "Contiene datos modificados de Copernicus Sentinel {anio}",
     "atribucion_cuencas": "Cuencas: {fuente}",
-    "$nota_atribucion_cuencas": "data/basins.geojson does not record its origin; T2.1 rebuilds the sub-basins and must fill {fuente}. Until then the attribution line is omitted, not guessed."
+    "$nota_atribucion_cuencas": "data/basins.geojson does not record its origin; T2.1 rebuilds the sub-basins and must fill {fuente}. Until then the attribution line is omitted, not guessed.",
+    "titulo": "Mapa",
+    "alternar_atribucion": "Mostrar u ocultar la atribución",
+    "comentarios_mapa": "Comentarios sobre el mapa"
   },
   "movil": {
     "abrir_panel": "Abrir el panel",

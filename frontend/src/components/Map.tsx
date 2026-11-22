@@ -16,7 +16,8 @@ const SIERRA_NEVADA_BOUNDS: [[number, number], [number, number]] = [
   [-2.95, 37.18],
 ];
 
-export type Basemap = "claro" | "ortofoto";
+export type { Basemap } from "../lib/basemaps";
+import type { Basemap } from "../lib/basemaps";
 
 const IGN_ATTRIBUTION = t("mapa.atribucion_ign");
 
@@ -184,6 +185,9 @@ export default function Map({
         "NavigationControl.ZoomIn": t("mapa.acercar"),
         "NavigationControl.ZoomOut": t("mapa.alejar"),
         "NavigationControl.ResetBearing": t("mapa.norte"),
+        "Map.Title": t("mapa.titulo"),
+        "AttributionControl.ToggleAttribution": t("mapa.alternar_atribucion"),
+        "AttributionControl.MapFeedback": t("mapa.comentarios_mapa"),
       },
     });
 

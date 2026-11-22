@@ -135,14 +135,18 @@ function SceneCalendar({
   const byDate = useMemo(() => new Map(scenes.map((scene) => [scene.date, scene])), [scenes]);
   const days = calendarDays(visibleMonth);
 
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  // Mount only: a parent re-render while the calendar is open must not pull focus back to the selected day.
   useEffect(() => {
     ref.current?.querySelector<HTMLButtonElement>("[aria-pressed=true]")?.focus();
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, []);
 
   return (
     <div

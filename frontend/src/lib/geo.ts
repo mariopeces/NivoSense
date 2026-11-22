@@ -37,9 +37,14 @@ export function bboxOfGeometry(geometry: AnyGeometry): LngLatBoundsLike {
   ];
 }
 
+// The source names are upper case without accents; this restores the official spelling of the words that
+// carry one (Cádiar, as in the Nomenclátor Geográfico de Andalucía).
+const ACCENTED: Record<string, string> = { cadiar: "cádiar" };
+
 export function prettifyBasinName(raw: string): string {
   return raw
     .toLowerCase()
+    .replace(/[a-z]+/g, (word) => ACCENTED[word] ?? word)
     .replace(/\brio\b/g, "Río")
     .replace(/(^|\s)([a-záéíóúñ])/g, (_, prefix, ch) => prefix + ch.toUpperCase())
     .replace(/\bO\b/g, "o");

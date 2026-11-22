@@ -1,7 +1,7 @@
 import { t } from "../lib/copy";
 import { GroupLabel } from "./ui";
 
-const LAYERS = ["nieve_observada", "nieve_diaria", "swe", "espesor", "color_real"];
+export const LAYERS = ["nieve_observada", "nieve_diaria", "swe", "espesor", "color_real"];
 
 // The facts each layer's method section opens with (source, resolution, frequency), from the copy deck.
 // The full method page is its own screen in the spec.

@@ -17,8 +17,9 @@ export default function WebcamsSection({ webcams, loading, error, selectedId, on
   if (loading) return <Skeleton label={t("cargando.capa", { capa: t("capa.webcams.nombre") })} />;
   if (error) return <Notice error title={t("error.webcams")} />;
 
-  const live = webcams.filter((cam) => !cam.offline && safeImageUrl(cam.image_url));
-  const offline = webcams.filter((cam) => !live.includes(cam));
+  const sorted = [...webcams].sort(byRoadPoint);
+  const live = sorted.filter((cam) => !cam.offline && safeImageUrl(cam.image_url));
+  const offline = sorted.filter((cam) => !live.includes(cam));
   const list = (cams: Webcam[]) => (
     <ul className="m-0 list-none p-0">
       {cams.map((cam) => (
@@ -78,8 +79,10 @@ function WebcamRow({
           className={`h-2 w-2 flex-none rounded-full ${live ? "bg-live" : "border-[1.5px] border-text-muted"}`}
         />
         <span className="min-w-0 flex-1">
-          <span className="block">{webcam.name}</span>
-          {webcam.location && <span className="block text-small text-text-muted">{webcam.location}</span>}
+          <span className="tnum block">{cameraName(webcam.name)}</span>
+          {webcam.location && (
+            <span className="block text-small text-text-muted">{placeName(webcam.location)}</span>
+          )}
         </span>
         <span className={`text-caption ${live ? "text-live" : "text-text-muted"}`}>
           {t(live ? "webcam.en_directo" : "webcam.sin_imagen")}
@@ -90,7 +93,7 @@ function WebcamRow({
           {imageUrl ? (
             <img
               src={imageUrl}
-              alt={webcam.name}
+              alt={cameraName(webcam.name)}
               className="aspect-video w-full bg-panel-soft object-cover"
               loading="lazy"
               referrerPolicy="no-referrer"
@@ -131,6 +134,24 @@ function WebcamRow({
   );
 }
 
+// DGT names cameras "A-395 · PK 12.6" and places them in "GRANADA": shown with the copy deck's decimal
+// comma ("PK 12,6") and the place in title case, and sorted along the road.
+const ROAD_POINT = /PK (\d+(?:\.\d+)?)/;
+
+export function cameraName(name: string) {
+  return name.replace(ROAD_POINT, (_, km: string) => `PK ${km.replace(".", ",")}`);
+}
+
+export function placeName(place: string) {
+  if (place !== place.toUpperCase()) return place;
+  return place.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, prefix: string, ch: string) => prefix + ch.toUpperCase());
+}
+
+export function byRoadPoint(a: Webcam, b: Webcam) {
+  const road = (cam: Webcam) => cam.name.replace(ROAD_POINT, "").trim();
+  const km = (cam: Webcam) => Number(ROAD_POINT.exec(cam.name)?.[1] ?? Number.POSITIVE_INFINITY);
+  return road(a).localeCompare(road(b), "es") || km(a) - km(b) || a.name.localeCompare(b.name, "es");
+}
 
 function safeImageUrl(value: string | null) {
   if (!value) return null;

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Icon } from "../lib/icons";
 import { t } from "../lib/copy";
-import type { Basemap } from "./Map";
+import { BASEMAPS, type Basemap } from "../lib/basemaps";
 
 export type Section = "nieve" | "agua" | "webcams" | "meteo" | "metodo";
 
@@ -36,6 +36,18 @@ type Props = {
   onToggleTerrain: () => void;
 };
 
+const STEP: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
+
+/** The section a key press in the rail moves to (arrows wrap; Home and End jump), or null for other keys. */
+export function sectionAfterKey(current: Section, key: string): Section | null {
+  const last = SECTIONS.length - 1;
+  const index = SECTIONS.findIndex((item) => item.id === current);
+  if (key in STEP) return SECTIONS[(index + STEP[key] + SECTIONS.length) % SECTIONS.length].id;
+  if (key === "Home") return SECTIONS[0].id;
+  if (key === "End") return SECTIONS[last].id;
+  return null;
+}
+
 const BUTTON =
   "relative flex h-rail-button w-rail-button flex-col items-center justify-center gap-1 rounded-md text-caption " +
   "transition-colors duration-fast ease-standard hover:bg-ink-raised hover:text-on-ink-strong " +
@@ -55,15 +67,11 @@ export default function Rail({
 
   // Arrow keys move between sections (roving tab index), as the spec's keyboard section asks.
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const keys: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
-    let index = SECTIONS.findIndex((item) => item.id === section);
-    if (event.key in keys) index = (index + keys[event.key] + SECTIONS.length) % SECTIONS.length;
-    else if (event.key === "Home") index = 0;
-    else if (event.key === "End") index = SECTIONS.length - 1;
-    else return;
+    const next = sectionAfterKey(section, event.key);
+    if (!next) return;
     event.preventDefault();
-    onSection(SECTIONS[index].id);
-    tabRefs.current[index]?.focus();
+    onSection(next);
+    tabRefs.current[SECTIONS.findIndex((item) => item.id === next)]?.focus();
   };
 
   return (
@@ -195,7 +203,7 @@ function BasemapButton({ basemap, onBasemap }: { basemap: Basemap; onBasemap: (b
         >
           <fieldset className="m-0 border-0 p-0">
             <legend className="mb-3 p-0 font-semibold">{t("mapa_base.titulo")}</legend>
-            {(["claro", "ortofoto"] as const).map((id) => (
+            {BASEMAPS.map((id) => (
               <label
                 key={id}
                 className="mb-1 flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-panel-soft"

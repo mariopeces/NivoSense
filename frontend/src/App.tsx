@@ -4,7 +4,7 @@ import Rail, { type Section } from "./components/Rail";
 import Panel, { type SheetHeight } from "./components/Panel";
 import DateBar, { type Scene } from "./components/DateBar";
 import NieveSection from "./components/NieveSection";
-import AguaSection, { type BasinRow } from "./components/AguaSection";
+import AguaSection from "./components/AguaSection";
 import WebcamsSection from "./components/WebcamsSection";
 import MeteoSection from "./components/MeteoSection";
 import MetodoSection from "./components/MetodoSection";
@@ -14,6 +14,8 @@ import Legend from "./components/Legend";
 import SnowVolumeChart from "./components/SnowVolumeChart";
 import { t } from "./lib/copy";
 import { useMediaQuery } from "./lib/useMediaQuery";
+import { useViewportHeight } from "./lib/useViewportHeight";
+import { tokenPx } from "./lib/tokens";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { staticObservationScene } from "./lib/snowObservation";
@@ -33,6 +35,7 @@ import {
   type WeatherVariable,
 } from "./lib/weather";
 import type {
+  Basin,
   BasinSeries,
   FlowSeries,
   ObservationScene,
@@ -62,6 +65,7 @@ export default function App() {
   const [basemap, setBasemap] = useState<Basemap>("claro");
   const [terrain, setTerrain] = useState(false);
   const mobile = useMediaQuery("(max-width: 767px)");
+  const viewportHeight = useViewportHeight();
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
   const [selectedRiverId, setSelectedRiverId] = useState<string | null>(null);
   const [selectedWebcamId, setSelectedWebcamId] = useState<string | null>(null);
@@ -244,7 +248,7 @@ export default function App() {
       .finally(() => setObservationsLoading(false));
   }, [apiUrl]);
 
-  const basins: BasinRow[] =
+  const basins: Basin[] =
     basinsFC?.features.map((f) => ({
       id: String(f.properties.cod_uni),
       name: prettifyBasinName(f.properties.nom_rio_1),
@@ -415,10 +419,15 @@ export default function App() {
   const panelVisible = mobile || panelOpen;
   // Pixels of map covered by the rail, panel or sheet and the date bar, so fitted bounds stay visible.
   const mapInset = useMemo(() => {
-    if (!mobile) return { left: panelOpen ? 384 : 64, bottom: 100 };
-    const sheetPx = sheet === "peek" ? 132 : window.innerHeight / 2;
-    return { left: 0, bottom: 60 + sheetPx + 100 };
-  }, [mobile, panelOpen, sheet]);
+    const dateBar = tokenPx("layout-timeline-height") + tokenPx("space-8");
+    if (!mobile) {
+      const rail = tokenPx("layout-rail-width");
+      return { left: rail + (panelOpen ? tokenPx("layout-panel-width") : 0), bottom: dateBar };
+    }
+    // The half sheet is 50vh in the tokens; the full sheet hides the date bar and leaves only a strip of map.
+    const sheetPx = sheet === "peek" ? tokenPx("layout-sheet-peek") : viewportHeight / 2;
+    return { left: 0, bottom: tokenPx("layout-tabbar-height") + sheetPx + dateBar };
+  }, [mobile, panelOpen, sheet, viewportHeight]);
   const shellStyle = {
     "--shell-panel-offset": panelOpen ? "var(--layout-panel-width)" : "0px",
     "--sheet-height":
