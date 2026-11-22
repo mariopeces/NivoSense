@@ -8,6 +8,12 @@ from typing import Any, Callable
 
 STAC_SEARCH_URL = "https://earth-search.aws.element84.com/v1/search"
 COLLECTION = "sentinel-2-c1-l2a"
+# Collection 1 is the reprocessed archive (baseline 05.xx everywhere), but Earth Search has it complete over the
+# Sierra Nevada only from 2023-01 (monthly date counts equal to the legacy collection from then, 2018-2022 holds
+# 0 to 13 dates a month against 11 to 13 in the legacy one). Before that the legacy `sentinel-2-l2a` is the
+# complete archive (from 2016-11); its items mix Sen2Cor baselines, which `raster:bands` scale and offset absorb.
+LEGACY_COLLECTION = "sentinel-2-l2a"
+C1_COMPLETE_FROM = date(2023, 1, 1)
 PAGE_LIMIT = 100
 
 # Earth Search c1 items carry no sat:relative_orbit; the orbit is in the ESA product name,
@@ -18,6 +24,10 @@ _ORBIT = re.compile(r"_R(\d{3})_")
 _BASELINE_SUFFIX = re.compile(r"_N\d{2}\.\d{2}$")
 
 Fetch = Callable[[urllib.request.Request], dict]
+
+
+def collection_for(day: date) -> str:
+    return COLLECTION if day >= C1_COMPLETE_FROM else LEGACY_COLLECTION
 
 
 @dataclass(frozen=True)
