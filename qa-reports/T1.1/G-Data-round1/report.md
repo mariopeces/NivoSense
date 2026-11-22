@@ -87,7 +87,7 @@ Reviewed PR #14 at `cc705a2` (branch `plan/t11-s2-ingest`) and evidence at `f5b5
 - Run `qa/check_catalog` and `qa/render_thumbs` once T0.3 is merged.
 - The intermediate `reflectance.tif` and `classes.tif` are tiled GTiff without overviews, and `classes.tif` declares no nodata. Publication through T0.3 has to produce valid COGs that declare nodata (D2).
 
-Artefacts (my worktree, `qa-reports/T1.1/G-Data-round1/`):
+Artefacts (branch `mariopeces/g-t11-gdata-r1`, [qa-reports/T1.1/G-Data-round1](https://github.com/mariopeces/NivoSense/tree/cedd5f514a4e572ddec6fd109ee21a7da9a229a4/qa-reports/T1.1/G-Data-round1)):
 - scripts: `stac_raw.py`, `own_fractions.py`, `overlap_check.py`, `seam_stats.py`, `render_thumbs_gdata.py`, `completeness_sim.py`
 - outputs: `own_fractions.json`, `seam_stats.json`, `mosaic_*.png`, `seam_zoom_*.png`
 - raw query data: `raw_items.json.gz`, `cdse.json.gz`
