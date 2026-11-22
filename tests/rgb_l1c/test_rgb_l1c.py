@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 import rasterio
+from pmtiles.reader import MmapSource, Reader
+from pmtiles.tile import TileType
 from rasterio.transform import from_origin
 
 from pipelines.catalog import LocalStorage
@@ -343,6 +345,8 @@ def test_process_publishes_through_the_catalogue_and_logs_missing_l1c(tmp_path, 
     assert entry["qa"]["scores"]["snow_saturated_all"] == 0
     with rasterio.open(storage.root / entry["cog"]) as cog:
         assert (cog.count, cog.dtypes[0], cog.nodata, cog.res) == (3, "uint8", 0, (10.0, 10.0))
+    with open(storage.root / entry["pmtiles"], "rb") as tiles:
+        assert Reader(MmapSource(tiles)).header()["tile_type"] == TileType.WEBP
 
     monkeypatch.setattr(run, "find_acquisition", lambda *args: None)
     assert run.process(record, domain, {}, inside, s2_out, storage, "aws")["status"] == "l1c_missing"

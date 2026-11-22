@@ -79,8 +79,9 @@ def stretch(reflectance: np.ndarray, black: float, white: float, gamma: float = 
     """uint8 in 1..255 from reflectance: linear between black and white, clipped, then gamma.
     0 is kept for nodata (NaN), as in the Sentinel-2 TCI product."""
     scaled = np.clip((reflectance - np.float32(black)) / np.float32(white - black), 0, 1) ** np.float32(1 / gamma)
-    out = (1 + np.rint(scaled * 254)).astype("uint8")
-    out[np.isnan(reflectance)] = NODATA
+    missing = np.isnan(reflectance)
+    out = (1 + np.rint(np.where(missing, 0, scaled) * 254)).astype("uint8")
+    out[missing] = NODATA
     return out
 
 
