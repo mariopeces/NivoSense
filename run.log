@@ -1,0 +1,27 @@
+dgt-316: unsettled, provider placeholder
+dgt-317: unsettled, provider placeholder
+dgt-318: unsettled, provider placeholder
+dgt-319: unsettled, provider placeholder
+dgt-320: unsettled, provider placeholder
+dgt-312: unsettled, provider placeholder
+dgt-313: unsettled, provider placeholder
+dgt-321: unsettled, provider placeholder
+cetursa-pradollano-c1: unsettled, no position
+cetursa-15110-2: unsettled, provider placeholder
+cetursa-15110-4: unsettled, provider placeholder
+cetursa-15114-0: unsettled, provider placeholder
+cetursa-15114-1: unsettled, provider placeholder
+cetursa-15114-2: unsettled, provider placeholder
+Loading DEM around 12 cameras
+cetursa-15111-0: unsettled: not unique: a bearing more than 10 deg away fits 1.2x as well (needs 2x) bearing 203.1 fov 34.9 residual 16.3/292.1 px
+cetursa-15111-1: medium bearing 125.5 fov 52.2 residual 5.3/63.2 px
+cetursa-15111-2: unsettled: not unique: a bearing more than 10 deg away fits 1.9x as well (needs 2x) bearing 80.4 fov 22.0 residual 3.8/286.2 px
+cetursa-15111-3: unsettled: not unique: a bearing more than 10 deg away fits 1.1x as well (needs 2x) bearing 91.9 fov 22.3 residual 3.9/278.0 px
+cetursa-15111-4: unsettled: bearing moves 18.2 deg when the camera moves 150 m bearing 253.5 fov 29.8 residual 4.9/540.7 px
+cetursa-15112-0: unsettled: not unique: a bearing more than 10 deg away fits 1.4x as well (needs 2x) bearing 14.6 fov 34.2 residual 4.4/374.1 px
+cetursa-15112-1: unsettled: not unique: a bearing more than 10 deg away fits 1.0x as well (needs 2x) bearing 42.0 fov 98.0 residual 8.5/112.2 px
+cetursa-15113-0: unsettled: bearing moves 5.6 deg when the camera moves 150 m bearing 164.4 fov 55.3 residual 2.2/98.4 px
+cetursa-15113-1: unsettled: field of view 20.2 deg at the edge of the searched range bearing 157.6 fov 20.2 residual 4.5/252.3 px
+cetursa-15113-2: unsettled: not unique: a bearing more than 10 deg away fits 1.1x as well (needs 2x) bearing 123.0 fov 27.7 residual 6.5/193.5 px
+cetursa-15113-3: unsettled: bearing moves 9.5 deg when the camera moves 150 m bearing 165.6 fov 105.3 residual 3.5/45.6 px
+cetursa-15113-5: unsettled: not unique: a bearing more than 10 deg away fits 0.7x as well (needs 2x) bearing 192.6 fov 110.0 residual 11.8/84.7 px
