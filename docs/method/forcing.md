@@ -120,7 +120,13 @@ Pending. The table fills from `snow.json` once the T1.7 masks exist. The forcing
 
 ### Interim run on the current season (pipeline test only)
 
-<!-- filled from the interim run -->
+The command ran end to end on 2026-10-01 to 2026-11-21 (`snow.json` in the evidence):
+
+- **Dates.** It used the 11 dates T1.1 lists for the season. The reference was the hackathon NDSI masks from `snow_model.observations`, not the T1.2 classifier.
+- **Forcings.** Four forcings were scored. ERA5-Land + ERA5 was refused by the 2% gap rule, because ERA5 ends about 6 days before today. This affects only a season that is still running, never the past seasons. ERA5-Land from the CDS was skipped: no key.
+- **Why there is no result.** The held-out dates are 2026-10-11, 10-24 and 11-10. None of them is a snow-season date, so the snow-season population is empty and the all-dates accuracy (0.9998 for every forcing) only counts bare cells.
+- **What it does show.** The data flow, the fit and test split, the band scores and the gap reporting all work. It also shows why the decision uses snow-season F1 and the false-snow share rather than accuracy.
+- **Runtime.** About 7 minutes per forcing for 52 days with 48 members on one laptop core. A full three-season study is about 12 hours of compute.
 
 ## 4. Recommendation
 
@@ -139,8 +145,10 @@ Pending on T1.7. The rule, fixed before the scores exist:
 python -m pipelines.forcing_study.study inventory --end 2026-11-21 --cache .cache/forcing --output out
 python -m pipelines.forcing_study.study fetch  --years 2023 2024 2025 --cache .cache/forcing --output out
 python -m pipelines.forcing_study.study precip --years 2023 2024 2025 --cache .cache/forcing --output out
-python -m pipelines.forcing_study.study snow   --years 2023 2024 2025 --reference <T1.7 cache> --cache .cache/forcing --output out
+python -m pipelines.forcing_study.study snow   --years 2026 --reference interim --dates 2026-10-01 ... --cache .cache/forcing --output out
 ```
+
+The final `snow` run uses `--years 2023 2024 2025` and a `--reference` reading the T1.7 masks. That reader is added once T1.2 fixes their format (pending on T1.7).
 
 `CDSAPI_KEY` and `AEMET_API_KEY` in the environment add ERA5-Land and the AEMET stations.
 

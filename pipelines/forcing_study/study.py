@@ -1,15 +1,15 @@
 """Forcing study: which meteorological archive drives the snow model best over the massif.
 
-    python -m pipelines.forcing_study.study inventory --cache work/forcing --output work/forcing/out
+    python -m pipelines.forcing_study.study inventory --end 2026-11-21 --cache ... --output ...
     python -m pipelines.forcing_study.study fetch --years 2023 2024 2025 --cache ... --output ...
-    python -m pipelines.forcing_study.study snow --years 2023 2024 2025 --reference <...> --cache ... --output ...
+    python -m pipelines.forcing_study.study snow --years 2026 --reference interim --dates ... --cache ... --output ...
     python -m pipelines.forcing_study.study precip --years 2023 2024 2025 --cache ... --output ...
 
 `snow` runs the current snow model (pipelines/snow_model) with each forcing, the same Latin
 hypercube ensemble for every forcing, weights the members on two of every three clear
 Sentinel-2 dates exactly as the model's calibration does, and scores snow presence on the
 held-out third by elevation band. `precip` compares each forcing's daily precipitation with
-open station records. Every number in the write-up comes from these two commands.
+open station records. Every number in docs/method/forcing.md comes from these commands.
 """
 
 import argparse
@@ -380,7 +380,10 @@ def precipitation_summary(entries: list[dict], forcings: list[str]) -> dict:
         metrics = [entry["forcings"][name] for entry in entries if isinstance(entry["forcings"].get(name), dict)]
         if not metrics:
             continue
-        row: dict = {"stations": len(metrics), "median_ratio": round(float(np.median([m["ratio"] for m in metrics])), 3)}
+        row: dict = {
+            "stations": len(metrics),
+            "median_ratio": round(float(np.median([m["ratio"] for m in metrics])), 3),
+        }
         for key in ("daily_r", "pentad_r", "wet_day_pod", "wet_day_far"):
             values = [m[key] for m in metrics if m[key] is not None]
             row[f"mean_{key}"] = round(float(np.mean(values)), 3) if values else None
