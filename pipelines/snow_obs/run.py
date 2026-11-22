@@ -224,6 +224,7 @@ def run(
         if target is not None and version is not None and summary["published"]:
             entry = publish_date(out / record["date"], summary, target, version)
             summary["entry"] = {"cog": entry["cog"], "pixel_hash": entry["pixel_hash"]}
+            (out / record["date"] / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
         summaries.append(summary)
     return summaries
 
