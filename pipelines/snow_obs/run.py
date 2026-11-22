@@ -53,11 +53,13 @@ def pick_record(records: list[dict]) -> dict | None:
     return max(complete, key=lambda r: (r["domain_valid_fraction"], r["domain_coverage"], r["orbit"]))
 
 
-def sun_angles(scene_ids: list[str], fetch: Fetch = fetch_json, collection: str = COLLECTION) -> tuple[float, float]:
+def sun_angles(
+    scene_ids: list[str], fetch: Fetch = fetch_json, collections: list[str] | None = None
+) -> tuple[float, float]:
     """Mean sun azimuth and elevation (degrees) of the granules. Across the four tiles of one pass
     they differ by about a degree, below the 20 m DEM's ability to place a shadow edge."""
     azimuths, elevations = [], []
-    for scene_id in scene_ids:
+    for scene_id, collection in zip(scene_ids, collections or [COLLECTION] * len(scene_ids)):
         request = urllib.request.Request(ITEM_URL.format(collection=collection, id=scene_id))
         properties = fetch(request)["properties"]
         azimuths.append(float(properties["view:sun_azimuth"]))
@@ -155,7 +157,7 @@ def process(
     fetch: Fetch = fetch_json,
 ) -> dict:
     reflectance, scl = read_pass(pass_folder)
-    sun = sun_angles(record["scene_ids"], fetch, record.get("collection", COLLECTION))
+    sun = sun_angles(record["scene_ids"], fetch, record.get("scene_collections"))
     scene = c.Scene(
         green=reflectance["green"],
         red=reflectance["red"],

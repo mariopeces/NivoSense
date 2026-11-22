@@ -3,11 +3,12 @@
     python -m pipelines.snow_obs.backfill --domain data/domain.geojson --start 2024-10-01 --end 2025-06-30 \
         --work work --target prod [--static-cache work/static] [--republish]
 
-The range is cut into windows of WINDOW_DAYS days that do not straddle a change of Earth Search collection
-(pipelines.s2.stac.collection_for). For each window the dates that already have a catalogue entry are left
-out, the rest are ingested (pipelines.s2.ingest) and classified and published (pipelines.snow_obs.run), and
-the scratch files are deleted, so a crashed or cancelled run loses at most one window and a rerun picks up
-where it stopped. A window that fails is retried, then reported at the end with a non-zero exit code.
+The range is cut into windows of WINDOW_DAYS days. Granules come from Earth Search collection 1 and, where it
+has none, from the legacy collection (pipelines.s2.stac.search_merged). For each window the dates that already
+have a catalogue entry are left out, the rest are ingested (pipelines.s2.ingest) and classified and published
+(pipelines.snow_obs.run), and the scratch files are deleted, so a crashed or cancelled run loses at most one
+window and a rerun picks up where it stopped. A window that fails is retried, then reported at the end with a
+non-zero exit code.
 Only the observed snow cover layer is written here; the catalogue index is rebuilt by the workflow.
 It writes <work>/backfill-summary.json: per date whether a pass was found, whether it was complete, its
 observed fraction and whether the date is in the catalogue.
@@ -23,7 +24,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from pipelines.s2 import ingest
-from pipelines.s2.stac import collection_for
+from pipelines.s2.ingest import AUTO
 
 from . import run as snow_obs
 from .run import LAYER
@@ -37,22 +38,14 @@ RETRY_PAUSE_SECONDS = 60
 class Window:
     start: date
     end: date
-    collection: str
 
 
 def windows(start: date, end: date, days: int = WINDOW_DAYS) -> list[Window]:
     result = []
     day = start
     while day <= end:
-        collection = collection_for(day)
-        last = day
-        while (
-            last < end
-            and last - day < timedelta(days=days - 1)
-            and collection_for(last + timedelta(days=1)) == collection
-        ):
-            last += timedelta(days=1)
-        result.append(Window(day, last, collection))
+        last = min(end, day + timedelta(days=days - 1))
+        result.append(Window(day, last))
         day = last + timedelta(days=1)
     return result
 
@@ -75,7 +68,7 @@ def run_window(
     s2_out, obs_out = work / "s2", work / "snow_obs"
     for folder in (s2_out, obs_out):
         shutil.rmtree(folder, ignore_errors=True)
-    records = ingest.run(domain, first, last, s2_out, collection=window.collection, reprocess=False)
+    records = ingest.run(domain, first, last, s2_out, collection=AUTO, reprocess=False)
     rows: dict[str, dict] = {}
     for record in records:
         row = rows.setdefault(
@@ -127,7 +120,7 @@ def run(
                     time.sleep(RETRY_PAUSE_SECONDS * attempt)
         published = sum(1 for row in rows.values() if row["in_catalogue"])
         print(
-            f"{window.start} to {window.end} ({window.collection}): {published} dates in the catalogue so far",
+            f"{window.start} to {window.end}: {published} dates in the catalogue so far",
             flush=True,
         )
     return rows, failed
