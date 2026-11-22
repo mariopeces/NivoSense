@@ -1,0 +1,424 @@
+{
+  "created_at": "2026-11-21T23:58:08.102630Z",
+  "period": [
+    "2023-10-01",
+    "2026-09-30"
+  ],
+  "aemet": "skipped: no AEMET_API_KEY",
+  "stations": [
+    {
+      "network": "RIA",
+      "id": "18-7",
+      "name": "C\u00e1diar",
+      "lat": 36.92305555555555,
+      "lon": -3.1838888888888888,
+      "elevation_m": 928.0,
+      "observed_days": 1095,
+      "forcings": {
+        "ecmwf_ifs": {
+          "days": 1095,
+          "station_total_mm": 1647.9,
+          "model_total_mm": 1783.6,
+          "ratio": 1.082,
+          "daily_r": 0.832,
+          "pentad_r": 0.907,
+          "wet_day_pod": 0.832,
+          "wet_day_far": 0.389
+        },
+        "icon_eu": {
+          "days": 1095,
+          "station_total_mm": 1647.9,
+          "model_total_mm": 1676.1,
+          "ratio": 1.017,
+          "daily_r": 0.851,
+          "pentad_r": 0.878,
+          "wet_day_pod": 0.852,
+          "wet_day_far": 0.257
+        },
+        "gfs_global": {
+          "days": 1095,
+          "station_total_mm": 1647.9,
+          "model_total_mm": 2146.2,
+          "ratio": 1.302,
+          "daily_r": 0.852,
+          "pentad_r": 0.885,
+          "wet_day_pod": 0.899,
+          "wet_day_far": 0.453
+        },
+        "meteofrance_arpege_europe": {
+          "days": 1093,
+          "station_total_mm": 1647.9,
+          "model_total_mm": 1487.8,
+          "ratio": 0.903,
+          "daily_r": 0.831,
+          "pentad_r": 0.849,
+          "wet_day_pod": 0.832,
+          "wet_day_far": 0.279
+        },
+        "era5_seamless": {
+          "days": 1095,
+          "station_total_mm": 1647.9,
+          "model_total_mm": 2089.0,
+          "ratio": 1.268,
+          "daily_r": 0.847,
+          "pentad_r": 0.903,
+          "wet_day_pod": 0.933,
+          "wet_day_far": 0.516
+        },
+        "era5_land": "pending: no CDSAPI_KEY"
+      }
+    },
+    {
+      "network": "RIA",
+      "id": "18-102",
+      "name": "Hu\u00e9neja",
+      "lat": 37.215025000000004,
+      "lon": -2.963480555555556,
+      "elevation_m": 1110.0,
+      "observed_days": 1094,
+      "forcings": {
+        "ecmwf_ifs": {
+          "days": 1094,
+          "station_total_mm": 782.8,
+          "model_total_mm": 1351.9,
+          "ratio": 1.727,
+          "daily_r": 0.574,
+          "pentad_r": 0.607,
+          "wet_day_pod": 0.898,
+          "wet_day_far": 0.479
+        },
+        "icon_eu": {
+          "days": 1094,
+          "station_total_mm": 782.8,
+          "model_total_mm": 970.0,
+          "ratio": 1.239,
+          "daily_r": 0.61,
+          "pentad_r": 0.718,
+          "wet_day_pod": 0.764,
+          "wet_day_far": 0.331
+        },
+        "gfs_global": {
+          "days": 1094,
+          "station_total_mm": 782.8,
+          "model_total_mm": 1420.1,
+          "ratio": 1.814,
+          "daily_r": 0.649,
+          "pentad_r": 0.652,
+          "wet_day_pod": 0.843,
+          "wet_day_far": 0.462
+        },
+        "meteofrance_arpege_europe": {
+          "days": 1092,
+          "station_total_mm": 782.8,
+          "model_total_mm": 933.5,
+          "ratio": 1.193,
+          "daily_r": 0.535,
+          "pentad_r": 0.619,
+          "wet_day_pod": 0.74,
+          "wet_day_far": 0.397
+        },
+        "era5_seamless": {
+          "days": 1094,
+          "station_total_mm": 782.8,
+          "model_total_mm": 1609.0,
+          "ratio": 2.056,
+          "daily_r": 0.691,
+          "pentad_r": 0.77,
+          "wet_day_pod": 0.921,
+          "wet_day_far": 0.573
+        },
+        "era5_land": "pending: no CDSAPI_KEY"
+      }
+    },
+    {
+      "network": "RIA",
+      "id": "18-101",
+      "name": "IFAPA Centro Camino del Purchil",
+      "lat": 37.17194444444444,
+      "lon": -3.638333333333333,
+      "elevation_m": 630.0,
+      "observed_days": 1063,
+      "forcings": {
+        "ecmwf_ifs": {
+          "days": 1063,
+          "station_total_mm": 1180.8,
+          "model_total_mm": 1814.1,
+          "ratio": 1.536,
+          "daily_r": 0.75,
+          "pentad_r": 0.847,
+          "wet_day_pod": 0.894,
+          "wet_day_far": 0.368
+        },
+        "icon_eu": {
+          "days": 1063,
+          "station_total_mm": 1180.8,
+          "model_total_mm": 1402.3,
+          "ratio": 1.188,
+          "daily_r": 0.754,
+          "pentad_r": 0.86,
+          "wet_day_pod": 0.851,
+          "wet_day_far": 0.247
+        },
+        "gfs_global": {
+          "days": 1063,
+          "station_total_mm": 1180.8,
+          "model_total_mm": 1505.7,
+          "ratio": 1.275,
+          "daily_r": 0.726,
+          "pentad_r": 0.824,
+          "wet_day_pod": 0.87,
+          "wet_day_far": 0.286
+        },
+        "meteofrance_arpege_europe": {
+          "days": 1061,
+          "station_total_mm": 1180.8,
+          "model_total_mm": 1639.2,
+          "ratio": 1.388,
+          "daily_r": 0.744,
+          "pentad_r": 0.826,
+          "wet_day_pod": 0.801,
+          "wet_day_far": 0.306
+        },
+        "era5_seamless": {
+          "days": 1063,
+          "station_total_mm": 1180.8,
+          "model_total_mm": 1486.5,
+          "ratio": 1.259,
+          "daily_r": 0.732,
+          "pentad_r": 0.828,
+          "wet_day_pod": 0.907,
+          "wet_day_far": 0.392
+        },
+        "era5_land": "pending: no CDSAPI_KEY"
+      }
+    },
+    {
+      "network": "RIA",
+      "id": "18-6",
+      "name": "Jerez del Marquesado",
+      "lat": 37.19027777777777,
+      "lon": -3.149722222222222,
+      "elevation_m": 1201.0,
+      "observed_days": 1083,
+      "forcings": {
+        "ecmwf_ifs": {
+          "days": 1083,
+          "station_total_mm": 914.3,
+          "model_total_mm": 1542.1,
+          "ratio": 1.687,
+          "daily_r": 0.671,
+          "pentad_r": 0.709,
+          "wet_day_pod": 0.871,
+          "wet_day_far": 0.45
+        },
+        "icon_eu": {
+          "days": 1083,
+          "station_total_mm": 914.3,
+          "model_total_mm": 1295.5,
+          "ratio": 1.417,
+          "daily_r": 0.603,
+          "pentad_r": 0.639,
+          "wet_day_pod": 0.818,
+          "wet_day_far": 0.368
+        },
+        "gfs_global": {
+          "days": 1083,
+          "station_total_mm": 914.3,
+          "model_total_mm": 1970.6,
+          "ratio": 2.155,
+          "daily_r": 0.649,
+          "pentad_r": 0.672,
+          "wet_day_pod": 0.909,
+          "wet_day_far": 0.478
+        },
+        "meteofrance_arpege_europe": {
+          "days": 1081,
+          "station_total_mm": 914.3,
+          "model_total_mm": 1138.1,
+          "ratio": 1.245,
+          "daily_r": 0.487,
+          "pentad_r": 0.573,
+          "wet_day_pod": 0.727,
+          "wet_day_far": 0.435
+        },
+        "era5_seamless": {
+          "days": 1083,
+          "station_total_mm": 914.3,
+          "model_total_mm": 1871.3,
+          "ratio": 2.047,
+          "daily_r": 0.652,
+          "pentad_r": 0.708,
+          "wet_day_pod": 0.932,
+          "wet_day_far": 0.574
+        },
+        "era5_land": "pending: no CDSAPI_KEY"
+      }
+    },
+    {
+      "network": "RIA",
+      "id": "18-10",
+      "name": "Padul",
+      "lat": 37.01861111111111,
+      "lon": -3.600277777777778,
+      "elevation_m": 747.0,
+      "observed_days": 1095,
+      "forcings": {
+        "ecmwf_ifs": {
+          "days": 1095,
+          "station_total_mm": 1279.8,
+          "model_total_mm": 1730.5,
+          "ratio": 1.352,
+          "daily_r": 0.714,
+          "pentad_r": 0.837,
+          "wet_day_pod": 0.935,
+          "wet_day_far": 0.39
+        },
+        "icon_eu": {
+          "days": 1095,
+          "station_total_mm": 1279.8,
+          "model_total_mm": 1225.4,
+          "ratio": 0.957,
+          "daily_r": 0.781,
+          "pentad_r": 0.848,
+          "wet_day_pod": 0.779,
+          "wet_day_far": 0.231
+        },
+        "gfs_global": {
+          "days": 1095,
+          "station_total_mm": 1279.8,
+          "model_total_mm": 1648.0,
+          "ratio": 1.288,
+          "daily_r": 0.732,
+          "pentad_r": 0.857,
+          "wet_day_pod": 0.844,
+          "wet_day_far": 0.33
+        },
+        "meteofrance_arpege_europe": {
+          "days": 1093,
+          "station_total_mm": 1279.8,
+          "model_total_mm": 1249.0,
+          "ratio": 0.976,
+          "daily_r": 0.702,
+          "pentad_r": 0.797,
+          "wet_day_pod": 0.857,
+          "wet_day_far": 0.228
+        },
+        "era5_seamless": {
+          "days": 1095,
+          "station_total_mm": 1279.8,
+          "model_total_mm": 2050.5,
+          "ratio": 1.602,
+          "daily_r": 0.735,
+          "pentad_r": 0.86,
+          "wet_day_pod": 0.909,
+          "wet_day_far": 0.487
+        },
+        "era5_land": "pending: no CDSAPI_KEY"
+      }
+    },
+    {
+      "network": "RIA",
+      "id": "4-5",
+      "name": "Fi\u00f1ana",
+      "lat": 37.156666666666666,
+      "lon": -2.838611111111111,
+      "elevation_m": 958.0,
+      "observed_days": 1095,
+      "forcings": {
+        "ecmwf_ifs": {
+          "days": 1095,
+          "station_total_mm": 792.3,
+          "model_total_mm": 1265.1,
+          "ratio": 1.597,
+          "daily_r": 0.7,
+          "pentad_r": 0.741,
+          "wet_day_pod": 0.914,
+          "wet_day_far": 0.475
+        },
+        "icon_eu": {
+          "days": 1095,
+          "station_total_mm": 792.3,
+          "model_total_mm": 989.0,
+          "ratio": 1.248,
+          "daily_r": 0.763,
+          "pentad_r": 0.811,
+          "wet_day_pod": 0.767,
+          "wet_day_far": 0.378
+        },
+        "gfs_global": {
+          "days": 1095,
+          "station_total_mm": 792.3,
+          "model_total_mm": 1360.8,
+          "ratio": 1.718,
+          "daily_r": 0.762,
+          "pentad_r": 0.833,
+          "wet_day_pod": 0.836,
+          "wet_day_far": 0.476
+        },
+        "meteofrance_arpege_europe": {
+          "days": 1093,
+          "station_total_mm": 792.3,
+          "model_total_mm": 682.5,
+          "ratio": 0.861,
+          "daily_r": 0.613,
+          "pentad_r": 0.689,
+          "wet_day_pod": 0.655,
+          "wet_day_far": 0.382
+        },
+        "era5_seamless": {
+          "days": 1095,
+          "station_total_mm": 792.3,
+          "model_total_mm": 1480.1,
+          "ratio": 1.868,
+          "daily_r": 0.659,
+          "pentad_r": 0.739,
+          "wet_day_pod": 0.888,
+          "wet_day_far": 0.621
+        },
+        "era5_land": "pending: no CDSAPI_KEY"
+      }
+    }
+  ],
+  "summary": {
+    "ecmwf_ifs": {
+      "stations": 6,
+      "median_ratio": 1.567,
+      "mean_daily_r": 0.707,
+      "mean_pentad_r": 0.775,
+      "mean_wet_day_pod": 0.891,
+      "mean_wet_day_far": 0.425
+    },
+    "icon_eu": {
+      "stations": 6,
+      "median_ratio": 1.214,
+      "mean_daily_r": 0.727,
+      "mean_pentad_r": 0.792,
+      "mean_wet_day_pod": 0.805,
+      "mean_wet_day_far": 0.302
+    },
+    "gfs_global": {
+      "stations": 6,
+      "median_ratio": 1.51,
+      "mean_daily_r": 0.728,
+      "mean_pentad_r": 0.787,
+      "mean_wet_day_pod": 0.867,
+      "mean_wet_day_far": 0.414
+    },
+    "meteofrance_arpege_europe": {
+      "stations": 6,
+      "median_ratio": 1.085,
+      "mean_daily_r": 0.652,
+      "mean_pentad_r": 0.725,
+      "mean_wet_day_pod": 0.769,
+      "mean_wet_day_far": 0.338
+    },
+    "era5_seamless": {
+      "stations": 6,
+      "median_ratio": 1.735,
+      "mean_daily_r": 0.719,
+      "mean_pentad_r": 0.801,
+      "mean_wet_day_pod": 0.915,
+      "mean_wet_day_far": 0.527
+    }
+  }
+}

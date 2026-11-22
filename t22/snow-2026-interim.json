@@ -1,0 +1,610 @@
+{
+  "created_at": "2026-11-22T00:15:13.533817Z",
+  "reference": "interim",
+  "members": 48,
+  "seed": 1,
+  "years": [
+    2026
+  ],
+  "excluded_cells": 0,
+  "elevation_bands_m": [
+    0,
+    1500,
+    2000,
+    2500,
+    3000,
+    4000
+  ],
+  "forcings": {
+    "ecmwf_ifs": {
+      "status": "scored",
+      "missing_fraction": {
+        "2026": {
+          "temperature_2m": 0.0,
+          "precipitation": 0.0,
+          "shortwave_radiation": 0.0
+        }
+      },
+      "fit_dates": [
+        "2026-10-01",
+        "2026-10-09",
+        "2026-10-14",
+        "2026-10-21",
+        "2026-10-29",
+        "2026-10-31",
+        "2026-11-13",
+        "2026-11-20"
+      ],
+      "test_dates": [
+        "2026-10-11",
+        "2026-10-24",
+        "2026-11-10"
+      ],
+      "snow_season_test_dates": [],
+      "effective_members": 12.0,
+      "weighted": {
+        "all_dates": {
+          "all": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 442457,
+            "accuracy": 0.9998,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 6775,
+            "accuracy": 0.9869,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          }
+        },
+        "snow_season": {}
+      },
+      "prior": {
+        "all_dates": {
+          "all": {
+            "tp": 0,
+            "fp": 7,
+            "fn": 90,
+            "tn": 442450,
+            "accuracy": 0.9998,
+            "f1": 0.0,
+            "false_snow_share": 1.0
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 0,
+            "fp": 7,
+            "fn": 90,
+            "tn": 6768,
+            "accuracy": 0.9859,
+            "f1": 0.0,
+            "false_snow_share": 1.0
+          }
+        },
+        "snow_season": {}
+      }
+    },
+    "icon_eu": {
+      "status": "scored",
+      "missing_fraction": {
+        "2026": {
+          "temperature_2m": 0.0,
+          "precipitation": 0.0,
+          "shortwave_radiation": 0.0
+        }
+      },
+      "fit_dates": [
+        "2026-10-01",
+        "2026-10-09",
+        "2026-10-14",
+        "2026-10-21",
+        "2026-10-29",
+        "2026-10-31",
+        "2026-11-13",
+        "2026-11-20"
+      ],
+      "test_dates": [
+        "2026-10-11",
+        "2026-10-24",
+        "2026-11-10"
+      ],
+      "snow_season_test_dates": [],
+      "effective_members": 27.0,
+      "weighted": {
+        "all_dates": {
+          "all": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 442457,
+            "accuracy": 0.9998,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 6775,
+            "accuracy": 0.9869,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          }
+        },
+        "snow_season": {}
+      },
+      "prior": {
+        "all_dates": {
+          "all": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 442457,
+            "accuracy": 0.9998,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 6775,
+            "accuracy": 0.9869,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          }
+        },
+        "snow_season": {}
+      }
+    },
+    "gfs_global": {
+      "status": "scored",
+      "missing_fraction": {
+        "2026": {
+          "temperature_2m": 0.0,
+          "precipitation": 0.0,
+          "shortwave_radiation": 0.0
+        }
+      },
+      "fit_dates": [
+        "2026-10-01",
+        "2026-10-09",
+        "2026-10-14",
+        "2026-10-21",
+        "2026-10-29",
+        "2026-10-31",
+        "2026-11-13",
+        "2026-11-20"
+      ],
+      "test_dates": [
+        "2026-10-11",
+        "2026-10-24",
+        "2026-11-10"
+      ],
+      "snow_season_test_dates": [],
+      "effective_members": 12.0,
+      "weighted": {
+        "all_dates": {
+          "all": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 442457,
+            "accuracy": 0.9998,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 90,
+            "tn": 6775,
+            "accuracy": 0.9869,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          }
+        },
+        "snow_season": {}
+      },
+      "prior": {
+        "all_dates": {
+          "all": {
+            "tp": 22,
+            "fp": 361,
+            "fn": 68,
+            "tn": 442096,
+            "accuracy": 0.999,
+            "f1": 0.093,
+            "false_snow_share": 0.9426
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 22,
+            "fp": 361,
+            "fn": 68,
+            "tn": 6414,
+            "accuracy": 0.9375,
+            "f1": 0.093,
+            "false_snow_share": 0.9426
+          }
+        },
+        "snow_season": {}
+      }
+    },
+    "meteofrance_arpege_europe": {
+      "status": "scored",
+      "missing_fraction": {
+        "2026": {
+          "temperature_2m": 0.0,
+          "precipitation": 0.0,
+          "shortwave_radiation": 0.0
+        }
+      },
+      "fit_dates": [
+        "2026-10-01",
+        "2026-10-09",
+        "2026-10-14",
+        "2026-10-21",
+        "2026-10-29",
+        "2026-10-31",
+        "2026-11-13",
+        "2026-11-20"
+      ],
+      "test_dates": [
+        "2026-10-11",
+        "2026-10-24",
+        "2026-11-10"
+      ],
+      "snow_season_test_dates": [],
+      "effective_members": 12.0,
+      "weighted": {
+        "all_dates": {
+          "all": {
+            "tp": 1,
+            "fp": 7,
+            "fn": 89,
+            "tn": 442450,
+            "accuracy": 0.9998,
+            "f1": 0.0204,
+            "false_snow_share": 0.875
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 1,
+            "fp": 7,
+            "fn": 89,
+            "tn": 6768,
+            "accuracy": 0.986,
+            "f1": 0.0204,
+            "false_snow_share": 0.875
+          }
+        },
+        "snow_season": {}
+      },
+      "prior": {
+        "all_dates": {
+          "all": {
+            "tp": 35,
+            "fp": 460,
+            "fn": 55,
+            "tn": 441997,
+            "accuracy": 0.9988,
+            "f1": 0.1197,
+            "false_snow_share": 0.9293
+          },
+          "0-1500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 130550,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "1500-2000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 154017,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2000-2500": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 102206,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "2500-3000": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 48909,
+            "accuracy": 1.0,
+            "f1": 0.0,
+            "false_snow_share": 0.0
+          },
+          "3000-4000": {
+            "tp": 35,
+            "fp": 460,
+            "fn": 55,
+            "tn": 6315,
+            "accuracy": 0.925,
+            "f1": 0.1197,
+            "false_snow_share": 0.9293
+          }
+        },
+        "snow_season": {}
+      }
+    },
+    "era5_seamless": {
+      "status": "not scored",
+      "reason": "Too many missing temperature values in the forcing data",
+      "missing_fraction": {}
+    },
+    "era5_land": {
+      "status": "not scored",
+      "reason": "ERA5-Land needs a CDS API key in CDSAPI_KEY",
+      "missing_fraction": {}
+    }
+  }
+}

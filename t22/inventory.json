@@ -1,0 +1,324 @@
+{
+  "point": [
+    37.06,
+    -3.38
+  ],
+  "period": [
+    "2023-09-01",
+    "2026-11-21"
+  ],
+  "archives": [
+    {
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "model": "ecmwf_ifs",
+      "available": true,
+      "grid_point": [
+        37.0826,
+        -3.3289185
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "model": "era5",
+      "available": true,
+      "grid_point": [
+        37.0,
+        -3.5
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "model": "era5_land",
+      "available": true,
+      "grid_point": [
+        37.1,
+        -3.300003
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": null,
+      "shortwave_radiation": null
+    },
+    {
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "model": "era5_seamless",
+      "available": true,
+      "grid_point": [
+        37.1,
+        -3.300003
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-15T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "model": "cerra",
+      "available": true,
+      "grid_point": [
+        37.036568,
+        -3.3573608
+      ],
+      "temperature_2m": null,
+      "precipitation": null,
+      "shortwave_radiation": null
+    },
+    {
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "model": "ecmwf_ifs_analysis_long_window",
+      "available": true,
+      "grid_point": [
+        37.0826,
+        -3.3289185
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-19T23:00",
+        "gap_hours": 24
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2024-11-11T18:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": null
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "ecmwf_ifs025",
+      "available": true,
+      "grid_point": [
+        37.0,
+        -3.25
+      ],
+      "temperature_2m": {
+        "first": "2024-02-03T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2024-02-02T22:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 243
+      },
+      "shortwave_radiation": {
+        "first": "2024-03-05T08:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "icon_eu",
+      "available": true,
+      "grid_point": [
+        37.0625,
+        -3.375
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "icon_global",
+      "available": true,
+      "grid_point": [
+        37.0,
+        -3.375
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "gfs_global",
+      "available": true,
+      "grid_point": [
+        37.077774,
+        -3.3984375
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "meteofrance_arpege_europe",
+      "available": true,
+      "grid_point": [
+        37.1,
+        -3.2999992
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 35
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 35
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 35
+      }
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "meteofrance_arome_france",
+      "available": false,
+      "reason": "No data is available for this location"
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "meteofrance_arome_france_hd",
+      "available": false,
+      "reason": "No data is available for this location"
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "knmi_harmonie_arome_europe",
+      "available": false,
+      "reason": "No data is available for this location"
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "dmi_harmonie_arome_europe",
+      "available": false,
+      "reason": "No data is available for this location"
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "ukmo_global_deterministic_10km",
+      "available": true,
+      "grid_point": [
+        37.03125,
+        -3.375
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2025-01-02T06:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    },
+    {
+      "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+      "model": "gem_global",
+      "available": true,
+      "grid_point": [
+        37.050003,
+        -3.449997
+      ],
+      "temperature_2m": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "precipitation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      },
+      "shortwave_radiation": {
+        "first": "2023-09-01T00:00",
+        "last": "2026-11-21T23:00",
+        "gap_hours": 0
+      }
+    }
+  ]
+}

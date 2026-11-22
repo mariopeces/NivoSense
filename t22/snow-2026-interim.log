@@ -1,0 +1,10 @@
+Loading the elevation model
+Model grid 941x380 at 100 m, 172235 cells
+2026: 11 usable reference dates
+ecmwf_ifs 2026: simulating 48 members
+icon_eu 2026: simulating 48 members
+gfs_global 2026: simulating 48 members
+meteofrance_arpege_europe 2026: simulating 48 members
+era5_seamless: not scored (Too many missing temperature values in the forcing data)
+era5_land: not scored (ERA5-Land needs a CDS API key in CDSAPI_KEY)
+Wrote .cache\forcing\out-2026\snow.json
