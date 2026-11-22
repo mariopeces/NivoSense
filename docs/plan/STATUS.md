@@ -25,7 +25,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | r3 pushed (7277965), r3 gauntlets next in queue (top priority) | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r3 (G-Infra running; G-Code next) on 7277965 | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | r3 fixes pushed (0bbc81e), narrow r4 queued after T0.6 r3 | #12 | r1, r2 fail; r3: G-Code PASS (3f2086d), G-Infra fail (restore() trusts fork runs; fix f6b1dc6 pushed) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlet r1 (G-Data running; G-Infra, G-Code queued), stacked on plan/t03-catalog | #20 | |
@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | r3 pushed (083c3b5), r3 gauntlets queued; merges after T0.7 and T0.3 | #8 | r1 both fail; r2: G-Data fail (failed ingest ships live cards without images) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | r3 pushed (083c3b5), r3 gauntlets queued; merges after T0.7 and T0.3 | #8 | r1 both fail; r2: G-Data fail, G-Code PASS on 083c3b5 (minors: no Last-Modified shows live, frozen-camera replay, 26 MB unused large stills) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -149,3 +149,4 @@ Not available until T5.1.
 - 2026-11-22: T0.6 round 3 pushed (7277965): colour rule rewritten to the coordinator's 7-item bar, failing CI proof per item, baseline-growth step. T0.7 round 3 fixes pushed (0bbc81e): trusted_runs.py accepts only this repo's successful schedule/dispatch runs of the producer workflows on main ancestors; workflow_run gated. Queue order: T0.6 G-Infra r3, T0.6 G-Code r3, T0.7 G-Infra r4 and G-Code r4 (narrow), T4.0 G-Code, T0.4 G-Infra, T0.4 G-Code. T1.0 labeller idle on purpose while its mosaics build in the background.
 - 2026-11-22: T3.1 round 3 pushed (083c3b5): per-source isolation, webcams.json generated at build, deploy gate on missing stills. Merge order set: T0.6, T0.7, T0.3, then T3.1 (both edit pages.yml; T3.1 rebases onto T0.7). T3.1 r3 gauntlets queued after T0.6 r3 and T0.7 r4.
 - 2026-11-22: T4.0 r1 fixes pushed (7fd78a9: timeline states with forecast slot, webcam card age with stale state after 2 h, one symbol system, mobile sheet; tokens.json unchanged). T3.1 builder idle until T0.7 merges (re-dispatch then; the validate step is guarded on the script's presence in the release checkout; no new release before go-live). Queue: T0.6 G-Infra r3, T0.6 G-Code r3, T0.7 r4 x2, T4.0 G-UI r2, T3.1 r3 x2, T4.0 G-Code r1, T0.4 G-Infra and G-Code r1.
+- 2026-11-22: T3.1 G-Code r2 PASS on 083c3b5 (16 deliberate breaks caught; placeholders in 8 new languages and 6 sizes caught by two guards). T3.1 round 3 now only needs G-Data on 083c3b5 (narrow reruns after the rebase onto T0.7). T0.6 G-Infra r3 started.
