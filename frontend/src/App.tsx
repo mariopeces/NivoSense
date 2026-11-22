@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import Map, { type Basemap } from "./components/Map";
+import CreditBar from "./components/CreditBar";
+import WebcamCard from "./components/WebcamCard";
 import Rail, { type Section } from "./components/Rail";
 import Panel, { type SheetHeight } from "./components/Panel";
 import Timeline from "./components/Timeline";
 import NieveSection from "./components/NieveSection";
 import AguaSection from "./components/AguaSection";
-import WebcamCard from "./components/WebcamCard";
 import WebcamsSection from "./components/WebcamsSection";
 import MeteoSection from "./components/MeteoSection";
 import MetodoSection from "./components/MetodoSection";
@@ -468,114 +469,117 @@ export default function App() {
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-panel-soft font-body text-text" style={shellStyle}>
-      <Rail
-        section={section}
-        onSection={handleSection}
-        panelOpen={panelOpen}
-        onTogglePanel={() => setPanelOpen((open) => !open)}
-        basemap={basemap}
-        onBasemap={setBasemap}
-        terrain={terrain}
-        onToggleTerrain={() => setTerrain((on) => !on)}
-      />
-      <main className="absolute inset-0" aria-label={t("app.descripcion")}>
-        <h1 className="sr-only">{t("app.nombre")}</h1>
-        {/* DOM order is the tab order the spec asks for: panel, timeline, then the map and its controls. */}
-        <Panel section={section} open={panelVisible} sheet={sheet} onSheet={setSheet}>
-          {section === "nieve" && (
-            <NieveSection
-              catalog={catalog}
-              date={selectedDate}
-              visible={visible}
-              onToggle={toggleLayer}
-              onOpacity={setLayerOpacity}
-              onDate={handleDateChange}
-              onMethod={() => handleSection("metodo")}
-              onRetry={() => setCatalogAttempt((attempt) => attempt + 1)}
-            />
-          )}
-          {section === "agua" && (
-            <AguaSection
-              basins={basins}
-              loading={basinsLoading}
-              selectedId={selectedBasinId}
-              onSelect={handleBasinSelect}
-            >
-              {selectedBasin && !apiUrl && (
-                <SnowVolumeChart
-                  basin={snowManifest?.basins.find((item) => item.id === selectedBasin.id) ?? null}
-                  manifest={snowManifest}
-                  series={volumeSeries}
-                  loading={volumeLoading || snowLoading}
-                  error={volumeError}
-                />
-              )}
-              {selectedBasin && apiUrl && (
-                <BasinChart
-                  series={basinSeries}
-                  loading={seriesLoading}
-                  error={seriesError}
-                  hydrologicalYear={hydrologicalYear}
-                  onYearChange={setHydrologicalYear}
-                />
-              )}
-              {selectedRiver && (
-                <RiverFlowChart river={selectedRiver} series={flowSeries} loading={flowLoading} error={flowError} />
-              )}
-            </AguaSection>
-          )}
-          {section === "webcams" && (
-            <WebcamsSection
-              webcams={webcams}
-              loading={webcamsLoading}
-              error={webcamsError}
-            />
-          )}
-          {section === "meteo" && (
-            <MeteoSection
-              manifest={weatherManifest}
-              loading={weatherLoading}
-              horizon={effectiveHorizon}
-              onHorizon={setWeatherHorizon}
-              modelId={activeWeatherModel?.id ?? null}
-              onModel={handleWeatherModelChange}
-              variable={weatherVariable}
-              onVariable={setWeatherVariable}
-            />
-          )}
-          {section === "metodo" && <MetodoSection />}
-        </Panel>
-        <Timeline
-          catalog={catalog}
-          model={timeline}
-          selectedDate={selectedDate}
-          onChange={handleDateChange}
-          onRetry={() => setCatalogAttempt((attempt) => attempt + 1)}
-          hidden={mobile && sheet === "full"}
-          mobile={mobile}
-        />
-        <Legend weatherOverlay={precipitationOverlay} layers={mapLayers} />
-        <Map
-          basinsFC={basinsFC}
-          selectedBasinId={selectedBasinId}
+      <div className="absolute inset-x-0 top-0 bottom-credit">
+        <Rail
           section={section}
-          weatherOverlay={precipitationOverlay}
-          catalogLayers={mapLayers}
-          onBasinSelect={handleBasinSelect}
-          webcams={webcams}
-          selectedWebcamId={selectedWebcamId}
-          onWebcamSelect={handleWebcamSelect}
+          onSection={handleSection}
+          panelOpen={panelOpen}
+          onTogglePanel={() => setPanelOpen((open) => !open)}
           basemap={basemap}
+          onBasemap={setBasemap}
           terrain={terrain}
-          inset={mapInset}
+          onToggleTerrain={() => setTerrain((on) => !on)}
         />
-        <WebcamCard
-          webcam={webcams.find((cam) => cam.id === selectedWebcamId) ?? null}
-          mobile={mobile}
-          bottom={mapInset.bottom}
-          onClose={() => handleWebcamSelect(null)}
-        />
-      </main>
+        <main className="absolute inset-0" aria-label={t("app.descripcion")}>
+          <h1 className="sr-only">{t("app.nombre")}</h1>
+          {/* DOM order is the tab order the spec asks for: panel, timeline, then the map and its controls. */}
+          <Panel section={section} open={panelVisible} sheet={sheet} onSheet={setSheet}>
+            {section === "nieve" && (
+              <NieveSection
+                catalog={catalog}
+                date={selectedDate}
+                visible={visible}
+                onToggle={toggleLayer}
+                onOpacity={setLayerOpacity}
+                onDate={handleDateChange}
+                onMethod={() => handleSection("metodo")}
+                onRetry={() => setCatalogAttempt((attempt) => attempt + 1)}
+              />
+            )}
+            {section === "agua" && (
+              <AguaSection
+                basins={basins}
+                loading={basinsLoading}
+                selectedId={selectedBasinId}
+                onSelect={handleBasinSelect}
+              >
+                {selectedBasin && !apiUrl && (
+                  <SnowVolumeChart
+                    basin={snowManifest?.basins.find((item) => item.id === selectedBasin.id) ?? null}
+                    manifest={snowManifest}
+                    series={volumeSeries}
+                    loading={volumeLoading || snowLoading}
+                    error={volumeError}
+                  />
+                )}
+                {selectedBasin && apiUrl && (
+                  <BasinChart
+                    series={basinSeries}
+                    loading={seriesLoading}
+                    error={seriesError}
+                    hydrologicalYear={hydrologicalYear}
+                    onYearChange={setHydrologicalYear}
+                  />
+                )}
+                {selectedRiver && (
+                  <RiverFlowChart river={selectedRiver} series={flowSeries} loading={flowLoading} error={flowError} />
+                )}
+              </AguaSection>
+            )}
+            {section === "webcams" && (
+              <WebcamsSection
+                webcams={webcams}
+                loading={webcamsLoading}
+                error={webcamsError}
+              />
+            )}
+            {section === "meteo" && (
+              <MeteoSection
+                manifest={weatherManifest}
+                loading={weatherLoading}
+                horizon={effectiveHorizon}
+                onHorizon={setWeatherHorizon}
+                modelId={activeWeatherModel?.id ?? null}
+                onModel={handleWeatherModelChange}
+                variable={weatherVariable}
+                onVariable={setWeatherVariable}
+              />
+            )}
+            {section === "metodo" && <MetodoSection />}
+          </Panel>
+          <Timeline
+            catalog={catalog}
+            model={timeline}
+            selectedDate={selectedDate}
+            onChange={handleDateChange}
+            onRetry={() => setCatalogAttempt((attempt) => attempt + 1)}
+            hidden={mobile && sheet === "full"}
+            mobile={mobile}
+          />
+          <Legend weatherOverlay={precipitationOverlay} layers={mapLayers} />
+          <Map
+            basinsFC={basinsFC}
+            selectedBasinId={selectedBasinId}
+            section={section}
+            weatherOverlay={precipitationOverlay}
+            catalogLayers={mapLayers}
+            onBasinSelect={handleBasinSelect}
+            webcams={webcams}
+            selectedWebcamId={selectedWebcamId}
+            onWebcamSelect={handleWebcamSelect}
+            basemap={basemap}
+            terrain={terrain}
+            inset={mapInset}
+          />
+          <WebcamCard
+            webcam={webcams.find((cam) => cam.id === selectedWebcamId) ?? null}
+            mobile={mobile}
+            bottom={mapInset.bottom}
+            onClose={() => handleWebcamSelect(null)}
+          />
+        </main>
+      </div>
+      <CreditBar />
     </div>
   );
 }

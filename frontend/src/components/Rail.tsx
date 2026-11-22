@@ -83,9 +83,13 @@ export default function Rail({
         href={import.meta.env.BASE_URL}
         aria-label={t("app.nombre")}
         title={t("app.nombre")}
-        className="mb-2 grid h-12 w-rail-button place-items-center border-b border-ink-line font-display text-title text-on-ink-strong focus-visible:outline-on-ink-strong max-md:hidden"
+        className="mb-2 grid h-12 w-rail-button place-items-center border-b border-ink-line focus-visible:outline-on-ink-strong max-md:hidden"
       >
-        N
+        <img
+          src={`${import.meta.env.BASE_URL}logo-mark.png`}
+          alt={t("app.nombre")}
+          className="h-8 w-auto max-w-[44px] object-contain"
+        />
       </a>
 
       <div
