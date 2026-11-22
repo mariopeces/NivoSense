@@ -76,7 +76,7 @@ jobs:
     steps:
       - id: ranges
         env:
-          FULL: ${{ inputs.full_range || false }}
+          FULL: ${{ inputs.full_range || true }}
           START: ${{ inputs.start }}
           END: ${{ inputs.end }}
           # A pull request does not change the data, so its run leaves the freshness SLOs to the scheduled checks.
@@ -122,7 +122,7 @@ jobs:
       cancel-in-progress: false
     env:
       TARGET: ${{ inputs.target || 'staging' }}
-      ROOT: ${{ inputs.root }}
+      ROOT: ${{ inputs.root || '_scratch/t04-evidence-98f90df/staging' }}
       START: ${{ matrix.range.start }}
       END: ${{ matrix.range.end }}
       FRESHNESS: ${{ matrix.range.freshness }}
