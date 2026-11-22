@@ -1,0 +1,14 @@
+{
+  "drag from the left edge to the right edge of the track (61 pointer samples)": {"distinct aria-valuenow":61,"first":"4","last":"417","url after":"d=2026-11-22"},
+  "click at the left edge": "lun 6 oct 2025: Pendiente",
+  "Última": "vie 20 nov 2026: Observado",
+  "Fecha anterior con datos": "vie 13 nov 2026: Observado",
+  "Fecha siguiente con datos": "vie 20 nov 2026: Observado",
+  "calendar open, focus on": "viernes 20 de noviembre de 2026: Observado",
+  "calendar: Mes anterior, pick 24 oct": {"slider":"sáb 24 oct 2026: Observado","focus returns to":"Elegir en el calendario"},
+  "calendar: Escape, focus returns to": "Elegir en el calendario",
+  "play from 24 oct (ms since click, aria-valuetext)": [[811,"jue 29 oct 2026: Observado"],[1622,"sáb 31 oct 2026: Observado"],[2430,"dom 8 nov 2026: Observado"],[3242,"mar 10 nov 2026: Observado"],[4050,"vie 13 nov 2026: Observado"],[4856,"vie 20 nov 2026: Observado"]],
+  "play button after the last date": "Reproducir (disabled)",
+  "shared link ?d=2026-10-29&l=swe": {"query during load (sampled every 50 ms)":["?d=2026-10-29&l=swe"],"slider":"jue 29 oct 2026: Observado","legend":"SWE (mm) ... (layer restored from l=swe)"},
+  "console errors on the real-catalogue build": []
+}

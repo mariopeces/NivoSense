@@ -1,0 +1,40 @@
+
+> nivosense-frontend@0.1.0 typecheck
+> tsc -b
+
+
+> nivosense-frontend@0.1.0 lint
+> eslint . --report-unused-disable-directives
+
+
+C:\Users\mario\orca\workspaces\NivoSense\plan-timeline\frontend\src\components\Map.tsx
+  223:6  warning  React Hook useEffect has a missing dependency: 'selectedBasinId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+> nivosense-frontend@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 C:/Users/mario/orca/workspaces/NivoSense/plan-timeline/frontend
+
+ ✓ scripts/build-tokens.test.mjs (3 tests) 12ms
+ ✓ eslint/check-colour-baseline.test.js (3 tests) 10ms
+ ✓ src/lib/urlState.test.ts (4 tests) 158ms
+ ✓ src/lib/horizons.test.ts (3 tests) 51ms
+ ✓ src/lib/format.test.ts (2 tests) 76ms
+ ✓ src/lib/catalog.test.ts (5 tests) 256ms
+ ✓ src/lib/timeline.test.ts (16 tests) 798ms
+   ✓ monthStarts and today > takes today in Europe/Madrid, not UTC  406ms
+ ✓ src/lib/copy.test.ts (2 tests) 371ms
+   ✓ copy deck > has every literal key the interface uses  331ms
+ ✓ eslint/no-hard-coded-colour.test.js (29 tests) 3679ms
+   ✓ no-hard-coded-colour in scripts > valid > const a = "bg-navy text-slate-100 #section";  1562ms
+
+ Test Files  9 passed (9)
+      Tests  67 passed (67)
+   Start at  05:39:09
+   Duration  60.04s (transform 14.10s, setup 0ms, collect 57.58s, tests 5.41s, environment 5ms, prepare 5.94s)
+
+exit 0

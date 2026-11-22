@@ -1,0 +1,14 @@
+{
+  "build": "vite preview of this branch's production build, VITE_CATALOG_URL = staging/_scratch/t04-evidence-98f90df/staging/catalog/index.json (7 real RGB L1C entries written by publish() during T0.4 evidence)",
+  "viewport": "1440x900",
+  "start": {"now":"415","text":"vie 20 nov 2026: Observado","url":"d=2026-11-20"},
+  "aria-valuemax": "417",
+  "Home": {"now":"0","text":"mié 1 oct 2025: Pendiente","url":"d=2025-10-01"},
+  "ArrowRight walk from Home": {"presses":417,"each press moved exactly one day":true,"end":{"now":"417","text":"dom 22 nov 2026: Pendiente","url":"d=2026-11-22"}},
+  "Shift+ArrowLeft (1)": {"now":"415","text":"vie 20 nov 2026: Observado"},
+  "Shift+ArrowLeft (2)": {"now":"408","text":"vie 13 nov 2026: Observado"},
+  "ArrowLeft": {"now":"407","text":"jue 12 nov 2026: Pendiente"},
+  "End": {"now":"417","text":"dom 22 nov 2026: Pendiente"},
+  "Home then Shift+ArrowRight": {"now":"388","text":"sáb 24 oct 2026: Observado"},
+  "Space on slider": {"after first":"Pausar","after second":"Reproducir"}
+}
