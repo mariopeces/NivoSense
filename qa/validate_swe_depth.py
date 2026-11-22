@@ -69,10 +69,8 @@ def crest_mask(grid: Grid) -> np.ndarray:
 
 
 def validate(storage: Storage) -> list[dict]:
-    reference = next(
-        (read_swe(storage, key.rsplit("/", 1)[1].removesuffix(".json")) for key in storage.list("catalog/entries/swe/")),
-        None,
-    )
+    swe_days = [key.rsplit("/", 1)[1].removesuffix(".json") for key in storage.list("catalog/entries/swe/")]
+    reference = next((read_swe(storage, day) for day in swe_days), None)
     days = sorted(
         key.rsplit("/", 1)[1].removesuffix(".json") for key in storage.list("catalog/entries/snow_obs/")
     )
