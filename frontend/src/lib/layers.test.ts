@@ -36,6 +36,12 @@ describe("entryFor", () => {
     expect(entryFor(rgb, "2026-11-10")).toEqual({ entry: rgb.find((e) => e.date === "2026-11-10"), exact: true });
   });
 
+  it("never borrows the nearest day for a modelled layer", () => {
+    const modelled: CatalogEntry[] = [{ ...rgb[0], layer: "swe", status: "modelled", date: "2026-11-10" }];
+    expect(entryFor(modelled, "2026-11-10")?.exact).toBe(true);
+    expect(entryFor(modelled, "2026-11-11")).toBeNull();
+  });
+
   it("otherwise the nearest entry, the earlier one on a tie", () => {
     // 2026-11-10 and 2026-11-13 are 3 days apart: 11-11 is nearer the first, 11-12 nearer the second.
     expect(entryFor(rgb, "2026-11-11")?.entry.date).toBe("2026-11-10");

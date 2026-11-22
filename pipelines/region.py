@@ -10,6 +10,7 @@ class Region:
     id: str
     name: str
     basins: Path
+    domain: Path | None
     bbox: tuple[float, float, float, float]
     settings: dict
 
@@ -21,6 +22,7 @@ def load_region(path: Path) -> Region:
         id=payload["id"],
         name=payload["name"],
         basins=basins,
+        domain=Path(payload["domain"]) if "domain" in payload else None,
         bbox=tuple(payload["bbox"]) if "bbox" in payload else bbox_from_geojson(basins),
         settings=payload,
     )

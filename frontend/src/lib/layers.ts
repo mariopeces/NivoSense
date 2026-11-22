@@ -56,13 +56,17 @@ const DAY_MS = 86_400_000;
 
 /**
  * The entry a layer shows on a date: the one of that day, otherwise the nearest one (the earlier on a tie,
- * since a past scene is real and a later one may be a forecast). Null when the layer has no entry.
+ * since a past scene is real and a later one may be a forecast). Modelled layers only show their own day.
+ * Null when the layer has no entry.
  */
 export function entryFor(entries: CatalogEntry[], date: string): { entry: CatalogEntry; exact: boolean } | null {
   let best: CatalogEntry | null = null;
   let bestGap = Infinity;
   const target = Date.parse(`${date}T00:00:00Z`);
-  for (const entry of entries) {
+  // A modelled day without an entry is a day without snow above the threshold, not a missing scene: showing the
+  // nearest day would draw snow that the model does not have.
+  const candidates = entries.filter((entry) => entry.status !== "modelled" || entry.date === date);
+  for (const entry of candidates) {
     const gap = Math.abs(Date.parse(`${entry.date}T00:00:00Z`) - target) / DAY_MS;
     if (gap < bestGap || (gap === bestGap && best && entry.date < best.date)) {
       best = entry;
