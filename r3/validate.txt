@@ -1,0 +1,8 @@
+$ python backend/validate_webcam_artifact.py frontend/dist   # after live ingest + npm run build
+webcam catalogue OK
+
+$ python backend/validate_webcam_artifact.py <clean checkout frontend/public>   # ingest did not run
+::error::webcams: .../frontend/public/data/webcams.json is missing  (exit 1)
+
+$ python backend/validate_webcam_artifact.py <webcams.json without its stills>
+::error::webcams: cetursa-...: thumbnail_url ... is not in the build  (exit 1, one line per missing still)
