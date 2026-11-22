@@ -245,8 +245,18 @@ export default function Map({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-    setWeatherLayer(map, weatherOverlay);
+    if (!map) return;
+    // isStyleLoaded() is false while any source is still loading (catalogue tiles, a previous overlay), which would
+    // silently drop the forecast; wait for the map to settle instead.
+    if (map.isStyleLoaded()) {
+      setWeatherLayer(map, weatherOverlay);
+      return;
+    }
+    const apply = () => setWeatherLayer(map, weatherOverlay);
+    map.once("idle", apply);
+    return () => {
+      map.off("idle", apply);
+    };
   }, [weatherOverlay]);
 
   useEffect(() => {
