@@ -86,10 +86,12 @@ function numEs(v, dec = 1) {
 
 function applyTokens(tokens) {
   const root = document.documentElement.style;
-  const flat = (obj, prefix) => {
+  // Flattening rule: docs/design/README.md section 2, "How tokens become CSS variables".
+  const flat = (obj, prefix, type) => {
     for (const [k, v] of Object.entries(obj)) {
       if (k.startsWith('$')) continue;
       if (v && typeof v === 'object' && '$value' in v) {
+        if ((v.$type || type) === 'other' && `${prefix}${k}` !== 'font-feature-numbers') continue;
         let val = v.$value;
         if (Array.isArray(val)) val = prefix.startsWith('motion-easing') ? `cubic-bezier(${val.join(',')})` : val.map((f) => (f.includes(' ') ? `'${f}'` : f)).join(', ');
         if (val && typeof val === 'object') {
@@ -100,10 +102,10 @@ function applyTokens(tokens) {
             else root.setProperty(`--${prefix}${k}-${kk}`, vv);
           }
         } else root.setProperty(`--${prefix}${k}`, val);
-      } else if (v && typeof v === 'object') flat(v, `${prefix}${k}-`);
+      } else if (v && typeof v === 'object') flat(v, `${prefix}${k}-`, v.$type || type);
     }
   };
-  flat(tokens, '');
+  flat(tokens, '', undefined);
 }
 
 function icon(name, size = 16) {
@@ -188,7 +190,7 @@ function layerRow({ key, ramp, on = false, pending = false, expanded = false, da
   const c = get(C, `capa.${key}`);
   const name = c.nombre;
   const estado = pending ? 'pendiente' : c.estado;
-  const meta = c.resolucion ? t('fila_capa.meta', { fuente: c.fuente, resolucion: c.resolucion }) : c.fuente;
+  const meta = c.resolucion ? t('fila_capa.meta', { fuente: c.fuente, resolucion: c.resolucion }) : c.fuente || '';
   const toggle = `<button class="icon-btn ${on ? 'on' : ''}" ${pending ? 'disabled aria-disabled="true"' : ''} aria-pressed="${on}" aria-label="${esc(t(on ? 'fila_capa.ocultar' : 'fila_capa.mostrar', { capa: name }))}">${icon(on ? 'eye' : 'eye-off')}</button>`;
   const infoBtn = `<button class="icon-btn" aria-label="${esc(t('fila_capa.info', { capa: name }))}" ${info ? 'data-info-anchor' : ''}>${icon('info')}</button>`;
   const dateLine = date ? `<div class="layer-date num">${esc(date)}</div>` : '';
@@ -201,7 +203,7 @@ function layerRow({ key, ramp, on = false, pending = false, expanded = false, da
     sub = `<div class="layer-sub"><label class="opacity"><span>${esc(t('fila_capa.opacidad'))}</span><input type="range" min="0" max="100" value="${opacity}"><span class="num">${esc(t('fila_capa.opacidad_valor', { valor: opacity }))}</span></label></div>`;
   }
   return `<div class="layer ${on ? 'on' : ''} ${pending ? 'pending' : ''}">
-    <div class="layer-main">${toggle}<div class="layer-text"><div class="layer-name">${esc(name)}</div><div class="layer-meta">${esc(meta)}</div>${dateLine}${pend}<div style="margin-top:var(--space-2)">${badge(estado)}</div></div>${infoBtn}</div>${sub}</div>`;
+    <div class="layer-main">${toggle}<div class="layer-text"><div class="layer-name">${esc(name)}</div>${meta ? `<div class="layer-meta">${esc(meta)}</div>` : ''}${dateLine}${pend}${estado ? `<div style="margin-top:var(--space-2)">${badge(estado)}</div>` : ''}</div>${infoBtn}</div>${sub}</div>`;
 }
 
 function panelNieve() {
@@ -338,37 +340,42 @@ function renderTimeline() {
   if (MOBILE && (S.sheet === 'full' || S.card)) return;
   const end = new Date(Date.parse(TODAY) + FORECAST_DAYS * 864e5).toISOString().slice(0, 10);
   const span = dayIndex(end);
-  const pct = (iso) => (100 * dayIndex(iso)) / span;
+  // The forecast slot keeps a minimum width (--tl-slot) so 5 days stay readable on a 400-day track;
+  // past days share the rest. pct() returns a CSS length along the track.
+  const slot = `max(var(--space-16), ${(100 * FORECAST_DAYS) / span}%)`;
+  const pct = (iso) => (iso >= TODAY
+    ? `calc(100% - var(--tl-slot) * ${(dayIndex(end) - dayIndex(iso)) / FORECAST_DAYS})`
+    : `calc((100% - var(--tl-slot)) * ${dayIndex(iso) / dayIndex(TODAY)})`);
   const passes = PASSES.passes.filter((p) => p.date <= TODAY);
   const empty = !S.scene;
-  const ticks = empty ? '' : passes.map((p) => `<span class="tl-tick" style="left:${pct(p.date)}%" title="${esc(fechaCorta(p.date))}"></span>`).join('');
+  const ticks = empty ? '' : passes.map((p) => `<span class="tl-tick" style="left:${pct(p.date)}" title="${esc(fechaCorta(p.date))}"></span>`).join('');
   let months = '';
   for (let y = 2025, m = 9; `${y}-${String(m + 1).padStart(2, '0')}-01` <= TODAY; m = (m + 1) % 12, y += m === 0 ? 1 : 0) {
     const iso = `${y}-${String(m + 1).padStart(2, '0')}-01`;
-    // The last month label would collide with the forecast slot label.
-    const show = (MOBILE ? m % 3 === 0 : true) && dayIndex(iso) < span - (MOBILE ? 60 : 35);
-    if (show) months += `<span class="${m === 0 ? 'year' : ''}" style="left:${pct(iso)}%">${m === 0 ? y : MESES[m]}</span>`;
+    // The last month label would collide with the 'Hoy' label.
+    const show = (MOBILE ? m % 3 === 0 : true) && dayIndex(iso) < dayIndex(TODAY) - (MOBILE ? 75 : 30);
+    if (show) months += `<span class="${m === 0 ? 'year' : ''}" style="left:${pct(iso)}">${m === 0 ? y : MESES[m]}</span>`;
   }
   const cursorISO = SCENE.date;
-  const cursor = empty ? '' : `<span class="tl-cursor" style="left:${pct(cursorISO)}%"></span>`;
-  const tooltip = S.tooltip ? `<span class="tl-tooltip" style="left:${pct(cursorISO)}%">${esc(t('linea_tiempo.tick_tooltip', { fecha_larga: fechaLarga(cursorISO), estados: t('estado.observado') + ' (S2 L1C)' }))}</span>` : '';
+  const cursor = empty ? '' : `<span class="tl-cursor" style="left:${pct(cursorISO)}"></span>`;
+  const tooltip = S.tooltip ? `<span class="tl-tooltip" style="left:${pct(cursorISO)}">${esc(t('linea_tiempo.tick_tooltip', { fecha_larga: fechaLarga(cursorISO), estados: t('estado.observado') + ' (S2 L1C)' }))}</span>` : '';
   const dateBlock = empty
     ? `<div class="tl-date"><span class="d">${esc(t('linea_tiempo.sin_datos'))}</span><span class="small muted">${esc(t('linea_tiempo.sin_datos_detalle'))}</span></div>`
     : `<div class="tl-date"><span class="small muted">${esc(t('linea_tiempo.etiqueta'))}</span><span class="d num">${esc(fechaConDia(cursorISO))}</span>
         <div class="tl-btns"><button class="icon-btn" aria-label="${esc(t('linea_tiempo.anterior'))}">${icon('chevron-left')}</button><button class="icon-btn" aria-label="${esc(t('linea_tiempo.reproducir'))}">${icon('play')}</button><button class="icon-btn" aria-label="${esc(t('linea_tiempo.siguiente'))}">${icon('chevron-right')}</button></div></div>`;
   const legend = `<div class="tl-legend">${['observado', 'rellenado', 'modelado', 'prevision', 'pendiente'].map((e) => badge(e)).join('')}</div>`;
-  const right = `<div class="tl-right"><div style="display:flex;gap:var(--space-1)"><button class="btn" ${empty ? 'disabled' : ''} title="${esc(t('linea_tiempo.tooltip_ultima'))}">${icon('arrow-right-to-line')}${esc(t('linea_tiempo.ultima'))}</button><button class="btn" aria-label="${esc(t('linea_tiempo.calendario'))}">${icon('calendar')}</button></div></div>`;
+  const right = `<div class="tl-right"><div style="display:flex;gap:var(--space-1)"><button class="btn" ${empty ? 'disabled' : ''} title="${esc(t('linea_tiempo.tooltip_ultima'))}">${icon('arrow-right-to-line')}${esc(t('linea_tiempo.ultima'))}</button><button class="btn" ${empty ? 'disabled' : ''} aria-label="${esc(t('linea_tiempo.calendario'))}">${icon('calendar')}</button></div></div>`;
   const el = document.createElement('div');
   el.className = 'timeline';
   el.setAttribute('role', 'group');
   el.setAttribute('aria-label', t('linea_tiempo.etiqueta'));
   const track = empty ? '' : `
-    <div class="tl-track" role="slider" tabindex="0" aria-label="${esc(t('linea_tiempo.etiqueta'))}" aria-valuetext="${esc(empty ? t('linea_tiempo.sin_datos') : fechaConDia(cursorISO))}" title="${esc(t('linea_tiempo.teclado'))}">
+    <div class="tl-track" style="--tl-slot:${slot}" role="slider" tabindex="0" aria-label="${esc(t('linea_tiempo.etiqueta'))}" aria-valuetext="${esc(empty ? t('linea_tiempo.sin_datos') : fechaConDia(cursorISO))}" title="${esc(t('linea_tiempo.teclado'))}">
       <div class="tl-row obs">${ticks}</div>
-      <div class="tl-row daily"><span class="seg pendiente" style="left:0;width:${pct(TODAY)}%" title="${esc(t('estado.tooltip_pendiente'))}"></span><span class="seg pendiente slot-prevision" style="left:${pct(TODAY)}%;right:0" title="${esc(t('linea_tiempo.tooltip_prevision_slot'))} ${esc(t('linea_tiempo.prevision_slot_pendiente'))}"></span></div>
+      <div class="tl-row daily"><span class="seg pendiente" style="left:0;width:${pct(TODAY)}" title="${esc(t('estado.tooltip_pendiente'))}"></span><span class="seg pendiente slot-prevision" style="left:${pct(TODAY)};right:0" title="${esc(t('linea_tiempo.tooltip_prevision_slot'))} ${esc(t('linea_tiempo.prevision_slot_pendiente'))}"></span></div>
       <div class="tl-months">${months}</div>
-      <span class="tl-forecast-label" style="right:0">${esc(t('linea_tiempo.prevision_slot'))}</span>
-      <span class="tl-today" style="left:${pct(TODAY)}%" title="${esc(t('linea_tiempo.hoy'))}"></span>${cursor}${tooltip}
+      <span class="tl-forecast-label" style="left:${pct(TODAY)}">${esc(t('linea_tiempo.prevision_slot'))}</span><span class="tl-today-label" style="left:${pct(TODAY)}">${esc(t('linea_tiempo.hoy'))}</span>
+      <span class="tl-today" style="left:${pct(TODAY)}" title="${esc(t('linea_tiempo.hoy'))}"></span>${cursor}${tooltip}
     </div>`;
   if (empty) el.classList.add('empty');
   el.innerHTML = `${dateBlock}${track}${right}${MOBILE ? '' : `<div class="tl-legend-row">${legend}</div>`}`;
@@ -499,7 +506,7 @@ function renderDoc() {
 function renderTimelineStates() {
   const d = document.createElement('main');
   d.className = 'doc';
-  const row = (estado, glyph) => `<div class="spec-row"><div>${badge(estado)}</div><div class="spec-glyph">${glyph}</div><div class="small">${esc(t('estado.tooltip_' + estado))}</div></div>`;
+  const row = (estado, glyph) => `<div class="spec-row"><div>${badge(estado)}</div><div class="spec-glyph">${glyph}</div><div class="small spec-desc">${esc(t('estado.tooltip_' + estado))}</div></div>`;
   // Schematic strip in abstract day units: 0..30 past, 30 = today, 30..36 forecast slot.
   const u = (x) => (100 * x) / 36;
   const seg = (cls, a, b) => `<span class="seg ${cls}" style="left:${u(a)}%;width:${u(b - a)}%"></span>`;

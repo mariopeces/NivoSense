@@ -62,6 +62,63 @@
           ],
           "lightness_monotonic": true,
           "min_adjacent_deltaE_ok": 0.101
+        },
+        "over_white": {
+          "normal": {
+            "L": [
+              0.934,
+              0.851,
+              0.716,
+              0.61,
+              0.492
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.087
+          },
+          "deuteranopia": {
+            "L": [
+              0.933,
+              0.848,
+              0.709,
+              0.6,
+              0.482
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.088
+          },
+          "protanopia": {
+            "L": [
+              0.944,
+              0.868,
+              0.739,
+              0.63,
+              0.501
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.077
+          },
+          "tritanopia": {
+            "L": [
+              0.933,
+              0.849,
+              0.712,
+              0.604,
+              0.487
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.09
+          },
+          "greyscale": {
+            "L": [
+              0.937,
+              0.855,
+              0.72,
+              0.61,
+              0.487
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.082
+          }
         }
       },
       "snow_cover_observed": {
@@ -104,6 +161,48 @@
           ],
           "lightness_monotonic": true,
           "min_adjacent_deltaE_ok": 0.224
+        },
+        "over_white": {
+          "normal": {
+            "L": [
+              0.716,
+              0.492
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.234
+          },
+          "deuteranopia": {
+            "L": [
+              0.709,
+              0.482
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.231
+          },
+          "protanopia": {
+            "L": [
+              0.739,
+              0.501
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.243
+          },
+          "tritanopia": {
+            "L": [
+              0.712,
+              0.487
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.229
+          },
+          "greyscale": {
+            "L": [
+              0.72,
+              0.487
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.233
+          }
         }
       },
       "swe": {
@@ -171,6 +270,73 @@
           ],
           "lightness_monotonic": true,
           "min_adjacent_deltaE_ok": 0.1
+        },
+        "over_white": {
+          "normal": {
+            "L": [
+              0.96,
+              0.832,
+              0.734,
+              0.645,
+              0.552,
+              0.455,
+              0.369
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.096
+          },
+          "deuteranopia": {
+            "L": [
+              0.961,
+              0.831,
+              0.731,
+              0.64,
+              0.544,
+              0.448,
+              0.367
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.093
+          },
+          "protanopia": {
+            "L": [
+              0.964,
+              0.856,
+              0.76,
+              0.667,
+              0.568,
+              0.457,
+              0.365
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.099
+          },
+          "tritanopia": {
+            "L": [
+              0.96,
+              0.83,
+              0.731,
+              0.641,
+              0.548,
+              0.452,
+              0.368
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.089
+          },
+          "greyscale": {
+            "L": [
+              0.963,
+              0.842,
+              0.743,
+              0.65,
+              0.552,
+              0.45,
+              0.365
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.085
+          }
         }
       },
       "snow_depth": {
@@ -238,6 +404,73 @@
           ],
           "lightness_monotonic": true,
           "min_adjacent_deltaE_ok": 0.056
+        },
+        "over_white": {
+          "normal": {
+            "L": [
+              0.923,
+              0.834,
+              0.775,
+              0.704,
+              0.641,
+              0.564,
+              0.456
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.067
+          },
+          "deuteranopia": {
+            "L": [
+              0.922,
+              0.834,
+              0.777,
+              0.707,
+              0.641,
+              0.561,
+              0.452
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.057
+          },
+          "protanopia": {
+            "L": [
+              0.919,
+              0.819,
+              0.748,
+              0.668,
+              0.616,
+              0.553,
+              0.452
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.053
+          },
+          "tritanopia": {
+            "L": [
+              0.923,
+              0.834,
+              0.777,
+              0.706,
+              0.642,
+              0.563,
+              0.455
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.069
+          },
+          "greyscale": {
+            "L": [
+              0.921,
+              0.828,
+              0.765,
+              0.691,
+              0.63,
+              0.556,
+              0.451
+            ],
+            "lightness_monotonic": true,
+            "min_adjacent_deltaE_ok": 0.061
+          }
         }
       }
     },
@@ -545,6 +778,8 @@
       "source": "cmocean_ice",
       "reversed_note": "sampled from light to dark: more probability, darker blue",
       "source_citation": "cmocean 'ice' (Thyng, Greene, Hetland, Zimmerle & DiMarco 2016, Oceanography 29(3):9-13, doi:10.5670/oceanog.2016.66); built in CAM02-UCS for sea ice",
+      "source_url": "https://raw.githubusercontent.com/matplotlib/cmocean/59c35002c3aa5296b65d9646e52604c627441eb6/cmocean/rgb/ice-rgb.txt",
+      "source_licence": "MIT (cmocean, https://github.com/matplotlib/cmocean/blob/main/LICENSE.txt)",
       "classes": [
         {
           "min": 0.0,
@@ -605,6 +840,8 @@
       "source": "cmocean_ice",
       "categorical": true,
       "source_citation": "cmocean 'ice' (Thyng, Greene, Hetland, Zimmerle & DiMarco 2016, Oceanography 29(3):9-13, doi:10.5670/oceanog.2016.66); built in CAM02-UCS for sea ice",
+      "source_url": "https://raw.githubusercontent.com/matplotlib/cmocean/59c35002c3aa5296b65d9646e52604c627441eb6/cmocean/rgb/ice-rgb.txt",
+      "source_licence": "MIT (cmocean, https://github.com/matplotlib/cmocean/blob/main/LICENSE.txt)",
       "classes": [
         {
           "key": "snow",
@@ -665,6 +902,8 @@
       "transparent_below": 5,
       "transparent_note": "README section 6: SWE under 5 mm is drawn transparent; the first class is light and translucent so trace snow never reads as solid cover",
       "source_citation": "cmocean 'deep' (Thyng et al. 2016, doi:10.5670/oceanog.2016.66); built in CAM02-UCS for water depth",
+      "source_url": "https://raw.githubusercontent.com/matplotlib/cmocean/59c35002c3aa5296b65d9646e52604c627441eb6/cmocean/rgb/deep-rgb.txt",
+      "source_licence": "MIT (cmocean, https://github.com/matplotlib/cmocean/blob/main/LICENSE.txt)",
       "classes": [
         {
           "min": 0,
@@ -743,6 +982,8 @@
       "transparent_below": null,
       "transparent_note": "depth is drawn only where SWE >= 5 mm, the same mask as the SWE layer",
       "source_citation": "Scientific colour map 'acton' (Crameri 2018, doi:10.5281/zenodo.1243862; Crameri, Shephard & Heron 2020, Nat. Commun. 11:5444, doi:10.1038/s41467-020-19160-7)",
+      "source_url": "https://raw.githubusercontent.com/callumrollo/cmcrameri/7670e3cd2a4758c1f355539ad07257d40573adcc/cmcrameri/cmaps/acton.txt",
+      "source_licence": "MIT (Scientific colour maps, Crameri; cmcrameri https://github.com/callumrollo/cmcrameri)",
       "classes": [
         {
           "min": 0,
