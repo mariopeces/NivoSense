@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | fixing after r2 G-Data (G-Code r2 running); catalogue output pending on T0.3 | #8 | r1 both fail; r2: G-Data fail (failed ingest ships live cards without images) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | r3 pushed (083c3b5), r3 gauntlets queued; merges after T0.7 and T0.3 | #8 | r1 both fail; r2: G-Data fail (failed ingest ships live cards without images) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -147,3 +147,4 @@ Not available until T5.1.
 - 2026-11-22: T0.7 G-Code r3 PASS at 3f2086d. The trusted-runs fix f6b1dc6 came after it, so round 4 is narrow: G-Infra on the fork-run finding plus a regression pass, and a G-Code delta review of 3f2086d..head. T2.1 G-Code r1 started.
 - 2026-11-22: T3.1 G-Data r2 FAIL: round-1 majors fixed with live evidence; new major: a failed ingest ships the committed webcams.json pointing at unshipped stills. Fix sent (per-source isolation, no references to unshipped files, dist validation). T0.4 G-Data r1 started.
 - 2026-11-22: T0.6 round 3 pushed (7277965): colour rule rewritten to the coordinator's 7-item bar, failing CI proof per item, baseline-growth step. T0.7 round 3 fixes pushed (0bbc81e): trusted_runs.py accepts only this repo's successful schedule/dispatch runs of the producer workflows on main ancestors; workflow_run gated. Queue order: T0.6 G-Infra r3, T0.6 G-Code r3, T0.7 G-Infra r4 and G-Code r4 (narrow), T4.0 G-Code, T0.4 G-Infra, T0.4 G-Code. T1.0 labeller idle on purpose while its mosaics build in the background.
+- 2026-11-22: T3.1 round 3 pushed (083c3b5): per-source isolation, webcams.json generated at build, deploy gate on missing stills. Merge order set: T0.6, T0.7, T0.3, then T3.1 (both edit pages.yml; T3.1 rebases onto T0.7). T3.1 r3 gauntlets queued after T0.6 r3 and T0.7 r4.
