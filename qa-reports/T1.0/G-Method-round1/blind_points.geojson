@@ -1,0 +1,6085 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "seed": 7340211,
+  "source_sha256": "67ee82fed3c31af9aca5b1b34b5a412d352953ed4000e5c59c5888edc8807faf"
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7511042,
+     37.1232138
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-003",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 522110.0,
+    "y": 4108570.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "<1500",
+    "cell_pixels": 43148,
+    "elevation_m": 1070.2,
+    "cos_incidence": 0.09,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SWG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8607908,
+     37.1003168
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-007",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 512370.0,
+    "y": 4106010.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 52530,
+    "elevation_m": 1586.6,
+    "cos_incidence": 0.12,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SWG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3249084,
+     37.1031985
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-011",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 471130.0,
+    "y": 4106370.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 52530,
+    "elevation_m": 1912.0,
+    "cos_incidence": 0.035,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8218478,
+     37.1024281
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-024",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 515830.0,
+    "y": 4106250.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 468936,
+    "elevation_m": 1342.4,
+    "cos_incidence": 0.485,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SWG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8450891,
+     37.0739756
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-041",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 513770.0,
+    "y": 4103090.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 123119,
+    "elevation_m": 2272.2,
+    "cos_incidence": 0.396,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SWG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4025703,
+     37.0622159
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-042",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 464210.0,
+    "y": 4101850.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2517.2,
+    "cos_incidence": 0.869,
+    "cast_shadow": false,
+    "tree_fraction": 0.75,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9922422,
+     37.0286442
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-051",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 500690.0,
+    "y": 4098050.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 104082,
+    "elevation_m": 1338.7,
+    "cos_incidence": 0.516,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVF_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0005624,
+     37.0551467
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-061",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 499950.0,
+    "y": 4100990.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 97102,
+    "elevation_m": 1597.5,
+    "cos_incidence": 0.708,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3980891,
+     36.9794794
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-063",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 464570.0,
+    "y": 4092670.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 80781,
+    "elevation_m": 2343.4,
+    "cos_incidence": 0.787,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVF_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2787595,
+     37.0398554
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-092",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 475210.0,
+    "y": 4099330.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 461659,
+    "elevation_m": 2444.9,
+    "cos_incidence": 0.481,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVF_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4523125,
+     37.0665438
+    ]
+   },
+   "properties": {
+    "id": "2025-11-03-093",
+    "date": "2025-11-03",
+    "orbit": "R094",
+    "x": 459790.0,
+    "y": 4102350.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 461659,
+    "elevation_m": 2055.4,
+    "cos_incidence": 0.423,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVG_20251103_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2538508,
+     37.0563174
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-003",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 477430.0,
+    "y": 4101150.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 388998,
+    "elevation_m": 2314.1,
+    "cos_incidence": 0.552,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2235931,
+     37.0170757
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-010",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 480110.0,
+    "y": 4096790.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 388998,
+    "elevation_m": 2289.5,
+    "cos_incidence": 0.535,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1962833,
+     37.0634578
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-020",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 482550.0,
+    "y": 4101930.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 161544,
+    "elevation_m": 2594.1,
+    "cos_incidence": 0.654,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.101399,
+     37.102158
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-043",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 490990.0,
+    "y": 4106210.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 90827,
+    "elevation_m": 2352.7,
+    "cos_incidence": 0.025,
+    "cast_shadow": false,
+    "tree_fraction": 0.25,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1853425,
+     37.0973691
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-046",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 483530.0,
+    "y": 4105690.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 56429,
+    "elevation_m": 2554.4,
+    "cos_incidence": 0.123,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.840098,
+     36.9863493
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-054",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 514230.0,
+    "y": 4093370.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 583847,
+    "elevation_m": 854.5,
+    "cos_incidence": 0.187,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SWF_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8867755,
+     37.0323765
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-056",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 510070.0,
+    "y": 4098470.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 583847,
+    "elevation_m": 1360.0,
+    "cos_incidence": 0.666,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SWF_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3239584,
+     36.9856544
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-073",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 471170.0,
+    "y": 4093330.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2503.7,
+    "cos_incidence": 0.381,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8937975,
+     37.1571406
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-077",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 509430.0,
+    "y": 4112310.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 894979,
+    "elevation_m": 1205.5,
+    "cos_incidence": 0.33,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8037143,
+     37.1516171
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-080",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 517430.0,
+    "y": 4111710.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 894979,
+    "elevation_m": 855.0,
+    "cos_incidence": 0.491,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SWG_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.844935,
+     37.0391801
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-087",
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 513790.0,
+    "y": 4099230.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 464323,
+    "elevation_m": 1766.4,
+    "cos_incidence": 0.561,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SWF_20251128_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3909234,
+     37.0721706
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-106",
+    "draw": 2,
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 465250.0,
+    "y": 4102950.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 56429,
+    "elevation_m": 2650.7,
+    "cos_incidence": 0.018,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251128_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4053747,
+     36.9973033
+    ]
+   },
+   "properties": {
+    "id": "2025-11-28-113",
+    "draw": 2,
+    "date": "2025-11-28",
+    "orbit": "R094",
+    "x": 463930.0,
+    "y": 4094650.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 951,
+    "elevation_m": 2488.0,
+    "cos_incidence": 0.722,
+    "cast_shadow": false,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251128_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8987932,
+     37.1268572
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-008",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 508990.0,
+    "y": 4108950.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 458480,
+    "elevation_m": 1820.7,
+    "cos_incidence": 0.511,
+    "cast_shadow": false,
+    "tree_fraction": 0.75,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0197046,
+     37.1406004
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-013",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 498250.0,
+    "y": 4110470.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 458480,
+    "elevation_m": 1821.9,
+    "cos_incidence": 0.273,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3227733,
+     37.0774236
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-025",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 471310.0,
+    "y": 4103510.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 207830,
+    "elevation_m": 2148.1,
+    "cos_incidence": 0.48,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8362743,
+     37.0925332
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-038",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 514550.0,
+    "y": 4105150.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 191127,
+    "elevation_m": 1660.1,
+    "cos_incidence": -0.16,
+    "cast_shadow": true,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SWG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4039511,
+     37.0256132
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-048",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 464070.0,
+    "y": 4097790.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 71298,
+    "elevation_m": 2991.2,
+    "cos_incidence": 0.128,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7999197,
+     37.1386304
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-057",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 517770.0,
+    "y": 4110270.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 545453,
+    "elevation_m": 901.6,
+    "cos_incidence": 0.295,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SWG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1583372,
+     37.0986702
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-074",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 485930.0,
+    "y": 4105830.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2530.9,
+    "cos_incidence": 0.047,
+    "cast_shadow": true,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2755508,
+     36.9608967
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-077",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 475470.0,
+    "y": 4090570.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 55391,
+    "elevation_m": 1323.9,
+    "cos_incidence": 0.459,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7363918,
+     37.080815
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-078",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 523430.0,
+    "y": 4103870.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 55391,
+    "elevation_m": 1243.9,
+    "cos_incidence": 0.735,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SWG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9929108,
+     37.0933672
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-097",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 500630.0,
+    "y": 4105230.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 3851,
+    "elevation_m": 2503.9,
+    "cos_incidence": 0.816,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3430117,
+     37.0247232
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-119",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 469490.0,
+    "y": 4097670.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 310721,
+    "elevation_m": 2349.7,
+    "cos_incidence": 0.68,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3859737,
+     37.0721868
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-125",
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 465690.0,
+    "y": 4102950.0,
+    "stratum": "open_terrain",
+    "elevation_band": ">=2500",
+    "cell_pixels": 395606,
+    "elevation_m": 2669.2,
+    "cos_incidence": 0.324,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2873948,
+     37.1826202
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-141",
+    "draw": 2,
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 474490.0,
+    "y": 4115170.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 109579,
+    "elevation_m": 2126.9,
+    "cos_incidence": 0.178,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20251218_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4078442,
+     36.9967539
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-144",
+    "draw": 2,
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 463710.0,
+    "y": 4094590.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2505.3,
+    "cos_incidence": 0.799,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251218_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3047111,
+     37.0057173
+    ]
+   },
+   "properties": {
+    "id": "2025-12-18-155",
+    "draw": 2,
+    "date": "2025-12-18",
+    "orbit": "R094",
+    "x": 472890.0,
+    "y": 4095550.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 3851,
+    "elevation_m": 2632.9,
+    "cos_incidence": 0.632,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVF_20251218_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1010822,
+     37.0331086
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-010",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 491010.0,
+    "y": 4098550.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 822368,
+    "elevation_m": 1573.9,
+    "cos_incidence": 0.477,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3350315,
+     36.9483039
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-017",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 470170.0,
+    "y": 4089190.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 822368,
+    "elevation_m": 1666.8,
+    "cos_incidence": 0.784,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1296109,
+     37.0150521
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-024",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 488470.0,
+    "y": 4096550.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 822368,
+    "elevation_m": 1758.4,
+    "cos_incidence": 0.631,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.5179644,
+     37.027514
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-031",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 453930.0,
+    "y": 4098050.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "<1500",
+    "cell_pixels": 115326,
+    "elevation_m": 1269.0,
+    "cos_incidence": 0.239,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8743114,
+     37.0905965
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-044",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 511170.0,
+    "y": 4104930.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 95823,
+    "elevation_m": 2305.5,
+    "cos_incidence": -0.033,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SWG_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3952281,
+     37.0779254
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-046",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 464870.0,
+    "y": 4103590.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 42022,
+    "elevation_m": 2559.0,
+    "cos_incidence": 0.067,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9623322,
+     37.0349485
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-059",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 503350.0,
+    "y": 4098750.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 568275,
+    "elevation_m": 1578.3,
+    "cos_incidence": 0.679,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9789707,
+     37.0448685
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-063",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 501870.0,
+    "y": 4099850.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 568275,
+    "elevation_m": 1824.0,
+    "cos_incidence": 0.516,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.893793,
+     37.1603857
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-078",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 509430.0,
+    "y": 4112670.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 116521,
+    "elevation_m": 1110.6,
+    "cos_incidence": 0.249,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.5111366,
+     37.0823502
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-081",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 454570.0,
+    "y": 4104130.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 116521,
+    "elevation_m": 1441.2,
+    "cos_incidence": 0.116,
+    "cast_shadow": true,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3515397,
+     37.0699501
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-101",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 468750.0,
+    "y": 4102690.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 35470,
+    "elevation_m": 2886.7,
+    "cos_incidence": 0.341,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4737682,
+     37.0437441
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-111",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 457870.0,
+    "y": 4099830.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 76470,
+    "elevation_m": 1958.2,
+    "cos_incidence": 0.767,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3005286,
+     36.9711126
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-112",
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 473250.0,
+    "y": 4091710.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 76470,
+    "elevation_m": 1963.7,
+    "cos_incidence": 0.727,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8961387,
+     37.0922402
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-132",
+    "draw": 2,
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 509230.0,
+    "y": 4105110.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 95823,
+    "elevation_m": 2370.7,
+    "cos_incidence": -0.15,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260107_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2161483,
+     37.0080751
+    ]
+   },
+   "properties": {
+    "id": "2026-01-07-139",
+    "draw": 2,
+    "date": "2026-01-07",
+    "orbit": "R094",
+    "x": 480770.0,
+    "y": 4095790.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 207140,
+    "elevation_m": 2066.1,
+    "cos_incidence": 0.638,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260107_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2854565,
+     37.2064221
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-000",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 474670.0,
+    "y": 4117810.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 658199,
+    "elevation_m": 1875.7,
+    "cos_incidence": 0.084,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8131316,
+     37.0771747
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-015",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 516610.0,
+    "y": 4103450.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 325891,
+    "elevation_m": 2087.2,
+    "cos_incidence": 0.76,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SWG_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1841095,
+     37.0528404
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-024",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 483630.0,
+    "y": 4100750.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 325891,
+    "elevation_m": 2079.8,
+    "cos_incidence": 0.759,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4310451,
+     37.1248548
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-041",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 461710.0,
+    "y": 4108810.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 110146,
+    "elevation_m": 2057.6,
+    "cos_incidence": 0.076,
+    "cast_shadow": false,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3480183,
+     37.0870876
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-042",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 469070.0,
+    "y": 4104590.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 110146,
+    "elevation_m": 2269.2,
+    "cos_incidence": -0.005,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4148937,
+     36.9704075
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-061",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 463070.0,
+    "y": 4091670.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 863228,
+    "elevation_m": 1897.7,
+    "cos_incidence": 0.619,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2466473,
+     36.985119
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-069",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 478050.0,
+    "y": 4093250.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 232160,
+    "elevation_m": 2141.4,
+    "cos_incidence": 0.296,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3228393,
+     36.9867392
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-072",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 471270.0,
+    "y": 4093450.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2524.5,
+    "cos_incidence": 0.282,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8210928,
+     37.0405888
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-084",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 515910.0,
+    "y": 4099390.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 221971,
+    "elevation_m": 1692.9,
+    "cos_incidence": 0.598,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SWF_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.41703,
+     36.9913134
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-099",
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 462890.0,
+    "y": 4093990.0,
+    "stratum": "open_terrain",
+    "elevation_band": ">=2500",
+    "cell_pixels": 406779,
+    "elevation_m": 2677.5,
+    "cos_incidence": 0.652,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260112_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2248883,
+     37.1512058
+    ]
+   },
+   "properties": {
+    "id": "2026-01-12-113",
+    "draw": 2,
+    "date": "2026-01-12",
+    "orbit": "R094",
+    "x": 480030.0,
+    "y": 4111670.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 232160,
+    "elevation_m": 2007.1,
+    "cos_incidence": 0.638,
+    "cast_shadow": false,
+    "tree_fraction": 0.75,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260112_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7690442,
+     37.0725899
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-010",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 520530.0,
+    "y": 4102950.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 728941,
+    "elevation_m": 1793.4,
+    "cos_incidence": 0.679,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1065892,
+     37.1117086
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-019",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 490530.0,
+    "y": 4107270.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 206097,
+    "elevation_m": 2075.7,
+    "cos_incidence": 0.752,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0975759,
+     37.1046852
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-042",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 491330.0,
+    "y": 4106490.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 26738,
+    "elevation_m": 2179.4,
+    "cos_incidence": 0.121,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.914368,
+     37.0920745
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-043",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 507610.0,
+    "y": 4105090.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 26738,
+    "elevation_m": 2236.2,
+    "cos_incidence": -0.015,
+    "cast_shadow": true,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2639342,
+     37.2394635
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-057",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 476590.0,
+    "y": 4121470.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 531621,
+    "elevation_m": 1158.7,
+    "cos_incidence": 0.425,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.459306,
+     37.0697621
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-062",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 459170.0,
+    "y": 4102710.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 801572,
+    "elevation_m": 1804.0,
+    "cos_incidence": 0.613,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2893302,
+     36.9806957
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-087",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 474250.0,
+    "y": 4092770.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 53000,
+    "elevation_m": 1772.4,
+    "cos_incidence": 0.661,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2011041,
+     37.0147722
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-089",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 482110.0,
+    "y": 4096530.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 53000,
+    "elevation_m": 1623.4,
+    "cos_incidence": 0.672,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2991564,
+     37.0796489
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-101",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 473410.0,
+    "y": 4103750.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 38421,
+    "elevation_m": 2616.3,
+    "cos_incidence": 0.396,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4263668,
+     36.9728909
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-116",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 462050.0,
+    "y": 4091950.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 500800,
+    "elevation_m": 2187.4,
+    "cos_incidence": 0.839,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1758222,
+     37.0681773
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-118",
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 484370.0,
+    "y": 4102450.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 500800,
+    "elevation_m": 2364.2,
+    "cos_incidence": 0.794,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4026476,
+     37.1193659
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-135",
+    "draw": 2,
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 464230.0,
+    "y": 4108190.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 118435,
+    "elevation_m": 1979.9,
+    "cos_incidence": 0.154,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0077649,
+     37.0978743
+    ]
+   },
+   "properties": {
+    "id": "2026-02-16-154",
+    "draw": 2,
+    "date": "2026-02-16",
+    "orbit": "R094",
+    "x": 499310.0,
+    "y": 4105730.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 500800,
+    "elevation_m": 2401.6,
+    "cos_incidence": 0.534,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260216_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.237181,
+     36.9763042
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-008",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 478890.0,
+    "y": 4092270.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 370971,
+    "elevation_m": 1870.1,
+    "cos_incidence": 0.713,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260221_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3311095,
+     37.0799246
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-012",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 470570.0,
+    "y": 4103790.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 370971,
+    "elevation_m": 1985.2,
+    "cos_incidence": 0.892,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9726567,
+     37.0908402
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-022",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 502430.0,
+    "y": 4104950.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 516768,
+    "elevation_m": 2228.1,
+    "cos_incidence": 0.869,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.365758,
+     37.1259757
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-035",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 467510.0,
+    "y": 4108910.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 37902,
+    "elevation_m": 1546.0,
+    "cos_incidence": 0.168,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9105354,
+     37.0978408
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-041",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 507950.0,
+    "y": 4105730.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 20777,
+    "elevation_m": 2129.9,
+    "cos_incidence": 0.123,
+    "cast_shadow": false,
+    "tree_fraction": 0.75,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3106224,
+     37.0772758
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-045",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 472390.0,
+    "y": 4103490.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 20777,
+    "elevation_m": 2492.0,
+    "cos_incidence": 0.116,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1960279,
+     37.1389977
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-060",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 482590.0,
+    "y": 4110310.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 863228,
+    "elevation_m": 1781.3,
+    "cos_incidence": 0.717,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3260879,
+     37.1158152
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-065",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 471030.0,
+    "y": 4107770.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 232160,
+    "elevation_m": 2110.3,
+    "cos_incidence": 0.308,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7905632,
+     37.0199861
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-082",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 518630.0,
+    "y": 4097110.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 439,
+    "elevation_m": 1050.8,
+    "cos_incidence": 0.851,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SWF_20260221_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1929568,
+     37.0823933
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-090",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 482850.0,
+    "y": 4104030.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 528,
+    "elevation_m": 2818.5,
+    "cos_incidence": 0.761,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7077593,
+     37.0365778
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-091",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 525990.0,
+    "y": 4098970.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 918480,
+    "elevation_m": 940.8,
+    "cos_incidence": 0.676,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SWF_20260221_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7754757,
+     37.0278912
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-093",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 519970.0,
+    "y": 4097990.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 918480,
+    "elevation_m": 1292.2,
+    "cos_incidence": 0.841,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SWF_20260221_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3460558,
+     37.0018179
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-102",
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 469210.0,
+    "y": 4095130.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 331295,
+    "elevation_m": 1742.9,
+    "cos_incidence": 0.776,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260221_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3271765,
+     37.0024123
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-115",
+    "draw": 2,
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 470890.0,
+    "y": 4095190.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 401394,
+    "elevation_m": 2227.2,
+    "cos_incidence": 0.393,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260221_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4506322,
+     37.0867421
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-119",
+    "draw": 2,
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 459950.0,
+    "y": 4104590.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 17982,
+    "elevation_m": 2053.8,
+    "cos_incidence": 0.134,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260221_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2215194,
+     36.9997719
+    ]
+   },
+   "properties": {
+    "id": "2026-02-21-123",
+    "draw": 2,
+    "date": "2026-02-21",
+    "orbit": "R094",
+    "x": 480290.0,
+    "y": 4094870.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 179194,
+    "elevation_m": 2141.8,
+    "cos_incidence": 0.807,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260221_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4553919,
+     36.9794537
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-000",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 459470.0,
+    "y": 4092690.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 397435,
+    "elevation_m": 1857.1,
+    "cos_incidence": 0.883,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9026469,
+     37.1064883
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-006",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 508650.0,
+    "y": 4106690.0,
+    "stratum": "snowline_band",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 397435,
+    "elevation_m": 1801.9,
+    "cos_incidence": 0.718,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260313_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3713867,
+     36.9874986
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-025",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 466950.0,
+    "y": 4093550.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 306971,
+    "elevation_m": 2044.8,
+    "cos_incidence": 0.92,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2835537,
+     36.9379811
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-031",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 474750.0,
+    "y": 4088030.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "<1500",
+    "cell_pixels": 10342,
+    "elevation_m": 1056.9,
+    "cos_incidence": 0.141,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4741974,
+     37.0042597
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-034",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 457810.0,
+    "y": 4095450.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 6242,
+    "elevation_m": 1933.6,
+    "cos_incidence": 0.154,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2998058,
+     37.073157
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-051",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 473350.0,
+    "y": 4103030.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 7568,
+    "elevation_m": 2920.6,
+    "cos_incidence": 0.155,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260313_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4023473,
+     37.0625773
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-074",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 464230.0,
+    "y": 4101890.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 417,
+    "elevation_m": 2536.0,
+    "cos_incidence": 0.922,
+    "cast_shadow": false,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260313_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3961284,
+     36.991385
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-075",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 464750.0,
+    "y": 4093990.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 417,
+    "elevation_m": 2504.5,
+    "cos_incidence": 0.572,
+    "cast_shadow": false,
+    "tree_fraction": 0.75,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7370633,
+     37.0166345
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-077",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 523390.0,
+    "y": 4096750.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 136983,
+    "elevation_m": 654.5,
+    "cos_incidence": 0.487,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SWF_20260313_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1646518,
+     37.0004053
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-085",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 485350.0,
+    "y": 4094930.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 192091,
+    "elevation_m": 1694.5,
+    "cos_incidence": 0.721,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1851868,
+     37.0333677
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-087",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 483530.0,
+    "y": 4098590.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 192091,
+    "elevation_m": 1668.1,
+    "cos_incidence": 0.696,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0392449,
+     37.0405369
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-110",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 496510.0,
+    "y": 4099370.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 210108,
+    "elevation_m": 1707.4,
+    "cos_incidence": 0.539,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2579419,
+     37.0687483
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-119",
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 477070.0,
+    "y": 4102530.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 314979,
+    "elevation_m": 2279.5,
+    "cos_incidence": 0.493,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260313_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4152665,
+     37.1214858
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-138",
+    "draw": 2,
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 463110.0,
+    "y": 4108430.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 152720,
+    "elevation_m": 2027.1,
+    "cos_incidence": 0.301,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260313_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2146051,
+     37.0188952
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-149",
+    "draw": 2,
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 480910.0,
+    "y": 4096990.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 157861,
+    "elevation_m": 2047.9,
+    "cos_incidence": 0.889,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260313_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1886215,
+     37.0582419
+    ]
+   },
+   "properties": {
+    "id": "2026-03-13-155",
+    "draw": 2,
+    "date": "2026-03-13",
+    "orbit": "R094",
+    "x": 483230.0,
+    "y": 4101350.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 314979,
+    "elevation_m": 2314.4,
+    "cos_incidence": 0.998,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260313_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4417149,
+     37.0624372
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-016",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 460730.0,
+    "y": 4101890.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 727015,
+    "elevation_m": 2273.4,
+    "cos_incidence": 0.572,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260325_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2298715,
+     37.0114748
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-018",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 479550.0,
+    "y": 4096170.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 727015,
+    "elevation_m": 2436.2,
+    "cos_incidence": 0.834,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260325_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2717072,
+     36.9540546
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-029",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 475810.0,
+    "y": 4089810.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "<1500",
+    "cell_pixels": 4366,
+    "elevation_m": 1165.9,
+    "cos_incidence": 0.173,
+    "cast_shadow": false,
+    "tree_fraction": 0.25,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260325_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3158506,
+     37.0900622
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-045",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 471930.0,
+    "y": 4104910.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 1466,
+    "elevation_m": 2233.4,
+    "cos_incidence": 0.086,
+    "cast_shadow": false,
+    "tree_fraction": 0.25,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260325_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.5472406,
+     37.0650622
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-052",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 451350.0,
+    "y": 4102230.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 583847,
+    "elevation_m": 1128.0,
+    "cos_incidence": 0.36,
+    "cast_shadow": false,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260325_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4040375,
+     36.9994713
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-071",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 464050.0,
+    "y": 4094890.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2538.0,
+    "cos_incidence": 0.956,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260325_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9830231,
+     37.0272009
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-076",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 501510.0,
+    "y": 4097890.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 246,
+    "elevation_m": 1495.9,
+    "cos_incidence": 0.799,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260325_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1927911,
+     37.1945302
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-097",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 482890.0,
+    "y": 4116470.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 494041,
+    "elevation_m": 1563.3,
+    "cos_incidence": 0.925,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260325_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9926889,
+     37.0596536
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-099",
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 500650.0,
+    "y": 4101490.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 494041,
+    "elevation_m": 1752.0,
+    "cos_incidence": 0.717,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260325_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2383899,
+     37.1473934
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-115",
+    "draw": 2,
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 478830.0,
+    "y": 4111250.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 325621,
+    "elevation_m": 2399.2,
+    "cos_incidence": 0.786,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260325_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.330013,
+     36.9825728
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-122",
+    "draw": 2,
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 470630.0,
+    "y": 4092990.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 40179,
+    "elevation_m": 2335.7,
+    "cos_incidence": 0.573,
+    "cast_shadow": false,
+    "tree_fraction": 0.75,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260325_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4346054,
+     36.999183
+    ]
+   },
+   "properties": {
+    "id": "2026-03-25-135",
+    "draw": 2,
+    "date": "2026-03-25",
+    "orbit": "R094",
+    "x": 461330.0,
+    "y": 4094870.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 62262,
+    "elevation_m": 2473.7,
+    "cos_incidence": 0.585,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260325_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.89569,
+     37.0911581
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-001",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 509270.0,
+    "y": 4104990.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 472276,
+    "elevation_m": 2426.8,
+    "cos_incidence": 0.647,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3288088,
+     37.0682125
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-022",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 470770.0,
+    "y": 4102490.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 108728,
+    "elevation_m": 2519.5,
+    "cos_incidence": 0.541,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2453616,
+     37.1443144
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-025",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 478210.0,
+    "y": 4110910.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 108728,
+    "elevation_m": 2551.5,
+    "cos_incidence": 0.897,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7731531,
+     37.0527664
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-030",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 520170.0,
+    "y": 4100750.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "<1500",
+    "cell_pixels": 1393,
+    "elevation_m": 1355.0,
+    "cos_incidence": 0.17,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8403234,
+     37.0934402
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-037",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 514190.0,
+    "y": 4105250.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 779,
+    "elevation_m": 1696.1,
+    "cos_incidence": 0.191,
+    "cast_shadow": true,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9098685,
+     37.0908091
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-042",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 508010.0,
+    "y": 4104950.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 322,
+    "elevation_m": 2429.0,
+    "cos_incidence": 0.121,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7684378,
+     37.050053
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-056",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 520590.0,
+    "y": 4100450.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 583773,
+    "elevation_m": 1381.3,
+    "cos_incidence": 0.689,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0419991,
+     37.1411355
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-059",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 496270.0,
+    "y": 4110530.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 860898,
+    "elevation_m": 1622.5,
+    "cos_incidence": 0.917,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.5391011,
+     36.9956895
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-078",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 452030.0,
+    "y": 4094530.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 937,
+    "elevation_m": 1483.0,
+    "cos_incidence": 0.779,
+    "cast_shadow": false,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2829683,
+     37.0225379
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-091",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 474830.0,
+    "y": 4097410.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 14700,
+    "elevation_m": 2430.1,
+    "cos_incidence": 0.991,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1928504,
+     37.0403867
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-094",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 482850.0,
+    "y": 4099370.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 14700,
+    "elevation_m": 2046.7,
+    "cos_incidence": 0.934,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7698477,
+     37.0300438
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-104",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 520470.0,
+    "y": 4098230.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 924616,
+    "elevation_m": 1211.9,
+    "cos_incidence": 0.967,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SWF_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7038338,
+     37.1207614
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-109",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 526310.0,
+    "y": 4108310.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 924616,
+    "elevation_m": 854.7,
+    "cos_incidence": 0.823,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2866058,
+     37.1526951
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-115",
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 474550.0,
+    "y": 4111850.0,
+    "stratum": "open_terrain",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 486267,
+    "elevation_m": 1997.1,
+    "cos_incidence": 0.574,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3972371,
+     36.9884967
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-137",
+    "draw": 2,
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 464650.0,
+    "y": 4093670.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 4074,
+    "elevation_m": 2476.5,
+    "cos_incidence": 0.819,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260414_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2955218,
+     37.0127718
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-144",
+    "draw": 2,
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 473710.0,
+    "y": 4096330.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 5217,
+    "elevation_m": 2477.8,
+    "cos_incidence": 0.929,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260414_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2535792,
+     37.1098628
+    ]
+   },
+   "properties": {
+    "id": "2026-04-14-153",
+    "draw": 2,
+    "date": "2026-04-14",
+    "orbit": "R094",
+    "x": 477470.0,
+    "y": 4107090.0,
+    "stratum": "open_terrain",
+    "elevation_band": ">=2500",
+    "cell_pixels": 349698,
+    "elevation_m": 3102.2,
+    "cos_incidence": 0.867,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260414_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1036336,
+     37.0902572
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-010",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 490790.0,
+    "y": 4104890.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 152165,
+    "elevation_m": 2422.1,
+    "cos_incidence": 0.98,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3839431,
+     37.0264007
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-013",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 465850.0,
+    "y": 4097870.0,
+    "stratum": "snowline_band",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 152165,
+    "elevation_m": 2406.4,
+    "cos_incidence": 0.861,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260427_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0629032,
+     37.0937113
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-018",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 494410.0,
+    "y": 4105270.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 79549,
+    "elevation_m": 2549.6,
+    "cos_incidence": 0.624,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1907366,
+     37.0045129
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-033",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 483030.0,
+    "y": 4095390.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 303,
+    "elevation_m": 1558.1,
+    "cos_incidence": 0.018,
+    "cast_shadow": true,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260427_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8446104,
+     37.0880373
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-038",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 513810.0,
+    "y": 4104650.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 303,
+    "elevation_m": 1942.6,
+    "cos_incidence": 0.172,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SWG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3161577,
+     37.0556268
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-050",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 471890.0,
+    "y": 4101090.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 438,
+    "elevation_m": 3051.6,
+    "cos_incidence": 0.073,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0946751,
+     37.1250598
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-058",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 491590.0,
+    "y": 4108750.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 799150,
+    "elevation_m": 1865.7,
+    "cos_incidence": 0.753,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0322846,
+     37.0679426
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-065",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 497130.0,
+    "y": 4102410.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 180741,
+    "elevation_m": 2143.8,
+    "cos_incidence": 0.951,
+    "cast_shadow": false,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4080718,
+     36.997294
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-070",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 463690.0,
+    "y": 4094650.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 211,
+    "elevation_m": 2527.5,
+    "cos_incidence": 0.985,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260427_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0694696,
+     37.1373366
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-080",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 493830.0,
+    "y": 4110110.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 3315,
+    "elevation_m": 1480.4,
+    "cos_incidence": 0.667,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3081444,
+     37.0765611
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-098",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 472610.0,
+    "y": 4103410.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 90632,
+    "elevation_m": 2515.8,
+    "cos_incidence": 0.533,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3425863,
+     37.0301331
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-101",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 469530.0,
+    "y": 4098270.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 90632,
+    "elevation_m": 2707.2,
+    "cos_incidence": 0.87,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260427_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.6340642,
+     37.0224913
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-105",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 532550.0,
+    "y": 4097430.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 924628,
+    "elevation_m": 488.5,
+    "cos_incidence": 0.972,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SWF_20260427_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8497831,
+     37.0896665
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-120",
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 513350.0,
+    "y": 4104830.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 242931,
+    "elevation_m": 2037.7,
+    "cos_incidence": 0.814,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SWG_20260427_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3022715,
+     37.0708071
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-131",
+    "draw": 2,
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 473130.0,
+    "y": 4102770.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 438,
+    "elevation_m": 3041.4,
+    "cos_incidence": 0.159,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4056023,
+     36.9978433
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-136",
+    "draw": 2,
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 463910.0,
+    "y": 4094710.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 211,
+    "elevation_m": 2505.4,
+    "cos_incidence": 0.974,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "snowline_band",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260427_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1335719,
+     37.0943739
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-146",
+    "draw": 2,
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 488130.0,
+    "y": 4105350.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 90632,
+    "elevation_m": 2546.7,
+    "cos_incidence": 0.931,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260427_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4123056,
+     37.0320748
+    ]
+   },
+   "properties": {
+    "id": "2026-04-27-151",
+    "draw": 2,
+    "date": "2026-04-27",
+    "orbit": "R094",
+    "x": 463330.0,
+    "y": 4098510.0,
+    "stratum": "open_terrain",
+    "elevation_band": ">=2500",
+    "cell_pixels": 125226,
+    "elevation_m": 3006.8,
+    "cos_incidence": 0.984,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260427_1_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2425861,
+     37.121424
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-009",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 478450.0,
+    "y": 4108370.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 267459,
+    "elevation_m": 2789.0,
+    "cos_incidence": 0.95,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2667692,
+     37.0838728
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-011",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 476290.0,
+    "y": 4104210.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 267459,
+    "elevation_m": 2538.3,
+    "cos_incidence": 0.856,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3047788,
+     37.0226642
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-020",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 472890.0,
+    "y": 4097430.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 267459,
+    "elevation_m": 2819.2,
+    "cos_incidence": 0.806,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3160741,
+     37.089701
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-040",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 471910.0,
+    "y": 4104870.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 27,
+    "elevation_m": 2199.2,
+    "cos_incidence": 0.162,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3040864,
+     37.0745884
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-045",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 472970.0,
+    "y": 4103190.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 67,
+    "elevation_m": 2714.1,
+    "cos_incidence": 0.17,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "terrain_shadow",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.852988,
+     37.0615459
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-055",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 513070.0,
+    "y": 4101710.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 683062,
+    "elevation_m": 1958.7,
+    "cos_incidence": 0.921,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SWG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3524463,
+     36.9740348
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-056",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 468630.0,
+    "y": 4092050.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 683062,
+    "elevation_m": 1703.6,
+    "cos_incidence": 0.845,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9386458,
+     37.126524
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-057",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 505450.0,
+    "y": 4108910.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 683062,
+    "elevation_m": 1650.6,
+    "cos_incidence": 0.949,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3179024,
+     37.2039958
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-081",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 471790.0,
+    "y": 4117550.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 110123,
+    "elevation_m": 1687.4,
+    "cos_incidence": 0.739,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9183973,
+     37.1122693
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-083",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 507250.0,
+    "y": 4107330.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 110123,
+    "elevation_m": 1640.7,
+    "cos_incidence": 0.979,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4425299,
+     37.047831
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-088",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 460650.0,
+    "y": 4100270.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 105843,
+    "elevation_m": 2303.8,
+    "cos_incidence": 0.686,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1733696,
+     37.0779164
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-112",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 484590.0,
+    "y": 4103530.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 438807,
+    "elevation_m": 2437.0,
+    "cos_incidence": 0.92,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9658979,
+     37.1074248
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-116",
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 503030.0,
+    "y": 4106790.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 438807,
+    "elevation_m": 2016.1,
+    "cos_incidence": 0.745,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2C_30SVG_20260512_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3849016,
+     37.0381163
+    ]
+   },
+   "properties": {
+    "id": "2026-05-12-125",
+    "draw": 2,
+    "date": "2026-05-12",
+    "orbit": "R094",
+    "x": 465770.0,
+    "y": 4099170.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 112743,
+    "elevation_m": 2882.1,
+    "cos_incidence": 0.901,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2C_30SVF_20260512_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2878226,
+     37.1171763
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-013",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 474430.0,
+    "y": 4107910.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 271015,
+    "elevation_m": 2674.4,
+    "cos_incidence": 0.824,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2021879,
+     37.084361
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-019",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 482030.0,
+    "y": 4104250.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 271015,
+    "elevation_m": 2886.2,
+    "cos_incidence": 0.961,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4110516,
+     37.0497471
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-026",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 463450.0,
+    "y": 4100470.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 271015,
+    "elevation_m": 2664.3,
+    "cos_incidence": 0.893,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2469583,
+     37.011801
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-037",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 478030.0,
+    "y": 4096210.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 90,
+    "elevation_m": 1835.2,
+    "cos_incidence": 0.122,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.23417,
+     37.0203005
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-039",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 479170.0,
+    "y": 4097150.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 19,
+    "elevation_m": 2174.3,
+    "cos_incidence": 0.152,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9911056,
+     37.1335706
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-050",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 500790.0,
+    "y": 4109690.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 863228,
+    "elevation_m": 1954.6,
+    "cos_incidence": 0.889,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8046743,
+     37.0409235
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-051",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 517370.0,
+    "y": 4099430.0,
+    "stratum": "forest",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 863228,
+    "elevation_m": 1664.8,
+    "cos_incidence": 0.886,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SWF_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4221725,
+     37.1083007
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-060",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 462490.0,
+    "y": 4106970.0,
+    "stratum": "forest",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 232160,
+    "elevation_m": 2093.7,
+    "cos_incidence": 0.874,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.7621505,
+     37.0466151
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-067",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 521150.0,
+    "y": 4100070.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "<1500",
+    "cell_pixels": 2537,
+    "elevation_m": 1237.4,
+    "cos_incidence": 1.0,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SWG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2820939,
+     36.9684535
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-075",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 474890.0,
+    "y": 4091410.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 166,
+    "elevation_m": 1506.1,
+    "cos_incidence": 0.959,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest",
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2968538,
+     37.0084415
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-083",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 473590.0,
+    "y": 4095850.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 2644,
+    "elevation_m": 2492.5,
+    "cos_incidence": 0.976,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2B_30SVF_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1762801,
+     37.0716021
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-107",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 484330.0,
+    "y": 4102830.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 658552,
+    "elevation_m": 2477.0,
+    "cos_incidence": 0.946,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3730752,
+     37.0570841
+    ]
+   },
+   "properties": {
+    "id": "2026-05-27-113",
+    "date": "2026-05-27",
+    "orbit": "R094",
+    "x": 466830.0,
+    "y": 4101270.0,
+    "stratum": "open_terrain",
+    "elevation_band": ">=2500",
+    "cell_pixels": 194163,
+    "elevation_m": 3145.1,
+    "cos_incidence": 0.803,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2B_30SVG_20260527_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4063783,
+     37.0169511
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-015",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 463850.0,
+    "y": 4096830.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 150621,
+    "elevation_m": 3068.8,
+    "cos_incidence": 0.875,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4044906,
+     37.0425582
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-017",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 464030.0,
+    "y": 4099670.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 150621,
+    "elevation_m": 2950.8,
+    "cos_incidence": 0.736,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2783199,
+     37.1042185
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-018",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 475270.0,
+    "y": 4106470.0,
+    "stratum": "snowline_band",
+    "elevation_band": ">=2500",
+    "cell_pixels": 150621,
+    "elevation_m": 3103.8,
+    "cos_incidence": 0.528,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "snowline_band"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260613_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.5339415,
+     37.029246
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-027",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 452510.0,
+    "y": 4098250.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "<1500",
+    "cell_pixels": 58,
+    "elevation_m": 1484.5,
+    "cos_incidence": 0.064,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.312173,
+     37.0713223
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-042",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 472250.0,
+    "y": 4102830.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": ">=2500",
+    "cell_pixels": 32,
+    "elevation_m": 2520.8,
+    "cos_incidence": 0.276,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260613_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.6860605,
+     37.0632047
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-043",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 527910.0,
+    "y": 4101930.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 556803,
+    "elevation_m": 1382.2,
+    "cos_incidence": 0.988,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260613_2_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3221658,
+     36.9869213
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-062",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 471330.0,
+    "y": 4093470.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2540.8,
+    "cos_incidence": 0.83,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1867195,
+     37.0164183
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-075",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 483390.0,
+    "y": 4096710.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 31605,
+    "elevation_m": 1614.9,
+    "cos_incidence": 0.988,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1878392,
+     37.0146136
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-079",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 483290.0,
+    "y": 4096510.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 31605,
+    "elevation_m": 1623.0,
+    "cos_incidence": 0.984,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2817984,
+     37.1317938
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-089",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 474970.0,
+    "y": 4109530.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 40843,
+    "elevation_m": 2553.7,
+    "cos_incidence": 0.882,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260613_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8796418,
+     36.9928864
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-098",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 510710.0,
+    "y": 4094090.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 822488,
+    "elevation_m": 906.4,
+    "cos_incidence": 0.98,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SWF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4611882,
+     37.0089985
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-106",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 458970.0,
+    "y": 4095970.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 632920,
+    "elevation_m": 2369.7,
+    "cos_incidence": 0.909,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVF_20260613_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8527244,
+     37.0815574
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-108",
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 513090.0,
+    "y": 4103930.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 632920,
+    "elevation_m": 2426.9,
+    "cos_incidence": 0.974,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SWG_20260613_2_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2530942,
+     37.0994073
+    ]
+   },
+   "properties": {
+    "id": "2026-06-13-124",
+    "draw": 2,
+    "date": "2026-06-13",
+    "orbit": "R094",
+    "x": 477510.0,
+    "y": 4105930.0,
+    "stratum": "cloud_edge",
+    "elevation_band": ">=2500",
+    "cell_pixels": 3532,
+    "elevation_m": 3141.9,
+    "cos_incidence": 0.993,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVG_20260613_0_L1C"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.4684471,
+     37.0928027
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-007",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 458370.0,
+    "y": 4105270.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 116712,
+    "elevation_m": 1758.2,
+    "cos_incidence": -0.049,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SVG_20261120_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8657571,
+     37.0920294
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-011",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 511930.0,
+    "y": 4105090.0,
+    "stratum": "terrain_shadow",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 116712,
+    "elevation_m": 1921.1,
+    "cos_incidence": 0.114,
+    "cast_shadow": true,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "terrain_shadow"
+    ],
+    "chip_scene_id": "S2A_30SWG_20261120_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2180423,
+     36.9628192
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-027",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 480590.0,
+    "y": 4090770.0,
+    "stratum": "forest",
+    "elevation_band": "<1500",
+    "cell_pixels": 435302,
+    "elevation_m": 1452.3,
+    "cos_incidence": 0.695,
+    "cast_shadow": false,
+    "tree_fraction": 1.0,
+    "in_strata": [
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVF_20261120_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.3070136,
+     37.0751217
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-042",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 472710.0,
+    "y": 4103250.0,
+    "stratum": "forest",
+    "elevation_band": ">=2500",
+    "cell_pixels": 421,
+    "elevation_m": 2597.9,
+    "cos_incidence": -0.177,
+    "cast_shadow": true,
+    "tree_fraction": 0.5,
+    "in_strata": [
+     "terrain_shadow",
+     "forest"
+    ],
+    "chip_scene_id": "S2A_30SVG_20261120_0_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8692606,
+     37.0175749
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-058",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 511630.0,
+    "y": 4096830.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 27032,
+    "elevation_m": 1517.9,
+    "cos_incidence": 0.727,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SWF_20261120_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.5260478,
+     36.9932241
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-059",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 453190.0,
+    "y": 4094250.0,
+    "stratum": "cloud_edge",
+    "elevation_band": "1500-2000",
+    "cell_pixels": 27032,
+    "elevation_m": 1500.3,
+    "cos_incidence": 0.869,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "cloud_edge"
+    ],
+    "chip_scene_id": "S2A_30SVF_20261120_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8232017,
+     37.0039936
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-075",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 515730.0,
+    "y": 4095330.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 724745,
+    "elevation_m": 1011.0,
+    "cos_incidence": 0.394,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SWF_20261120_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.6877092,
+     37.0451805
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-076",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 527770.0,
+    "y": 4099930.0,
+    "stratum": "open_terrain",
+    "elevation_band": "<1500",
+    "cell_pixels": 724745,
+    "elevation_m": 1030.2,
+    "cos_incidence": 0.693,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SWF_20261120_1_L1C",
+    "draw": 1
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.2137093,
+     37.0201588
+    ]
+   },
+   "properties": {
+    "id": "2026-11-20-090",
+    "date": "2026-11-20",
+    "orbit": "R094",
+    "x": 480990.0,
+    "y": 4097130.0,
+    "stratum": "open_terrain",
+    "elevation_band": "2000-2500",
+    "cell_pixels": 598613,
+    "elevation_m": 2049.4,
+    "cos_incidence": 0.629,
+    "cast_shadow": false,
+    "tree_fraction": 0.0,
+    "in_strata": [
+     "open_terrain"
+    ],
+    "chip_scene_id": "S2A_30SVF_20261120_1_L1C",
+    "draw": 1
+   }
+  }
+ ]
+}

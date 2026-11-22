@@ -1,0 +1,15 @@
+dem (2577, 4962) 144.87413 3471.2507
+elevation diff m: median -0.0, p95 abs 0.8, max abs 2.3
+cos_incidence diff: median 0.000, p95 abs 0.005, max abs 0.029
+tree fraction diff: exact 99.52%, max abs 0.25
+cast shadow agree 99.52%
+
+| drawn stratum | n | my layers put the point in that stratum | in_strata membership agreement (per stratum flag) |
+|---|---|---|---|
+| snowline_band | 40 | 40/40 | 204/207 |
+| terrain_shadow | 40 | 40/40 | 207/207 |
+| forest | 47 | 47/47 | 202/207 |
+| cloud_edge | 40 | 40/40 | 204/207 |
+| open_terrain | 40 | 40/40 | 207/207 |
+
+mismatches:

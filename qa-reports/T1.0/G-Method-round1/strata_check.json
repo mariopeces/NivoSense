@@ -1,0 +1,4629 @@
+[
+{
+"id": "2025-11-03-003",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1069.99560546875,
+"z_b": 1070.2,
+"ci": "0.088997774",
+"ci_b": 0.09,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-03-007",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1586.339111328125,
+"z_b": 1586.6,
+"ci": "0.120159544",
+"ci_b": 0.12,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 3,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-03-011",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1911.5694580078125,
+"z_b": 1912.0,
+"ci": "0.031047849",
+"ci_b": 0.035,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-03-024",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1342.311767578125,
+"z_b": 1342.4,
+"ci": "0.48514357",
+"ci_b": 0.485,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-03-041",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2272.113037109375,
+"z_b": 2272.2,
+"ci": "0.39590046",
+"ci_b": 0.396,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-11-03-042",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2517.09521484375,
+"z_b": 2517.2,
+"ci": "0.8694684",
+"ci_b": 0.869,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 0.75,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-03-051",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1338.68505859375,
+"z_b": 1338.7,
+"ci": "0.516248",
+"ci_b": 0.516,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-11-03-061",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1597.465576171875,
+"z_b": 1597.5,
+"ci": "0.7084351",
+"ci_b": 0.708,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-11-03-063",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2343.466796875,
+"z_b": 2343.4,
+"ci": "0.7872651",
+"ci_b": 0.787,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-11-03-092",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2445.1455078125,
+"z_b": 2444.9,
+"ci": "0.4869234",
+"ci_b": 0.481,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-03-093",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2055.57177734375,
+"z_b": 2055.4,
+"ci": "0.4240951",
+"ci_b": 0.423,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-003",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2314.09130859375,
+"z_b": 2314.1,
+"ci": "0.5517948",
+"ci_b": 0.552,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-010",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2289.476806640625,
+"z_b": 2289.5,
+"ci": "0.5348958",
+"ci_b": 0.535,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-020",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2594.249755859375,
+"z_b": 2594.1,
+"ci": "0.65098923",
+"ci_b": 0.654,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-043",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow"
+],
+"z": 2352.563232421875,
+"z_b": 2352.7,
+"ci": "0.025179587",
+"ci_b": 0.025,
+"sh": false,
+"sh_b": false,
+"tf": 0.25,
+"tf_b": 0.25,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-046",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow"
+],
+"z": 2554.03955078125,
+"z_b": 2554.4,
+"ci": "0.12475857",
+"ci_b": 0.123,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-054",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 854.3294067382812,
+"z_b": 854.5,
+"ci": "0.18689407",
+"ci_b": 0.187,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-056",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1360.127197265625,
+"z_b": 1360.0,
+"ci": "0.6649717",
+"ci_b": 0.666,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-073",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2503.671875,
+"z_b": 2503.7,
+"ci": "0.38113838",
+"ci_b": 0.381,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-077",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1205.4239501953125,
+"z_b": 1205.5,
+"ci": "0.3294842",
+"ci_b": 0.33,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-080",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 854.9923706054688,
+"z_b": 855.0,
+"ci": "0.49075952",
+"ci_b": 0.491,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-087",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1766.46875,
+"z_b": 1766.4,
+"ci": "0.5599596",
+"ci_b": 0.561,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-106",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2650.197998046875,
+"z_b": 2650.7,
+"ci": "0.021895288",
+"ci_b": 0.018,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-11-28-113",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2487.88720703125,
+"z_b": 2488.0,
+"ci": "0.7224467",
+"ci_b": 0.722,
+"sh": false,
+"sh_b": false,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-008",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1820.7347412109375,
+"z_b": 1820.7,
+"ci": "0.5085836",
+"ci_b": 0.511,
+"sh": false,
+"sh_b": false,
+"tf": 0.75,
+"tf_b": 0.75,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-013",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1821.8328857421875,
+"z_b": 1821.9,
+"ci": "0.27190614",
+"ci_b": 0.273,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-025",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2148.0712890625,
+"z_b": 2148.1,
+"ci": "0.48109457",
+"ci_b": 0.48,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-038",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1659.8287353515625,
+"z_b": 1660.1,
+"ci": "-0.15995428",
+"ci_b": -0.16,
+"sh": true,
+"sh_b": true,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-048",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2991.29638671875,
+"z_b": 2991.2,
+"ci": "0.12736261",
+"ci_b": 0.128,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-057",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 901.6134643554688,
+"z_b": 901.6,
+"ci": "0.2957295",
+"ci_b": 0.295,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-074",
+"stratum": "forest",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 2530.875732421875,
+"z_b": 2530.9,
+"ci": "0.047369372",
+"ci_b": 0.047,
+"sh": true,
+"sh_b": true,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-077",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1324.046142578125,
+"z_b": 1323.9,
+"ci": "0.46098533",
+"ci_b": 0.459,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-12-18-078",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1244.1915283203125,
+"z_b": 1243.9,
+"ci": "0.73484296",
+"ci_b": 0.735,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-12-18-097",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2503.857421875,
+"z_b": 2503.9,
+"ci": "0.81613845",
+"ci_b": 0.816,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2025-12-18-119",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2350.27978515625,
+"z_b": 2349.7,
+"ci": "0.6806102",
+"ci_b": 0.68,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-125",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2669.017333984375,
+"z_b": 2669.2,
+"ci": "0.32505596",
+"ci_b": 0.324,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-141",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2127.3125,
+"z_b": 2126.9,
+"ci": "0.17665759",
+"ci_b": 0.178,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-144",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2504.98486328125,
+"z_b": 2505.3,
+"ci": "0.8002536",
+"ci_b": 0.799,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2025-12-18-155",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2632.840576171875,
+"z_b": 2632.9,
+"ci": "0.6316849",
+"ci_b": 0.632,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-01-07-010",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1573.9393310546875,
+"z_b": 1573.9,
+"ci": "0.47681978",
+"ci_b": 0.477,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-017",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1667.204345703125,
+"z_b": 1666.8,
+"ci": "0.78225905",
+"ci_b": 0.784,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-024",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1758.2406005859375,
+"z_b": 1758.4,
+"ci": "0.63064706",
+"ci_b": 0.631,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-031",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 1268.6610107421875,
+"z_b": 1269.0,
+"ci": "0.24105084",
+"ci_b": 0.239,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-044",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2305.09814453125,
+"z_b": 2305.5,
+"ci": "-0.035448857",
+"ci_b": -0.033,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-046",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2558.762451171875,
+"z_b": 2559.0,
+"ci": "0.06583125",
+"ci_b": 0.067,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-059",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1578.1329345703125,
+"z_b": 1578.3,
+"ci": "0.68011206",
+"ci_b": 0.679,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-063",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1823.939453125,
+"z_b": 1824.0,
+"ci": "0.51656246",
+"ci_b": 0.516,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-078",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1110.44677734375,
+"z_b": 1110.6,
+"ci": "0.24791642",
+"ci_b": 0.249,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-01-07-081",
+"stratum": "cloud_edge",
+"in_strata": [
+"terrain_shadow",
+"forest",
+"cloud_edge"
+],
+"z": 1440.145751953125,
+"z_b": 1441.2,
+"ci": "0.12588643",
+"ci_b": 0.116,
+"sh": true,
+"sh_b": true,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-01-07-101",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2886.82958984375,
+"z_b": 2886.7,
+"ci": "0.33603737",
+"ci_b": 0.341,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-01-07-111",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1958.5150146484375,
+"z_b": 1958.2,
+"ci": "0.76811105",
+"ci_b": 0.767,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-112",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1963.540771484375,
+"z_b": 1963.7,
+"ci": "0.72622454",
+"ci_b": 0.727,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-132",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2370.373779296875,
+"z_b": 2370.7,
+"ci": "-0.15198365",
+"ci_b": -0.15,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-07-139",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2066.404541015625,
+"z_b": 2066.1,
+"ci": "0.63813716",
+"ci_b": 0.638,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-000",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"terrain_shadow"
+],
+"z": 1876.381591796875,
+"z_b": 1875.7,
+"ci": "0.086949855",
+"ci_b": 0.084,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-015",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2087.32421875,
+"z_b": 2087.2,
+"ci": "0.7598201",
+"ci_b": 0.76,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-024",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2080.077392578125,
+"z_b": 2079.8,
+"ci": "0.75901157",
+"ci_b": 0.759,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-041",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow",
+"forest"
+],
+"z": 2058.460205078125,
+"z_b": 2057.6,
+"ci": "0.07661692",
+"ci_b": 0.076,
+"sh": false,
+"sh_b": false,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-042",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2268.427490234375,
+"z_b": 2269.2,
+"ci": "-0.0044561676",
+"ci_b": -0.005,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-061",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1897.50537109375,
+"z_b": 1897.7,
+"ci": "0.6176844",
+"ci_b": 0.619,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-069",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2141.294189453125,
+"z_b": 2141.4,
+"ci": "0.29690853",
+"ci_b": 0.296,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-072",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2524.423828125,
+"z_b": 2524.5,
+"ci": "0.2818853",
+"ci_b": 0.282,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-084",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1692.8905029296875,
+"z_b": 1692.9,
+"ci": "0.5977325",
+"ci_b": 0.598,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-099",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2677.10888671875,
+"z_b": 2677.5,
+"ci": "0.6522485",
+"ci_b": 0.652,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-01-12-113",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2007.8414306640625,
+"z_b": 2007.1,
+"ci": "0.6666853",
+"ci_b": 0.638,
+"sh": false,
+"sh_b": false,
+"tf": 0.75,
+"tf_b": 0.75,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-010",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1793.4371337890625,
+"z_b": 1793.4,
+"ci": "0.6788026",
+"ci_b": 0.679,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-019",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2075.688720703125,
+"z_b": 2075.7,
+"ci": "0.7523154",
+"ci_b": 0.752,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-042",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 2178.902099609375,
+"z_b": 2179.4,
+"ci": "0.12086893",
+"ci_b": 0.121,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-043",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 2235.75048828125,
+"z_b": 2236.2,
+"ci": "-0.015002012",
+"ci_b": -0.015,
+"sh": true,
+"sh_b": true,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-057",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1158.833740234375,
+"z_b": 1158.7,
+"ci": "0.4211661",
+"ci_b": 0.425,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-062",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1803.93017578125,
+"z_b": 1804.0,
+"ci": "0.6095693",
+"ci_b": 0.613,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-087",
+"stratum": "cloud_edge",
+"in_strata": [
+"snowline_band",
+"forest",
+"cloud_edge"
+],
+"z": 1772.448974609375,
+"z_b": 1772.4,
+"ci": "0.6595833",
+"ci_b": 0.661,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-02-16-089",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1623.8759765625,
+"z_b": 1623.4,
+"ci": "0.67099243",
+"ci_b": 0.672,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-02-16-101",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2616.31103515625,
+"z_b": 2616.3,
+"ci": "0.39687866",
+"ci_b": 0.396,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-02-16-116",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2186.72216796875,
+"z_b": 2187.4,
+"ci": "0.842927",
+"ci_b": 0.839,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-118",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2364.391357421875,
+"z_b": 2364.2,
+"ci": "0.7938417",
+"ci_b": 0.794,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-135",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"terrain_shadow",
+"forest"
+],
+"z": 1980.06005859375,
+"z_b": 1979.9,
+"ci": "0.15390827",
+"ci_b": 0.154,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-16-154",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2401.631103515625,
+"z_b": 2401.6,
+"ci": "0.5337849",
+"ci_b": 0.534,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-008",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 1870.1424560546875,
+"z_b": 1870.1,
+"ci": "0.7128555",
+"ci_b": 0.713,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-012",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 1985.4393310546875,
+"z_b": 1985.2,
+"ci": "0.89198834",
+"ci_b": 0.892,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-022",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2227.9541015625,
+"z_b": 2228.1,
+"ci": "0.8692696",
+"ci_b": 0.869,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-035",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1544.6912841796875,
+"z_b": 1546.0,
+"ci": "0.16471876",
+"ci_b": 0.168,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-041",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow",
+"forest"
+],
+"z": 2129.551025390625,
+"z_b": 2129.9,
+"ci": "0.122263186",
+"ci_b": 0.123,
+"sh": false,
+"sh_b": false,
+"tf": 0.75,
+"tf_b": 0.75,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-045",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2492.0986328125,
+"z_b": 2492.0,
+"ci": "0.116276525",
+"ci_b": 0.116,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-060",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1781.2867431640625,
+"z_b": 1781.3,
+"ci": "0.7162171",
+"ci_b": 0.717,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-065",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2110.052001953125,
+"z_b": 2110.3,
+"ci": "0.30925667",
+"ci_b": 0.308,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-082",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1050.789794921875,
+"z_b": 1050.8,
+"ci": "0.8506931",
+"ci_b": 0.851,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-02-21-090",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2818.691650390625,
+"z_b": 2818.5,
+"ci": "0.7613576",
+"ci_b": 0.761,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-02-21-091",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 940.8001708984375,
+"z_b": 940.8,
+"ci": "0.6877102",
+"ci_b": 0.676,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-093",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1292.2763671875,
+"z_b": 1292.2,
+"ci": "0.8410353",
+"ci_b": 0.841,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-102",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1743.057373046875,
+"z_b": 1742.9,
+"ci": "0.7793196",
+"ci_b": 0.776,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-115",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2227.138427734375,
+"z_b": 2227.2,
+"ci": "0.39306524",
+"ci_b": 0.393,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-119",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow"
+],
+"z": 2054.209228515625,
+"z_b": 2053.8,
+"ci": "0.1341655",
+"ci_b": 0.134,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-02-21-123",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2142.409423828125,
+"z_b": 2141.8,
+"ci": "0.81251454",
+"ci_b": 0.807,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-000",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 1856.9307861328125,
+"z_b": 1857.1,
+"ci": "0.88261944",
+"ci_b": 0.883,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-006",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 1801.8109130859375,
+"z_b": 1801.9,
+"ci": "0.7182951",
+"ci_b": 0.718,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 3,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-025",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2045.3973388671875,
+"z_b": 2044.8,
+"ci": "0.92160344",
+"ci_b": 0.92,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-031",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1057.7020263671875,
+"z_b": 1056.9,
+"ci": "0.13511637",
+"ci_b": 0.141,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-034",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow",
+"forest"
+],
+"z": 1933.100341796875,
+"z_b": 1933.6,
+"ci": "0.15389422",
+"ci_b": 0.154,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-051",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2921.011474609375,
+"z_b": 2920.6,
+"ci": "0.1565276",
+"ci_b": 0.155,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-074",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2535.929931640625,
+"z_b": 2536.0,
+"ci": "0.92126393",
+"ci_b": 0.922,
+"sh": false,
+"sh_b": false,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-075",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2504.4580078125,
+"z_b": 2504.5,
+"ci": "0.5721726",
+"ci_b": 0.572,
+"sh": false,
+"sh_b": false,
+"tf": 0.75,
+"tf_b": 0.75,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-077",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 654.5108032226562,
+"z_b": 654.5,
+"ci": "0.48824903",
+"ci_b": 0.487,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-03-13-085",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1694.4384765625,
+"z_b": 1694.5,
+"ci": "0.7203912",
+"ci_b": 0.721,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-03-13-087",
+"stratum": "cloud_edge",
+"in_strata": [
+"forest",
+"cloud_edge"
+],
+"z": 1668.0126953125,
+"z_b": 1668.1,
+"ci": "0.6962969",
+"ci_b": 0.696,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-03-13-110",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1707.1824951171875,
+"z_b": 1707.4,
+"ci": "0.5391373",
+"ci_b": 0.539,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-119",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2279.763916015625,
+"z_b": 2279.5,
+"ci": "0.49299386",
+"ci_b": 0.493,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-138",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2027.8214111328125,
+"z_b": 2027.1,
+"ci": "0.30469137",
+"ci_b": 0.301,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-13-149",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2048.38134765625,
+"z_b": 2047.9,
+"ci": "0.88642406",
+"ci_b": 0.889,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-03-13-155",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2315.1533203125,
+"z_b": 2314.4,
+"ci": "0.99810904",
+"ci_b": 0.998,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-016",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2273.571533203125,
+"z_b": 2273.4,
+"ci": "0.5726564",
+"ci_b": 0.572,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-018",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2436.239501953125,
+"z_b": 2436.2,
+"ci": "0.83347213",
+"ci_b": 0.834,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-029",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 1167.592529296875,
+"z_b": 1165.9,
+"ci": "0.14555366",
+"ci_b": 0.173,
+"sh": false,
+"sh_b": false,
+"tf": 0.25,
+"tf_b": 0.25,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-045",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow"
+],
+"z": 2233.345458984375,
+"z_b": 2233.4,
+"ci": "0.0860979",
+"ci_b": 0.086,
+"sh": false,
+"sh_b": false,
+"tf": 0.25,
+"tf_b": 0.25,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-052",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1128.025146484375,
+"z_b": 1128.0,
+"ci": "0.35993716",
+"ci_b": 0.36,
+"sh": false,
+"sh_b": false,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-071",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2537.832763671875,
+"z_b": 2538.0,
+"ci": "0.9554908",
+"ci_b": 0.956,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-076",
+"stratum": "cloud_edge",
+"in_strata": [
+"forest",
+"cloud_edge"
+],
+"z": 1495.8331298828125,
+"z_b": 1495.9,
+"ci": "0.799397",
+"ci_b": 0.799,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-03-25-097",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1563.535400390625,
+"z_b": 1563.3,
+"ci": "0.92539024",
+"ci_b": 0.925,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-099",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1751.9879150390625,
+"z_b": 1752.0,
+"ci": "0.7171208",
+"ci_b": 0.717,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-115",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2399.144287109375,
+"z_b": 2399.2,
+"ci": "0.7862469",
+"ci_b": 0.786,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-122",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2335.5341796875,
+"z_b": 2335.7,
+"ci": "0.5736014",
+"ci_b": 0.573,
+"sh": false,
+"sh_b": false,
+"tf": 0.75,
+"tf_b": 0.75,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-03-25-135",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2473.693115234375,
+"z_b": 2473.7,
+"ci": "0.58600736",
+"ci_b": 0.585,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-001",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2426.490478515625,
+"z_b": 2426.8,
+"ci": "0.6445573",
+"ci_b": 0.647,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-022",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2519.742919921875,
+"z_b": 2519.5,
+"ci": "0.54129446",
+"ci_b": 0.541,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-025",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2551.5244140625,
+"z_b": 2551.5,
+"ci": "0.89678437",
+"ci_b": 0.897,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-030",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1354.91259765625,
+"z_b": 1355.0,
+"ci": "0.17053628",
+"ci_b": 0.17,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-037",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1695.75390625,
+"z_b": 1696.1,
+"ci": "0.19083254",
+"ci_b": 0.191,
+"sh": true,
+"sh_b": true,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-042",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow"
+],
+"z": 2428.301513671875,
+"z_b": 2429.0,
+"ci": "0.12231671",
+"ci_b": 0.121,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-056",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1381.227294921875,
+"z_b": 1381.3,
+"ci": "0.6895006",
+"ci_b": 0.689,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-059",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1622.550048828125,
+"z_b": 1622.5,
+"ci": "0.9172001",
+"ci_b": 0.917,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-078",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1483.1495361328125,
+"z_b": 1483.0,
+"ci": "0.7760766",
+"ci_b": 0.779,
+"sh": false,
+"sh_b": false,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-14-091",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2429.6025390625,
+"z_b": 2430.1,
+"ci": "0.99136424",
+"ci_b": 0.991,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-14-094",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2046.860595703125,
+"z_b": 2046.7,
+"ci": "0.9327709",
+"ci_b": 0.934,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 7,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-14-104",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1211.911376953125,
+"z_b": 1211.9,
+"ci": "0.9667043",
+"ci_b": 0.967,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-109",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 854.5349731445312,
+"z_b": 854.7,
+"ci": "0.82256895",
+"ci_b": 0.823,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-115",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1997.6864013671875,
+"z_b": 1997.1,
+"ci": "0.5713136",
+"ci_b": 0.574,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-137",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2476.545654296875,
+"z_b": 2476.5,
+"ci": "0.81872493",
+"ci_b": 0.819,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-14-144",
+"stratum": "cloud_edge",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2477.76171875,
+"z_b": 2477.8,
+"ci": "0.9283478",
+"ci_b": 0.929,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-14-153",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 3102.250732421875,
+"z_b": 3102.2,
+"ci": "0.86697143",
+"ci_b": 0.867,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-010",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2422.08203125,
+"z_b": 2422.1,
+"ci": "0.97955465",
+"ci_b": 0.98,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-013",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2407.042724609375,
+"z_b": 2406.4,
+"ci": "0.86037976",
+"ci_b": 0.861,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-018",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2548.994384765625,
+"z_b": 2549.6,
+"ci": "0.62086433",
+"ci_b": 0.624,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-033",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1557.0693359375,
+"z_b": 1558.1,
+"ci": "0.025909154",
+"ci_b": 0.018,
+"sh": true,
+"sh_b": true,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-038",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1942.256103515625,
+"z_b": 1942.6,
+"ci": "0.17144552",
+"ci_b": 0.172,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-050",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 3051.31494140625,
+"z_b": 3051.6,
+"ci": "0.07343994",
+"ci_b": 0.073,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-058",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1865.36474609375,
+"z_b": 1865.7,
+"ci": "0.7538352",
+"ci_b": 0.753,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-065",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2143.800537109375,
+"z_b": 2143.8,
+"ci": "0.95156884",
+"ci_b": 0.951,
+"sh": false,
+"sh_b": false,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 3,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-070",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest",
+"cloud_edge"
+],
+"z": 2527.259521484375,
+"z_b": 2527.5,
+"ci": "0.9851984",
+"ci_b": 0.985,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-080",
+"stratum": "cloud_edge",
+"in_strata": [
+"forest",
+"cloud_edge"
+],
+"z": 1479.8804931640625,
+"z_b": 1480.4,
+"ci": "0.66530627",
+"ci_b": 0.667,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 3,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-098",
+"stratum": "cloud_edge",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2515.992431640625,
+"z_b": 2515.8,
+"ci": "0.5321593",
+"ci_b": 0.533,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-101",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2707.02880859375,
+"z_b": 2707.2,
+"ci": "0.868017",
+"ci_b": 0.87,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-105",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 488.1340637207031,
+"z_b": 488.5,
+"ci": "0.97245127",
+"ci_b": 0.972,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-120",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2037.632080078125,
+"z_b": 2037.7,
+"ci": "0.8127188",
+"ci_b": 0.814,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-131",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 3042.025146484375,
+"z_b": 3041.4,
+"ci": "0.15956002",
+"ci_b": 0.159,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-04-27-136",
+"stratum": "forest",
+"in_strata": [
+"snowline_band",
+"forest"
+],
+"z": 2505.281494140625,
+"z_b": 2505.4,
+"ci": "0.9743495",
+"ci_b": 0.974,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-146",
+"stratum": "cloud_edge",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2546.5439453125,
+"z_b": 2546.7,
+"ci": "0.9307188",
+"ci_b": 0.931,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-04-27-151",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 3006.134521484375,
+"z_b": 3006.8,
+"ci": "0.98463565",
+"ci_b": 0.984,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-009",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2789.1201171875,
+"z_b": 2789.0,
+"ci": "0.94967276",
+"ci_b": 0.95,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-011",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2537.814453125,
+"z_b": 2538.3,
+"ci": "0.85419065",
+"ci_b": 0.856,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-020",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2819.232177734375,
+"z_b": 2819.2,
+"ci": "0.8060169",
+"ci_b": 0.806,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 7,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-040",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2199.11474609375,
+"z_b": 2199.2,
+"ci": "0.16207069",
+"ci_b": 0.162,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-045",
+"stratum": "terrain_shadow",
+"in_strata": [
+"snowline_band",
+"terrain_shadow",
+"cloud_edge"
+],
+"z": 2714.718994140625,
+"z_b": 2714.1,
+"ci": "0.17058021",
+"ci_b": 0.17,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 3,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-055",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1958.806396484375,
+"z_b": 1958.7,
+"ci": "0.92149216",
+"ci_b": 0.921,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-056",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1704.11474609375,
+"z_b": 1703.6,
+"ci": "0.8411672",
+"ci_b": 0.845,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-057",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1650.558349609375,
+"z_b": 1650.6,
+"ci": "0.950081",
+"ci_b": 0.949,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-081",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1687.418212890625,
+"z_b": 1687.4,
+"ci": "0.73872644",
+"ci_b": 0.739,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-083",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1640.756103515625,
+"z_b": 1640.7,
+"ci": "0.97909325",
+"ci_b": 0.979,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 7,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-088",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2304.117431640625,
+"z_b": 2303.8,
+"ci": "0.68749726",
+"ci_b": 0.686,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-12-112",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2436.95263671875,
+"z_b": 2437.0,
+"ci": "0.92008495",
+"ci_b": 0.92,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-116",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2016.2899169921875,
+"z_b": 2016.1,
+"ci": "0.7439641",
+"ci_b": 0.745,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-12-125",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band",
+"cloud_edge"
+],
+"z": 2882.888427734375,
+"z_b": 2882.1,
+"ci": "0.90205336",
+"ci_b": 0.901,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-27-013",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2674.066162109375,
+"z_b": 2674.4,
+"ci": "0.8243617",
+"ci_b": 0.824,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-019",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2886.31787109375,
+"z_b": 2886.2,
+"ci": "0.95936453",
+"ci_b": 0.961,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-026",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2664.488037109375,
+"z_b": 2664.3,
+"ci": "0.89362115",
+"ci_b": 0.893,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-037",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 1834.696044921875,
+"z_b": 1835.2,
+"ci": "0.120890275",
+"ci_b": 0.122,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-039",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2173.26904296875,
+"z_b": 2174.3,
+"ci": "0.15733612",
+"ci_b": 0.152,
+"sh": false,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-050",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1954.6209716796875,
+"z_b": 1954.6,
+"ci": "0.88848776",
+"ci_b": 0.889,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-051",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1664.8978271484375,
+"z_b": 1664.8,
+"ci": "0.88617027",
+"ci_b": 0.886,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-060",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2093.4365234375,
+"z_b": 2093.7,
+"ci": "0.87441325",
+"ci_b": 0.874,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-067",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1237.462890625,
+"z_b": 1237.4,
+"ci": "0.9997582",
+"ci_b": 1.0,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-27-075",
+"stratum": "cloud_edge",
+"in_strata": [
+"forest",
+"cloud_edge"
+],
+"z": 1506.2001953125,
+"z_b": 1506.1,
+"ci": "0.9604635",
+"ci_b": 0.959,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-27-083",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2492.4130859375,
+"z_b": 2492.5,
+"ci": "0.9756815",
+"ci_b": 0.976,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-05-27-107",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2477.09912109375,
+"z_b": 2477.0,
+"ci": "0.9463676",
+"ci_b": 0.946,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-05-27-113",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 3145.232177734375,
+"z_b": 3145.1,
+"ci": "0.80271363",
+"ci_b": 0.803,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-015",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 3068.9091796875,
+"z_b": 3068.8,
+"ci": "0.8744526",
+"ci_b": 0.875,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-017",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 2951.00439453125,
+"z_b": 2950.8,
+"ci": "0.7360888",
+"ci_b": 0.736,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 11,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-018",
+"stratum": "snowline_band",
+"in_strata": [
+"snowline_band"
+],
+"z": 3104.298828125,
+"z_b": 3103.8,
+"ci": "0.53273666",
+"ci_b": 0.528,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-027",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 1482.21142578125,
+"z_b": 1484.5,
+"ci": "0.061337873",
+"ci_b": 0.064,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "True",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-042",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 2520.763427734375,
+"z_b": 2520.8,
+"ci": "0.27576563",
+"ci_b": 0.276,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-043",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1382.19970703125,
+"z_b": 1382.2,
+"ci": "0.9865895",
+"ci_b": 0.988,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-062",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 2540.7392578125,
+"z_b": 2540.8,
+"ci": "0.8291467",
+"ci_b": 0.83,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-075",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1614.94873046875,
+"z_b": 1614.9,
+"ci": "0.9876592",
+"ci_b": 0.988,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 7,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-06-13-079",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1623.006103515625,
+"z_b": 1623.0,
+"ci": "0.98375434",
+"ci_b": 0.984,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 7,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-06-13-089",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 2554.036865234375,
+"z_b": 2553.7,
+"ci": "0.882775",
+"ci_b": 0.882,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-06-13-098",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 906.506103515625,
+"z_b": 906.4,
+"ci": "0.9797166",
+"ci_b": 0.98,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-106",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2369.662353515625,
+"z_b": 2369.7,
+"ci": "0.90959257",
+"ci_b": 0.909,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-108",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2426.944091796875,
+"z_b": 2426.9,
+"ci": "0.9743785",
+"ci_b": 0.974,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-06-13-124",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 3141.850341796875,
+"z_b": 3141.9,
+"ci": "0.9933279",
+"ci_b": 0.993,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 8,
+"mine": {
+"snowline_band": true,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-11-20-007",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 1757.9620361328125,
+"z_b": 1758.2,
+"ci": "-0.049587555",
+"ci_b": -0.049,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-11-20-011",
+"stratum": "terrain_shadow",
+"in_strata": [
+"terrain_shadow"
+],
+"z": 1920.8046875,
+"z_b": 1921.1,
+"ci": "0.11229165",
+"ci_b": 0.114,
+"sh": true,
+"sh_b": true,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-11-20-027",
+"stratum": "forest",
+"in_strata": [
+"forest"
+],
+"z": 1452.8529052734375,
+"z_b": 1452.3,
+"ci": "0.7030943",
+"ci_b": 0.695,
+"sh": false,
+"sh_b": false,
+"tf": 1.0,
+"tf_b": 1.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-11-20-042",
+"stratum": "forest",
+"in_strata": [
+"terrain_shadow",
+"forest"
+],
+"z": 2598.225830078125,
+"z_b": 2597.9,
+"ci": "-0.17724265",
+"ci_b": -0.177,
+"sh": true,
+"sh_b": true,
+"tf": 0.5,
+"tf_b": 0.5,
+"scl": 2,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": true,
+"forest": true,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-11-20-058",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1517.9755859375,
+"z_b": 1517.9,
+"ci": "0.72617275",
+"ci_b": 0.727,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-11-20-059",
+"stratum": "cloud_edge",
+"in_strata": [
+"cloud_edge"
+],
+"z": 1501.1741943359375,
+"z_b": 1500.3,
+"ci": "0.87429357",
+"ci_b": 0.869,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": true
+}
+},
+{
+"id": "2026-11-20-075",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1010.9912109375,
+"z_b": 1011.0,
+"ci": "0.39477363",
+"ci_b": 0.394,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-11-20-076",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 1030.5897216796875,
+"z_b": 1030.2,
+"ci": "0.6950028",
+"ci_b": 0.693,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 5,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+},
+{
+"id": "2026-11-20-090",
+"stratum": "open_terrain",
+"in_strata": [
+"open_terrain"
+],
+"z": 2049.558349609375,
+"z_b": 2049.4,
+"ci": "0.6260365",
+"ci_b": 0.629,
+"sh": false,
+"sh_b": false,
+"tf": 0.0,
+"tf_b": 0.0,
+"scl": 4,
+"mine": {
+"snowline_band": false,
+"terrain_shadow": "False",
+"forest": false,
+"cloud_edge": false
+}
+}
+]
