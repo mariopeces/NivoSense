@@ -1,11 +1,18 @@
+from __future__ import annotations
+
 import ast
 import re
 import tarfile
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+
+if TYPE_CHECKING:
+    import numpy as np
+    from affine import Affine
 
 DOWNLOAD_URL = "https://www.aemet.es/es/api-eltiempo/modelos/download/harmonie/PB"
 USER_AGENT = "NivoSense forecast pipeline"
@@ -68,7 +75,9 @@ def precipitation_windows(archive: tarfile.TarFile, cycle: datetime) -> dict[int
     return windows
 
 
-def decode_window(data: bytes, bbox: tuple[float, float, float, float]):
+def decode_window(
+    data: bytes, bbox: tuple[float, float, float, float]
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, Affine, tuple[float, ...]]:
     """Reads one rendered precipitation map and recovers per-class bounds in millimetres.
 
     The product is a colour-classified image rather than a physical field, so each
@@ -107,6 +116,9 @@ def decode_window(data: bytes, bbox: tuple[float, float, float, float]):
         for item in legend
     )
     lowest = classes[0]
+    if lowest[1] is None:
+        raise ValueError("The AEMET legend's lowest class has no upper bound")
+    lowest_upper = lowest[1]
     visible_classes = classes[1:]
     colours = np.array([item[2] for item in visible_classes], dtype="int32")
     lows = np.array([item[0] for item in visible_classes], dtype="float32")
@@ -122,6 +134,6 @@ def decode_window(data: bytes, bbox: tuple[float, float, float, float]):
     nearest = distance.argmin(axis=-1)
     visible = rgba[3] >= VISIBLE_ALPHA
     lower = np.where(visible, lows[nearest], 0.0).astype("float32")
-    upper = np.where(visible, highs[nearest], lowest[1]).astype("float32")
+    upper = np.where(visible, highs[nearest], lowest_upper).astype("float32")
     estimate = np.where(visible, estimates[nearest], 0.0).astype("float32")
     return lower, upper, estimate, transform, domain

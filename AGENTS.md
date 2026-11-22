@@ -132,21 +132,26 @@ cd frontend
 npm install        # first time only
 npm run dev        # http://localhost:5173
 npm run build      # tsc + production build
+npm run lint       # eslint; hard-coded colours outside the tokens file fail
+npm test           # vitest
 ```
+
+The lint rule `frontend/eslint/no-hard-coded-colour.js` bans colours outside `src/styles/tokens.css`, in every script under `src/`, the root config files and every CSS file under `src/` (custom properties included): hex, `rgb()`/`hsl()` and the other CSS colour functions, and named colours wherever a value is a colour (CSS values, style and SVG props, MapLibre paint). Colours that predate the tokens file are listed value by value and file by file in `frontend/colour-baseline.json`: a new, moved or swapped colour fails, and so does an entry whose colour or file is gone (delete the entries the rule reports). CI also fails if a PR adds to the baseline. Inline ESLint comments are off in the frontend, so no rule can be switched off from the code; change `eslint.config.js` instead.
 
 ### Pipelines and tests
 
 ```bash
 python -m venv .venv
 source .venv/Scripts/activate    # Git Bash on Windows
-pip install -r pipelines/snow_model/requirements.txt -r pipelines/weather_forecasts/requirements.txt
-python -m unittest discover -s tests/snow_model -t . -v
-python -m unittest discover -s tests/weather_forecasts -v
-python -m unittest tests.test_fetch_snow_observation -v
-python -m unittest discover -s backend/tests -v
+pip install --require-hashes -r pipelines/requirements-dev.lock   # Linux x86_64; elsewhere: pip install -r pipelines/requirements-dev.in
+ruff check .
+mypy
+pytest
 ```
 
-CI on pull requests (pytest, ruff, mypy, tsc, eslint, vitest, build) arrives with task T0.6.
+Dependencies are pinned with hashes in `pipelines/requirements.lock` (workflows) and `pipelines/requirements-dev.lock` (CI tools); edit the `.in` files and regenerate both with the `uv pip compile` commands at the top of `pipelines/requirements.in`.
+
+`ci.yml` runs on every pull request: ruff, mypy and pytest, then tsc, eslint, vitest and the production build of the frontend.
 
 ### Backend (local, optional)
 

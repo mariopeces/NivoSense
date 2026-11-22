@@ -4,7 +4,7 @@ MIN_VALID_FRACTION = 0.5
 SNOW_FRACTION_THRESHOLD = 0.5
 
 
-def observed_snow(snow_fraction: np.ndarray, valid_fraction: np.ndarray):
+def observed_snow(snow_fraction: np.ndarray, valid_fraction: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Binary snow state and usability of each model cell from the 10 m observation."""
     usable = valid_fraction >= MIN_VALID_FRACTION
     return snow_fraction >= SNOW_FRACTION_THRESHOLD, usable

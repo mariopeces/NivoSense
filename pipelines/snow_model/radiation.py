@@ -26,7 +26,7 @@ def _daily_sum(latitude: float, declination: float, slope: np.ndarray, azimuth_f
     return total, flat
 
 
-def radiation_index(latitude: float, slope: np.ndarray, aspect: np.ndarray):
+def radiation_index(latitude: float, slope: np.ndarray, aspect: np.ndarray) -> np.ndarray:
     """Ratio of clear-sky direct radiation on each slope to that on flat ground.
 
     Returned for a set of sample days of the year; use `index_for_day` to interpolate.

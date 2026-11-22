@@ -1,0 +1,6 @@
+# Test, lint and type-check tools for CI, resolved together with the pipeline lock.
+-r requirements.in
+-c requirements.lock
+pytest==9.*
+ruff==0.17.*
+mypy==1.*
