@@ -17,6 +17,8 @@ from __future__ import annotations
 import datetime as dt
 import json
 import re
+import time
+import urllib.error
 import urllib.request
 from collections import defaultdict
 from collections.abc import Callable
@@ -46,6 +48,28 @@ MADRID = ZoneInfo("Europe/Madrid")
 _ORBIT = re.compile(r"_R(\d{3})_")
 
 Search = Callable[[dict[str, Any]], list[dict[str, Any]]]
+SEARCH_ATTEMPTS = 4
+SEARCH_BACKOFF_S = 5.0
+
+
+def _post(url: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """One STAC search page, retried with backoff on network errors, 429 and 5xx."""
+    for attempt in range(SEARCH_ATTEMPTS):
+        request = urllib.request.Request(
+            url, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:
+                page: dict[str, Any] = json.load(response)
+                return page
+        except urllib.error.HTTPError as error:
+            if error.code != 429 and error.code < 500 or attempt == SEARCH_ATTEMPTS - 1:
+                raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            if attempt == SEARCH_ATTEMPTS - 1:
+                raise
+        time.sleep(SEARCH_BACKOFF_S * 2**attempt)
+    raise AssertionError("unreachable")
 
 
 def earth_search(body: dict[str, Any]) -> list[dict[str, Any]]:
@@ -53,11 +77,7 @@ def earth_search(body: dict[str, Any]) -> list[dict[str, Any]]:
     url, items = STAC_SEARCH_URL, []
     payload: dict[str, Any] | None = dict(body, limit=100)
     while payload is not None:
-        request = urllib.request.Request(
-            url, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}
-        )
-        with urllib.request.urlopen(request, timeout=120) as response:
-            page = json.load(response)
+        page = _post(url, payload)
         items.extend(page["features"])
         link = next((link for link in page.get("links", []) if link["rel"] == "next"), None)
         url, payload = (link["href"], link["body"]) if link and link.get("method") == "POST" else (url, None)
@@ -225,7 +245,11 @@ def freshness(
     """The F1 and F2 report for the catalogue at `now` (UTC, default the current time)."""
     now = now or dt.datetime.now(dt.timezone.utc)
     entries = index_entries(storage)
-    f1 = check_f1(storage, entries, bbox, now, lookback_days, search)
+    try:
+        f1 = check_f1(storage, entries, bbox, now, lookback_days, search)
+    except (OSError, ValueError) as error:  # Earth Search unreachable after retries, or a bad response
+        # F1 cannot be judged: it fails, and the run still writes its report.
+        f1 = {"ok": False, "error": f"Earth Search: {type(error).__name__} {error}", "breaches": []}
     f2 = check_f2(entries, now)
     return {
         "check": "freshness",

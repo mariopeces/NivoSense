@@ -6,10 +6,12 @@ The rasters come from tests/catalog/helpers.py: they exercise the plumbing only 
 from __future__ import annotations
 
 import datetime as dt
+import io
 import json
 import shutil
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 from typing import Any
 from unittest import mock
@@ -20,10 +22,10 @@ from PIL import Image
 from rasterio.warp import transform_bounds
 
 from pipelines.catalog import LocalStorage, publish, rebuild_index
-from qa.__main__ import main
+from qa.__main__ import main, upload
 from qa.check_catalog import check_catalog, cog_problems, pmtiles_problems
-from qa.freshness import check_f2, freshness
-from qa.objects import index_entries
+from qa.freshness import check_f2, earth_search, freshness
+from qa.objects import catalogue, index_entries
 from qa.regression import evaluate, load_fixtures
 from qa.render_thumbs import render_thumbs
 from tests.catalog.helpers import LEFT, TOP, meta, product, write_raster
@@ -218,11 +220,15 @@ class CheckCatalogTests(CatalogueTestCase):
         report = check_catalog(self.storage, now=NOW)
         self.assertEqual([(e["date"], e["check"]) for e in report["errors"]], [("2026-11-04", "index")])
 
-    def test_an_empty_catalogue_passes_and_says_so(self) -> None:
+    def test_an_absent_catalogue_fails_unless_allowed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             report = check_catalog(LocalStorage(Path(tmp)), now=NOW)
-        self.assertTrue(report["ok"])
-        self.assertEqual(report["index"], "absent")
+            allowed = check_catalog(LocalStorage(Path(tmp)), now=NOW, allow_absent=True)
+        self.assertFalse(report["ok"])
+        message = errors_of(report, "index")[0]["message"]
+        self.assertEqual(message, "catalogue absent: no catalog/index.json and no entry")
+        self.assertTrue(allowed["ok"])
+        self.assertEqual(allowed["index"], "absent")
 
 
 class ThumbsTests(CatalogueTestCase):
@@ -254,7 +260,8 @@ class CommandLineTests(CatalogueTestCase):
             self.assertIn("QA report: pass", summary.read_text(encoding="utf-8"))
             staging = LocalStorage(catalogue_root / "staging")
             self.assertIsNotNone(staging.read(report["report_key"]))
-            self.assertEqual(len(staging.list("qa/thumbs/snow_gapfill")), 3)
+            run_id = Path(report["report_key"]).stem
+            self.assertEqual(len(staging.list(f"qa/thumbs/{report['generated_at'][:10]}/{run_id}/snow_gapfill")), 3)
 
             (staging.root / self.entries[1]["cog"]).unlink()
             self.assertEqual(
@@ -267,6 +274,35 @@ class CommandLineTests(CatalogueTestCase):
             self.assertEqual(main(["run", "--no-freshness", "--out-dir", out, "--now", NOW.isoformat()]), 1)
             report = json.loads((Path(out) / "report.json").read_text(encoding="utf-8"))
             self.assertEqual(errors_of(report["check_catalog"], "index")[0]["key"], "catalog/index.json")
+
+
+class UploadTests(CatalogueTestCase):
+    def test_jobs_of_one_run_never_overwrite_each_other(self) -> None:
+        report = {"generated_at": "2026-11-22T05:03:56+00:00", "ok": True, "thumbs": []}
+        keys = set()
+        # Two matrix jobs in the same second, then the same job name again (two calls of the workflow).
+        for job in ("qa-2025-12-01", "qa-2026-01-01", "qa-2026-01-01"):
+            env = {"GITHUB_RUN_ID": "44987721769", "GITHUB_RUN_ATTEMPT": "1", "QA_JOB": job}
+            with tempfile.TemporaryDirectory() as out, mock.patch.dict("os.environ", env):
+                keys.add(upload(self.storage, dict(report, job=job), Path(out))[-1])
+        self.assertEqual(
+            keys,
+            {
+                "qa/reports/2026-11-22/20261122T050356+0000-44987721769-1-qa-2025-12-01.json",
+                "qa/reports/2026-11-22/20261122T050356+0000-44987721769-1-qa-2026-01-01.json",
+                "qa/reports/2026-11-22/20261122T050356+0000-44987721769-1-qa-2026-01-01-2.json",
+            },
+        )
+        self.assertEqual(len(self.storage.list("qa/reports/2026-11-22/")), 3)
+        jobs = {json.loads(self.storage.read(key).data)["job"] for key in keys}  # type: ignore[union-attr]
+        self.assertEqual(jobs, {"qa-2025-12-01", "qa-2026-01-01"})
+
+    def test_a_root_outside_scratch_is_refused(self) -> None:
+        with mock.patch.dict("os.environ", {"CATALOG_LOCAL_ROOT": self._case.name}):
+            self.assertIn("_scratch", repr(catalogue("staging", "_scratch/trial")))
+            for root in ("catalog", "_scratch", "_scratch/../catalog", "other/_scratch/x"):
+                with self.assertRaises(ValueError, msg=root):
+                    catalogue("staging", root)
 
 
 def _item(scene: str, created: str, product_uri: str = "") -> dict[str, Any]:
@@ -316,6 +352,25 @@ class FreshnessTests(unittest.TestCase):
         self.assertFalse(f1["ok"])
         self.assertEqual([b["date"] for b in f1["breaches"]], ["2026-11-13"])
         self.assertEqual(f1["latencies"][0]["latency_h"], 2.0)
+
+    def test_an_unreachable_earth_search_fails_f1_inside_the_report(self) -> None:
+        def down(body: dict[str, Any]) -> list[dict[str, Any]]:
+            raise urllib.error.URLError("connection refused")
+
+        now = dt.datetime(2026, 11, 21, 8, tzinfo=dt.UTC)
+        result = freshness(self.storage, (-3.5, 36.9, -2.5, 37.3), now, 30, down)
+        self.assertFalse(result["ok"])
+        self.assertIn("URLError", result["f1"]["error"])
+
+    def test_earth_search_is_retried_on_a_transient_error(self) -> None:
+        page = io.BytesIO(json.dumps({"features": [{"id": "x"}], "links": []}).encode())
+        busy = urllib.error.HTTPError("u", 503, "busy", {}, None)  # type: ignore[arg-type]
+        with (
+            mock.patch("urllib.request.urlopen", side_effect=[busy, urllib.error.URLError("reset"), page]) as opened,
+            mock.patch("qa.freshness.time.sleep"),
+        ):
+            self.assertEqual(earth_search({}), [{"id": "x"}])
+        self.assertEqual(opened.call_count, 3)
 
     def test_a_decision_not_listed_explains_a_pass(self) -> None:
         decision = {

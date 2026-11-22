@@ -61,10 +61,8 @@ on:
       - "pipelines/catalog/**"
       - ".github/workflows/qa.yml"
 
-permissions:
-  contents: read
-  id-token: write
-  issues: write
+# Each job asks for what it needs: plan nothing, qa the OIDC token, report the issues.
+permissions: {}
 
 jobs:
   plan:
@@ -72,6 +70,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 2
+    permissions: {}
     outputs:
       ranges: ${{ steps.ranges.outputs.ranges }}
     steps:
@@ -110,6 +109,9 @@ jobs:
     runs-on: ubuntu-24.04
     # The card's budget: the harness finishes in under 10 minutes on a month of data.
     timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -124,6 +126,10 @@ jobs:
       START: ${{ matrix.range.start }}
       END: ${{ matrix.range.end }}
       FRESHNESS: ${{ matrix.range.freshness }}
+      # Names this job's report and thumbnails in qa/, so matrix jobs and calls in one run never collide.
+      QA_JOB: ${{ github.job }}-${{ matrix.range.start || 'window' }}
+      # The staging catalogue is empty until the first publish; elsewhere an absent catalogue fails.
+      ALLOW_ABSENT: ${{ github.event_name == 'pull_request' }}
       STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
       STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
       DATA_BUCKET: ${{ vars.DATA_BUCKET }}
@@ -145,11 +151,14 @@ jobs:
           service_account: ${{ env.TARGET == 'prod' && vars.GCP_SA_PROD || vars.GCP_SA_STAGING }}
 
       - name: Run the harness
+        # Below the job's 10 minutes, so a slow or hung harness still leaves time to keep its artifact.
+        timeout-minutes: 8
         run: |
           args=(run --target "$TARGET" --root "$ROOT" --upload --out-dir qa-out)
           [ -n "$START" ] && args+=(--start "$START")
           [ -n "$END" ] && args+=(--end "$END")
           [ "$FRESHNESS" = true ] || args+=(--no-freshness)
+          [ "$ALLOW_ABSENT" = true ] && args+=(--allow-absent)
           python -m qa "${args[@]}"
 
       - name: Keep the report and thumbnails
@@ -161,14 +170,33 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  report:
+    # One job after all the others, so a failure, a timeout or a cancelled job opens one issue, not one per
+    # month, and a failed plan job is reported too. Off main it only says what it would have done.
+    needs: [plan, qa]
+    if: >-
+      always() && (contains(fromJSON('["failure", "cancelled"]'), needs.plan.result)
+      || contains(fromJSON('["failure", "cancelled"]'), needs.qa.result))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions:
+      issues: write
+    concurrency:
+      group: qa-issue
+      cancel-in-progress: false
+    steps:
       - name: Report a failed run
-        if: failure() && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RESULTS: "plan ${{ needs.plan.result }}, qa ${{ needs.qa.result }}"
         run: |
           title="Scheduled workflow failed: ${{ github.workflow }}"
-          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} ($RESULTS)"
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "Not main ($GITHUB_REF): no issue. Would report: $title, $body"
+            exit 0
+          fi
           existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --body "$body"

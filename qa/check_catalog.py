@@ -239,8 +239,12 @@ def check_catalog(
     end: str | None = None,
     workers: int = 4,
     now: dt.datetime | None = None,
+    allow_absent: bool = False,
 ) -> dict[str, Any]:
     """Check the catalogue and return the report.
+
+    A catalogue with no index and no entry fails, so a wrong root or a wiped catalogue never reads as a pass,
+    unless allow_absent says an empty catalogue is expected (pull requests before the first publish).
 
     Files are checked for entries dated start..end; without start, for the last DEFAULT_WINDOW_DAYS days.
     Every daily layer of DAILY_SINCE is checked for missing days from its first expected day (clipped to start)
@@ -267,6 +271,8 @@ def check_catalog(
     if blob is None:
         if objects or entry_errors:
             errors.append(_problem("index", "catalog/index.json is missing but entries exist", key=INDEX_KEY))
+        elif not allow_absent:
+            errors.append(_problem("index", "catalogue absent: no catalog/index.json and no entry", key=INDEX_KEY))
         report["index"] = "absent"
     else:
         try:

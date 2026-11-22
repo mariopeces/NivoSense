@@ -15,14 +15,19 @@ from pipelines.catalog import GcsStorage, LocalStorage, Storage, storage_from_en
 from pipelines.catalog.validate import validate_index
 
 ByteReader = Callable[[int, int], bytes]
+SCRATCH = "_scratch"
 
 
 def catalogue(target: str, root: str = "") -> Storage:
-    """The staging or prod catalogue, or a catalogue under `root` inside it (for example a `_scratch/` trial)."""
+    """The staging or prod catalogue, or a trial catalogue under `root`, which must be inside `_scratch/`."""
     base = storage_from_env(target)
     root = root.strip("/")
     if not root:
         return base
+    # Runs write qa/ under the root; outside _scratch/ (14-day lifecycle) that would litter the real tree.
+    parts = root.split("/")
+    if parts[0] != SCRATCH or len(parts) < 2 or any(part in ("", ".", "..") for part in parts):
+        raise ValueError(f"--root must be a folder inside {SCRATCH}/, got {root!r}")
     if isinstance(base, LocalStorage):
         return LocalStorage(base.root / root)
     if isinstance(base, GcsStorage):
