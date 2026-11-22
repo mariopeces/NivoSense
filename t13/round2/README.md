@@ -9,3 +9,5 @@ https://github.com/mariopeces/NivoSense/actions/runs/44993030654 (ubuntu-latest,
 - `qa.md`, `mask_offsets.md`: identical to round 1.
 - `entries/`: for all 16 dates, `pixel_hash`, the COG and PMTiles names (content-addressed) and the L1C scene ids equal
   round 1 (`t13/entries/`). `input_key` differs only because it includes the code version.
+
+- `dual_datatake_2026-02-06.json` (`dual_datatake.py`, run locally on PR head `25102f2` with T1.1 `dafc7f3`): on 2026-02-06 R094 (S2A and S2B on one orbit) the record keeps GS2B; the RGB pipeline takes the four S2B L1C granules, and their green agrees with the record's L2A green at r = 0.982 against r = 0.941 for the S2A overpass.

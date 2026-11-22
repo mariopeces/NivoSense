@@ -1,0 +1,54 @@
+{
+  "date": "2026-02-06",
+  "orbit": "R094",
+  "record_datatake": "GS2B_20260206T110129_046595",
+  "record_scene_ids": [
+    "S2B_T30SVF_20260206T110725_L2A",
+    "S2B_T30SVG_20260206T110725_L2A",
+    "S2B_T30SWF_20260206T110725_L2A",
+    "S2B_T30SWG_20260206T110725_L2A"
+  ],
+  "record_valid_fraction": 0.0197,
+  "alternatives": [
+    {
+      "datatake": "GS2A_20260206T110621_055504",
+      "scene_ids": [
+        "S2A_T30SVF_20260206T110618_L2A",
+        "S2A_T30SVG_20260206T110618_L2A",
+        "S2A_T30SWF_20260206T110618_L2A",
+        "S2A_T30SWG_20260206T110618_L2A"
+      ],
+      "domain_coverage": 1.0,
+      "domain_valid_fraction": 0.0162
+    }
+  ],
+  "pipeline_l1c_datatake": "GS2B_20260206T110129_046595",
+  "pipeline_l1c_scene_ids": [
+    "S2B_30SVF_20260206_1_L1C",
+    "S2B_30SVG_20260206_1_L1C",
+    "S2B_30SWF_20260206_1_L1C",
+    "S2B_30SWG_20260206_1_L1C"
+  ],
+  "per_l1c_datatake": [
+    {
+      "datatake": "GS2A_20260206T110621_055504",
+      "scene_ids": [
+        "S2A_30SVF_20260206_0_L1C",
+        "S2A_30SVG_20260206_0_L1C",
+        "S2A_30SWF_20260206_0_L1C",
+        "S2A_30SWG_20260206_0_L1C"
+      ],
+      "pearson_r_green_vs_record": 0.9408
+    },
+    {
+      "datatake": "GS2B_20260206T110129_046595",
+      "scene_ids": [
+        "S2B_30SVF_20260206_1_L1C",
+        "S2B_30SVG_20260206_1_L1C",
+        "S2B_30SWF_20260206_1_L1C",
+        "S2B_30SWG_20260206_1_L1C"
+      ],
+      "pearson_r_green_vs_record": 0.9818
+    }
+  ]
+}
