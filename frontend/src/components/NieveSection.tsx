@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Eye, EyeOff, Info, RotateCw, X } from "lucide-react";
+import { Eye, EyeOff, Info, Lock, RotateCw, X } from "lucide-react";
 import { Icon } from "../lib/icons";
 import { t } from "../lib/copy";
 import { fechaCorta } from "../lib/format";
 import type { CatalogEntry, CatalogState } from "../lib/catalog";
-import { RAMPS, entryFor, layerSpecs, type LayerSpec } from "../lib/layers";
+import { LOCKED_LAYERS, RAMPS, entryFor, layerSpecs, type LayerSpec } from "../lib/layers";
 import { STATUS_OF } from "../lib/timeline";
 import type { VisibleLayers } from "../lib/urlState";
 import RampLegend from "./RampLegend";
@@ -99,6 +99,7 @@ function LayerRow({
   const entry = shown?.entry ?? null;
   const on = opacity !== null && entry !== null;
   const modelled = entries.some((item) => item.status === "modelled");
+  const locked = LOCKED_LAYERS.has(spec.id) && entries.length === 0;
   const name = spec.copy ? t(`capa.${spec.copy}.nombre`) : spec.id;
   const resolution = entry ? `${entry.resolution_m} m` : spec.copy ? t(`capa.${spec.copy}.resolucion`) : "";
   const meta = spec.copy ? t("fila_capa.meta", { fuente: t(`capa.${spec.copy}.fuente`), resolucion: resolution }) : resolution;
@@ -106,18 +107,23 @@ function LayerRow({
   const sliderId = `opacidad-${spec.id}`;
 
   return (
-    <div className={`mb-2 rounded-md border ${on ? "border-line-strong bg-panel" : "border-line"} ${entry ? "bg-panel" : "bg-panel-soft"}`}>
+    <div
+      className={`mb-2 rounded-md border ${on ? "border-line-strong bg-panel" : "border-line"} ${entry ? "bg-panel" : "bg-panel-soft"} ${
+        locked ? "opacity-60" : ""
+      }`}
+      data-locked={locked || undefined}
+    >
       <div className="flex items-start gap-2 p-3 pb-2">
         <button
           type="button"
-          disabled={!entry && !modelled}
-          aria-pressed={on}
-          aria-label={toggleLabel}
-          title={entry ? toggleLabel : t("fila_capa.pendiente")}
+          disabled={locked || (!entry && !modelled)}
+          aria-pressed={locked ? undefined : on}
+          aria-label={locked ? `${name}: ${t("fila_capa.bloqueada")}` : toggleLabel}
+          title={locked ? t("fila_capa.bloqueada") : entry ? toggleLabel : t("fila_capa.pendiente")}
           onClick={onToggle}
           className={`${ICON_BUTTON} ${on ? "text-text" : ""}`}
         >
-          <Icon icon={on ? Eye : EyeOff} />
+          <Icon icon={locked ? Lock : on ? Eye : EyeOff} />
         </button>
         <div className="min-w-0 flex-1">
           <p className="m-0 font-medium">{name}</p>
@@ -144,11 +150,18 @@ function LayerRow({
           )}
           {!entry && (
             <p className="m-0 mt-1 text-small text-text-muted">
-              {t(modelled ? "fila_capa.sin_nieve_modelada" : "fila_capa.pendiente_detalle")}
+              {t(locked ? "fila_capa.bloqueada_detalle" : modelled ? "fila_capa.sin_nieve_modelada" : "fila_capa.pendiente_detalle")}
             </p>
           )}
           <div className="mt-2">
-            <StatusBadge status={entry ? STATUS_OF[entry.status] : modelled ? "modelado" : "pendiente"} />
+            {locked ? (
+              <span className="inline-flex items-center gap-1 text-caption font-medium text-text-muted">
+                <Icon icon={Lock} />
+                {t("fila_capa.bloqueada")}
+              </span>
+            ) : (
+              <StatusBadge status={entry ? STATUS_OF[entry.status] : modelled ? "modelado" : "pendiente"} />
+            )}
           </div>
         </div>
         <button
@@ -178,7 +191,11 @@ function LayerRow({
         />
       )}
       <div className="px-3 pb-3">
-        {spec.ramp && <RampLegend rampId={spec.ramp} />}
+        {spec.ramp && (
+          <div className={locked ? "grayscale" : undefined}>
+            <RampLegend rampId={spec.ramp} />
+          </div>
+        )}
         <div className="mt-2 flex items-center gap-3 text-small">
           <label htmlFor={sliderId} className={on ? "" : "text-text-muted"}>
             {t("fila_capa.opacidad")}

@@ -68,7 +68,7 @@ describe("App shell", { timeout: 20_000 }, () => {
     expect(map().dataset.basemap).toBe("claro");
     expect(map().dataset.insetLeft).toBe("384");
     // The repo's snow-model manifest says the model has not run: every layer row is Pendiente.
-    expect(await screen.findAllByText("Pendiente")).toHaveLength(5);
+    expect(await screen.findAllByText("Pendiente")).toHaveLength(4);
   });
 
   it("gives the map back the panel's width when the panel is collapsed", async () => {

@@ -42,6 +42,9 @@ export const LAYER_SPECS: LayerSpec[] = [
   { id: "rgb", copy: "color_real", ramp: null, group: "imagen" },
 ];
 
+// Layers shown as locked until their data exists: not available yet, not just empty.
+export const LOCKED_LAYERS = new Set(["snow_gapfill"]);
+
 /** The known layers plus any other layer the catalogue lists, so every catalogued layer is reachable. */
 export function layerSpecs(index: CatalogIndex | null): LayerSpec[] {
   const known = new Set(LAYER_SPECS.map((spec) => spec.id));

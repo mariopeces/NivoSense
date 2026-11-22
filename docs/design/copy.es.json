@@ -154,7 +154,9 @@
     "modelo_experimental": "Modelo experimental",
     "modelo_aviso": "Estimación del modelo, corregida con cada imagen despejada de Sentinel-2. Puede fallar donde no hay imagen.",
     "pendiente": "Aún no se publica",
-    "pendiente_detalle": "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha."
+    "pendiente_detalle": "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
+    "bloqueada": "Próximamente",
+    "bloqueada_detalle": "Todavía no está disponible. Estamos trabajando en esta capa."
   },
   "info_capa": {
     "titulo": "Sobre esta capa",
