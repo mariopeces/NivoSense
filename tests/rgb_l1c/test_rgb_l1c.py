@@ -263,6 +263,8 @@ def test_alignment_is_zero_on_aligned_data_and_flags_a_shift():
     assert aligned["shift_snow_mask_max_m"] < 2
     assert shifted["shift_l2a_green_median_m"] == pytest.approx(40, abs=4)
     assert shifted["shift_snow_mask_median_m"] == pytest.approx(40, abs=4)
+    assert aligned["shift_l2a_green_within_20m"] == 1
+    assert shifted["shift_l2a_green_within_20m"] == 0
 
 
 # --- run ------------------------------------------------------------------------------------
@@ -344,3 +346,11 @@ def test_process_publishes_through_the_catalogue_and_logs_missing_l1c(tmp_path, 
 
     monkeypatch.setattr(run, "find_acquisition", lambda *args: None)
     assert run.process(record, domain, {}, inside, s2_out, storage, "aws")["status"] == "l1c_missing"
+
+
+def test_qa_flags():
+    clean = {"snow_saturated_red": 0.002, "shift_l2a_green_median_m": 0.1}
+
+    assert run.qa_flags(clean, []) == []
+    assert run.qa_flags({**clean, "snow_saturated_blue": 0.01}, []) == ["snow_saturated"]
+    assert run.qa_flags({**clean, "shift_l2a_green_median_m": 20.0}, ["30SVG"]) == ["l1c_tiles_missing", "misaligned"]

@@ -80,6 +80,17 @@ def write_rasters(rgb: np.ndarray, grid: Grid, folder: Path) -> dict[str, Path]:
     return paths
 
 
+def qa_flags(scores: dict[str, float], missing_tiles: list[str]) -> list[str]:
+    flags = []
+    if missing_tiles:
+        flags.append("l1c_tiles_missing")
+    if max(scores.get(f"snow_saturated_{band}", 0.0) for band in ("red", "green", "blue")) >= MAX_SNOW_SATURATED:
+        flags.append("snow_saturated")
+    if scores.get("shift_l2a_green_median_m", 0.0) >= qa.ALIGNED_M:
+        flags.append("misaligned")
+    return flags
+
+
 def process(
     record: dict,
     domain: Domain,
@@ -113,13 +124,9 @@ def process(
     l2a, scl = qa.read_l2a(s2_out / record["date"] / orbit)
     snow = qa.snow_mask(l2a, scl) & domain.mask
     scores = {**qa.snow_saturation(rgb, snow), **qa.alignment(rgb, l2a, snow, domain.grid.resolution)}
-    flags = []
-    if missing:
-        flags.append("l1c_tiles_missing")
-    saturated = [scores.get(f"snow_saturated_{band}", 0.0) for band in ("red", "green", "blue")]
-    if max(saturated) >= MAX_SNOW_SATURATED:
-        flags.append("snow_saturated")
-        log.warning("%s: %.2f%% of snow pixels saturated", record["date"], 100 * max(saturated))
+    flags = qa_flags(scores, missing)
+    if flags:
+        log.warning("%s: QA flags %s; scores %s", record["date"], flags, json.dumps(scores))
 
     mark = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="rgb-l1c-") as tmp:
