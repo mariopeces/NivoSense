@@ -12,8 +12,8 @@
   "s2_query": "Earth Search STAC search, bbox above, 2026-11-08..2026-11-22, run 2026-11-22: passes over the box on 2026-11-08 (S2C), 2026-11-10 (S2A), 2026-11-13 (S2B) and 2026-11-20 (S2A, relative orbit R094); none on 2026-11-19 or 2026-11-21/22.",
   "rule": {
     "observed_layer": "snow_obs",
-    "observed_band": null,
-    "bare_values": null,
+    "observed_band": "class",
+    "bare_values": [0],
     "model_layer": "swe",
     "model_band": "swe",
     "snow_threshold": 5.0,
@@ -22,7 +22,7 @@
   },
   "exclude": {
     "name": "ski resort",
-    "geometry": null
+    "geometry": "data/ski_resort.geojson"
   },
   "not_in_catalogue": "Q4 also scores the model state before the 2026-11-20 assimilation update (from state/2026-11-19.npz); that state is not a catalogue product and is scored by the model's own tests."
 }

@@ -558,13 +558,19 @@ class RegressionTests(RegressionCase):
         self.assertEqual(result["status"], "fail")
         self.assertEqual(result["dates"], [{"date": "2026-11-21", "bare_cells": 49, "snow_on_bare_cells": 1}])
 
-    def test_the_real_q4_fixture_is_pending_while_its_inputs_are_undefined(self) -> None:
+    def test_the_real_q4_fixture_is_pending_until_its_products_are_published(self) -> None:
         fixture = load_fixtures()[0]
         self.assertEqual(fixture["id"], "q4_crest_2026-11-20")
         self.assertEqual(fixture["bbox"], [-3.42, 37.01, -3.30, 37.07])
         result = evaluate(self.storage, fixture, {}, self.folder)
         self.assertEqual(result["status"], "pending")
-        self.assertEqual(len(result["pending"]), 4)
+        self.assertEqual(
+            result["pending"],
+            [
+                "no snow_obs entry for 2026-11-20",
+                "no swe entry for 2026-11-21, 2026-11-22, 2026-11-23, 2026-11-24, 2026-11-25",
+            ],
+        )
 
 
 if __name__ == "__main__":

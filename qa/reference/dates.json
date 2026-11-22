@@ -1,0 +1,20 @@
+{
+  "description": "Dates of the reference sample. All on relative orbit R094, the orbit whose swath covers the four tiles of the domain. snowline_m is the elevation of the lower snow limit read by eye by the labeller on a 60 m L1C true-colour overview of the domain with 500 m GLO-30 contours, before any point was drawn; it only places the snowline sampling band (snowline_m +- 200 m). null: no continuous snow cover to place a band on.",
+  "dates": [
+    {"date": "2025-11-03", "orbit": "R094", "phase": "early season", "snowline_m": null, "note": "Before the first snowfall; fair-weather cumulus over the south slopes and the eastern ridge."},
+    {"date": "2025-11-28", "orbit": "R094", "phase": "early season", "snowline_m": 2450, "note": "First lasting snow on the high western massif; bare ground below about 2,400 m."},
+    {"date": "2025-12-18", "orbit": "R094", "phase": "storm", "snowline_m": 1950, "note": "Fresh snow after a storm, cloud remnants over the eastern half."},
+    {"date": "2026-01-07", "orbit": "R094", "phase": "storm", "snowline_m": 1750, "note": "Lowest snow of the sample after an early-January storm; thin cloud veil over the north-west."},
+    {"date": "2026-01-12", "orbit": "R094", "phase": "mid-winter", "snowline_m": 1950, "note": "Clear mid-winter scene, low sun (29 degrees), long shadows on north faces."},
+    {"date": "2026-02-16", "orbit": "R094", "phase": "storm", "snowline_m": 1900, "note": "Snow down to about 1,800 m in the north-west after a February storm; convective cloud over the south slopes."},
+    {"date": "2026-02-21", "orbit": "R094", "phase": "mid-winter", "snowline_m": 2050, "note": "Clear mid-winter scene."},
+    {"date": "2026-03-13", "orbit": "R094", "phase": "mid-winter", "snowline_m": 2000, "note": "Late-winter cover with scattered cumulus over snow and bare ground."},
+    {"date": "2026-03-25", "orbit": "R094", "phase": "melt", "snowline_m": 2250, "note": "Clear scene at the start of the melt; patchy snow on the eastern ridge."},
+    {"date": "2026-04-14", "orbit": "R094", "phase": "melt", "snowline_m": 2400, "note": "Melt after an April snowfall; continuous cover only on the western massif."},
+    {"date": "2026-04-27", "orbit": "R094", "phase": "melt", "snowline_m": 2500, "note": "Melting, dust-tinted snow with cumulus over it: the hardest snow and cloud separation of the sample."},
+    {"date": "2026-05-12", "orbit": "R094", "phase": "late spring", "snowline_m": 2700, "note": "Patchy snow above about 2,600 m; cumulus over the west and the eastern ridge."},
+    {"date": "2026-05-27", "orbit": "R094", "phase": "late spring", "snowline_m": 2850, "note": "Clear scene, snow patches on the summits and north faces only."},
+    {"date": "2026-06-13", "orbit": "R094", "phase": "late spring", "snowline_m": 3000, "note": "Last snow patches around the summits; a thin smoke or cloud plume over the central south slopes."},
+    {"date": "2026-11-20", "orbit": "R094", "phase": "regression case", "snowline_m": null, "note": "Crest Veleta to Mulhacen bare except the ski resort; haze and thin cloud over much of the domain."}
+  ]
+}
