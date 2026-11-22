@@ -31,6 +31,8 @@ export default function DateBar({ scenes, loading, selectedDate, onChange, hidde
   const index = scenes.findIndex((scene) => scene.date === selectedDate);
   const selected = index >= 0 ? scenes[index] : null;
   const latest = scenes.length ? scenes[scenes.length - 1] : null;
+  // The massif is bare in autumn: a way into the deep-snow scenes of March 2025 shows what the layers do with snow.
+  const demo = [...scenes].reverse().find((scene) => scene.date.startsWith("2025-03")) ?? null;
 
   return (
     <div
@@ -75,6 +77,16 @@ export default function DateBar({ scenes, loading, selectedDate, onChange, hidde
           </div>
           <StatusBadge status={selected.isPrediction ? "prevision" : "observado"} />
           <div className="relative ml-auto flex gap-1">
+            {demo && !selected.date.startsWith("2025-03") && (
+              <button
+                type="button"
+                onClick={() => onChange(demo.date)}
+                title={t("linea_tiempo.tooltip_demo_nieve")}
+                className="inline-flex h-8 items-center rounded-md border border-line bg-panel px-3 text-small font-medium hover:bg-panel-soft max-md:h-touch"
+              >
+                {t("linea_tiempo.demo_nieve")}
+              </button>
+            )}
             <button
               type="button"
               disabled={!latest || latest.date === selected.date}
