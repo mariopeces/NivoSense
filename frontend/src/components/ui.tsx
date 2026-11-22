@@ -32,6 +32,11 @@ export function StatusBadge({ status }: { status: Status }) {
   );
 }
 
+export function StatusGlyph({ status }: { status: Status }) {
+  const style = BADGE[status];
+  return <span aria-hidden="true" className={`h-2 w-2 rounded-sm ${style.text} ${style.glyph}`} />;
+}
+
 export function GroupLabel({ children }: { children: ReactNode }) {
   return <h3 className="mx-1 mb-2 mt-4 text-eyebrow text-text-muted first:mt-0">{children}</h3>;
 }
