@@ -104,6 +104,62 @@ class JudgeTest(unittest.TestCase):
         self.assertIn("moves", wb.judge(self.fit(2.0, 10.0), 0.9, 5.0, 9.0)[1] or "")
 
 
+PANO_W, PANO_H = 2400, 800
+
+
+def pano_skyline(horizon: wb.Horizon, pose: wb.PanoPose) -> tuple[np.ndarray, np.ndarray]:
+    columns = np.arange(0.0, PANO_W, 4.0)
+    azimuth = pose.azimuth(columns, PANO_W)
+    elevation, _ = horizon.at(azimuth)
+    return columns, pose.row(azimuth, elevation, PANO_W)
+
+
+class PanoramaTest(unittest.TestCase):
+    def test_column_inverts_azimuth(self) -> None:
+        pose = wb.PanoPose(centre_az=350.0, span=211.0, y0=400.0, vscale=1.0, tilt=1.0, tilt_phase=30.0)
+        columns = np.array([0.0, 700.0, 1199.5, 2399.0])
+        np.testing.assert_allclose(pose.column(pose.azimuth(columns, PANO_W), PANO_W), columns, atol=1e-6)
+
+    def test_recovers_centre_azimuth(self) -> None:
+        dem = synthetic_dem(RANGE)
+        horizon = wb.render_horizon(dem, 0.0, 0.0, GROUND_M + 3)
+        truth = wb.PanoPose(centre_az=75.0, span=212.0, y0=420.0, vscale=1.0, tilt=0.0, tilt_phase=0.0)
+        columns, rows = pano_skyline(horizon, truth)
+        pose, cost, alternative = wb.fit_panorama_at(horizon, columns, rows, PANO_W, 211.0)
+        self.assertLess(float(wb.angular_gap(pose.centre_az, truth.centre_az)), 0.3)
+        self.assertAlmostEqual(pose.span, truth.span, delta=1.0)
+        self.assertLess(cost, 1.0)
+        self.assertGreater(alternative / cost, wb.UNIQUE_RATIO)
+
+    def test_span_is_held_near_the_published_value(self) -> None:
+        pose = wb.PanoPose(centre_az=0.0, span=260.0, y0=400.0, vscale=1.0, tilt=0.0, tilt_phase=0.0)
+        horizon = wb.Horizon(np.arange(0.0, 360.0, wb.AZIMUTH_STEP_DEG), np.zeros(7200), np.ones(7200))
+        cost = wb.panorama_cost(horizon, np.array([10.0]), np.array([400.0]), PANO_W, pose, 211.0)
+        self.assertEqual(cost, math.inf)
+
+    def test_locates_a_view_cut_from_the_panorama(self) -> None:
+        rng = np.random.default_rng(3)
+        # Smooth random texture, so edges exist at every scale the matcher uses.
+        texture = rng.random((PANO_H // 8, PANO_W // 8))
+        pano_lum = np.asarray(
+            Image.fromarray((texture * 255).astype("uint8")).resize((PANO_W, PANO_H), Image.Resampling.BICUBIC),
+            dtype=float,
+        )
+        panorama = Image.fromarray(pano_lum.astype("uint8")).convert("RGB")
+        pano_pose = wb.PanoPose(centre_az=200.0, span=210.0, y0=PANO_H / 2, vscale=1.0, tilt=0.0, tilt_phase=0.0)
+        truth = wb.Pose(bearing=160.0, fov=48.0, pitch=2.0, roll=0.0)
+        view_w, view_h = 960, 540
+        uu, vv = np.meshgrid(np.arange(view_w, dtype=float), np.arange(view_h, dtype=float))
+        azimuth, elevation = wb.pixel_rays(uu.ravel(), vv.ravel(), view_w, view_h, truth)
+        cols = np.clip(np.round(pano_pose.column(azimuth, PANO_W)).astype(int), 0, PANO_W - 1)
+        rows = np.clip(np.round(pano_pose.row(azimuth, elevation, PANO_W)).astype(int), 0, PANO_H - 1)
+        view = Image.fromarray(pano_lum[rows, cols].reshape(view_h, view_w).astype("uint8")).convert("RGB")
+        match = wb.locate_view(view, (), panorama, pano_pose, fov_range=(36.0, 60.0))
+        self.assertLess(float(wb.angular_gap(match.bearing, truth.bearing)), 0.5)
+        self.assertAlmostEqual(match.fov, truth.fov, delta=2.0)
+        self.assertGreater(match.score - match.alternative_score, wb.MATCH_MARGIN)
+
+
 class SkylineTest(unittest.TestCase):
     def test_extracts_sky_edge_and_ignores_masked_caption(self) -> None:
         columns = np.arange(WIDTH)

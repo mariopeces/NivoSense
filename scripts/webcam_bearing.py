@@ -100,6 +100,30 @@ SPREAD_HIGH_DEG = 2.0
 SPREAD_MEDIUM_DEG = 5.0
 CONSISTENT_RATIO = 2.0
 MIN_SKYLINE_FRACTION = 0.3
+# Feratel stations also publish a stitched panorama about every 20 minutes;
+# the player page gives its horizontal span ("degrees") and the day's archive.
+FERATEL_PLAYER_URL = "https://webtvfc.feratel.com/webtv/?cam={station}&t=9&lg=en"
+FERATEL_TZ = "Europe/Madrid"
+# Daylight panoramas (local hours, one per hour) are fitted one by one; the sun
+# and clouds move between them, so a false fit in one frame is not repeated.
+PANORAMA_HOURS = range(9, 17)
+PANORAMA_MIN_FRAMES = 4
+PANORAMA_AGREEMENT_DEG = 1.0
+PANORAMA_MIN_AGREEING = 3
+# The published span is rounded and the stitch is not exactly cylindrical, so
+# the fit may stretch it by this fraction and scale it vertically within this range.
+PANORAMA_SPAN_TOLERANCE = 0.02
+PANORAMA_VSCALE_RANGE = (0.9, 1.1)
+PANORAMA_TILT_MAX_DEG = 10.0
+# A view is located in the panorama taken in the same capture cycle.
+SAME_CYCLE_MINUTES = 30
+MATCH_PX_PER_DEG = 3.0
+MATCH_FINE_PX_PER_DEG = 8.0
+# Normalised cross-correlation of edge maps: the best position more than
+# UNIQUE_SEPARATION_DEG away must score at least this much lower.
+MATCH_MARGIN = 0.1
+# The view's own skyline fit, started from the panorama bearing, may move it this far.
+VIEW_AGREEMENT_DEG = 2.0
 USER_AGENT = "NivoSense-webcam-bearing (+https://github.com/mariopeces/NivoSense)"
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
@@ -509,6 +533,338 @@ def position_spread(
     return max(shifts), consistent
 
 
+@dataclass
+class PanoPose:
+    """Cylindrical panorama: columns are linear in azimuth, rows in tan(elevation).
+
+    ``tilt`` is a small tilt of the stitch axis, highest at azimuth ``tilt_phase``.
+    """
+
+    centre_az: float
+    span: float
+    y0: float
+    vscale: float
+    tilt: float
+    tilt_phase: float
+
+    def azimuth(self, column: np.ndarray, width: int) -> np.ndarray:
+        return np.asarray((self.centre_az + (np.asarray(column) - (width - 1) / 2) * self.span / width) % 360.0)
+
+    def column(self, azimuth: np.ndarray, width: int) -> np.ndarray:
+        offset = (np.asarray(azimuth) - self.centre_az + 180.0) % 360.0 - 180.0
+        return np.asarray(offset * width / self.span + (width - 1) / 2)
+
+    def row(self, azimuth: np.ndarray, elevation: np.ndarray, width: int) -> np.ndarray:
+        focal = width / math.radians(self.span)
+        tilt = math.tan(math.radians(self.tilt)) * np.sin(np.radians(np.asarray(azimuth) - self.tilt_phase))
+        return np.asarray(self.y0 - self.vscale * focal * (np.tan(np.radians(elevation)) + tilt))
+
+
+@dataclass
+class PanoFit:
+    pose: PanoPose
+    height_m: float
+    cost_px: float
+    alternative_cost_px: float
+    horizon: Horizon
+
+
+def panorama_cost(
+    horizon: Horizon, columns: np.ndarray, rows: np.ndarray, width: int, pose: PanoPose, nominal_span: float
+) -> float:
+    if not (
+        abs(pose.span / nominal_span - 1) <= PANORAMA_SPAN_TOLERANCE + 1e-9
+        and PANORAMA_VSCALE_RANGE[0] <= pose.vscale <= PANORAMA_VSCALE_RANGE[1]
+        and abs(pose.tilt) <= PANORAMA_TILT_MAX_DEG
+    ):
+        return math.inf
+    azimuth = pose.azimuth(columns, width)
+    elevation, _ = horizon.at(azimuth)
+    return trimmed_cost(rows - pose.row(azimuth, elevation, width))
+
+
+def refine_panorama(
+    horizon: Horizon, columns: np.ndarray, rows: np.ndarray, width: int, start: PanoPose, nominal_span: float
+) -> tuple[PanoPose, float]:
+    pose = start
+    best = panorama_cost(horizon, columns, rows, width, pose, nominal_span)
+    steps = {"centre_az": 0.2, "y0": 4.0, "vscale": 0.02, "tilt": 0.5, "tilt_phase": 20.0, "span": 1.0}
+    while max(step for name, step in steps.items() if name != "y0") > 0.005:
+        improved = False
+        for name, step in steps.items():
+            for sign in (1.0, -1.0):
+                trial = PanoPose(**{**pose.__dict__, name: getattr(pose, name) + sign * step})
+                cost = panorama_cost(horizon, columns, rows, width, trial, nominal_span)
+                if cost < best - 1e-9:
+                    pose, best, improved = trial, cost, True
+        if not improved:
+            steps = {name: step / 2 for name, step in steps.items()}
+    return pose, best
+
+
+def fit_panorama_at(
+    horizon: Horizon, columns: np.ndarray, rows: np.ndarray, width: int, span: float
+) -> tuple[PanoPose, float, float]:
+    """Best panorama pose for one horizon, its cost and the best cost more than
+    UNIQUE_SEPARATION_DEG away. Exhaustive over the centre azimuth (0.1 degree)
+    with the nominal span, then a pattern search from the 3 best distinct centres."""
+    focal = width / math.radians(span)
+    centres = np.arange(0.0, 360.0, 0.1)
+    offsets = (columns - (width - 1) / 2) * span / width
+    costs = np.empty(centres.size)
+    for start in range(0, centres.size, 400):
+        block = centres[start : start + 400]
+        elevation, _ = horizon.at(block[:, None] + offsets[None, :])
+        residual = rows[None, :] + focal * np.tan(np.radians(elevation))
+        residual -= np.median(residual, axis=1)[:, None]
+        magnitude = np.sort(np.abs(residual), axis=1)
+        keep = max(1, int(magnitude.shape[1] * TRIM_KEEP))
+        costs[start : start + 400] = magnitude[:, :keep].mean(axis=1)
+    seeds: list[int] = []
+    for candidate in np.argsort(costs):
+        if all(angular_gap(centres[candidate], centres[s]) > UNIQUE_SEPARATION_DEG for s in seeds):
+            seeds.append(int(candidate))
+        if len(seeds) == 3:
+            break
+    refined: list[tuple[PanoPose, float]] = []
+    for index in seeds:
+        elevation, _ = horizon.at(centres[index] + offsets)
+        y0 = float(np.median(rows + focal * np.tan(np.radians(elevation))))
+        refined.append(
+            refine_panorama(
+                horizon, columns, rows, width, PanoPose(float(centres[index]), span, y0, 1.0, 0.0, 0.0), span
+            )
+        )
+    refined.sort(key=lambda item: item[1])
+    pose, cost = refined[0]
+    far = costs[angular_gap(centres, pose.centre_az) > UNIQUE_SEPARATION_DEG]
+    alternatives = [c for p, c in refined[1:] if angular_gap(p.centre_az, pose.centre_az) > UNIQUE_SEPARATION_DEG]
+    return pose, cost, min([float(np.min(far)), *alternatives])
+
+
+def fit_panorama(
+    dem: Dem, x: float, y: float, ground_z: float, columns: np.ndarray, rows: np.ndarray, width: int, span: float
+) -> PanoFit:
+    best: PanoFit | None = None
+    for camera_height in CAMERA_HEIGHTS_M:
+        horizon = render_horizon(dem, x, y, ground_z + camera_height)
+        pose, cost, alternative = fit_panorama_at(horizon, columns, rows, width, span)
+        if best is None or cost < best.cost_px:
+            best = PanoFit(pose, camera_height, cost, alternative, horizon)
+    assert best is not None
+    return best
+
+
+def panorama_position_spread(
+    dem: Dem, x: float, y: float, fit: PanoFit, columns: np.ndarray, rows: np.ndarray, width: int, span: float
+) -> tuple[float, int]:
+    """As position_spread, for the panorama centre azimuth."""
+    shifts = [0.0]
+    consistent = 0
+    for angle in range(0, 360, 45):
+        dx = POSITION_TOLERANCE_M * math.sin(math.radians(angle))
+        dy = POSITION_TOLERANCE_M * math.cos(math.radians(angle))
+        ground = float(dem.sample(np.array([x + dx]), np.array([y + dy]))[0])
+        horizon = render_horizon(dem, x + dx, y + dy, ground + fit.height_m)
+        pose, cost = refine_panorama(horizon, columns, rows, width, fit.pose, span)
+        if cost <= CONSISTENT_RATIO * fit.cost_px:
+            consistent += 1
+            shifts.append(float(angular_gap(pose.centre_az, fit.pose.centre_az)))
+    return max(shifts), consistent
+
+
+def edge_map(luminance: np.ndarray) -> np.ndarray:
+    gy, gx = np.gradient(luminance)
+    return np.asarray(np.hypot(gx, gy))
+
+
+def masked_ncc(image: np.ndarray, template: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Normalised cross-correlation with a masked template at every position where
+    it fits inside the image (Padfield 2012, "Masked object registration in the
+    Fourier domain")."""
+    image_h, image_w = image.shape
+    tpl_h, tpl_w = template.shape
+    shape = (image_h + tpl_h, image_w + tpl_w)
+    weight = mask.astype(float)
+    tpl = template * weight
+    f_image = np.fft.rfft2(image, shape)
+    f_image2 = np.fft.rfft2(image**2, shape)
+    f_mask = np.fft.rfft2(weight[::-1, ::-1], shape)
+    f_tpl = np.fft.rfft2(tpl[::-1, ::-1], shape)
+    count = weight.sum()
+    sum_t = tpl.sum()
+    sum_t2 = (tpl**2).sum()
+    corr_it = np.fft.irfft2(f_image * f_tpl, shape)
+    corr_im = np.fft.irfft2(f_image * f_mask, shape)
+    corr_i2m = np.fft.irfft2(f_image2 * f_mask, shape)
+    numerator = corr_it - corr_im * sum_t / count
+    denominator = (corr_i2m - corr_im**2 / count) * (sum_t2 - sum_t**2 / count)
+    ncc = numerator / np.sqrt(np.maximum(denominator, 1e-9))
+    return np.asarray(ncc[tpl_h - 1 : image_h, tpl_w - 1 : image_w])
+
+
+def view_template(
+    edges: np.ndarray, mask: np.ndarray, fov: float, pitch: float, px_per_deg: float
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """A view's edge map resampled onto a cylindrical grid (columns: azimuth from
+    the optical axis, rows: -tan(elevation)), and the grid row of elevation 0."""
+    height, width = edges.shape
+    pose = Pose(0.0, fov, pitch, 0.0)
+    corner_u = np.array([0, width - 1, 0, width - 1, (width - 1) / 2, (width - 1) / 2], dtype=float)
+    corner_v = np.array([0, 0, height - 1, height - 1, 0, height - 1], dtype=float)
+    _, elevation = pixel_rays(corner_u, corner_v, width, height, pose)
+    focal = px_per_deg * 180 / math.pi
+    top = math.tan(math.radians(float(elevation.max())))
+    bottom = math.tan(math.radians(float(elevation.min())))
+    half = fov / 2 + 1.0
+    n_cols = int(2 * half * px_per_deg)
+    n_rows = int((top - bottom) * focal)
+    az = (np.arange(n_cols) - (n_cols - 1) / 2) / px_per_deg
+    tangent = top - np.arange(n_rows) / focal
+    grid_az, grid_t = np.meshgrid(az, tangent)
+    u, v = project(grid_az.ravel(), np.degrees(np.arctan(grid_t.ravel())), width, height, pose)
+    u = u.reshape(grid_az.shape)
+    v = v.reshape(grid_az.shape)
+    inside = np.isfinite(u) & (u >= 0) & (u <= width - 1) & (v >= 0) & (v <= height - 1)
+    ui = np.clip(np.round(np.nan_to_num(u)).astype(int), 0, width - 1)
+    vi = np.clip(np.round(np.nan_to_num(v)).astype(int), 0, height - 1)
+    return edges[vi, ui], inside & mask[vi, ui], top * focal
+
+
+@dataclass
+class ViewMatch:
+    bearing: float
+    fov: float
+    pitch: float
+    score: float
+    alternative_score: float
+    pano_column: float
+
+
+def locate_view(
+    view: Image.Image,
+    masks: tuple[tuple[float, float, float, float], ...],
+    panorama: Image.Image,
+    pano_pose: PanoPose,
+    fov_range: tuple[float, float] = FOV_RANGE_DEG,
+) -> ViewMatch:
+    """Bearing, fov and pitch of a view from where its edge map best correlates
+    with the station panorama of the same capture cycle (coarse grid over fov
+    and pitch, then a finer grid around the best)."""
+    pano_px_per_deg = panorama.width / pano_pose.span
+    pano_lum = np.asarray(panorama.convert("L"), dtype=float)
+
+    def pano_edges(px_per_deg: float) -> np.ndarray:
+        scale = px_per_deg / pano_px_per_deg
+        size = (round(panorama.width * scale), round(panorama.height * scale / pano_pose.vscale))
+        small = Image.fromarray(pano_lum.astype(np.uint8)).resize(size, Image.Resampling.BILINEAR)
+        return edge_map(np.asarray(small, dtype=float))
+
+    def view_edges(px_per_deg: float, fov: float) -> tuple[np.ndarray, np.ndarray]:
+        view_px_per_deg = focal_length(view.width, fov) * math.pi / 180
+        scale = min(1.0, px_per_deg / view_px_per_deg)
+        size = (round(view.width * scale), round(view.height * scale))
+        lum = np.asarray(view.convert("L").resize(size, Image.Resampling.BILINEAR), dtype=float)
+        mask = np.ones(lum.shape, dtype=bool)
+        for x0, y0, x1, y1 in masks:
+            mask[round(y0 * size[1]) : round(y1 * size[1]), round(x0 * size[0]) : round(x1 * size[0])] = False
+        return edge_map(lum), mask
+
+    def scan(
+        px_per_deg: float, fovs: np.ndarray, pitches: np.ndarray, column_window: tuple[float, float] | None
+    ) -> list[tuple[float, float, float, float, np.ndarray]]:
+        image = pano_edges(px_per_deg)
+        offset = 0
+        if column_window is not None:
+            lo = max(0, int(column_window[0] * px_per_deg / pano_px_per_deg))
+            hi = min(image.shape[1], int(column_window[1] * px_per_deg / pano_px_per_deg))
+            image, offset = image[:, lo:hi], lo
+        found = []
+        for fov in fovs:
+            edges, mask = view_edges(px_per_deg, float(fov))
+            for pitch in pitches:
+                tpl, tpl_mask, _ = view_template(edges, mask, float(fov), float(pitch), px_per_deg)
+                if tpl.shape[0] >= image.shape[0] or tpl.shape[1] >= image.shape[1] or tpl_mask.sum() < 100:
+                    continue
+                ncc = masked_ncc(image, tpl, tpl_mask)
+                peak = int(np.argmax(ncc))
+                row, col = divmod(peak, ncc.shape[1])
+                centre = (offset + col + (tpl.shape[1] - 1) / 2) * pano_px_per_deg / px_per_deg
+                # Best score per panorama column, for the uniqueness check.
+                profile = np.full(image.shape[1] + offset, -1.0)
+                cols = offset + np.arange(ncc.shape[1]) + (tpl.shape[1] - 1) // 2
+                profile[cols] = ncc.max(axis=0)
+                found.append((float(ncc[row, col]), float(fov), float(pitch), centre, profile))
+        found.sort(key=lambda item: -item[0])
+        return found
+
+    coarse = scan(
+        MATCH_PX_PER_DEG, np.arange(fov_range[0], fov_range[1] + 0.1, 4.0), np.arange(-16, 17, 4), None
+    )
+    score, fov, pitch, centre, _ = coarse[0]
+    profiles = np.max([item[4] for item in coarse], axis=0)
+    columns_deg = np.arange(profiles.size) / MATCH_PX_PER_DEG
+    far = profiles[np.abs(columns_deg - centre / pano_px_per_deg) > UNIQUE_SEPARATION_DEG]
+    alternative = float(far.max()) if far.size else -1.0
+    window = (centre - (fov / 2 + 8) * pano_px_per_deg, centre + (fov / 2 + 8) * pano_px_per_deg)
+    fine = scan(
+        MATCH_FINE_PX_PER_DEG, np.arange(fov - 4, fov + 4.1, 1.0), np.arange(pitch - 4, pitch + 4.1, 1.0), window
+    )
+    if fine and fine[0][0] >= score - 0.05:
+        _, fov, pitch, centre, _ = fine[0]
+    return ViewMatch(
+        float(pano_pose.azimuth(np.array([centre]), panorama.width)[0]), fov, pitch, score, alternative, centre
+    )
+
+
+def feratel_station(camera: dict[str, Any]) -> str | None:
+    query = urllib.parse.urlparse(camera.get("position_source") or "").query
+    values = urllib.parse.parse_qs(query).get("cam")
+    return values[0] if values else None
+
+
+def station_panoramas(station: str, saved_dir: Path) -> tuple[float, list[tuple[datetime, str]]]:
+    """Panorama span in degrees and the archived panoramas (UTC capture time, URL)
+    listed on the station's player page; the page is saved so a rerun sees the same list."""
+    import re
+    from zoneinfo import ZoneInfo
+
+    page_path = saved_dir / f"player_{station}.html"
+    if page_path.exists():
+        page = page_path.read_text(encoding="utf-8")
+    else:
+        page = fetch(FERATEL_PLAYER_URL.format(station=station))[0].decode("utf-8", "replace")
+        saved_dir.mkdir(parents=True, exist_ok=True)
+        page_path.write_text(page, encoding="utf-8")
+    span = re.search(r"let degrees = (\d+(?:\.\d+)?);", page)
+    if not span:
+        raise ValueError(f"no panorama span on the player page of station {station}")
+    local = ZoneInfo(FERATEL_TZ)
+    panoramas = []
+    for url in re.findall(r'url: "(https://arch\.feratel\.com/[^"]+/pano/PA-[^"]+)"', page):
+        stamp = re.search(r"PA-(\d{4})-(\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)\.jpeg", url)
+        if stamp:
+            year, month, day, hour, minute, second = (int(g) for g in stamp.groups())
+            when = datetime(year, month, day, hour, minute, second, tzinfo=local).astimezone(timezone.utc)
+            panoramas.append((when, url))
+    return float(span.group(1)), sorted(set(panoramas))
+
+
+def load_panorama(url: str, saved: Path) -> Image.Image | None:
+    if not saved.exists():
+        try:
+            body, _ = fetch(url)
+        except (urllib.error.URLError, TimeoutError) as error:
+            print(f"  panorama fetch failed: {url}: {error}", file=sys.stderr)
+            return None
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        saved.write_bytes(body)
+    try:
+        return Image.open(saved).convert("RGB")
+    except OSError:
+        return None
+
+
 def fetch(url: str, timeout: float = 60.0) -> tuple[bytes, str | None]:
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -669,7 +1025,8 @@ def judge(fit: Fit, skyline_fraction: float, tolerance_px: float, spread_deg: fl
 
 def list_cameras(sources: dict[str, Any]) -> list[dict[str, Any]]:
     """Every camera the ingest lists, read fresh from the providers (positions and image URLs)."""
-    bbox = tuple(float(value) for value in sources["region"]["bbox"])
+    west, south, east, north = (float(value) for value in sources["region"]["bbox"])
+    bbox = (west, south, east, north)
     cameras: list[dict[str, Any]] = []
     for source in sources["sources"]:
         if not source.get("enabled", True):
@@ -677,14 +1034,18 @@ def list_cameras(sources: dict[str, Any]) -> list[dict[str, Any]]:
         if source["type"] == "datex2":
             xml = fetch_bytes(source["url"])
             cameras += parse_datex_cameras(
-                xml, bbox, source["url"], source["attribution"], source.get("provider", source["id"])  # type: ignore[arg-type]
+                xml,
+                bbox,
+                source["url"],
+                source["attribution"],
+                source.get("provider", source["id"]),
             )
         elif source["type"] == "static":
-            cameras += static_cameras(source, bbox)  # type: ignore[arg-type]
+            cameras += static_cameras(source, bbox)
     return cameras
 
 
-def load_frame(url: str, saved: Path) -> tuple[bytes, str | None, str | None]:
+def load_frame(url: str, saved: Path, provider: str) -> tuple[bytes, str | None, str | None]:
     """Frame bytes, Last-Modified and why it is unusable (None if usable).
 
     The frame is saved next to its response metadata so a rerun scores the same
@@ -698,12 +1059,494 @@ def load_frame(url: str, saved: Path) -> tuple[bytes, str | None, str | None]:
         response = fetch_image(url)
     except (urllib.error.URLError, TimeoutError) as error:
         return b"", None, f"fetch failed: {error}"
-    problem = image_problem(response)
+    problem = image_problem(response, provider)
     saved.parent.mkdir(parents=True, exist_ok=True)
     saved.write_bytes(response.body)
     meta = {"url": url, "last_modified": response.last_modified, "problem": problem}
     meta_path.write_text(json.dumps(meta), encoding="utf-8")
     return response.body, response.last_modified, problem
+
+
+def panorama_image(
+    panorama: Image.Image,
+    skyline: tuple[np.ndarray, np.ndarray],
+    fit: PanoFit,
+    peaks: list[dict[str, Any]],
+    views: list[tuple[str, ViewMatch]],
+    title: list[str],
+    path: Path,
+) -> None:
+    """Panorama with the voted photo skyline (cyan), the rendered DEM skyline at the
+    fitted pose (magenta), azimuth ticks, named peaks and where each view was found."""
+    width, height = panorama.size
+    scale = 2400 / width
+    photo = panorama.convert("RGB").resize((2400, round(height * scale)), Image.Resampling.BILINEAR)
+    header = 30 * len(title) + 16
+    canvas = Image.new("RGB", (2400, photo.height + header), (20, 20, 20))
+    canvas.paste(photo, (0, header))
+    draw = ImageDraw.Draw(canvas)
+    for i, line in enumerate(title):
+        draw.text((12, 8 + 30 * i), line, fill=(240, 240, 240), font=font(22))
+    columns, rows = skyline
+    for c, r in zip(columns, rows):
+        draw.ellipse(
+            (c * scale - 1.5, header + r * scale - 1.5, c * scale + 1.5, header + r * scale + 1.5), fill=(0, 230, 255)
+        )
+    line_columns = np.arange(0.0, width, 2.0)
+    azimuth = fit.pose.azimuth(line_columns, width)
+    rendered, _ = fit.horizon.at(azimuth)
+    line_rows = fit.pose.row(azimuth, rendered, width)
+    draw.line([(c * scale, header + r * scale) for c, r in zip(line_columns, line_rows)], fill=(255, 0, 200), width=3)
+    for tick in range(0, 360, 10):
+        column = float(fit.pose.column(np.array([tick]), width)[0])
+        if 0 <= column < width:
+            draw.line([(column * scale, header), (column * scale, header + 18)], fill=(255, 255, 255), width=2)
+            draw.text(
+                (column * scale + 3, header + 18),
+                f"{tick}",
+                fill=(255, 255, 255),
+                font=font(18),
+                stroke_width=2,
+                stroke_fill=(0, 0, 0),
+            )
+    for peak in peaks:
+        column = float(fit.pose.column(np.array([peak["azimuth"]]), width)[0])
+        if not 0 <= column < width:
+            continue
+        row = float(fit.pose.row(np.array([peak["azimuth"]]), np.array([peak["elevation_deg"]]), width)[0])
+        cx, cy = column * scale, header + row * scale
+        draw.line([(cx, cy), (cx, cy - 40)], fill=(255, 230, 0), width=2)
+        draw.text(
+            (cx + 4, cy - 62),
+            f"{peak['name']} ({peak['distance_m'] / 1000:.1f} km)",
+            fill=(255, 230, 0),
+            font=font(18),
+            stroke_width=2,
+            stroke_fill=(0, 0, 0),
+        )
+    bottom = header + photo.height - 40
+    for label, match in views:
+        half = match.fov / 2 * width / fit.pose.span * scale
+        cx = match.pano_column * scale
+        draw.rectangle((cx - half, bottom - 60, cx + half, bottom), outline=(120, 255, 120), width=3)
+        draw.text(
+            (cx - half + 6, bottom - 56),
+            label,
+            fill=(120, 255, 120),
+            font=font(20),
+            stroke_width=2,
+            stroke_fill=(0, 0, 0),
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(path, quality=88)
+
+
+def settle_station(
+    dem: Dem,
+    station: str,
+    views: list[tuple[dict[str, Any], dict[str, Any], Image.Image, str | None]],
+    masks_of: dict[str, tuple[tuple[float, float, float, float], ...]],
+    peaks: list[dict[str, Any]],
+    args: argparse.Namespace,
+) -> dict[str, Any]:
+    """Bearings of a feratel station's views through its panorama.
+
+    1. The day's daylight panoramas (one per hour) are each fitted to the DEM
+       skyline with a cylindrical pose. They are pixel-aligned (the stitch does
+       not move between captures), so one pose maps every panorama column to an
+       azimuth. The most distinct fit is checked like a single view (residual,
+       uniqueness, position test) with 200 degrees of skyline instead of 30, and
+       at least PANORAMA_MIN_AGREEING other frames must land on the same centre.
+    2. Each view is located in the panorama of its own capture cycle by masked
+       cross-correlation of edge maps; the column gives the bearing.
+    3. The view's own skyline, refined against the DEM from that pose, must stay
+       within VIEW_AGREEMENT_DEG of it and inside the residual tolerance.
+    """
+    from zoneinfo import ZoneInfo
+
+    record: dict[str, Any] = {"station": station}
+    first = views[0][0]
+    x, y = to_utm(first["longitude"], first["latitude"])
+    ground = float(dem.sample(np.array([x]), np.array([y]))[0])
+
+    def unsettle_all(reason: str) -> dict[str, Any]:
+        record["reason"] = reason
+        for _, entry, _, _ in views:
+            entry["panorama"] = {"station": station, "reason": reason}
+            entry["reason"] = f"station panorama: {reason}"
+        print(f"station {station}: unsettled, {reason}", file=sys.stderr)
+        return record
+
+    saved_dir = args.frames_dir / "panoramas" / station
+    try:
+        span, listed = station_panoramas(station, saved_dir)
+    except (urllib.error.URLError, TimeoutError, ValueError) as error:
+        return unsettle_all(f"player page unavailable: {error}")
+    local = ZoneInfo(FERATEL_TZ)
+    hourly: dict[tuple[Any, int], tuple[datetime, str]] = {}
+    for when, url in listed:
+        stamp = when.astimezone(local)
+        if stamp.hour in PANORAMA_HOURS:
+            hourly.setdefault((stamp.date(), stamp.hour), (when, url))
+    voters: list[tuple[datetime, Image.Image]] = []
+    for when, url in hourly.values():
+        image = load_panorama(url, saved_dir / url.split("?")[0].rsplit("/", 1)[-1])
+        if image is not None:
+            voters.append((when, image))
+    if voters:
+        sizes = [image.size for _, image in voters]
+        common = max(set(sizes), key=sizes.count)
+        voters = [(when, image) for when, image in voters if image.size == common]
+    if len(voters) < PANORAMA_MIN_FRAMES:
+        return unsettle_all(f"only {len(voters)} daylight panoramas archived (needs {PANORAMA_MIN_FRAMES})")
+    width = voters[0][1].width
+    fitted: list[tuple[datetime, Image.Image, np.ndarray, np.ndarray, PanoFit, float, float]] = []
+    # Per-frame fits are slow (three camera heights), so they are kept next to
+    # the saved panoramas and reused on a rerun of the same frames.
+    fits_path = saved_dir / "fits.json"
+    saved_fits: dict[str, Any] = json.loads(fits_path.read_text(encoding="utf-8")) if fits_path.exists() else {}
+    for when, image in voters:
+        frame_columns, frame_rows = extract_skyline(image, ())
+        keep = np.isfinite(frame_rows)
+        if keep.mean() < MIN_SKYLINE_FRACTION:
+            continue
+        key = f"{when.isoformat()} {x:.1f} {y:.1f}"
+        if key in saved_fits:
+            known = saved_fits[key]
+            frame_fit = PanoFit(
+                PanoPose(**known["pose"]),
+                known["height_m"],
+                known["cost_px"],
+                known["alternative_cost_px"],
+                render_horizon(dem, x, y, ground + known["height_m"]),
+            )
+        else:
+            frame_fit = fit_panorama(dem, x, y, ground, frame_columns[keep], frame_rows[keep], width, span)
+            saved_fits[key] = {
+                "pose": frame_fit.pose.__dict__,
+                "height_m": frame_fit.height_m,
+                "cost_px": frame_fit.cost_px,
+                "alternative_cost_px": frame_fit.alternative_cost_px,
+            }
+            fits_path.write_text(json.dumps(saved_fits, indent=1), encoding="utf-8")
+        _, frame_distances = frame_fit.horizon.at(frame_fit.pose.azimuth(frame_columns[keep], width))
+        frame_distance = float(np.median(frame_distances))
+        frame_tolerance = (
+            math.atan2(DEM_RESOLUTION_M, frame_distance) * width / math.radians(frame_fit.pose.span)
+            + 2 * width / WORK_WIDTH
+        )
+        fitted.append((when, image, frame_columns[keep], frame_rows[keep], frame_fit, frame_tolerance, frame_distance))
+        print(
+            f"  panorama {when.isoformat()}: centre {frame_fit.pose.centre_az:.2f} residual {frame_fit.cost_px:.1f}"
+            f"/{frame_tolerance:.1f} px unique x{frame_fit.alternative_cost_px / max(frame_fit.cost_px, 1e-6):.2f}",
+            file=sys.stderr,
+        )
+    if not fitted:
+        return unsettle_all("no daylight panorama shows enough skyline")
+
+    def uniqueness(item: tuple[datetime, Image.Image, np.ndarray, np.ndarray, PanoFit, float, float]) -> float:
+        return item[4].alternative_cost_px / max(item[4].cost_px, 1e-6)
+
+    # The reference is the frame whose fit is most distinct; the other frames,
+    # lit and clouded differently, must land on the same centre for it to count.
+    within = [item for item in fitted if item[4].cost_px <= item[5]]
+    reference = max(within or fitted, key=uniqueness)
+    _, best_image, columns, rows, fit, tolerance, median_distance = reference
+    agreeing = [
+        item
+        for item in fitted
+        if item is not reference and angular_gap(item[4].pose.centre_az, fit.pose.centre_az) <= PANORAMA_AGREEMENT_DEG
+    ]
+    ratio = uniqueness(reference)
+    spread: float | None = None
+    consistent: int | None = None
+    if fit.cost_px > tolerance:
+        reason: str | None = f"skyline residual {fit.cost_px:.1f} px exceeds {tolerance:.1f} px"
+    elif ratio < UNIQUE_RATIO:
+        reason = (
+            f"not unique: a centre azimuth more than {UNIQUE_SEPARATION_DEG:.0f} deg away fits {ratio:.1f}x as well"
+            f" (needs {UNIQUE_RATIO:.0f}x)"
+        )
+    elif len(agreeing) < PANORAMA_MIN_AGREEING:
+        reason = (
+            f"only {len(agreeing)} other panoramas land within {PANORAMA_AGREEMENT_DEG} deg of the best one"
+            f" (needs {PANORAMA_MIN_AGREEING})"
+        )
+    else:
+        spread, consistent = panorama_position_spread(dem, x, y, fit, columns, rows, width, span)
+        reason = (
+            f"centre azimuth moves {spread:.1f} deg when the camera moves {POSITION_TOLERANCE_M:.0f} m"
+            if spread > SPREAD_MEDIUM_DEG
+            else None
+        )
+    station_confidence = "unsettled" if reason else ("high" if (spread or 0.0) <= SPREAD_HIGH_DEG else "medium")
+    record.update(
+        {
+            "published_span_deg": span,
+            "reference_panorama": reference[0].isoformat(),
+            "panorama_centres_deg": {item[0].isoformat(): round(item[4].pose.centre_az, 2) for item in fitted},
+            "agreeing_panoramas": len(agreeing),
+            "centre_azimuth_deg": round(fit.pose.centre_az, 2),
+            "span_deg": round(fit.pose.span, 2),
+            "vertical_scale": round(fit.pose.vscale, 3),
+            "tilt_deg": round(fit.pose.tilt, 2),
+            "camera_height_m": fit.height_m,
+            "residual_px": round(fit.cost_px, 1),
+            "tolerance_px": round(tolerance, 1),
+            "uniqueness_ratio": round(ratio, 2),
+            "position_spread_deg": None if spread is None else round(spread, 2),
+            "consistent_shifted_positions": consistent,
+            "median_skyline_distance_km": round(median_distance / 1000, 2),
+            "confidence": station_confidence,
+        }
+    )
+    if reason:
+        record["reason"] = reason
+    print(
+        f"station {station}: {station_confidence}{': ' + reason if reason else ''} centre {fit.pose.centre_az:.2f}"
+        f" span {fit.pose.span:.2f} residual {fit.cost_px:.1f}/{tolerance:.1f} px unique x{ratio:.2f} spread {spread}",
+        file=sys.stderr,
+    )
+
+    camera_z = ground + fit.height_m
+    on_skyline = visible_peaks(dem, x, y, camera_z, fit.horizon, peaks)
+    found: list[tuple[str, ViewMatch]] = []
+    for camera, entry, photo, captured in views:
+        camera_id = camera["id"]
+        view_record: dict[str, Any] = {"station": station, "station_confidence": station_confidence}
+        entry["panorama"] = view_record
+        if reason:
+            view_record["reason"] = reason
+            entry["reason"] = f"station panorama: {reason}"
+            continue
+        captured_at = datetime.fromisoformat(captured) if captured else None
+        cycle = (
+            min(listed, key=lambda item: abs((item[0] - captured_at).total_seconds()))
+            if captured_at and listed
+            else None
+        )
+        if (
+            cycle is None
+            or captured_at is None
+            or abs((cycle[0] - captured_at).total_seconds()) > SAME_CYCLE_MINUTES * 60
+        ):
+            view_record["reason"] = f"no panorama within {SAME_CYCLE_MINUTES} min of the frame"
+            entry["reason"] = f"station panorama: {view_record['reason']}"
+            continue
+        same_cycle = load_panorama(cycle[1], saved_dir / cycle[1].split("?")[0].rsplit("/", 1)[-1])
+        if same_cycle is None or same_cycle.width != width:
+            view_record["reason"] = "the same-cycle panorama could not be read"
+            entry["reason"] = f"station panorama: {view_record['reason']}"
+            continue
+        match = locate_view(photo, masks_of[camera_id], same_cycle, fit.pose)
+        found.append((camera_id.split("-", 1)[1], match))
+        skyline = extract_skyline(photo, masks_of[camera_id])
+        valid = np.isfinite(skyline[1])
+        fraction = float(valid.mean())
+        view_w, view_h = photo.size
+        start = Pose(
+            match.bearing,
+            float(np.clip(match.fov, *FOV_RANGE_DEG)),
+            float(np.clip(match.pitch, *PITCH_RANGE_DEG)),
+            0.0,
+        )
+        pose, cost = (
+            refine(fit.horizon, skyline[0][valid], skyline[1][valid], view_w, view_h, start)
+            if fraction >= MIN_SKYLINE_FRACTION
+            else (start, math.inf)
+        )
+        view_az, _ = pixel_rays(skyline[0][valid], skyline[1][valid], view_w, view_h, pose)
+        _, view_distances = fit.horizon.at(view_az) if view_az.size else (None, np.array([median_distance]))
+        view_distance = float(np.median(view_distances))
+        view_tolerance = (
+            math.atan2(DEM_RESOLUTION_M, view_distance) * focal_length(view_w, pose.fov) + 2 * view_w / WORK_WIDTH
+        )
+        agreement = float(angular_gap(pose.bearing, match.bearing))
+        margin = match.score - match.alternative_score
+        if fraction < MIN_SKYLINE_FRACTION:
+            view_reason: str | None = (
+                f"view skyline found in only {fraction:.0%} of the columns, nothing to confirm the match"
+            )
+        elif margin < MATCH_MARGIN:
+            view_reason = (
+                f"panorama match not unique: a position more than {UNIQUE_SEPARATION_DEG:.0f} deg away scores"
+                f" {match.alternative_score:.2f} against {match.score:.2f} (needs {MATCH_MARGIN} lower)"
+            )
+        elif cost > view_tolerance:
+            view_reason = f"view skyline residual {cost:.1f} px exceeds {view_tolerance:.1f} px at the matched pose"
+        elif agreement > VIEW_AGREEMENT_DEG:
+            view_reason = (
+                f"view skyline moves the matched bearing by {agreement:.1f} deg (allowed {VIEW_AGREEMENT_DEG})"
+            )
+        elif not (FOV_RANGE_DEG[0] + 1.0 < pose.fov < FOV_RANGE_DEG[1] - 1.0):
+            view_reason = f"field of view {pose.fov:.1f} deg at the edge of the searched range"
+        else:
+            view_reason = None
+        confidence = "unsettled" if view_reason else station_confidence
+        in_view = [p for p in on_skyline if angular_gap(p["azimuth"], pose.bearing) <= pose.fov / 2]
+        view_record.update(
+            {
+                "same_cycle_panorama": cycle[0].isoformat(),
+                "matched_bearing_deg": round(match.bearing, 1),
+                "matched_fov_deg": round(match.fov, 1),
+                "match_score": round(match.score, 3),
+                "match_alternative_score": round(match.alternative_score, 3),
+                "bearing_deg": round(pose.bearing, 1),
+                "fov_deg": round(pose.fov, 1),
+                "pitch_deg": round(pose.pitch, 2),
+                "roll_deg": round(pose.roll, 2),
+                "view_residual_px": None if math.isinf(cost) else round(cost, 1),
+                "view_tolerance_px": round(view_tolerance, 1),
+                "skyline_agreement_deg": round(agreement, 2),
+                "skyline_columns": round(fraction, 3),
+                "median_skyline_distance_km": round(view_distance / 1000, 2),
+                "peaks_in_view": [
+                    f"{p['name']} ({p['distance_m'] / 1000:.1f} km, OSM node {p['osm_id']})" for p in in_view
+                ],
+            }
+        )
+        image_name = f"{camera_id}.jpg"
+        entry.setdefault("comparison_images", []).append(image_name)
+        if view_reason:
+            view_record["reason"] = view_reason
+            entry["reason"] = f"station panorama: {view_reason}"
+        else:
+            entry.pop("reason", None)
+            entry["method"] = "station panorama"
+            entry["confidence"] = confidence
+            entry["bearing_deg"] = view_record["bearing_deg"]
+            entry["fov_deg"] = view_record["fov_deg"]
+            entry["range_km"] = view_record["median_skyline_distance_km"]
+        verdict = confidence + (f": {view_reason}" if view_reason else "")
+        comparison_image(
+            photo,
+            skyline,
+            Fit(pose, fit.height_m, cost, math.inf, fit.horizon),
+            in_view,
+            [
+                f"{camera_id}  {camera.get('name', '')}  frame {captured}",
+                f"panorama {station}: matched bearing {match.bearing:.1f} fov {match.fov:.0f} (ncc {match.score:.2f},"
+                f" next {match.alternative_score:.2f})  ->  skyline refit bearing {pose.bearing:.1f} fov {pose.fov:.1f}"
+                f" residual {cost:.1f}/{view_tolerance:.1f} px",
+                f"cyan: photo skyline   magenta: DEM skyline (GLO-30)   yellow: OSM peaks   -> {verdict}"[:150],
+            ],
+            args.evidence_dir / image_name,
+        )
+        print(
+            f"{camera_id}: panorama {verdict} bearing {pose.bearing:.1f}"
+            f" (matched {match.bearing:.1f}) fov {pose.fov:.1f}",
+            file=sys.stderr,
+        )
+
+    record["image"] = f"station-{station}.jpg"
+    panorama_image(
+        best_image,
+        (columns, rows),
+        fit,
+        on_skyline,
+        found,
+        [
+            f"station {station}  {first.get('location', '')}  {len(fitted)} daylight panoramas fitted,"
+            f" {len(agreeing)} agree with this one,"
+            f" published span {span:.0f} deg",
+            f"centre {fit.pose.centre_az:.2f}  span {fit.pose.span:.2f}  height {fit.height_m:.0f} m  residual"
+            f" {fit.cost_px:.1f}/{tolerance:.1f} px  unique x{ratio:.2f}  spread {record['position_spread_deg']} deg"
+            f"  -> {station_confidence}{': ' + reason if reason else ''}"[:160],
+            "cyan: photo skyline (this frame)   magenta: DEM skyline (GLO-30)   white: azimuth   yellow: OSM peaks"
+            "   green: views found",
+        ],
+        args.evidence_dir / record["image"],
+    )
+    return record
+
+
+def single_view(
+    dem: Dem,
+    camera: dict[str, Any],
+    entry: dict[str, Any],
+    photo: Image.Image,
+    captured: str | None,
+    masks: tuple[tuple[float, float, float, float], ...],
+    peaks: list[dict[str, Any]],
+    evidence_dir: Path,
+) -> None:
+    """The view's own skyline against the DEM over all bearings (used when the station panorama does not settle it)."""
+    camera_id = camera["id"]
+    x, y = to_utm(camera["longitude"], camera["latitude"])
+    ground = float(dem.sample(np.array([x]), np.array([y]))[0])
+    skyline = extract_skyline(photo, masks)
+    width, height = photo.size
+    valid = np.isfinite(skyline[1])
+    fraction = float(valid.mean())
+    columns = skyline[0][valid]
+    rows = skyline[1][valid]
+    if fraction < MIN_SKYLINE_FRACTION:
+        entry["reason"] = f"photo skyline found in only {fraction:.0%} of the columns"
+        print(f"{camera_id}: unsettled, {entry['reason']}", file=sys.stderr)
+        return
+    fit = fit_camera(dem, x, y, ground, columns, rows, width, height)
+    azimuth, _ = pixel_rays(columns, rows, width, height, fit.pose)
+    _, distances = fit.horizon.at(azimuth)
+    median_distance = float(np.median(distances))
+    cell_deg = float(np.degrees(np.arctan2(DEM_RESOLUTION_M, median_distance)))
+    tolerance = cell_deg * focal_length(width, fit.pose.fov) * math.pi / 180 + 2 * width / WORK_WIDTH
+    # The position test is slow; it only matters for a fit that passes the other checks.
+    passes = judge(fit, fraction, tolerance, 0.0)[0] != "unsettled"
+    spread, consistent_positions = (
+        position_spread(dem, x, y, fit, columns, rows, width, height) if passes else (None, None)
+    )
+    confidence, reason = judge(fit, fraction, tolerance, spread)
+    camera_z = ground + fit.height_m
+    on_skyline = visible_peaks(dem, x, y, camera_z, fit.horizon, peaks)
+    in_view = [p for p in on_skyline if angular_gap(p["azimuth"], fit.pose.bearing) <= fit.pose.fov / 2]
+    fit_record = {
+        "bearing_deg": round(fit.pose.bearing, 1),
+        "fov_deg": round(fit.pose.fov, 1),
+        "pitch_deg": round(fit.pose.pitch, 2),
+        "roll_deg": round(fit.pose.roll, 2),
+        "camera_height_m": fit.height_m,
+        "residual_px": round(fit.cost_px, 1),
+        "tolerance_px": round(tolerance, 1),
+        "uniqueness_ratio": round(fit.alternative_cost_px / max(fit.cost_px, 1e-6), 2),
+        "position_spread_deg": None if spread is None else round(spread, 2),
+        "consistent_shifted_positions": consistent_positions,
+        "skyline_columns": round(fraction, 3),
+        "median_skyline_distance_km": round(median_distance / 1000, 2),
+        "peaks_in_view": [f"{p['name']} ({p['distance_m'] / 1000:.1f} km, OSM node {p['osm_id']})" for p in in_view],
+    }
+    entry["fit"] = fit_record
+    entry["confidence"] = confidence
+    image_name = f"{camera_id}-own-skyline.jpg"
+    entry.setdefault("comparison_images", []).append(image_name)
+    if reason:
+        entry["reason"] = "; ".join(filter(None, [entry.get("reason"), f"own skyline: {reason}"]))
+    else:
+        entry.pop("reason", None)
+        entry["method"] = "own skyline"
+        entry["bearing_deg"] = fit_record["bearing_deg"]
+        entry["fov_deg"] = fit_record["fov_deg"]
+        entry["range_km"] = fit_record["median_skyline_distance_km"]
+    verdict = f"{confidence}" + (f": {reason}" if reason else "")
+    comparison_image(
+        photo,
+        skyline,
+        fit,
+        in_view,
+        [
+            f"{camera_id}  {camera.get('name', '')}  frame {captured}",
+            f"bearing {fit.pose.bearing:.1f}  fov {fit.pose.fov:.1f}  pitch {fit.pose.pitch:.1f}"
+            f"  roll {fit.pose.roll:.1f}  height {fit.height_m:.0f} m"
+            f"  residual {fit.cost_px:.1f}/{tolerance:.1f} px  unique x{fit_record['uniqueness_ratio']}"
+            f"  spread {fit_record['position_spread_deg']} deg",
+            f"cyan: photo skyline   magenta: DEM skyline (GLO-30)   yellow: OSM peaks   -> {verdict}"[:150],
+        ],
+        evidence_dir / image_name,
+    )
+    print(
+        f"{camera_id}: own skyline {verdict} bearing {fit.pose.bearing:.1f} fov {fit.pose.fov:.1f}"
+        f" residual {fit.cost_px:.1f}/{tolerance:.1f} px",
+        file=sys.stderr,
+    )
 
 
 def run(args: argparse.Namespace) -> int:
@@ -731,7 +1574,9 @@ def run(args: argparse.Namespace) -> int:
             entry["reason"] = "the provider lists no image URL"
             print(f"{camera_id}: unsettled, no image URL", file=sys.stderr)
             continue
-        body, last_modified, problem = load_frame(url, args.frames_dir / f"{camera_id}.jpg")
+        body, last_modified, problem = load_frame(
+            url, args.frames_dir / f"{camera_id}.jpg", str(camera.get("provider", ""))
+        )
         captured = (
             email.utils.parsedate_to_datetime(last_modified).astimezone(timezone.utc).isoformat()
             if last_modified
@@ -761,103 +1606,44 @@ def run(args: argparse.Namespace) -> int:
     pad = 0.9
     peaks = load_peaks((min(lons) - pad, min(lats) - pad, max(lons) + pad, max(lats) + pad), args.cache_dir)
 
-    for camera, entry, photo, captured in usable:
-        camera_id = camera["id"]
-        x, y = to_utm(camera["longitude"], camera["latitude"])
-        ground = float(dem.sample(np.array([x]), np.array([y]))[0])
-        masks = (
+    masks_of: dict[str, tuple[tuple[float, float, float, float], ...]] = {
+        camera["id"]: (
             FERATEL_MASKS
             if camera.get("provider") == "feratel"
             else PRADOLLANO_MASKS
-            if camera_id in static_ids
+            if camera["id"] in static_ids
             else ()
         )
-        skyline = extract_skyline(photo, masks)
-        width, height = photo.size
-        valid = np.isfinite(skyline[1])
-        fraction = float(valid.mean())
-        columns = skyline[0][valid]
-        rows = skyline[1][valid]
-        if fraction < MIN_SKYLINE_FRACTION:
-            entry["reason"] = f"photo skyline found in only {fraction:.0%} of the columns"
-            print(f"{camera_id}: unsettled, {entry['reason']}", file=sys.stderr)
-            continue
-        fit = fit_camera(dem, x, y, ground, columns, rows, width, height)
-        azimuth, _ = pixel_rays(columns, rows, width, height, fit.pose)
-        _, distances = fit.horizon.at(azimuth)
-        median_distance = float(np.median(distances))
-        cell_deg = float(np.degrees(np.arctan2(DEM_RESOLUTION_M, median_distance)))
-        tolerance = cell_deg * focal_length(width, fit.pose.fov) * math.pi / 180 + 2 * width / WORK_WIDTH
-        # The position test is slow; it only matters for a fit that passes the other checks.
-        passes = judge(fit, fraction, tolerance, 0.0)[0] != "unsettled"
-        spread, consistent_positions = (
-            position_spread(dem, x, y, fit, columns, rows, width, height) if passes else (None, None)
-        )
-        confidence, reason = judge(fit, fraction, tolerance, spread)
-        camera_z = ground + fit.height_m
-        on_skyline = visible_peaks(dem, x, y, camera_z, fit.horizon, peaks)
-        in_view = [p for p in on_skyline if angular_gap(p["azimuth"], fit.pose.bearing) <= fit.pose.fov / 2]
-        fit_record = {
-            "bearing_deg": round(fit.pose.bearing, 1),
-            "fov_deg": round(fit.pose.fov, 1),
-            "pitch_deg": round(fit.pose.pitch, 2),
-            "roll_deg": round(fit.pose.roll, 2),
-            "camera_height_m": fit.height_m,
-            "residual_px": round(fit.cost_px, 1),
-            "tolerance_px": round(tolerance, 1),
-            "uniqueness_ratio": round(fit.alternative_cost_px / max(fit.cost_px, 1e-6), 2),
-            "position_spread_deg": None if spread is None else round(spread, 2),
-            "consistent_shifted_positions": consistent_positions,
-            "skyline_columns": round(fraction, 3),
-            "median_skyline_distance_km": round(median_distance / 1000, 2),
-            "peaks_in_view": [
-                f"{p['name']} ({p['distance_m'] / 1000:.1f} km, OSM node {p['osm_id']})" for p in in_view
-            ],
-        }
-        entry["fit"] = fit_record
-        entry["confidence"] = confidence
-        if reason:
-            entry["reason"] = reason
-        else:
-            entry["bearing_deg"] = fit_record["bearing_deg"]
-            entry["fov_deg"] = fit_record["fov_deg"]
-            entry["range_km"] = fit_record["median_skyline_distance_km"]
-        image_name = f"{camera_id}.jpg"
-        entry["comparison_image"] = image_name
-        verdict = f"{confidence}" + (f": {reason}" if reason else "")
-        comparison_image(
-            photo,
-            skyline,
-            fit,
-            in_view,
-            [
-                f"{camera_id}  {camera.get('name', '')}  frame {captured}",
-                f"bearing {fit.pose.bearing:.1f}  fov {fit.pose.fov:.1f}  pitch {fit.pose.pitch:.1f}"
-                f"  roll {fit.pose.roll:.1f}  height {fit.height_m:.0f} m"
-                f"  residual {fit.cost_px:.1f}/{tolerance:.1f} px  unique x{fit_record['uniqueness_ratio']}"
-                f"  spread {fit_record['position_spread_deg']} deg",
-                f"cyan: photo skyline   magenta: DEM skyline (GLO-30)   yellow: OSM peaks   -> {verdict}"[:150],
-            ],
-            args.evidence_dir / image_name,
-        )
-        print(
-            f"{camera_id}: {verdict} bearing {fit.pose.bearing:.1f} fov {fit.pose.fov:.1f}"
-            f" residual {fit.cost_px:.1f}/{tolerance:.1f} px",
-            file=sys.stderr,
-        )
+        for camera, _, _, _ in usable
+    }
+    by_station: dict[str, list[tuple[dict[str, Any], dict[str, Any], Image.Image, str | None]]] = {}
+    for item in usable:
+        station = feratel_station(item[0]) if item[0].get("provider") == "feratel" else None
+        if station:
+            by_station.setdefault(station, []).append(item)
+    stations: dict[str, Any] = {}
+    for station, views in by_station.items():
+        stations[station] = settle_station(dem, station, views, masks_of, peaks, args)
+    for camera, entry, photo, captured in usable:
+        if entry["bearing_deg"] is None:
+            single_view(dem, camera, entry, photo, captured, masks_of[camera["id"]], peaks, args.evidence_dir)
 
     output = {
         "generated_by": "scripts/webcam_bearing.py",
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "method": (
-            "Bearing, field of view and range from matching the photo skyline to the skyline rendered from the "
-            "Copernicus GLO-30 DEM at the provider position (pinhole camera, curvature and refraction k=0.13). "
+            "Skylines are matched to the skyline rendered from the Copernicus GLO-30 DEM at the provider position "
+            "(curvature and refraction k=0.13). Feratel views: the station's daylight panoramas are fitted jointly "
+            "(cylindrical pose, published span), each view is located in the panorama of its capture cycle by "
+            "edge cross-correlation, and the view's own skyline must confirm the pose (method 'station panorama'). "
+            "Otherwise the view's own skyline is fitted over all bearings (pinhole camera, method 'own skyline'). "
             "range_km is the median distance to the rendered skyline inside the field of view. Unsettled cameras "
-            "have no bearing and wait for a person to confirm one; their fit block is the best candidate, "
-            "not a bearing."
+            "have no bearing and wait for a person to confirm one; their fit blocks are the best candidates, "
+            "not bearings."
         ),
         "dem": "Copernicus DEM GLO-30 (copernicus-dem-30m on AWS Open Data), resampled to 30 m EPSG:32630",
         "peaks": "OpenStreetMap natural=peak via the Overpass API, labels only",
+        "stations": stations,
         "cameras": results,
     }
     args.output.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
