@@ -1,0 +1,86 @@
+pnac_miteco valid True Valid Geometry area km2 858.8289 parts 1
+pnac miteco vs rediam symdiff km2 0.0016
+pnat AND pnac_m km2 0.0000
+my domain km2 1722.3804
+domain vs REDIAM Espacio Natural 8372 area 1722.3804 symdiff km2 0.00006 (0.0000%)
+domain vs MITECO ZEC ES6140004 area 1722.3805 symdiff km2 0.00011 (0.0000%)
+pnat REDIAM vs MITECO ES610001 symdiff km2 0.00014 (0.0000%)
+domain parts 1 holes 5983 hole areas m2 [0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.4, 0.4]
+                id                              name           part  area_km2
+0    sierra-nevada     Espacio Natural Sierra Nevada         domain  1722.380
+1  parque-nacional  Parque Nacional de Sierra Nevada  national_park   858.829
+2   parque-natural   Parque Natural de Sierra Nevada   natural_park   863.551
+domain PR area 1722.3805 mine 1722.3804 symdiff km2 0.01005 (0.0006%) valid True
+national_park PR area 858.8288 mine 858.8289 symdiff km2 0.00857 (0.0010%) valid True
+natural_park PR area 863.5516 mine 863.5515 symdiff km2 0.01755 (0.0020%) valid True
+domain geodesic km2 1723.730
+national_park geodesic km2 859.502
+natural_park geodesic km2 864.228
+  COD_MAR  cod_uni pfafrio                   nom_rio_1 Cuen_Tipo  source_area_km2  domain_area_km2
+0       A   508678   10094            RIO GUADALQUIVIR      None        57077.931          520.725
+1       M   604361  200136   RIO ADRA O GRANDE O VERDE      None          749.391          223.204
+2       M   604370  200138                 RIO ANDARAX      None         2157.284          486.106
+3       M   604456  200134  RIO GUADALFEO O RIO CADIAR      None         1302.072          492.346
+basins valid [True, True, True, True]
+basins union vs domain symdiff km2 0.00001
+pairwise basin overlap m2 0.00
+508678 geom area 520.725 prop 520.725
+604361 geom area 223.204 prop 223.204
+604370 geom area 486.106 prop 486.106
+604456 geom area 492.346 prop 492.346
+{
+ "sources": [
+  {
+   "layer": "Parque Natural Sierra Nevada (peripheral protection zone)",
+   "publisher": "Junta de Andalucia, REDIAM, Espacios Naturales Protegidos de Andalucia (RENPA)",
+   "url": "https://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_RENPA?service=WFS&version=2.0.0&request=GetFeature&typeNames=ms:eennpp",
+   "feature": {
+    "CODIGOESPA": "72",
+    "FIGURA": "Parque Natural",
+    "NOMBRE": "SIERRA NEVADA",
+    "NOR_DECLA": "Ley 2/1989, de 18 de julio (BOJA 60, 27/07/1989)",
+    "NOR_LIM_LI": "Decreto 238/2011, de 12 de julio (BOJA 155, 9/8/2011)"
+   },
+   "retrieved": "2026-11-22",
+   "licence": "REDIAM WFS access constraints: free use provided the authors and owners of the information are cited (Junta de Andalucia, Consejeria de Sostenibilidad y Medio Ambiente, REDIAM)."
+  },
+  {
+   "layer": "Parque Nacional Sierra Nevada",
+   "publisher": "MITECO, Banco de Datos de la Naturaleza, Espacios Naturales Protegidos 2025",
+   "url": "https://www.miteco.gob.es/content/dam/miteco/es/biodiversidad/servicios/banco-datos-naturaleza/enp/Enp2025_shp.zip",
+   "page": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/enp_descargas.html",
+   "sha256": "5bd7d4d2419cd33a059609c6e03d0c0cc3a4b8862883fdce5da00755664dcabe",
+   "feature": {
+    "SITE_NAME": "Sierra Nevada",
+    "ODESIGNATE": "Parque Nacional",
+    "SITE_CODE_": "ES610002",
+    "SITE_CDDA": "389011_CDDA"
+   },
+   "retrieved": "2026-11-22",
+   "licence": "Free use provided the Ministerio para la Transicion Ecologica y el Reto Demografico is cited as author and owner: 'Fuente: Ministerio para la Transicion Ecologica y el Reto Demografico'."
+  },
+  {
+   "layer": "Subcuencas de rios completos clasificadas segun Pfafstetter modificado",
+   "publisher": "MITECO, IDE, cuencas y subcuencas hidrograficas (1:25.000, 14/03/2018)",
+   "page": "https://www.miteco.gob.es/es/cartografia-y-sig/ide/descargas/agua/cuencas-y-subcuencas.html",
+   "files": {
+    "A_cuencas_rios_Atl_Sur.zip": "bdc091bf3c8c3d5eb86e9bef9310667323c7edb8f367a21ca972894dab9d8b00",
+    "M_cuencas_rios_Med_Sur.zip": "ec4e490d4cb498adebb959a4d00eb001dd9e086ca342b0205210224baa57e113"
+   },
+   "retrieved": "2026-11-22",
+   "retrieval_note": "Downloaded through the MITECO download page in a browser (the page has a visitor check); the build reads the clipped copy in data/sources/.",
+   "licence": "Free use provided the Ministerio para la Transicion Ecologica y el Reto Demografico is cited as author and owner: 'Fuente: Ministerio para la Transicion Ecologica y el Reto Demografico'."
+  }
+ ],
+ "area_crs": "EPSG:25830",
+ "areas": {
+  "national_park_km2": 858.829,
+  "national_park_official_km2": 858.83,
+  "national_park_vs_rediam_symmetric_difference_km2": 0.0016,
+  "natural_park_km2": 863.551,
+  "natural_park_official_km2": 863.55,
+  "parks_overlap_km2": 0.0,
+  "domain_km2": 1722.38,
+  "subbasins_domain_area_sum_km2": 1722.381
+ }
+}

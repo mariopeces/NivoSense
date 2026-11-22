@@ -1,0 +1,1 @@
+<ows:AccessConstraints>Este servicio se puede usar de modo libre y gratuito siempre que se mencione a los autores y propietarios de la información

@@ -1,0 +1,16 @@
+source metadata: {"note": "The outermost rivers of MITECO 'Subcuencas de rios completos clasificadas segun Pfafstetter modificado' that touch the domain, clipped to its bounding box plus 1 km. Attributes unchanged. Fuente: Ministerio para la Transicion Ecologica y el Reto Demografico.", "page": "https://www.miteco.gob.es/es/cartografia-y-sig/ide/descargas/agua/cuencas-y-subcuencas.html", "files": {"A_cuencas_rios_Atl_Sur.zip": "bdc091bf3c8c3d5eb86e9bef9310667323c7edb8f367a21ca972894dab9d8b00", "M_cuencas_rios_Med_Sur.zip": "ec4e490d4cb498adebb959a4d00eb001dd9e086ca342b0205210224baa57e113"}, "licence": "Free use provided the Ministerio para la Transicion Ecologica y el Reto Demografico is cited as author and owner: 'Fuente: Ministerio para la Transicion Ecologica y el Reto Demografico'."}
+  COD_MAR  cod_uni pfafrio                   nom_rio_1 Cuen_Tipo    Shape_Area
+0       A   508678   10094            RIO GUADALQUIVIR      None  5.707793e+10
+1       M   604361  200136   RIO ADRA O GRANDE O VERDE      None  7.493906e+08
+2       M   604370  200138                 RIO ANDARAX      None  2.157284e+09
+3       M   604456  200134  RIO GUADALFEO O RIO CADIAR      None  1.302072e+09
+valid [True, True, True, True]
+OLD:   COD_MAR  cod_uni pfafrio                   nom_rio_1 cuen_tipo  Shape_Leng  Shape_Area  area_km2  source_area_km2                    clip_name clip_site_code
+0       A   508678   10094            RIO GUADALQUIVIR      None  649388.322   57077.931   319.171          521.131  Sierra Nevada National Park       ES610002
+1       M   604456  200134  RIO GUADALFEO O RIO CADIAR      None   59469.968    1302.072   303.640          492.727  Sierra Nevada National Park       ES610002
+2       M   604361  200136   RIO ADRA O GRANDE O VERDE      None   25780.861     749.391   113.618          223.382  Sierra Nevada National Park       ES610002
+3       M   604370  200138                 RIO ANDARAX      None   67312.026    2157.284   123.072          486.490  Sierra Nevada National Park       ES610002
+cod 508678 new_x_NP 318.922 old 318.922 symdiff km2 0.0017 (0.001%)
+cod 604456 new_x_NP 303.404 old 303.404 symdiff km2 0.0011 (0.000%)
+cod 604361 new_x_NP 113.528 old 113.528 symdiff km2 0.0008 (0.001%)
+cod 604370 new_x_NP 122.975 old 122.975 symdiff km2 0.0003 (0.000%)

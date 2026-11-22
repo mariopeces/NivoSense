@@ -1,0 +1,7 @@
+domain domain parts 1 part areas km2 [1722.3805] holes 0 hole total m2 0.0 max 0.0 verts 23547
+domain national_park parts 1 part areas km2 [858.8288] holes 0 hole total m2 0.0 max 0.0 verts 38563
+domain natural_park parts 5 part areas km2 [28.3887, 42.5924, 129.8702, 178.6545, 484.0458] holes 0 hole total m2 0.0 max 0.0 verts 50253
+basins 508678 parts 1 part areas km2 [520.7249] holes 0 hole total m2 0.0 max 0.0 verts 19840
+basins 604361 parts 3 part areas km2 [0.0001, 0.0007, 223.2027] holes 0 hole total m2 0.0 max 0.0 verts 7797
+basins 604370 parts 5 part areas km2 [0.0001, 0.0004, 0.002, 0.0095, 486.0939] holes 0 hole total m2 0.0 max 0.0 verts 6368
+basins 604456 parts 1 part areas km2 [492.3461] holes 0 hole total m2 0.0 max 0.0 verts 11416
