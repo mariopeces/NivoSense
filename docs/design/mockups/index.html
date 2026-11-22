@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>NivoSense · maqueta</title>
+<!-- Static mockup for the T4.0 design spec. Serve the repo root (python -m http.server) and open
+     /docs/design/mockups/index.html?s=<screen>. Screens are listed in docs/design/README.md. -->
+<!-- Exact-version assets with SRI. Fonts come from the Fontsource npm packages (OFL): Inter 5.1.0 static
+     400/500/600, and Source Serif 4 variable 5.1.0 with the optical-size axis (the display face is used
+     at 20-36 px, where opsz matters). The variable package names its family 'Source Serif 4 Variable',
+     so the @font-face below re-declares it as 'Source Serif 4', the name in tokens.json. A woff2 loaded from
+     @font-face cannot carry an integrity attribute; its URL is version-pinned and its sha384 is
+     BSjZskImWozK6uRygc0H/jJ3ILs9aRmLwZuMxjiI0wFHVaQgSU/q8DfnyyFyP/T8
+     T4.1 installs the same package versions from npm and self-hosts them. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/latin-400.css" integrity="sha384-zc+mzApNgdFM05uzzG/c/4wVZ4LHLa0ZrZyeZYh4tq7GukSAQ2T6xYGTgE+mssl6" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/latin-500.css" integrity="sha384-qQNBh9lqouy2cYDoo4juNJA13aqnsp9d2wUELHHjfCqCJR7HR0DbgamXRvSWXuH/" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/latin-600.css" integrity="sha384-sIxfdbMxNyRS8ALLKQtuDA2c/167yRmp3egSBaxjFVG167V3b1JFy7HPQdrxziBJ" crossorigin="anonymous">
+<style>
+@font-face {
+  font-family: 'Source Serif 4'; font-style: normal; font-display: swap; font-weight: 200 900;
+  src: url(https://cdn.jsdelivr.net/npm/@fontsource-variable/source-serif-4@5.1.0/files/source-serif-4-latin-opsz-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
+<link href="app.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" integrity="sha384-ieG+IKD0d/ZPXyCBTMVAbqsQdns8QGJR/e26WMw7M4fkaI/rHcS/YIoi+ah9WGge" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="app" id="app">
+  <div id="map" role="region" aria-label="Mapa"></div>
+  <nav class="rail" aria-label="Secciones">
+    <div class="mark" title="NivoSense" aria-hidden="true">N</div>
+    <button class="rail-btn" data-section="nieve"><i data-lucide="snowflake"></i><span data-copy="rail.nieve"></span></button>
+    <button class="rail-btn" data-section="agua"><i data-lucide="droplets"></i><span data-copy="rail.agua"></span></button>
+    <button class="rail-btn" data-section="webcams"><i data-lucide="cctv"></i><span data-copy="rail.webcams"></span></button>
+    <button class="rail-btn" data-section="meteo"><i data-lucide="cloud-sun-rain"></i><span data-copy="rail.meteo"></span></button>
+    <button class="rail-btn" data-section="metodo"><i data-lucide="book-open-text"></i><span data-copy="rail.metodo"></span></button>
+    <div class="rail-spacer"></div>
+    <div class="rail-sep"></div>
+    <button class="rail-btn foot"><i data-lucide="map"></i><span data-copy="rail.mapa_base"></span></button>
+    <button class="rail-btn foot"><i data-lucide="mountain"></i><span data-copy="rail.relieve_3d"></span></button>
+    <button class="rail-btn foot" id="collapse"><i data-lucide="panel-left-close"></i><span data-copy="rail.ocultar_panel"></span></button>
+  </nav>
+  <aside class="panel" id="panel" aria-label="Panel">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="panel-head">
+      <div class="eyebrow" id="eyebrow"></div>
+      <h1 class="title" id="ptitle"></h1>
+      <p class="subtitle" id="psub"></p>
+    </div>
+    <div class="panel-body" id="pbody"></div>
+  </aside>
+  <div class="map-controls" aria-label="Controles del mapa">
+    <button data-copy-label="mapa.acercar"><i data-lucide="plus"></i></button>
+    <button data-copy-label="mapa.alejar"><i data-lucide="minus"></i></button>
+    <button data-copy-label="mapa.norte"><i data-lucide="compass"></i></button>
+  </div>
+  <div class="attribution" id="attribution"></div>
+  <div id="overlays"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

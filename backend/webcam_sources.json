@@ -9,7 +9,216 @@
       "type": "datex2",
       "url": "https://nap.dgt.es/datex2/v3/dgt/DevicePublication/camaras_datex2_v37.xml",
       "attribution": "Dirección General de Tráfico (DGT)",
+      "provider": "DGT",
       "enabled": true
+    },
+    {
+      "id": "cetursa",
+      "type": "static",
+      "url": "https://sierranevada.es/es/webcams/",
+      "attribution": "Imagen: Cetursa Sierra Nevada / feratel",
+      "position_source_note": "feratel positions are infolat/infolong in the webtv.feratel.com player page; it answers 404 unless the request carries a browser User-Agent and a https://sierranevada.es/ Referer.",
+      "enabled": true,
+      "cameras": [
+        {
+          "id": "cetursa-pradollano-c1",
+          "name": "Pradollano, 2.100m",
+          "location": "Pradollano",
+          "provider": "Cetursa Sierra Nevada",
+          "latitude": null,
+          "longitude": null,
+          "position_source": null,
+          "thumbnail_url": "https://recursos.sierranevada.es/_extras/fotos_camaras/pradollano/snap_c1.jpg",
+          "large_url": "https://recursos.sierranevada.es/_extras/fotos_camaras/pradollano/snap_c1.jpg"
+        },
+        {
+          "id": "cetursa-15110-2",
+          "name": "Ts. Laguna Inferior",
+          "location": "Zona Laguna",
+          "provider": "feratel",
+          "latitude": 37.058909,
+          "longitude": -3.39374,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15110&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15110/2.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15110/2.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15110-4",
+          "name": "La Trucha - Laguna",
+          "location": "Zona Laguna",
+          "provider": "feratel",
+          "latitude": 37.058909,
+          "longitude": -3.39374,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15110&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15110/4.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15110/4.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15111-0",
+          "name": "Pista La Visera, 2.750m",
+          "location": "Zona Borreguiles",
+          "provider": "feratel",
+          "latitude": 37.071122,
+          "longitude": -3.389411,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15111&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15111/0.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15111/0.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15111-1",
+          "name": "Desde Borreguiles, 2.650m",
+          "location": "Zona Borreguiles",
+          "provider": "feratel",
+          "latitude": 37.071122,
+          "longitude": -3.389411,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15111&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15111/1.jpeg?&ap=1&design=v3",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15111/1.jpeg?&ap=1&design=v3"
+        },
+        {
+          "id": "cetursa-15111-2",
+          "name": "Pistas Granados - Morillas, 2.800m",
+          "location": "Zona Borreguiles",
+          "provider": "feratel",
+          "latitude": 37.071122,
+          "longitude": -3.389411,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15111&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15111/2.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15111/2.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15111-3",
+          "name": "Pistas Rebeco y Zorro, 2.900m",
+          "location": "Zona Borreguiles",
+          "provider": "feratel",
+          "latitude": 37.071122,
+          "longitude": -3.389411,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15111&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15111/3.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15111/3.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15111-4",
+          "name": "Jardín Alpino - Alfombras",
+          "location": "Zona Borreguiles",
+          "provider": "feratel",
+          "latitude": 37.071122,
+          "longitude": -3.389411,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15111&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15111/4.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15111/4.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15112-0",
+          "name": "Ts. Veleta Superior, 3.030m",
+          "location": "Zona Veleta",
+          "provider": "feratel",
+          "latitude": 37.062669,
+          "longitude": -3.373692,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15112&c1=0",
+          "thumbnail_url": "https://webtvhotspot.feratel.com/hotspot/37/15112/0.jpeg?design=v3",
+          "large_url": "https://webtvhotspot.feratel.com/hotspot/35/15112/0.jpeg?design=v3"
+        },
+        {
+          "id": "cetursa-15112-1",
+          "name": "Vistas a Borreguiles",
+          "location": "Zona Veleta",
+          "provider": "feratel",
+          "latitude": 37.062669,
+          "longitude": -3.373692,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15112&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15112/1.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15112/1.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15113-0",
+          "name": "Zona Montebajo",
+          "location": "Zona Montebajo",
+          "provider": "feratel",
+          "latitude": 37.083357,
+          "longitude": -3.405949,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15113&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15113/0.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15113/0.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15113-1",
+          "name": "Prado de las Monjas",
+          "location": "Zona Montebajo",
+          "provider": "feratel",
+          "latitude": 37.083357,
+          "longitude": -3.405949,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15113&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15113/1.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15113/1.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15113-2",
+          "name": "Universiada",
+          "location": "Zona Montebajo",
+          "provider": "feratel",
+          "latitude": 37.083357,
+          "longitude": -3.405949,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15113&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15113/2.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15113/2.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15113-3",
+          "name": "Pista Villén",
+          "location": "Zona Montebajo",
+          "provider": "feratel",
+          "latitude": 37.083357,
+          "longitude": -3.405949,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15113&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15113/3.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15113/3.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15113-5",
+          "name": "Zona Parador",
+          "location": "Zona Montebajo",
+          "provider": "feratel",
+          "latitude": 37.083357,
+          "longitude": -3.405949,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15113&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15113/5.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15113/5.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15114-0",
+          "name": "Mirlo Blanco",
+          "location": "Mirlo Blanco",
+          "provider": "feratel",
+          "latitude": 37.090944,
+          "longitude": -3.399593,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15114&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15114/0.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15114/0.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15114-1",
+          "name": "Trineo Mirlo",
+          "location": "Mirlo Blanco",
+          "provider": "feratel",
+          "latitude": 37.090944,
+          "longitude": -3.399593,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15114&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15114/1.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15114/1.jpeg?design=v5&dcsdesign=feratel4"
+        },
+        {
+          "id": "cetursa-15114-2",
+          "name": "Roscos y Trineos",
+          "location": "Mirlo Blanco",
+          "provider": "feratel",
+          "latitude": 37.090944,
+          "longitude": -3.399593,
+          "position_source": "https://webtv.feratel.com/webtv/?design=v5&cam=15114&c1=0",
+          "thumbnail_url": "https://wtvhspt.feratel.com/hotspot/37/15114/2.jpeg?design=v5&dcsdesign=feratel4",
+          "large_url": "https://wtvhspt.feratel.com/hotspot/35/15114/2.jpeg?design=v5&dcsdesign=feratel4"
+        }
+      ]
     }
   ],
   "additional_catalogs": []

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "dgt-0",
+    "name": "A-395 · PK 7.8",
+    "location": "GRANADA",
+    "provider": "DGT",
+    "latitude": 37.1,
+    "longitude": -3.4,
+    "position_source": "DGT",
+    "thumbnail_url": null,
+    "large_url": null,
+    "captured_at": null,
+    "status": "offline",
+    "source_url": "https://example.org",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-1",
+    "name": "A-395 · PK 12.6",
+    "location": "GRANADA",
+    "provider": "DGT",
+    "latitude": 37.1,
+    "longitude": -3.4,
+    "position_source": "DGT",
+    "thumbnail_url": null,
+    "large_url": null,
+    "captured_at": null,
+    "status": "offline",
+    "source_url": "https://example.org",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  },
+  {
+    "id": "dgt-2",
+    "name": "A-395 · PK 24.95",
+    "location": "GRANADA",
+    "provider": "DGT",
+    "latitude": 37.1,
+    "longitude": -3.4,
+    "position_source": "DGT",
+    "thumbnail_url": null,
+    "large_url": null,
+    "captured_at": null,
+    "status": "offline",
+    "source_url": "https://example.org",
+    "attribution": "Dirección General de Tráfico (DGT)"
+  }
+]
