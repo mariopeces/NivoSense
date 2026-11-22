@@ -1,0 +1,119 @@
+name: Staging site
+
+# Builds the frontend against the staging catalogue and publishes it under the
+# staging prefix: site/ for main, site/pr-<n>/ for a pull request labelled
+# "staging-preview". Only the staging writer is used, so nothing here can write prod.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/staging-site.yml"
+  pull_request:
+    types: [labeled, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: staging-site-${{ github.event.pull_request.number || 'main' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  publish:
+    # Fork PRs get no OIDC token; previews are for branches of this repository only.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (contains(github.event.pull_request.labels.*.name, 'staging-preview') &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SITE_DIR: ${{ github.event_name == 'pull_request' && format('site/pr-{0}/', github.event.pull_request.number) || 'site/' }}
+    steps:
+      - name: Only main publishes the staging site outside pull requests
+        if: github.event_name != 'pull_request'
+        run: test "$GITHUB_REF" = refs/heads/main
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_CATALOG_URL: https://storage.googleapis.com/${{ vars.STAGING_BUCKET }}/${{ vars.STAGING_PREFIX }}catalog/index.json
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+
+      - name: Authenticate as the staging writer
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SA_STAGING }}
+
+      # Vite fingerprints everything under assets/, so those files never change
+      # under the same name and can be cached for a year. Every other file keeps a
+      # stable name and must be revalidated. No -z/-j flags: objects stay
+      # uncompressed so range requests keep working (docs/runbook.md, storage).
+      - name: Publish
+        env:
+          DEST: gs://${{ vars.STAGING_BUCKET }}/${{ vars.STAGING_PREFIX }}${{ env.SITE_DIR }}
+        run: |
+          gcloud storage rsync frontend/dist/assets "${DEST}assets" --recursive \
+            --cache-control="public, max-age=31536000, immutable"
+          gcloud storage rsync frontend/dist "$DEST" --recursive \
+            --delete-unmatched-destination-objects \
+            --exclude='^(assets|pr-[0-9]+)/' \
+            --cache-control="no-cache"
+          gcloud storage rsync frontend/dist/assets "${DEST}assets" --recursive \
+            --delete-unmatched-destination-objects \
+            --cache-control="public, max-age=31536000, immutable"
+
+      - name: Check the public site
+        env:
+          URL: https://storage.googleapis.com/${{ vars.STAGING_BUCKET }}/${{ vars.STAGING_PREFIX }}${{ env.SITE_DIR }}
+        run: |
+          check() {
+            curl -s -D headers.txt -o body.out "$1"
+            sed -n '1p;/^cache-control:/Ip;/^content-encoding:/Ip;/^x-goog-stored-content-encoding:/Ip' headers.txt
+            grep -q '^HTTP/[0-9.]* 200' headers.txt
+            grep -qi "^cache-control: $2" headers.txt
+            if grep -qi '^content-encoding:' headers.txt; then echo "$1 is content-encoded"; exit 1; fi
+          }
+          echo "== ${URL}index.html"
+          check "${URL}index.html" "no-cache"
+          asset=$(grep -o 'assets/index-[^"]*\.js' body.out | head -1)
+          cmp -s body.out frontend/dist/index.html
+          echo "== ${URL}${asset}"
+          check "${URL}${asset}" "public, max-age=31536000, immutable"
+          cmp -s body.out "frontend/dist/${asset}"
+          echo "Staging site: ${URL}index.html" >> "$GITHUB_STEP_SUMMARY"
+
+  report-failure:
+    needs: publish
+    if: failure() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or comment on the failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" -R "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+          fi

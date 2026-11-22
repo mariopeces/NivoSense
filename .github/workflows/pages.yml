@@ -1,14 +1,12 @@
 name: Publish site
 
+# The live site's code comes only from a release: a tag vMAJOR.MINOR.PATCH on a
+# main commit (scripts/pick_release.py). Every run deploys the newest release with
+# fresh data. Pages serves one artifact, so a data refresh is a redeploy of the same
+# tagged code. There is deliberately no tag trigger: a tag-push run would execute
+# the workflow file of the tagged commit, which may be unmerged code. Only runs on
+# main (also enforced by the github-pages environment) can deploy.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "frontend/**"
-      - "backend/ingest_webcams.py"
-      - "backend/webcam_sources.json"
-      - "backend/tests/**"
-      - ".github/workflows/pages.yml"
   workflow_run:
     workflows: ["Update snow observation", "Weather forecasts", "Snow model"]
     types: [completed]
@@ -20,7 +18,6 @@ on:
 permissions:
   contents: read
   actions: read
-  issues: write
   pages: write
   id-token: write
 
@@ -30,14 +27,45 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # workflow_run also fires for fork pull requests from a branch named main; only
+    # successful scheduled or dispatched producer runs of this repository count.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.head_branch == 'main' &&
+       contains(fromJSON('["schedule", "workflow_dispatch"]'), github.event.workflow_run.event))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      ignored_tags: ${{ steps.release.outputs.ignored_tags }}
     steps:
+      - name: Only main deploys the live site
+        run: test "$GITHUB_REF" = refs/heads/main
+      # Full history and tags, so the picker can check that a release tag is on main.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Pick the release
+        id: release
+        run: |
+          status=0
+          tag=$(python3 scripts/pick_release.py --main-ref refs/remotes/origin/main 2> pick.log) || status=$?
+          cat pick.log >&2
+          if grep -q '^::warning::' pick.log; then echo "ignored_tags=true" >> "$GITHUB_OUTPUT"; fi
+          test "$status" = 0
+          echo "Deploying release $tag ($(git rev-parse "refs/tags/$tag^{commit}"))"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Check out the release
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        # The release tree may predate scripts/trusted_runs.py, so keep main's copy.
+        run: |
+          cp scripts/trusted_runs.py "$RUNNER_TEMP/"
+          git checkout --detach "refs/tags/$TAG"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -54,9 +82,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Walks back through recent successful runs until one still has its artifact.
+          # Walks back through recent trusted runs (scripts/trusted_runs.py) until one
+          # still has its artifact.
+          # Each trusted event is queried on its own, so a flood of other runs cannot push
+          # trusted ones off the first page. An API error fails the step: publishing
+          # without the layer would silently drop it from the live site.
+          set -o pipefail
           restore() {
-            for run_id in $(gh run list --workflow "$1" --branch main --status success --limit 10 --json databaseId --jq '.[].databaseId'); do
+            local runs event
+            for event in schedule workflow_dispatch; do
+              gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$1/runs?branch=main&status=success&event=$event&per_page=30" \
+                > "runs-$event.json"
+            done
+            runs=$(python3 "$RUNNER_TEMP/trusted_runs.py" runs-schedule.json runs-workflow_dispatch.json \
+              --repo "$GITHUB_REPOSITORY" --workflow-path ".github/workflows/$1")
+            for run_id in $runs; do
               rm -rf "$3"
               if gh run download "$run_id" --name "${2/RUN_ID/$run_id}" --dir "$3" 2>/dev/null; then
                 echo "Restored $1 run $run_id"
@@ -125,16 +165,29 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Report a failed scheduled run
-        if: failure() && github.event_name == 'schedule'
+  # A separate job, so a run the github-pages environment refuses is reported too.
+  report:
+    needs: publish
+    if: always() && (needs.publish.result == 'failure' || needs.publish.outputs.ignored_tags == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or comment on the issue
         env:
           GH_TOKEN: ${{ github.token }}
+          FAILED: ${{ needs.publish.result == 'failure' }}
         run: |
-          title="Scheduled workflow failed: ${{ github.workflow }}"
-          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
-          if [ -n "$existing" ]; then
-            gh issue comment "$existing" --body "$body"
+          if [ "$FAILED" = true ]; then
+            title="Workflow failed: ${{ github.workflow }}"
           else
-            gh issue create --title "$title" --body "$body"
+            title="Release tags ignored: ${{ github.workflow }}"
+          fi
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" -R "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" --title "$title" --body "$body"
           fi
