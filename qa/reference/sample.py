@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 
 from pipelines.s2.domain import Domain, Grid, convex_hull, load_domain
-from pipelines.s2.stac import group_acquisitions, search_items
+from pipelines.s2.stac import group_acquisitions, search_items, tile_of
 
 from . import layers, strata
 
@@ -71,10 +71,18 @@ def static_layers(domain: Domain, cache: Path) -> tuple[np.ndarray, np.ndarray]:
 def l2a_items(spec: DateSpec, domain: Domain) -> list[dict]:
     items = search_items(convex_hull(domain.geometries), spec.day, spec.day)
     items = [item for item in items if domain.touches(item["geometry"])]
-    for acquisition in group_acquisitions(items):
-        if acquisition.day == spec.day and acquisition.orbit == spec.orbit:
-            return list(acquisition.items)
-    raise ValueError(f"No L2A acquisition on {spec.day} orbit {spec.orbit}")
+    # The sample was drawn on every datatake of the pass together (2026-02-16 R094 has an S2A
+    # and an S2B datatake); keep them together so a rerun draws the frozen points again.
+    pass_items = [
+        item
+        for acquisition in group_acquisitions(items)
+        if acquisition.day == spec.day and acquisition.orbit == spec.orbit
+        for item in acquisition.items
+    ]
+    if not pass_items:
+        raise ValueError(f"No L2A acquisition on {spec.day} orbit {spec.orbit}")
+    latest_first = sorted(pass_items, key=lambda item: item["properties"]["s2:generation_time"], reverse=True)
+    return sorted(latest_first, key=tile_of)
 
 
 def sun_angles(items: list[dict]) -> tuple[float, float]:
