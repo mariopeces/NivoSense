@@ -1,6 +1,7 @@
 {
   "src/App.tsx": {
-    "#081020": 1
+    "#081020": 1,
+    "#ff00ff": 1
   },
   "src/components/BasinChart.tsx": {
     "#081020": 1,
@@ -97,5 +98,8 @@
   },
   "tailwind.config.js": {
     "#081020": 1
+  },
+  "src/Gone.tsx": {
+    "#ffffff": 1
   }
 }
