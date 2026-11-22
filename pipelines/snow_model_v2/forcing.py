@@ -17,7 +17,7 @@ shortwave did change with it in the test, which is why the requested elevation i
 
 Splice. The archive lags real time (ERA5 about 5 days). The days after the archive end, up to today, come from
 the forecast API with `past_days`; ERA5 has no forecast product, so those days come from `ecmwf_ifs` and are
-flagged in `SeasonForcing.from_forecast`. Only the archive part is cached, and an unfinished season is
+flagged in `HourlyForcing.from_forecast`. Only the archive part is cached, and an unfinished season is
 extended incrementally.
 """
 
@@ -39,6 +39,9 @@ import numpy as np
 
 from pipelines.snow_model.forcing import neighbour_weights, request_points
 
+from .contract import SeasonForcing
+from .storms import segment_storms
+
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 VARIABLES = ("temperature_2m", "precipitation", "shortwave_radiation")
@@ -59,7 +62,7 @@ GetJson = Callable[[str], list[dict]]
 
 
 @dataclass
-class SeasonForcing:
+class HourlyForcing:
     """Hourly forcing at the lattice points from `start` 00:00 UTC. Arrays are (points, hours).
 
     lon, lat, elevation are the requested coordinates and elevations; cell_lon, cell_lat and cell_elevation
@@ -243,7 +246,7 @@ def fetch_season_forcing(
     today: date | None = None,
     get_json: GetJson = _get_json,
     pause: float = PAUSE_SECONDS,
-) -> SeasonForcing:
+) -> HourlyForcing:
     """Hourly forcing from 1 October of the water year to `end` (default: the season end, capped at today).
 
     points are (lat, lon); elevations the elevation in metres each point's values are adjusted to.
@@ -289,7 +292,7 @@ def fetch_season_forcing(
         series = {name: np.concatenate([series[name], tail[name]], axis=1) for name in series}
         from_forecast[archive_hours:] = True
     cell = stored["cell"]
-    return SeasonForcing(
+    return HourlyForcing(
         model=model,
         water_year=water_year,
         start=start,
@@ -316,7 +319,7 @@ def daily_means(hourly: np.ndarray) -> np.ndarray:
     return np.asarray(hourly.reshape(hourly.shape[0], -1, 24).mean(axis=2))
 
 
-def class_weights(forcing: SeasonForcing, class_x: np.ndarray, class_y: np.ndarray, crs: str) -> np.ndarray:
+def class_weights(forcing: HourlyForcing, class_x: np.ndarray, class_y: np.ndarray, crs: str) -> np.ndarray:
     """(classes, points) inverse-distance weights of the nearest points to each class centre, rows sum to 1."""
     adapter: Any = forcing
     nearest, weights = neighbour_weights(adapter, class_x, class_y, crs)
@@ -331,3 +334,23 @@ def to_classes(hourly: np.ndarray, weights: np.ndarray) -> np.ndarray:
         raise ValueError("weights need one column per forcing point")
     normalised = weights / weights.sum(axis=1, keepdims=True)
     return np.asarray((normalised @ hourly).astype("float32"))
+
+
+def to_season_forcing(hourly: HourlyForcing) -> SeasonForcing:
+    """The engine's forcing: (points, days, 24) arrays, daily mean shortwave, and one regional storm
+    segmentation from the mean precipitation of the points, so every point shares the storm timing.
+
+    `elevation` is the elevation the temperature was requested for (the caller passes the mean DEM elevation
+    the point represents), which the engine takes as the elevation the weather model sees."""
+    days = hourly.hours // 24
+    points = hourly.precipitation.shape[0]
+    regional = hourly.precipitation.mean(axis=0)
+    storm_id = segment_storms(regional).storm_id.reshape(days, 24)
+    return SeasonForcing(
+        days=hourly.days,
+        elevation=hourly.elevation.astype("float32"),
+        temperature=hourly.temperature.reshape(points, days, 24),
+        precipitation=hourly.precipitation.reshape(points, days, 24),
+        shortwave=daily_means(hourly.shortwave).astype("float32"),
+        storm_id=storm_id,
+    )

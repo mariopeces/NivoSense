@@ -10,6 +10,7 @@ from pipelines.snow_model_v2.forcing import (
     daily_totals,
     fetch_season_forcing,
     to_classes,
+    to_season_forcing,
     water_year_bounds,
 )
 
@@ -152,3 +153,15 @@ def test_class_means_are_weighted_and_validated():
     assert to_classes(hourly, weights).tolist() == [[2.0, 3.0], [3.0, 5.0]]
     with pytest.raises(ValueError):
         to_classes(hourly, weights[:, :2])
+
+
+def test_the_engine_forcing_has_the_contract_shapes_and_one_regional_storm_partition(tmp_path):
+    hourly = fetch(tmp_path, FakeOpenMeteo())
+    forcing = to_season_forcing(hourly)
+    assert forcing.temperature.shape == (3, 365, 24) and forcing.shortwave.shape == (3, 365)
+    assert forcing.storm_id.shape == (365, 24)
+    # 1 mm in hour 5 of every day, 18 dry hours between: each day is its own storm, ids in time order.
+    assert forcing.storm_count == 365
+    assert forcing.storm_id[0, 5] == 0 and forcing.storm_id[364, 5] == 364
+    assert forcing.elevation.tolist() == ELEVATIONS
+    assert forcing.days[0] == date(2024, 10, 1) and len(forcing.days) == 365
