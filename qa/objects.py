@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Callable
+from functools import cache, lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -39,8 +40,19 @@ def local_file(storage: Storage, key: str, folder: Path) -> Path | None:
     return path
 
 
+@cache
+def _gcs_bucket(name: str) -> Any:
+    # One client per process: creating one per object costs a credentials refresh each time.
+    from google.cloud import storage as gcs
+
+    return gcs.Client().bucket(name)
+
+
 def byte_reader(storage: Storage, key: str) -> tuple[ByteReader, int] | None:
-    """A reader of (offset, length) ranges and the object size, so large PMTiles are never downloaded whole."""
+    """A reader of (offset, length) ranges and the object size, so large PMTiles are never downloaded whole.
+
+    Reads are cached: the PMTiles reader asks for the same header and directories again for every tile.
+    """
     if isinstance(storage, LocalStorage):
         path = storage.root / key
         if not path.is_file():
@@ -51,11 +63,9 @@ def byte_reader(storage: Storage, key: str) -> tuple[ByteReader, int] | None:
                 handle.seek(offset)
                 return handle.read(length)
 
-        return read_local, os.path.getsize(path)
+        return lru_cache(maxsize=64)(read_local), os.path.getsize(path)
     if isinstance(storage, GcsStorage):
-        from google.cloud import storage as gcs
-
-        blob = gcs.Client().bucket(storage.bucket_name).get_blob(storage.prefix + key)
+        blob = _gcs_bucket(storage.bucket_name).get_blob(storage.prefix + key)
         if blob is None:
             return None
         generation = blob.generation
@@ -68,7 +78,7 @@ def byte_reader(storage: Storage, key: str) -> tuple[ByteReader, int] | None:
             )
             return data
 
-        return read_gcs, int(blob.size)
+        return lru_cache(maxsize=64)(read_gcs), int(blob.size)
     raise TypeError(f"Unsupported storage {storage!r}")
 
 

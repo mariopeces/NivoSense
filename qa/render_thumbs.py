@@ -10,6 +10,7 @@ from __future__ import annotations
 import io
 import math
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -173,16 +174,19 @@ def entry_thumbnail(
     return compose(title, panels)
 
 
-def render_thumbs(storage: Storage, entries: list[dict[str, Any]], out_dir: Path) -> list[dict[str, str]]:
+def render_thumbs(
+    storage: Storage, entries: list[dict[str, Any]], out_dir: Path, workers: int = 4
+) -> list[dict[str, str]]:
     """Write out_dir/<layer>/<date>.png for every entry and return what was written."""
-    written = []
-    with tempfile.TemporaryDirectory(prefix="thumbs-") as tmp:
-        for entry in entries:
-            target = out_dir / entry["layer"] / f"{entry['date']}.png"
-            target.parent.mkdir(parents=True, exist_ok=True)
-            entry_thumbnail(storage, entry, Path(tmp)).save(target, optimize=True)
-            written.append({"layer": entry["layer"], "date": entry["date"], "png": target.as_posix()})
-    return written
+
+    def render(entry: dict[str, Any], tmp: Path) -> dict[str, str]:
+        target = out_dir / entry["layer"] / f"{entry['date']}.png"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        entry_thumbnail(storage, entry, tmp).save(target, optimize=True)
+        return {"layer": entry["layer"], "date": entry["date"], "png": target.as_posix()}
+
+    with tempfile.TemporaryDirectory(prefix="thumbs-") as tmp, ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(lambda entry: render(entry, Path(tmp)), entries))
 
 
 def fixture_thumbs(
