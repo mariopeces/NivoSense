@@ -102,8 +102,7 @@ jobs:
           else:
               ranges = [{"start": start, "end": end, "freshness": os.environ["FRESHNESS"] == "true"}]
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"ranges={json.dumps(ranges)}
-")
+              print(f"ranges={json.dumps(ranges)}", file=out)
           print(json.dumps(ranges))
 
   qa:
