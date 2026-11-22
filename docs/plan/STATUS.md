@@ -47,7 +47,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | fixing after r1 G-UI (G-Code queued) | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | r1 fixes pushed (7fd78a9), G-UI r2 and G-Code r1 queued | #16 | r1: G-UI fail (timeline ticks, webcam card age, symbols, mobile sheet, alignment) |
 | T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | building, stacked on plan/t06-ci + plan/t40-design (plan-shell, ctx_9048d1707be4) | | |
 | T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | waiting | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
@@ -148,3 +148,4 @@ Not available until T5.1.
 - 2026-11-22: T3.1 G-Data r2 FAIL: round-1 majors fixed with live evidence; new major: a failed ingest ships the committed webcams.json pointing at unshipped stills. Fix sent (per-source isolation, no references to unshipped files, dist validation). T0.4 G-Data r1 started.
 - 2026-11-22: T0.6 round 3 pushed (7277965): colour rule rewritten to the coordinator's 7-item bar, failing CI proof per item, baseline-growth step. T0.7 round 3 fixes pushed (0bbc81e): trusted_runs.py accepts only this repo's successful schedule/dispatch runs of the producer workflows on main ancestors; workflow_run gated. Queue order: T0.6 G-Infra r3, T0.6 G-Code r3, T0.7 G-Infra r4 and G-Code r4 (narrow), T4.0 G-Code, T0.4 G-Infra, T0.4 G-Code. T1.0 labeller idle on purpose while its mosaics build in the background.
 - 2026-11-22: T3.1 round 3 pushed (083c3b5): per-source isolation, webcams.json generated at build, deploy gate on missing stills. Merge order set: T0.6, T0.7, T0.3, then T3.1 (both edit pages.yml; T3.1 rebases onto T0.7). T3.1 r3 gauntlets queued after T0.6 r3 and T0.7 r4.
+- 2026-11-22: T4.0 r1 fixes pushed (7fd78a9: timeline states with forecast slot, webcam card age with stale state after 2 h, one symbol system, mobile sheet; tokens.json unchanged). T3.1 builder idle until T0.7 merges (re-dispatch then; the validate step is guarded on the script's presence in the release checkout; no new release before go-live). Queue: T0.6 G-Infra r3, T0.6 G-Code r3, T0.7 r4 x2, T4.0 G-UI r2, T3.1 r3 x2, T4.0 G-Code r1, T0.4 G-Infra and G-Code r1.
