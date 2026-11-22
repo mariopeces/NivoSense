@@ -25,7 +25,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r2 (G-Code r2 running) | #6 | r1 both fail; r2: G-Infra fail (colour rule: CSS custom properties, .js/.jsx, named colours) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | fixing after r2 (round 3 is the last) | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | fixing after r2 | #12 | r1 both fail; r2: G-Code PASS, G-Infra fail (tag push runs tagged commit workflow) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | r2 pushed (2f28bf1), r2 gauntlets queued; catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r2 (G-Data running; G-Code queued); catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -136,3 +136,4 @@ None yet.
 - 2026-11-22: T0.3 G-Code r1 FAIL (tests let mutations survive: input_key fields, never-overwrite, promote ordering; no GcsStorage unit test). Sent with the G-Data fixes. T0.7 G-Code r2 started.
 - 2026-11-22: T0.7 G-Infra r2 FAIL (blocker): a tag push runs the tagged commit's workflow, so the round-1 pages.yml on a PR commit plus the github-pages v* tag policy (agents bypass the ruleset as admin) could deploy unmerged code. Fix sent: remove the environment tag policy at once, drop push:tags, deploy only from main-ref runs through pick_release.py, environment limited to main. T4.0 G-UI r1 started.
 - 2026-11-22: T0.7 G-Code r2 PASS at b321cf5 (minors folded into the G-Infra fix). T1.1 G-Code r1 started.
+- 2026-11-22: T0.6 G-Code r2 FAIL (colour rule: CSS custom properties, template literals, named colours in style/paint objects, baseline growth); all inside the round-3 bar plus template literals. T3.1 G-Data r2 started.
