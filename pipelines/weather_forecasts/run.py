@@ -160,8 +160,8 @@ def run(region_file: Path, output: Path, keep_downloads: bool) -> Path:
     ):
         try:
             models.append(build(region.bbox, output, work))
-        except (OSError, RuntimeError, ValueError, KeyError) as error:
-            print(f"::warning::{model_id} forecast skipped: {error}", file=sys.stderr)
+        except Exception as error:  # noqa: BLE001 - the remote store raises its own error types (a 403 for an identity that is not allowlisted)
+            print(f"::warning::{model_id} forecast skipped: {type(error).__name__}: {error}", file=sys.stderr)
             # WeatherNext needs an allowlisted identity; until it works the site simply does not list it.
             if model_id != "weathernext":
                 unavailable.append(
