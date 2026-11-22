@@ -1,8 +1,9 @@
+import json
 import subprocess
 
 import pytest
 
-from scripts.trusted_runs import trusted_run_ids
+from scripts.trusted_runs import load_runs, trusted_run_ids
 
 REPO = "owner/NivoSense"
 PATH = ".github/workflows/snow-model.yml"
@@ -73,3 +74,19 @@ def test_fork_pull_request_from_a_branch_named_main_is_ignored(shas):
 def test_run_on_a_tag_named_main_off_main_is_ignored(shas):
     _, off_main = shas
     assert trusted_run_ids([run(6, off_main, "2026-11-22T04:00:00Z")], REPO, PATH, "main") == []
+
+
+def test_load_runs_merges_responses(tmp_path):
+    first = tmp_path / "schedule.json"
+    second = tmp_path / "dispatch.json"
+    first.write_text(json.dumps({"total_count": 1, "workflow_runs": [{"id": 1}]}))
+    second.write_text(json.dumps({"total_count": 1, "workflow_runs": [{"id": 2}]}))
+    assert [run["id"] for run in load_runs([str(first), str(second)])] == [1, 2]
+
+
+@pytest.mark.parametrize("body", ['{"message": "Not Found", "status": "404"}', "[]", "not json"])
+def test_load_runs_rejects_an_error_response(tmp_path, body):
+    response = tmp_path / "error.json"
+    response.write_text(body)
+    with pytest.raises(ValueError):
+        load_runs([str(response)])

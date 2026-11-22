@@ -84,10 +84,18 @@ jobs:
         run: |
           # Walks back through recent trusted runs (scripts/trusted_runs.py) until one
           # still has its artifact.
+          # Each trusted event is queried on its own, so a flood of other runs cannot push
+          # trusted ones off the first page. An API error fails the step: publishing
+          # without the layer would silently drop it from the live site.
+          set -o pipefail
           restore() {
-            local runs
-            runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$1/runs?branch=main&status=success&per_page=30" |
-              python3 "$RUNNER_TEMP/trusted_runs.py" --repo "$GITHUB_REPOSITORY" --workflow-path ".github/workflows/$1")
+            local runs event
+            for event in schedule workflow_dispatch; do
+              gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$1/runs?branch=main&status=success&event=$event&per_page=30" \
+                > "runs-$event.json"
+            done
+            runs=$(python3 "$RUNNER_TEMP/trusted_runs.py" runs-schedule.json runs-workflow_dispatch.json \
+              --repo "$GITHUB_REPOSITORY" --workflow-path ".github/workflows/$1")
             for run_id in $runs; do
               rm -rf "$3"
               if gh run download "$run_id" --name "${2/RUN_ID/$run_id}" --dir "$3" 2>/dev/null; then
