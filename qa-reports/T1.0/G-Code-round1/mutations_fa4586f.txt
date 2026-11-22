@@ -1,0 +1,19 @@
+N1 sample one whitespace byte => FAILED (failures=1)
+N6 blind not random => OK
+N9 SWIR band order => OK
+N10 read_labels accepts junk => OK
+N11 labelling order unshuffled => OK
+N12 freeze scores unsure => OK
+N12b freeze weight 1 => OK
+N16 supplement ignores above_snowline_m => OK
+N17 supplement seed => OK
+N18 supplement ignores spacing => OK
+N20 chip_scene_id first tile => OK
+N23 cell_table ignores band => OK
+N24 score ignores later-draw restriction => FAILED (failures=2)
+N25 score uses drawn stratum only => FAILED (failures=3)
+N26 F1 drops unknown misses => FAILED (failures=1)
+N27 confusion accepts junk class => OK
+N28 scoring includes unsure => FAILED (failures=2, errors=1)
+N29 unsure share zero => FAILED (failures=1)
+N30 read_predictions blank->unknown => OK

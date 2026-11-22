@@ -1,0 +1,7 @@
+frozen 2065 rerun 2065 same ids True
+field mismatches {} {}
+seed equal
+points_per_stratum equal
+stratum_pixels equal
+dates equal
+supplement equal

@@ -1,0 +1,22 @@
+M1 geojson one label edited (count>1 expected fail) => OK
+M2 agreement keeps relabel-unsure => FAILED (failures=1)
+M3 agreement always agrees => FAILED (failures=1)
+M4 agreement accepts unknown ids => FAILED (errors=1)
+M5 blind 5% => FAILED (failures=1)
+M6 blind not random (first 10%) => OK
+M7 mosaic_cell off by one col => FAILED (failures=1)
+M8 window off-centre => FAILED (failures=1)
+M9 SWIR band order swapped => OK
+M10 read_labels accepts junk => OK
+M11 labelling_order not shuffled => OK
+M12 freeze scores unsure => OK
+M13 split_quota no cap => .....................
+M14 no spacing => FAILED (failures=2)
+M15 draw mutates caller's taken => FAILED (failures=1)
+M16 supplement drops snowline restriction => OK
+M17 supplement uses draw-1 seed => OK
+M18 supplement ignores first draw spacing => OK
+M19 date_masks drops clear-sky rule => OK
+M20 chip_scene_id always first tile => OK
+M21 shadow traced away from sun => FAILED (failures=1)
+M22 strata ignore eligible => OK
