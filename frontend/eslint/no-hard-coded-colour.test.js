@@ -56,7 +56,45 @@ new RuleTester({ languageOptions: jsx, linterOptions: { noInlineConfig: true } }
         'const e = "\\x23123456";',
       ].join("\n"),
       options: options(),
-      errors: [colour("rgb("), colour("#ff${}"), colour("#ff00ff"), colour("#abcdef"), colour("#123456")],
+      errors: [colour("rgb(${},0,0)"), colour("#ff${}"), colour("#ff00ff"), colour("#abcdef"), colour("#123456")],
+    },
+    {
+      // A hex built from pieces: `#` or partial digits before an interpolation, nested static templates, literal
+      // interpolations next to dynamic ones.
+      filename: file,
+      code: [
+        "const a = `#${H}`;",
+        "const b = `#${`ff0000`}`;",
+        'const c = `#${"ff0000"}${suffix}`;',
+        "const d = `#${x}ff0000`;",
+        "const e = `\x23${x}ff00`;",
+        "const f = `${`#00ff00`}`;",
+      ].join("\n"),
+      options: options(),
+      errors: [colour("#${}"), colour("#ff0000"), colour("#ff0000"), colour("#${}"), colour("#${}"), colour("#00ff00")],
+    },
+    {
+      // Named colours as var() fallbacks, in custom properties and in colour shorthands and composites.
+      filename: "src/Probe.jsx",
+      code: [
+        'const a = <div style={{ color: "var(--x, red)", "--accent": "blue" }} />;',
+        'const b = { textDecoration: "underline gold", columnRule: "1px solid teal" };',
+        'const c = { filter: "drop-shadow(0 0 2px navy)", backdropFilter: "drop-shadow(0 0 1px olive)" };',
+        'const d = { caretColor: "lime", accentColor: "plum", textShadow: "0 0 2px tan" };',
+      ].join("\n"),
+      options: options(),
+      errors: ["red", "blue", "gold", "teal", "navy", "olive", "lime", "plum", "tan"].map(colour),
+    },
+    {
+      // MapLibre legacy functions: colours in `default` and `stops` belong to the paint key; expression fallbacks.
+      filename: file,
+      code: [
+        'const a = { "fill-color": { type: "categorical", property: "k", default: "red", stops: [[1, "#00ff00"]] } };',
+        'const b = { "line-color": ["match", ["get", "k"], "a", "#ffffff", "salmon"] };',
+        'const c = { "circle-color": ["coalesce", ["get", "c"], "orchid"] };',
+      ].join("\n"),
+      options: options(),
+      errors: [colour("red"), colour("#00ff00"), colour("#ffffff"), colour("salmon"), colour("orchid")],
     },
     {
       // Nested parentheses are matched to the balanced closing one.
@@ -162,6 +200,12 @@ new RuleTester({
         code: `.a { color: rgb(calc(255) 0 255); background: url("data:image/svg+xml,%3Csvg fill='%23ff00ff'/%3E"); }`,
         options: options(),
         errors: [colour("rgb(calc(255) 0 255)"), colour("#ff00ff")],
+      },
+      {
+        filename: "src/a.css",
+        code: ".a { color: var(--x, red); background: var(--y,blue); border-color: var(--a, var(--b, gold)); }",
+        options: options(),
+        errors: [colour("red"), colour("blue"), colour("gold")],
       },
       {
         filename: "src/a.css",
