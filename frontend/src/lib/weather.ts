@@ -103,3 +103,13 @@ export function weatherOverlay(
     note: field?.note ?? null,
   };
 }
+
+/** Keeps a horizon only if the model offers it for the variable; otherwise the shortest one it does offer. */
+export function resolveHorizon(
+  model: WeatherModel | undefined,
+  variable: WeatherVariable,
+  horizon: WeatherHorizon | null,
+): WeatherHorizon | null {
+  if (horizon !== null && weatherField(model, horizon, variable)?.available) return horizon;
+  return WEATHER_HORIZONS.find((item) => weatherField(model, item, variable)?.available) ?? null;
+}

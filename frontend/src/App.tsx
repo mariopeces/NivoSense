@@ -29,9 +29,11 @@ import {
   type SnowModelManifest,
 } from "./lib/snowModel";
 import {
+  WEATHER_HORIZONS,
   WEATHER_SCHEMA_VERSION,
   weatherField,
   weatherOverlay,
+  resolveHorizon,
   type WeatherHorizon,
   type WeatherManifest,
   type WeatherVariable,
@@ -418,17 +420,28 @@ export default function App() {
     if (next === section && mobile) setSheet(sheet === "peek" ? "half" : "peek");
     setSection(next);
     setPanelOpen(true);
+    // Opening the forecast tab shows a forecast right away instead of an empty map until a horizon is picked.
+    if (next === "meteo" && weatherHorizon === null) {
+      setWeatherHorizon(resolveHorizon(activeWeatherModel, weatherVariable, WEATHER_HORIZONS[0]));
+    }
   };
 
   const activeWeatherModel =
     weatherManifest?.models.find((model) => model.id === weatherModelId) ??
     weatherManifest?.models[0];
-  const precipitationOverlay = weatherOverlay(
-    weatherManifest,
-    activeWeatherModel?.id ?? null,
-    weatherVariable,
-    weatherHorizon,
-    weatherManifestUrl,
+  // A horizon the chosen model does not offer (AEMET stops at 48 h) falls back instead of leaving the map empty.
+  const effectiveHorizon =
+    weatherHorizon === null ? null : resolveHorizon(activeWeatherModel, weatherVariable, weatherHorizon);
+  const precipitationOverlay = useMemo(
+    () =>
+      weatherOverlay(
+        weatherManifest,
+        activeWeatherModel?.id ?? null,
+        weatherVariable,
+        effectiveHorizon,
+        weatherManifestUrl,
+      ),
+    [weatherManifest, activeWeatherModel?.id, weatherVariable, effectiveHorizon, weatherManifestUrl],
   );
 
   const handleWeatherModelChange = (modelId: string) => {
@@ -530,7 +543,7 @@ export default function App() {
             <MeteoSection
               manifest={weatherManifest}
               loading={weatherLoading}
-              horizon={weatherHorizon}
+              horizon={effectiveHorizon}
               onHorizon={setWeatherHorizon}
               modelId={activeWeatherModel?.id ?? null}
               onModel={handleWeatherModelChange}
