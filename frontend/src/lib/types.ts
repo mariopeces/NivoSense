@@ -40,23 +40,6 @@ export type BasinSeries = {
   average_points: AverageSeriesPoint[];
 };
 
-export type ObservationScene = {
-  date: string;
-  path?: string;
-  url?: string;
-  tile_url?: string;
-  image_url?: string;
-  image_bbox?: [number, number, number, number];
-  size?: number;
-};
-
-export type PredictionScene = {
-  date: string;
-  path: string;
-  url: string;
-  tile_url: string;
-};
-
 export type River = {
   id: string;
   name: string;

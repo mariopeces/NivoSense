@@ -79,11 +79,6 @@ type FC = {
 type Props = {
   basinsFC: FC | null;
   selectedBasinId: string | null;
-  ndsiTileUrl: string | null;
-  ndsiImage: {
-    url: string;
-    bbox: [number, number, number, number];
-  } | null;
   weatherOverlay: WeatherOverlay | null;
   snowOverlay: SnowOverlay | null;
   onBasinSelect: (id: string | null) => void;
@@ -99,8 +94,6 @@ type Props = {
 export default function Map({
   basinsFC,
   selectedBasinId,
-  ndsiTileUrl,
-  ndsiImage,
   weatherOverlay,
   snowOverlay,
   onBasinSelect,
@@ -115,8 +108,6 @@ export default function Map({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const basinsFCRef = useRef<FC | null>(null);
   const selectedRef = useRef<string | null>(null);
-  const ndsiTileUrlRef = useRef<string | null>(null);
-  const ndsiImageRef = useRef<Props["ndsiImage"]>(null);
   const weatherOverlayRef = useRef<WeatherOverlay | null>(null);
   const snowOverlayRef = useRef<SnowOverlay | null>(null);
   const onBasinSelectRef = useRef(onBasinSelect);
@@ -134,14 +125,6 @@ export default function Map({
   useEffect(() => {
     selectedRef.current = selectedBasinId;
   }, [selectedBasinId]);
-
-  useEffect(() => {
-    ndsiTileUrlRef.current = ndsiTileUrl;
-  }, [ndsiTileUrl]);
-
-  useEffect(() => {
-    ndsiImageRef.current = ndsiImage;
-  }, [ndsiImage]);
 
   useEffect(() => {
     weatherOverlayRef.current = weatherOverlay;
@@ -190,7 +173,6 @@ export default function Map({
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
     const setupLayers = () => {
-      setNdsiLayer(map, ndsiTileUrlRef.current, ndsiImageRef.current);
       setWeatherLayer(map, weatherOverlayRef.current);
       setSnowLayer(map, snowOverlayRef.current);
       if (basinsFCRef.current) {
@@ -239,16 +221,6 @@ export default function Map({
     applySelected(map, selectedBasinId);
     attachBasinInteractions(map, onBasinSelectRef);
   }, [basinsFC]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-    setNdsiLayer(map, ndsiTileUrl, ndsiImage);
-    if (basinsFC) {
-      addBasinsLayers(map, basinsFC);
-      applySelected(map, selectedBasinId);
-    }
-  }, [ndsiTileUrl, ndsiImage, basinsFC, selectedBasinId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -477,53 +449,6 @@ function setWeatherLayer(map: maplibregl.Map, overlay: WeatherOverlay | null) {
       paint: { "raster-opacity": 0.78, "raster-fade-duration": 0 },
     },
     map.getLayer("basins-fill") ? "basins-fill" : undefined,
-  );
-}
-
-function setNdsiLayer(
-  map: maplibregl.Map,
-  tileUrl: string | null,
-  image: Props["ndsiImage"],
-) {
-  if (map.getLayer("ndsi-observation")) {
-    map.removeLayer("ndsi-observation");
-  }
-  if (map.getSource("ndsi-observation")) {
-    map.removeSource("ndsi-observation");
-  }
-  if (!tileUrl && !image) return;
-
-  if (image) {
-    const [west, south, east, north] = image.bbox;
-    map.addSource("ndsi-observation", {
-      type: "image",
-      url: image.url,
-      coordinates: [
-        [west, north],
-        [east, north],
-        [east, south],
-        [west, south],
-      ],
-    });
-  } else if (tileUrl) {
-    map.addSource("ndsi-observation", {
-      type: "raster",
-      tiles: [tileUrl],
-      tileSize: 256,
-      attribution: "NivoSense NDSI",
-    });
-  }
-  map.addLayer(
-    {
-      id: "ndsi-observation",
-      type: "raster",
-      source: "ndsi-observation",
-      paint: {
-        "raster-opacity": 0.9,
-        "raster-fade-duration": 120,
-      },
-    },
-    map.getLayer("labels") ? "labels" : undefined,
   );
 }
 
