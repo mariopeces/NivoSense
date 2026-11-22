@@ -74,12 +74,41 @@ def rebuild_index(storage: Storage, attempts: int = 8) -> dict[str, Any]:
     raise RuntimeError(f"{INDEX_KEY} changed under every one of {attempts} rebuild attempts")
 
 
+def _write_entry_unless_newer(target: Storage, key: str, entry: dict[str, Any], data: bytes) -> None:
+    """Write a promoted entry unless prod already holds a newer publication of that date.
+
+    Promotes run side by side, so a slow one could otherwise overwrite the version a later promote copied
+    after staging republished the date. The write is conditional on the prod generation it compared against.
+    """
+    for _ in range(8):
+        current = target.read(key)
+        if current is not None:
+            if current.data == data:
+                return
+            published = dt.datetime.fromisoformat(json.loads(current.data)["created_at"])
+            if published > dt.datetime.fromisoformat(entry["created_at"]):
+                return
+        try:
+            target.write(
+                key,
+                data,
+                "application/json",
+                NO_CACHE,
+                if_generation_match=current.generation if current is not None else 0,
+            )
+            return
+        except PreconditionFailed:
+            continue
+    raise RuntimeError(f"{key} kept changing in the target while being promoted")
+
+
 def promote(
     source: Storage, target: Storage, start: str, end: str, layers: list[str] | None = None
 ) -> list[dict[str, Any]]:
     """Copy the entries dated start..end (inclusive) and their files from staging to prod, then rebuild prod.
 
-    Files go first and entries after, as in publish(), so prod never lists a file it does not hold.
+    Files go first and entries after, as in publish(), so prod never lists a file it does not hold. A prod
+    entry newer than the staging one (a later promote of a republished date) is kept.
     """
     first, last = dt.date.fromisoformat(start), dt.date.fromisoformat(end)
     promoted = []
@@ -99,7 +128,7 @@ def promote(
                     target.copy_from(source, file_key, if_generation_match=0)
                 except PreconditionFailed:
                     pass
-        target.write(key, data, "application/json", NO_CACHE)
+        _write_entry_unless_newer(target, key, entry, data)
         promoted.append(entry)
     if not promoted:
         raise ValueError(f"No staging entries between {start} and {end} for layers {layers or 'all'}")

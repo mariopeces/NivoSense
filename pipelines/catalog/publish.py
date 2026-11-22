@@ -106,7 +106,8 @@ def _check_data(
             raise ValueError(f"{path}: value_range must be finite, got {value_range}")
         for band, (low, high) in enumerate(value_range, start=1):
             data = src.read(band, masked=True)
-            if data.dtype.kind == "f" and not np.isfinite(data.filled(src.nodata)).all():
+            # Checked on the raw values: a NaN hidden by a GDAL mask band would still be copied into the COG.
+            if data.dtype.kind == "f" and not np.isfinite(data.data).all():
                 raise ValueError(f"{path}: band {band} has NaN or infinite pixels; set them to nodata")
             values = data.compressed()
             if values.size == 0:
@@ -251,10 +252,11 @@ def publish(
             "pixel_hash": pixels,
             "code_version": version_,
             "qa": meta.get("qa", {"flags": [], "scores": {}}),
-            "created_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+            "created_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="milliseconds"),
         }
         validate_entry(entry)
 
+        published: dict[str, Any] | None = None
         existing_blob = storage.read(entry_key(layer, date))
         if existing_blob is not None:
             existing = json.loads(existing_blob.data)
@@ -264,8 +266,9 @@ def publish(
                         f"{layer} {date}: input key {key[:12]} gave pixel hash {pixels[:12]}, "
                         f"published {existing['pixel_hash'][:12]}; a code change must change code_version"
                     )
+                published = existing
                 if storage.exists(cog_key) and storage.exists(pmtiles_key):
-                    return dict(existing)
+                    return dict(published)
 
         _upload_once(storage, cog_key, cog, COG_CONTENT_TYPE)
         if not storage.exists(pmtiles_key):
@@ -273,5 +276,8 @@ def publish(
             _write_pmtiles(Path(files["display"]), pmtiles, zooms, spec)
             _upload_once(storage, pmtiles_key, pmtiles, PMTILES_CONTENT_TYPE)
 
+    # Files lost from under a published entry are restored; the entry itself stays as it was.
+    if published is not None:
+        return dict(published)
     storage.write(entry_key(layer, date), dump_json(entry, indent=2), "application/json", NO_CACHE)
     return entry
