@@ -1,0 +1,28 @@
+{
+  "about": "Colours of the weather forecast images, read by pipelines/weather_forecasts/raster.py to paint them and by the frontend legend to draw them, so the two cannot differ. Values are interpolated linearly between the stops over 0 to the run's scale_max_mm (weather manifest); cells under min_visible_mm are transparent.",
+  "stops": [
+    0.0,
+    0.2,
+    0.45,
+    0.7,
+    1.0
+  ],
+  "alpha": 220,
+  "min_visible_mm": 0.1,
+  "palettes": {
+    "precipitation_total": [
+      "#082F49",
+      "#0E7490",
+      "#06B6D4",
+      "#22D3EE",
+      "#ECFEFF"
+    ],
+    "snowfall": [
+      "#2D236E",
+      "#4F46E5",
+      "#818CF8",
+      "#C7D2FE",
+      "#FFFFFF"
+    ]
+  }
+}
