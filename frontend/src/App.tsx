@@ -1,16 +1,19 @@
-import { useEffect, useState } from "react";
-import Map from "./components/Map";
-import TopBanner from "./components/TopBanner";
-import LeftRail, {
-  type LayerMode,
-  type RailAction,
-  type WaterTab,
-} from "./components/LeftRail";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import Map, { type Basemap } from "./components/Map";
+import Rail, { type Section } from "./components/Rail";
+import Panel, { type SheetHeight } from "./components/Panel";
+import DateBar, { type Scene } from "./components/DateBar";
+import NieveSection from "./components/NieveSection";
+import AguaSection, { type BasinRow } from "./components/AguaSection";
+import WebcamsSection from "./components/WebcamsSection";
+import MeteoSection from "./components/MeteoSection";
+import MetodoSection from "./components/MetodoSection";
 import BasinChart from "./components/BasinChart";
 import RiverFlowChart from "./components/RiverFlowChart";
 import Legend from "./components/Legend";
-import SnowLayerPicker from "./components/SnowLayerPicker";
 import SnowVolumeChart from "./components/SnowVolumeChart";
+import { t } from "./lib/copy";
+import { useMediaQuery } from "./lib/useMediaQuery";
 import { prettifyBasinName } from "./lib/geo";
 import { currentHydrologicalYear } from "./lib/horizons";
 import { staticObservationScene } from "./lib/snowObservation";
@@ -30,7 +33,6 @@ import {
   type WeatherVariable,
 } from "./lib/weather";
 import type {
-  Basin,
   BasinSeries,
   FlowSeries,
   ObservationScene,
@@ -46,6 +48,7 @@ type BasinFeatureCollection = {
     properties: {
       cod_uni: number;
       nom_rio_1: string;
+      area_km2?: number;
       [k: string]: unknown;
     };
     geometry: { type: string; coordinates: unknown };
@@ -53,20 +56,19 @@ type BasinFeatureCollection = {
 };
 
 export default function App() {
-  const [railExpanded, setRailExpanded] = useState(false);
-  const [layer, setLayer] = useState<LayerMode>("cover");
-  const [statsOpen, setStatsOpen] = useState(false);
-  const [routesOpen, setRoutesOpen] = useState(false);
-  const [webcamsOpen, setWebcamsOpen] = useState(false);
+  const [section, setSection] = useState<Section>("nieve");
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [sheet, setSheet] = useState<SheetHeight>("peek");
+  const [basemap, setBasemap] = useState<Basemap>("claro");
+  const [terrain, setTerrain] = useState(false);
+  const mobile = useMediaQuery("(max-width: 767px)");
   const [selectedBasinId, setSelectedBasinId] = useState<string | null>(null);
   const [selectedRiverId, setSelectedRiverId] = useState<string | null>(null);
-  const [waterTab, setWaterTab] = useState<WaterTab>("snow");
   const [selectedWebcamId, setSelectedWebcamId] = useState<string | null>(null);
 
   const [basinsFC, setBasinsFC] = useState<BasinFeatureCollection | null>(null);
+  const [basinsLoading, setBasinsLoading] = useState(true);
   const [rivers, setRivers] = useState<River[]>([]);
-  const [riversLoading, setRiversLoading] = useState(true);
-  const [riversError, setRiversError] = useState<string | null>(null);
   const [observations, setObservations] = useState<ObservationScene[]>([]);
   const [observationsLoading, setObservationsLoading] = useState(true);
   const [predictions, setPredictions] = useState<PredictionScene[]>([]);
@@ -141,7 +143,7 @@ export default function App() {
       .catch((error) => {
         if (error.name === "AbortError") return;
         console.error("Failed to load the snow volume series:", error);
-        setVolumeError("Could not load the snow volume");
+        setVolumeError(t("error.serie"));
       })
       .finally(() => {
         if (!controller.signal.aborted) setVolumeLoading(false);
@@ -169,7 +171,8 @@ export default function App() {
     fetch(`${import.meta.env.BASE_URL}data/basins.geojson`)
       .then((r) => r.json())
       .then((fc: BasinFeatureCollection) => setBasinsFC(fc))
-      .catch((err) => console.error("Failed to load basins:", err));
+      .catch((err) => console.error("Failed to load basins:", err))
+      .finally(() => setBasinsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -182,29 +185,20 @@ export default function App() {
       .then((items: Webcam[]) => setWebcams(items))
       .catch((err) => {
         console.error("Failed to load webcams:", err);
-        setWebcamsError("Could not load webcams");
+        setWebcamsError(t("error.webcams"));
       })
       .finally(() => setWebcamsLoading(false));
   }, []);
 
   useEffect(() => {
-    if (!apiUrl) {
-      setRiversLoading(false);
-      return;
-    }
-    setRiversLoading(true);
-    setRiversError(null);
+    if (!apiUrl) return;
     fetch(`${apiUrl}/rivers`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then((items: River[]) => setRivers(items))
-      .catch((err) => {
-        console.error("Failed to load rivers:", err);
-        setRiversError("Could not load rivers");
-      })
-      .finally(() => setRiversLoading(false));
+      .catch((err) => console.error("Failed to load rivers:", err));
   }, [apiUrl]);
 
   useEffect(() => {
@@ -250,10 +244,11 @@ export default function App() {
       .finally(() => setObservationsLoading(false));
   }, [apiUrl]);
 
-  const basins: Basin[] =
+  const basins: BasinRow[] =
     basinsFC?.features.map((f) => ({
       id: String(f.properties.cod_uni),
       name: prettifyBasinName(f.properties.nom_rio_1),
+      areaKm2: typeof f.properties.area_km2 === "number" ? f.properties.area_km2 : undefined,
     })) ?? [];
 
   const selectedBasin = basins.find((b) => b.id === selectedBasinId) ?? null;
@@ -275,7 +270,7 @@ export default function App() {
     }
     if (!apiUrl) {
       setBasinSeries(null);
-      setSeriesError("No precomputed series available");
+      setSeriesError(null);
       return;
     }
 
@@ -295,7 +290,7 @@ export default function App() {
       .catch((err) => {
         if (err.name === "AbortError") return;
         console.error("Failed to load basin series:", err);
-        setSeriesError("Could not load snow evolution");
+        setSeriesError(t("error.serie"));
       })
       .finally(() => {
         if (!controller.signal.aborted) setSeriesLoading(false);
@@ -316,6 +311,11 @@ export default function App() {
     setFlowLoading(true);
     setFlowError(null);
 
+    if (!apiUrl) {
+      setFlowLoading(false);
+      return;
+    }
+
     fetch(`${apiUrl}/rivers/${selectedRiverId}/flow`, {
       signal: controller.signal,
     })
@@ -328,11 +328,7 @@ export default function App() {
       .catch((err) => {
         if (err.name === "AbortError") return;
         console.error("Failed to load river flow:", err);
-        setFlowError(
-          err.message === "flow_not_uploaded"
-            ? "Flow data not uploaded yet for this river"
-            : "Could not load river flow",
-        );
+        if (err.message !== "flow_not_uploaded") setFlowError(t("error.serie"));
       })
       .finally(() => {
         if (!controller.signal.aborted) setFlowLoading(false);
@@ -341,47 +337,34 @@ export default function App() {
     return () => controller.abort();
   }, [selectedRiverId, apiUrl]);
 
-  const handleAction = (a: RailAction) => {
-    if (a === "stats") setStatsOpen((v) => !v);
-    if (a === "routes") setRoutesOpen((v) => !v);
-    if (a === "webcams") setWebcamsOpen((v) => !v);
-  };
-
   const handleWebcamSelect = (webcamId: string | null) => {
     setSelectedWebcamId(webcamId);
     if (webcamId) {
-      setRailExpanded(true);
-      setWebcamsOpen(true);
+      setSection("webcams");
+      setPanelOpen(true);
       setSelectedBasinId(null);
       setSelectedRiverId(null);
     }
   };
 
+  // The one path for basin selection, from the map and from the Agua list alike.
   const handleBasinSelect = (basinId: string | null) => {
     setSelectedBasinId(basinId);
     if (basinId) {
       const river = rivers.find((r) => String(r.basin_cod_uni) === basinId);
       setSelectedRiverId(river ? river.id : null);
-      if (!railExpanded) setRailExpanded(true);
-      if (!statsOpen) setStatsOpen(true);
+      setSection("agua");
+      setPanelOpen(true);
+      if (sheet === "peek") setSheet("half");
     } else {
       setSelectedRiverId(null);
     }
   };
 
-  const handleRiverSelect = (riverId: string | null) => {
-    setSelectedRiverId(riverId);
-    if (riverId) {
-      if (!railExpanded) setRailExpanded(true);
-      if (!statsOpen) setStatsOpen(true);
-    } else {
-      setSelectedBasinId(null);
-    }
-  };
-
-  const handleClose = () => {
-    setSelectedRiverId(null);
-    setSelectedBasinId(null);
+  const handleSection = (next: Section) => {
+    if (next === section && mobile) setSheet(sheet === "peek" ? "half" : "peek");
+    setSection(next);
+    setPanelOpen(true);
   };
 
   const selectedObservation =
@@ -420,115 +403,134 @@ export default function App() {
     }
   };
 
-  const showFlowChart =
-    selectedRiver !== null && waterTab === "flow";
-  const showSnowChart =
-    selectedBasin !== null && !showFlowChart;
+  const scenes: Scene[] = useMemo(
+    () =>
+      [
+        ...observations.map((o) => ({ date: o.date, isPrediction: false })),
+        ...predictions.map((p) => ({ date: p.date, isPrediction: true })),
+      ].sort((a, b) => a.date.localeCompare(b.date)),
+    [observations, predictions],
+  );
+
+  const panelVisible = mobile || panelOpen;
+  // Pixels of map covered by the rail, panel or sheet and the date bar, so fitted bounds stay visible.
+  const mapInset = useMemo(() => {
+    if (!mobile) return { left: panelOpen ? 384 : 64, bottom: 100 };
+    const sheetPx = sheet === "peek" ? 132 : window.innerHeight / 2;
+    return { left: 0, bottom: 60 + sheetPx + 100 };
+  }, [mobile, panelOpen, sheet]);
+  const shellStyle = {
+    "--shell-panel-offset": panelOpen ? "var(--layout-panel-width)" : "0px",
+    "--sheet-height":
+      sheet === "full"
+        ? "calc(100% - var(--layout-tabbar-height) - var(--space-12))"
+        : `var(--layout-sheet-${sheet})`,
+  } as CSSProperties;
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#081020] text-slate-100">
-      <Map
-        basinsFC={basinsFC}
-        selectedBasinId={selectedBasinId}
-        ndsiTileUrl={ndsiTileUrl}
-        ndsiImage={ndsiImage}
-        weatherOverlay={precipitationOverlay}
-        snowOverlay={activeSnowOverlay}
-        onBasinSelect={handleBasinSelect}
-        webcams={webcams}
-        selectedWebcamId={selectedWebcamId}
-        onWebcamSelect={handleWebcamSelect}
+    <div className="relative h-full w-full overflow-hidden bg-panel-soft font-body text-text" style={shellStyle}>
+      <Rail
+        section={section}
+        onSection={handleSection}
+        panelOpen={panelOpen}
+        onTogglePanel={() => setPanelOpen((open) => !open)}
+        basemap={basemap}
+        onBasemap={setBasemap}
+        terrain={terrain}
+        onToggleTerrain={() => setTerrain((on) => !on)}
       />
-
-      <TopBanner
-        observations={observations}
-        predictions={predictions}
-        scenesLoading={observationsLoading}
-        selectedDate={selectedObservationDate}
-        onDateChange={(date) => {
-          setSelectedObservationDate(date);
-          setWeatherHorizon(null);
-        }}
-        weatherManifest={weatherManifest}
-        weatherLoading={weatherLoading}
-        weatherHorizon={weatherHorizon}
-        onWeatherHorizonChange={setWeatherHorizon}
-        weatherModelId={activeWeatherModel?.id ?? null}
-        onWeatherModelChange={handleWeatherModelChange}
-        weatherVariable={weatherVariable}
-        onWeatherVariableChange={setWeatherVariable}
-      />
-
-      <LeftRail
-        expanded={railExpanded}
-        onToggle={() => setRailExpanded((v) => !v)}
-        onExpand={() => setRailExpanded(true)}
-        layer={layer}
-        onLayerChange={setLayer}
-        onAction={handleAction}
-        statsOpen={statsOpen}
-        routesOpen={routesOpen}
-        webcamsOpen={webcamsOpen}
-        webcams={webcams}
-        webcamsLoading={webcamsLoading}
-        webcamsError={webcamsError}
-        selectedWebcamId={selectedWebcamId}
-        onWebcamSelect={handleWebcamSelect}
-        rivers={rivers}
-        riversLoading={riversLoading}
-        riversError={riversError}
-        selectedRiverId={selectedRiverId}
-        onRiverSelect={handleRiverSelect}
-        waterTab={waterTab}
-        onWaterTabChange={setWaterTab}
-      />
-
-      <SnowLayerPicker
-        manifest={snowManifest}
-        loading={snowLoading}
-        selected={snowLayerId}
-        onChange={setSnowLayerId}
-      />
-
-      <Legend
-        layer={layer}
-        weatherOverlay={precipitationOverlay}
-        snowOverlay={activeSnowOverlay}
-      />
-
-      {showSnowChart && selectedBasin && !apiUrl && (
-        <SnowVolumeChart
-          basin={snowManifest?.basins.find((item) => item.id === selectedBasin.id) ?? null}
-          basinName={selectedBasin.name}
-          manifest={snowManifest}
-          series={volumeSeries}
-          loading={volumeLoading || snowLoading}
-          error={volumeError}
-          onClose={handleClose}
+      <main className="absolute inset-0" aria-label={t("app.descripcion")}>
+        <h1 className="sr-only">{t("app.nombre")}</h1>
+        {/* DOM order is the tab order the spec asks for: panel, date bar, then the map and its controls. */}
+        <Panel section={section} open={panelVisible} sheet={sheet} onSheet={setSheet}>
+          {section === "nieve" && (
+            <NieveSection
+              manifest={snowManifest}
+              loading={snowLoading}
+              selected={snowLayerId}
+              onChange={setSnowLayerId}
+            />
+          )}
+          {section === "agua" && (
+            <AguaSection
+              basins={basins}
+              loading={basinsLoading}
+              selectedId={selectedBasinId}
+              onSelect={handleBasinSelect}
+            >
+              {selectedBasin && !apiUrl && (
+                <SnowVolumeChart
+                  basin={snowManifest?.basins.find((item) => item.id === selectedBasin.id) ?? null}
+                  manifest={snowManifest}
+                  series={volumeSeries}
+                  loading={volumeLoading || snowLoading}
+                  error={volumeError}
+                />
+              )}
+              {selectedBasin && apiUrl && (
+                <BasinChart
+                  series={basinSeries}
+                  loading={seriesLoading}
+                  error={seriesError}
+                  hydrologicalYear={hydrologicalYear}
+                  onYearChange={setHydrologicalYear}
+                />
+              )}
+              {selectedRiver && (
+                <RiverFlowChart river={selectedRiver} series={flowSeries} loading={flowLoading} error={flowError} />
+              )}
+            </AguaSection>
+          )}
+          {section === "webcams" && (
+            <WebcamsSection
+              webcams={webcams}
+              loading={webcamsLoading}
+              error={webcamsError}
+              selectedId={selectedWebcamId}
+              onSelect={handleWebcamSelect}
+            />
+          )}
+          {section === "meteo" && (
+            <MeteoSection
+              manifest={weatherManifest}
+              loading={weatherLoading}
+              horizon={weatherHorizon}
+              onHorizon={setWeatherHorizon}
+              modelId={activeWeatherModel?.id ?? null}
+              onModel={handleWeatherModelChange}
+              variable={weatherVariable}
+              onVariable={setWeatherVariable}
+            />
+          )}
+          {section === "metodo" && <MetodoSection />}
+        </Panel>
+        <DateBar
+          scenes={scenes}
+          loading={observationsLoading}
+          selectedDate={selectedObservationDate}
+          onChange={(date) => {
+            setSelectedObservationDate(date);
+            setWeatherHorizon(null);
+          }}
+          hidden={mobile && sheet === "full"}
         />
-      )}
-
-      {showSnowChart && selectedBasin && apiUrl && (
-        <BasinChart
-          basinName={selectedBasin.name}
-          series={basinSeries}
-          loading={seriesLoading}
-          error={seriesError}
-          onClose={handleClose}
-          hydrologicalYear={hydrologicalYear}
-          onYearChange={setHydrologicalYear}
+        <Legend weatherOverlay={precipitationOverlay} snowOverlay={activeSnowOverlay} />
+        <Map
+          basinsFC={basinsFC}
+          selectedBasinId={selectedBasinId}
+          ndsiTileUrl={ndsiTileUrl}
+          ndsiImage={ndsiImage}
+          weatherOverlay={precipitationOverlay}
+          snowOverlay={activeSnowOverlay}
+          onBasinSelect={handleBasinSelect}
+          webcams={webcams}
+          selectedWebcamId={selectedWebcamId}
+          onWebcamSelect={handleWebcamSelect}
+          basemap={basemap}
+          terrain={terrain}
+          inset={mapInset}
         />
-      )}
-
-      {showFlowChart && selectedRiver && (
-        <RiverFlowChart
-          river={selectedRiver}
-          series={flowSeries}
-          loading={flowLoading}
-          error={flowError}
-          onClose={handleClose}
-        />
-      )}
+      </main>
     </div>
   );
 }
