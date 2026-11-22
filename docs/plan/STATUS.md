@@ -25,7 +25,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r3 (G-Infra and G-Code running) on 7277965 | #6 | r1 both fail; r2 both fail (colour rule gaps only; all Accept lines pass) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | r3: narrow fixes requested by coordinator (G-Code r3 running) | #6 | r1, r2 both fail; r3: G-Infra fail (5 edge-case colours inside the bar) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | gauntlet r4 narrow (G-Infra and G-Code running) on 0bbc81e | #12 | r1-r3 fail; r4 narrow: G-Infra PASS (0bbc81e), G-Code running |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | gauntlet r1 (G-Data running; G-Infra, G-Code queued), stacked on plan/t03-catalog | #20 | |
@@ -91,6 +91,7 @@ Not available until T5.1.
 ## Changes of approach and spending
 
 - 2026-11-22, T0.7 third failed round (advance OK item 3): G-Infra r3 found a pre-existing flaw in pages.yml restore() (artifacts from any run with head_branch main, including fork runs). Decision: fix it inside T0.7 since the PR rewrites pages.yml and it guards the live site; round 4 is a narrow G-Infra check of that finding plus a regression pass of round 3. No change to the definition of done.
+- 2026-11-22, T0.6 third failed round (advance OK item 3): all Accept lines pass; only edge cases of the hard-coded-colour rule remain. Decision: fix three narrow gaps (var() fallback with a named colour, MapLibre legacy defaults, '#'+interpolation and nested static templates), record the rest as follow-ups (named colours under non-colour keys, concatenation, numeric colours), then a narrow round 4 on those items and the diff, then merge. Reason: a lint rule cannot be made exhaustive, and T0.6 blocks five lanes. No change to the definition of done.
 - 2026-11-21, T0.2: storage interim on nivosense-cogs prefixes (org IAM deny on bucket creation); see Log and Waiting for Mario.
 
 ## Log
@@ -155,3 +156,4 @@ Not available until T5.1.
 - 2026-11-22: T3.3 first pass settled 1 of 12 live feratel views (15111-1, 125.5 deg); placeholder-only and unpositioned cams unsettled. Coordinator asked for a joint per-station fit, feratel pan metadata as priors, clear-frame reruns and named-peak scoring before gauntlets; whatever stays unsettled goes to Mario as a confirmation list with comparison images.
 - 2026-11-22: T2.1 G-Method r1 PASS (domain matches REDIAM Espacio Natural to 60 m2; legal reading confirmed; minors: 5 edge slivers 3,285 m2 in basins 604361/604370, EPSG wording, BOJA pages). T0.7 G-Code r4 (narrow) started.
 - 2026-11-22: T0.7 G-Infra r4 PASS at 0bbc81e (every attack run refused; 30 real schedule runs per producer still accepted; no regression). Minor follow-up: restore() reads one 30-run page per producer, so a flood of fork runs could stall fresh data (query by event instead). T4.0 G-UI r2 started.
+- 2026-11-22: T0.6 G-Infra r3 FAIL (named colour as var() fallback; named colours under non-colour keys and in a MapLibre legacy default; hex built in templates). Coordinator decision recorded under Changes of approach.
