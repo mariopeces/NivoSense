@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import sys
 import tempfile
 import threading
 import time
@@ -17,7 +18,6 @@ from typing import Protocol
 IMMUTABLE = "public, max-age=31536000, immutable"
 NO_CACHE = "no-cache"
 LOCK_TIMEOUT_S = 30.0
-STALE_LOCK_S = 10.0
 
 
 class PreconditionFailed(Exception):
@@ -57,6 +57,35 @@ class Storage(Protocol):
     def copy_from(self, source: Storage, key: str, if_generation_match: int | None = None) -> None: ...
 
 
+def _try_lock(fd: int) -> bool:
+    """Take an exclusive lock on the first byte of an open file without waiting."""
+    try:
+        if sys.platform == "win32":
+            import msvcrt
+
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return False
+    return True
+
+
+def _unlock(fd: int) -> None:
+    if sys.platform == "win32":
+        import msvcrt
+
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(fd, fcntl.LOCK_UN)
+
+
 class LocalStorage:
     """A catalogue in a folder. Object metadata (generation, headers) lives under `.meta/`."""
 
@@ -79,34 +108,23 @@ class LocalStorage:
 
     @contextmanager
     def _locked(self) -> Iterator[None]:
-        # A lock file makes compare-and-swap safe across processes too, not only threads.
+        # An OS lock on a lock file makes compare-and-swap safe across processes too, not only threads. The
+        # kernel releases it when its holder dies, so a killed process never leaves a stale lock behind.
         lock = self.root / ".lock"
         with self._thread_lock:
-            deadline = time.monotonic() + LOCK_TIMEOUT_S
-            while True:
-                try:
-                    fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                    break
-                # On Windows a lock file another process is deleting is "delete pending" for a moment: opening
-                # or inspecting it raises PermissionError, which means busy here, like FileExistsError.
-                except (FileExistsError, PermissionError):
-                    try:
-                        age = time.time() - lock.stat().st_mtime
-                    except OSError:
-                        age = 0.0
-                    # The lock covers a metadata write and a rename (milliseconds); an old one was left by a
-                    # killed process.
-                    if age > STALE_LOCK_S:
-                        lock.unlink(missing_ok=True)
-                        continue
-                    if time.monotonic() > deadline:
-                        raise TimeoutError(f"Lock {lock} held for more than {LOCK_TIMEOUT_S} s") from None
-                    time.sleep(0.005)
+            fd = os.open(lock, os.O_CREAT | os.O_RDWR)
             try:
-                yield
+                deadline = time.monotonic() + LOCK_TIMEOUT_S
+                while not _try_lock(fd):
+                    if time.monotonic() > deadline:
+                        raise TimeoutError(f"Lock {lock} held for more than {LOCK_TIMEOUT_S} s")
+                    time.sleep(0.005)
+                try:
+                    yield
+                finally:
+                    _unlock(fd)
             finally:
                 os.close(fd)
-                os.remove(lock)
 
     def _meta(self, key: str) -> dict | None:
         path = self._meta_path(key)

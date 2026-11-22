@@ -60,6 +60,7 @@ class FakeBlob:
         self.upload_from_string(Path(filename).read_bytes(), content_type, if_generation_match, retry)
 
     def download_as_bytes(self, if_generation_match=None) -> bytes:
+        self.bucket.client.calls.append(("download", self.name, if_generation_match))
         if self.name not in self.bucket.objects:
             raise NotFound(self.name)
         self._check(if_generation_match)
@@ -145,6 +146,7 @@ class GcsStorageTests(unittest.TestCase):
         blob = self.staging.read("catalog/index.json")
         self.assertEqual((blob.data, blob.generation, blob.cache_control), (b"{}", generation, "no-cache"))
         self.assertIsNone(self.staging.read("catalog/missing.json"))
+        self.assertIn(("download", "staging/catalog/index.json", generation), FakeClient.calls, "read not pinned")
 
     def test_list_stays_inside_the_prefix_and_strips_it(self) -> None:
         self.staging.write("catalog/entries/a/2026-11-20.json", b"{}", "application/json", "no-cache")
