@@ -23,7 +23,7 @@ Procedure, in this order:
    - `tools/fix_swir.py` re-reads B11 on whole 20 m pixels and crops to the 10 m-aligned window.
    - I then relabelled, at x10 zoom with the corrected SWIR (`chips/zoom_*.png`), every point I had marked as doubtful (51) plus every point whose 80 m neighbourhood was heterogeneous in red or B11 (37): 88 points in all.
    - `gmethod_relabel_audit.csv` keeps the first-pass and final label for each point.
-5. **Lock.** `gmethod_relabel.csv` was hashed (`c52db6a457006a36eacf433bc49bc4bce70e36a82b5bfe1fbeac611dfbbdc671`) before the comparison. `tools/agree.py` then joined it with the frozen labels.
+5. **Lock.** `gmethod_relabel.csv` was hashed (`c52db6a457006a36eacf433bc49bc4bce70e36a82b5bfe1fbeac611dfbbdc671`, CRLF line endings as written; the committed copy has LF endings under .gitattributes, SHA-256 `3d479b69cb9345d6f58154943d5ab1458d5184ba5362b2fdfc06a0b059af68b8`) before the comparison. `tools/agree.py` then joined it with the frozen labels.
 
 Result (full tables in `agreement_tables.md`):
 
