@@ -108,3 +108,21 @@ def test_storm_noise_changes_snowfall_and_zero_noise_is_neutral():
     assert not np.allclose(noisy.swe, flat.swe)
     wetter = params.__class__(**{**params.__dict__, "xi": np.full_like(params.xi, 0.5)})
     assert run_ensemble(classes, v2, wetter, []).swe.sum() > flat.swe.sum() * 1.2
+
+
+def test_class_weights_from_cell_weights():
+    from pipelines.snow_model.forcing import neighbour_weights
+
+    v1, v2 = real_forcing()
+    dem, resolution = synthetic_dem()
+    slope, aspect = slope_aspect(dem, resolution)
+    radiation = radiation_index(37.1, slope.ravel(), aspect.ravel())
+    yy, xx = np.mgrid[0:80, 0:80]
+    neighbours, weights = neighbour_weights(v1, 400000.0 + xx.ravel() * 100.0, 4100000.0 + yy.ravel() * 100.0, UTM)
+    domain = build_class_domain(
+        dem.ravel(), aspect_classes(slope, aspect).ravel(), neighbours, radiation, 1e4, min_cells=12, weights=weights
+    )
+    assert domain.neighbours.shape == (domain.class_count, 4)
+    assert np.allclose(domain.weights.sum(axis=1), 1.0, atol=1e-5)
+    run = run_ensemble(domain, v2, sample_parameters(3, 2025, storm_count=v2.storm_count), [])
+    assert np.isfinite(run.swe).all()

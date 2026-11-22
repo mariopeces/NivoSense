@@ -81,36 +81,50 @@ def step(
     swe: np.ndarray,
     s_peak: np.ndarray,
     m_cum: np.ndarray,
+    curve: np.ndarray,
     snowfall: np.ndarray,
     potential_melt: np.ndarray,
     beta: np.ndarray,
     new_snow_mm: float = NEW_SNOW_MM,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """One day: add snowfall, melt, update the depletion state.
 
-    All arrays share one shape (broadcasting allowed for beta). Returns swe, s_peak, m_cum and the melt (mm)
-    actually removed from the cell mean, with swe_new = swe + snowfall - melt exactly and 0 <= melt <= swe + snowfall.
+    `curve` is the cell-mean SWE the depletion curve accounts for, `mean_swe(s_peak, m_cum, beta)`, carried as
+    state so the erfc evaluations only run on melting cells. All arrays share one shape (beta may broadcast).
+    Returns swe, s_peak, m_cum, curve and the melt (mm) removed from the cell mean, with
+    swe_new = swe + snowfall - melt exactly and 0 <= melt <= swe + snowfall.
     """
+    beta = np.broadcast_to(beta, swe.shape)
     bare = swe <= EPSILON_MM
     total = swe + snowfall
     reset = (snowfall >= new_snow_mm) | (bare & (snowfall > 0))
-    s_peak = np.where(reset, total, np.where(snowfall > 0, s_peak + snowfall, s_peak))
+    small = (snowfall > 0) & ~reset
+    s_peak = np.where(reset, total, np.where(small, s_peak + snowfall, s_peak))
     m_cum = np.where(reset, 0.0, m_cum)
-    # The mean mass the curve accounts for; anything above it came from small snowfalls and melts first.
-    curve_old = np.where(reset, total, mean_swe(s_peak, m_cum, beta))
-    excess = np.maximum(total - curve_old, 0.0)
+    curve = np.where(reset, total, curve)
+    if small.any():
+        curve[small] = mean_swe(s_peak[small], m_cum[small], beta[small])
 
     new_m = m_cum + potential_melt
     active = (potential_melt > 0) & (total > EPSILON_MM)
     melt = np.zeros_like(total)
     if active.any():
-        beta_b = np.broadcast_to(beta, total.shape)
-        curve_new = mean_swe(s_peak[active], new_m[active], beta_b[active])
-        curve_melt = np.maximum(curve_old[active] - curve_new, 0.0)
+        curve_new = mean_swe(s_peak[active], new_m[active], beta[active])
+        curve_melt = np.maximum(curve[active] - curve_new, 0.0)
+        # Mass above what the curve accounts for came from small snowfalls and melts first, with the potential
+        # melt the curve part left over.
+        excess = np.maximum(total[active] - curve[active], 0.0)
         left_over = np.maximum(potential_melt[active] - curve_melt, 0.0)
-        melt[active] = np.minimum(total[active], curve_melt + np.minimum(excess[active], left_over))
+        melt[active] = np.minimum(total[active], curve_melt + np.minimum(excess, left_over))
+        curve[active] = curve_new
     m_cum = np.where(active, new_m, m_cum)
     swe_new = np.maximum(total - melt, 0.0)
     swe_new = np.where(swe_new <= EPSILON_MM, 0.0, swe_new)
     melt = total - swe_new
-    return swe_new.astype(np.float32), s_peak.astype(np.float32), m_cum.astype(np.float32), melt.astype(np.float32)
+    return (
+        swe_new.astype(np.float32),
+        s_peak.astype(np.float32),
+        m_cum.astype(np.float32),
+        curve.astype(np.float32),
+        melt.astype(np.float32),
+    )

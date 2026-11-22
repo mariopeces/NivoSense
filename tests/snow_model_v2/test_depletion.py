@@ -44,10 +44,10 @@ def test_larger_beta_gives_flatter_curve():
 
 
 def run(snowfall, potential, beta, new_snow_mm=dep.NEW_SNOW_MM):
-    swe = peak = cum = np.zeros(snowfall.shape[1], dtype="float32")
+    swe = peak = cum = curve = np.zeros(snowfall.shape[1], dtype="float32")
     series = []
     for day in range(snowfall.shape[0]):
-        swe, peak, cum, melt = dep.step(swe, peak, cum, snowfall[day], potential[day], beta, new_snow_mm)
+        swe, peak, cum, curve, melt = dep.step(swe, peak, cum, curve, snowfall[day], potential[day], beta, new_snow_mm)
         series.append((swe, peak, cum, melt, dep.covered_fraction(peak, cum, beta) * (swe > 0)))
     return series
 
@@ -77,16 +77,16 @@ def test_snowfall_resets_the_episode_and_small_snowfall_does_not():
     beta = np.array([0.4], dtype="float32")
     zero = np.zeros((1, 1), dtype="float32")
     snow = np.array([[100.0]], dtype="float32")
-    state = dep.step(zero[0], zero[0], zero[0], snow[0], np.array([0.0], dtype="float32"), beta)
+    state = dep.step(zero[0], zero[0], zero[0], zero[0], snow[0], np.array([0.0], dtype="float32"), beta)
     melt_day = np.array([60.0], dtype="float32")
-    state = dep.step(state[0], state[1], state[2], np.array([0.0], dtype="float32"), melt_day, beta)
+    state = dep.step(state[0], state[1], state[2], state[3], np.array([0.0], dtype="float32"), melt_day, beta)
     assert dep.covered_fraction(state[1], state[2], beta)[0] < 1
     small = dep.step(
-        state[0], state[1], state[2], np.array([2.0], dtype="float32"), np.array([0.0], dtype="float32"), beta
+        state[0], state[1], state[2], state[3], np.array([2.0], dtype="float32"), np.array([0.0], dtype="float32"), beta
     )
     assert small[2][0] == state[2][0] and dep.covered_fraction(small[1], small[2], beta)[0] < 1
     big = dep.step(
-        state[0], state[1], state[2], np.array([8.0], dtype="float32"), np.array([0.0], dtype="float32"), beta
+        state[0], state[1], state[2], state[3], np.array([8.0], dtype="float32"), np.array([0.0], dtype="float32"), beta
     )
     assert big[2][0] == 0 and big[1][0] == big[0][0]
     assert dep.covered_fraction(big[1], big[2], beta)[0] == 1.0

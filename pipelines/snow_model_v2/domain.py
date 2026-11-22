@@ -49,12 +49,15 @@ def build_class_domain(
     cell_area_m2: float,
     band_m: float = BAND_M,
     min_cells: int = MIN_CELLS,
+    weights: np.ndarray | None = None,
 ) -> ClassDomain:
     """Classes of cells sharing an elevation band, an aspect class and the nearest forcing point.
 
     `aspect` holds the classes of `aspect_classes`; `neighbours` is (cells, K) with the nearest forcing point
     first, as `pipelines.snow_model.forcing.neighbour_weights` returns it; `radiation` is (samples, cells).
-    A class runs on its mean elevation and mean radiation index with its nearest forcing point only. Cells
+    A class runs on its mean elevation and mean radiation index. Without `weights` it uses its nearest forcing
+    point only; with the (cells, K) weights of the cells it uses the K points carrying most of the mean cell
+    weight, renormalised, which follows the cell-wise interpolation of v1 more closely. Cells
     in classes below `min_cells` (and cells without elevation) get class -1: they are not represented in the
     smoother and are covered only by the final cell-wise run.
     """
@@ -78,12 +81,22 @@ def build_class_domain(
     )
     first = np.zeros(count, dtype="int64")
     first[ids[::-1]] = np.flatnonzero(member)[::-1]
+    if weights is None:
+        class_neighbours, class_weights = neighbours[first, :1], np.ones((count, 1))
+    else:
+        columns = neighbours.shape[1]
+        accumulated = np.zeros((count, int(neighbours.max()) + 1))
+        for k in range(columns):
+            np.add.at(accumulated, (ids, neighbours[member, k]), weights[member, k])
+        class_neighbours = np.argsort(-accumulated, axis=1)[:, :columns]
+        class_weights = np.take_along_axis(accumulated, class_neighbours, axis=1)
+        class_weights = class_weights / class_weights.sum(axis=1, keepdims=True)
     return ClassDomain(
         class_of_cell=class_of_cell,
         elevation=class_elevation.astype("float32"),
         aspect=aspect[first].astype("int8"),
-        neighbours=neighbours[first, :1].astype("int32"),
-        weights=np.ones((count, 1), dtype="float32"),
+        neighbours=class_neighbours.astype("int32"),
+        weights=class_weights.astype("float32"),
         radiation=class_radiation.astype("float32"),
         cell_count=cell_count,
         cell_area_m2=cell_area_m2,

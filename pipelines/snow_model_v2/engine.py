@@ -131,6 +131,7 @@ def _run_chunk(
     depth = np.zeros(shape, dtype="float32")
     s_peak = np.zeros(shape, dtype="float32")
     m_cum = np.zeros(shape, dtype="float32")
+    curve = np.zeros(shape, dtype="float32")
     position = {int(day): index for index, day in enumerate(store)}
 
     for day_index, day in enumerate(forcing.days):
@@ -150,7 +151,7 @@ def _run_chunk(
         potential_melt = (ddf + rad * shortwave[None]) * degrees
 
         total = swe + snowfall
-        swe, s_peak, m_cum, melt = depletion.step(swe, s_peak, m_cum, snowfall, potential_melt, beta)
+        swe, s_peak, m_cum, curve, melt = depletion.step(swe, s_peak, m_cum, curve, snowfall, potential_melt, beta)
         depth = depth + snowfall / new_snow_density(mean_temperature)
         remaining = np.divide(swe, total, out=np.zeros_like(swe), where=total > 0)
         depth = depth * remaining
