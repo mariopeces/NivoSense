@@ -1,0 +1,20 @@
+2024-11-08 R094 GS2A_20241108T110251_048997: indep coverage 1.0000 valid 0.2930; stored==this datatake on 83.7358% of domain px
+2024-11-08 R094 GS2C_20241108T110621_000922: indep coverage 1.0000 valid 0.3328; stored==this datatake on 100.0000% of domain px
+  record: datatake GS2C_20241108T110621_000922 coverage 1.0 valid 0.3328 complete True listed True tiles ['30SVF', '30SVG', '30SWF', '30SWG']
+  alternatives: [{"datatake": "GS2A_20241108T110251_048997", "scene_ids": ["S2A_T30SVF_20241108T110442_L2A", "S2A_T30SVG_20241108T110442_L2A", "S2A_T30SWF_20241108T110442_L2A", "S2A_T30SWG_20241108T110442_L2A"], "domain_coverage": 1.0, "domain_valid_fraction": 0.293}]
+  domain px where the two datatakes' SCL differ: 349204; stored takes chosen on 349204, other on 0
+2024-11-05 R051 GS2A_20241105T105231_048954: indep coverage 0.0978 valid 0.0978; stored==this datatake on 99.0617% of domain px
+2024-11-05 R051 GS2C_20241105T105251_000879: indep coverage 0.0980 valid 0.0980; stored==this datatake on 100.0000% of domain px
+  record: datatake GS2C_20241105T105251_000879 coverage 0.098 valid 0.098 complete True listed False tiles ['30SWG']
+  alternatives: [{"datatake": "GS2A_20241105T105231_048954", "scene_ids": ["S2A_T30SWG_20241105T105438_L2A"], "domain_coverage": 0.0978, "domain_valid_fraction": 0.0978}]
+  domain px where the two datatakes' SCL differ: 20147; stored takes chosen on 20147, other on 0
+2026-02-16 R094 GS2A_20260216T110621_055647: indep coverage 1.0000 valid 0.8942; stored==this datatake on 92.0361% of domain px
+2026-02-16 R094 GS2B_20260216T110029_046738: indep coverage 1.0000 valid 0.8965; stored==this datatake on 100.0000% of domain px
+  record: datatake GS2B_20260216T110029_046738 coverage 1.0 valid 0.8965 complete True listed True tiles ['30SVF', '30SVG', '30SWF', '30SWG']
+  alternatives: [{"datatake": "GS2A_20260216T110621_055647", "scene_ids": ["S2A_T30SVF_20260216T110619_L2A", "S2A_T30SVG_20260216T110619_L2A", "S2A_T30SWF_20260216T110619_L2A", "S2A_T30SWG_20260216T110619_L2A"], "domain_coverage": 1.0, "domain_valid_fraction": 0.8942}]
+  domain px where the two datatakes' SCL differ: 170990; stored takes chosen on 170990, other on 0
+2026-02-13 R051 GS2A_20260213T105111_055604: indep coverage 0.0958 valid 0.0191; stored==this datatake on 96.6014% of domain px
+2026-02-13 R051 GS2B_20260213T105039_046695: indep coverage 0.0947 valid 0.0193; stored==this datatake on 100.0000% of domain px
+  record: datatake GS2B_20260213T105039_046695 coverage 0.0947 valid 0.0193 complete True listed False tiles ['30SWG']
+  alternatives: [{"datatake": "GS2A_20260213T105111_055604", "scene_ids": ["S2A_T30SWG_20260213T105732_L2A"], "domain_coverage": 0.0958, "domain_valid_fraction": 0.0191}]
+  domain px where the two datatakes' SCL differ: 72971; stored takes chosen on 72971, other on 0

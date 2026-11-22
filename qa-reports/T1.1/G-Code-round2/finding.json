@@ -1,0 +1,34 @@
+{
+  "gauntlet": "G-Code",
+  "task": "T1.1",
+  "round": 2,
+  "verdict": "pass",
+  "findings": [
+    {
+      "severity": "minor",
+      "where": "tests/s2/test_s2.py; pipelines/s2/ingest.py:281 (missing), :317-323 (is_current), :208-215 (input_key), :326-341 (write_decision)",
+      "what": "Five deliberate breaks on the new datatake, reprocessing and decision paths pass all 22 tests; the code itself is correct on each",
+      "observed": "mutations.txt: 18/23 caught; survivors G6 missing tiles from union of datatakes, K3 is_current ignores expected tiles, L4 decision listed always False, K1 input key from kept datatake only, K4 input key from baselines only",
+      "to_pass": "a test for each: partial clearer datatake stays incomplete and unlisted; changed expected tiles reopen a date; decision listed equals the record's; rerun of a two-datatake pass does not rebuild; a swapped granule id changes the key"
+    },
+    {
+      "severity": "minor",
+      "where": "pipelines/s2/ingest.py:344-355",
+      "what": "run() docstring does not mention catalogue_root or version; version is documented nowhere",
+      "observed": "read of the docstring; module docstring and CLI help cover --catalogue-root only",
+      "to_pass": "one line per parameter"
+    },
+    {
+      "severity": "minor",
+      "where": "pipelines/s2/ingest.py:208-215 (record.json input_key)",
+      "what": "record input_key hashes granule ids and baselines only, while README D3 and T0.3's publish.input_key include the code version (and prior state); same name, different meaning",
+      "observed": "code read against plan/t03-catalog pipelines/catalog/publish.py:35 and README D3",
+      "to_pass": "rename it (e.g. source_key) or document that it is the ingest reprocessing key and T1.2 publishes with T0.3's input_key"
+    }
+  ],
+  "followups": [
+    "No S2B+S2C same-orbit pair over the domain in 2024-10..2026-11; verified with S2A+S2C (2024-11-08 R094, 2024-11-05 R051) and S2A+S2B (2026-02-16 R094, 2026-02-13 R051): stored SCL equals the kept datatake on 100% of domain px, 0 px from the other",
+    "Every run also processes the 10 days before today, including backfill runs over old ranges (by design, README section 5); account for it in T1.6/T1.7 backfill cost",
+    "Correction to G-Code round 1: the 2026-02-13 R051 per-satellite fractions were swapped there (S2A 0.0958/0.0191, S2B 0.0947/0.0193); the builder's feb.log is right"
+  ]
+}

@@ -1,0 +1,25 @@
+OK       BASELINE unmutated (must pass): 22 passed in 33.87s
+caught   R1a listing threshold 0.30 -> 0.05: 1 failed, 21 passed in 54.12s test_listing_follows_the_30_percent_rule_and_needs_every_tile
+caught   R1b scale/offset of items[0] for every granule: 1 failed, 21 passed in 78.27s (0:01:18) test_each_granule_uses_its_own_raster_bands_offset
+caught   R1c footprint filter removed from run(): 1 failed, 21 passed in 106.25s (0:01:46) test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives
+caught   G1 datatake ignored in grouping (blend platforms): 2 failed, 20 passed in 96.93s (0:01:36) test_two_satellites_on_one_orbit_stay_separate_acquisitions, test_the_clearer_datatake_is_kept_and_never_blended
+caught   G2 datatake = raw id (baseline suffix kept): 2 failed, 20 passed in 44.88s test_two_satellites_on_one_orbit_stay_separate_acquisitions, test_the_clearer_datatake_is_kept_and_never_blended
+caught   G3 murkiest datatake kept: 1 failed, 21 passed in 61.97s (0:01:01) test_the_clearer_datatake_is_kept_and_never_blended
+caught   G4 rank by coverage before valid: 2 failed, 20 passed in 63.43s (0:01:03) test_complete_unchanged_date_is_not_rebuilt, test_the_clearer_datatake_is_kept_and_never_blended
+caught   G5 first datatake kept, no ranking: 1 failed, 21 passed in 44.11s test_the_clearer_datatake_is_kept_and_never_blended
+SURVIVED G6 missing tiles from union of datatakes: 22 passed in 52.58s
+caught   G7 chosen datatake listed in alternatives: 1 failed, 21 passed in 63.03s (0:01:03) test_the_clearer_datatake_is_kept_and_never_blended
+caught   G8 alternatives get chosen valid fraction: 1 failed, 21 passed in 66.61s (0:01:06) test_the_clearer_datatake_is_kept_and_never_blended
+SURVIVED K1 input key from chosen datatake only: 22 passed in 37.95s
+caught   K2 is_current ignores input key: 3 failed, 19 passed in 51.88s test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives, test_late_split_granule_reopens_a_date_already_complete, test_newer_baseline_reopens_a_complete_date
+SURVIVED K3 is_current ignores expected tiles: 22 passed in 49.07s
+SURVIVED K4 input key ignores granule ids: 22 passed in 37.76s
+caught   K5 reprocess window 0 days: 3 failed, 19 passed in 46.91s test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives, test_every_run_rechecks_the_reprocessing_window, test_late_split_granule_reopens_a_date_already_complete
+caught   K6 reprocess window 3 days: 1 failed, 21 passed in 47.64s test_every_run_rechecks_the_reprocessing_window
+caught   L1 listed ignores complete: 2 failed, 20 passed in 65.81s (0:01:05) test_incomplete_date_is_reprocessed_when_the_missing_tile_arrives, test_listing_follows_the_30_percent_rule_and_needs_every_tile
+caught   L2 decision not rewritten on rebuild: 1 failed, 21 passed in 68.87s (0:01:08) test_late_split_granule_reopens_a_date_already_complete
+caught   L3 decision code_version ignored: 1 failed, 21 passed in 63.63s (0:01:03) test_late_split_granule_reopens_a_date_already_complete
+SURVIVED L4 decision listed always False: 22 passed in 65.42s (0:01:05)
+caught   C1 SCL 2 counted not valid: 1 failed, 21 passed in 49.03s test_domain_fractions_count_only_clear_classes_inside_the_domain
+caught   C2 keep every baseline: 1 failed, 21 passed in 72.47s (0:01:12) test_reprocessed_granule_replaces_the_older_one
+18/23 mutations caught (baseline row excluded; it must read 22 passed)

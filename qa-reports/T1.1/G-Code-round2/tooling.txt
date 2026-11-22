@@ -1,0 +1,37 @@
+# PR #14 @ dafc7f3e785b1c7422ae4ecf329cb2fdd9e0e1ff, pyproject.toml from plan/t06-ci; venv: ruff ruff 0.17.6, mypy 1.20.2 (compiled: yes), pytest 9.2.0, numpy 2.4.6, rasterio 1.4.4 (T0.6 lock pins)
+## pytest tests/s2 (venv)
+22 passed in 54.53s
+## pytest tests backend/tests (system python 3.12, backend deps present)
+67 passed in 55.49s
+## ruff check / format --check pipelines/s2 tests/s2
+All checks passed!
+7 files already formatted
+## mypy pipelines/s2
+Success: no issues found in 5 source files
+## mypy (project files = pipelines, scripts): errors in pipelines/s2:
+0
+Found 16 errors in 5 files (checked 29 source files)
+## new imports in the diff
++from .domain import Domain, Grid, convex_hull, load_domain
++from .domain import Grid
++from .mosaic import REFLECTANCE_ASSETS, Mosaic, build_mosaic, domain_fractions
++from .stac import Acquisition
++from .stac import Acquisition, Fetch, expected_tiles, fetch_json, group_acquisitions, reference_window, search_items
++from collections import defaultdict
++from concurrent.futures import ThreadPoolExecutor
++from dataclasses import dataclass
++from datetime import date, datetime, timedelta, timezone
++from datetime import date, timedelta
++from pathlib import Path
++from typing import Any
++from typing import Any, Callable
++import argparse
++import hashlib
++import json
++import math
++import numpy as np
++import os
++import re
++import subprocess
++import sys
++import urllib.request
