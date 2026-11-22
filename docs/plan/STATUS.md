@@ -29,7 +29,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | r3: fix requested by coordinator (G-Code r3 running) | #12 | r1, r2 fail; r3: G-Infra fail (pre-existing restore() trusts any head_branch main run) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | building, stacked on plan/t03-catalog (plan-qa, ctx_976ccb1ec332) | | |
-| T1.1 S2 ingest | B | task_597641229107 | T0.4 | gauntlet r1 (G-Data, G-Method, G-Code running) | #14 | r1: G-Data fail (late split-datatake granule never refreshes a complete date); G-Method, G-Code running |
+| T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 G-Data (G-Code r1 running) | #14 | r1: G-Data fail (late granule), G-Method PASS |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
 | T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | building, stacked on plan/t11-s2-ingest (plan-rgb, ctx_4e549ad175fb) | | |
@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r2 (G-Data running; G-Code queued); catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r2 (G-Data and G-Code running); catalogue output pending on T0.3 | #8 | r1: G-Data fail (hotlink age, MD5-only placeholder), G-Code fail (localised feratel placeholders) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -141,3 +141,4 @@ Not available until T5.1.
 - 2026-11-22: T0.7 round 2 fixes pushed (3f2086d): github-pages tag policy deleted (environment main-only), push:tags removed, pages.yml refuses runs off main; picker hardened. Round 3 (last) G-Infra started, G-Code queued.
 - 2026-11-22: T1.1 G-Data r1 FAIL (major: a late split-datatake granule never re-opens a date already complete; both Accept lines pass). Sent to the builder. T0.7 G-Code r3 started.
 - 2026-11-22: T0.7 G-Infra r3 FAIL: all deploy paths hold; one pre-existing major (restore() trusts any head_branch main run, incl. forks). Coordinator decision recorded under Changes of approach.
+- 2026-11-22: T1.1 G-Method r1 PASS (independent query and CDSE cross-check agree on all 30 acquisitions; offsets from raster:bands; no seams). T3.1 G-Code r2 started.
