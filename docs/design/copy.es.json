@@ -13,6 +13,10 @@
     "descripcion": "Nieve en Sierra Nevada: observada por satélite, rellenada a diario y modelada",
     "dominio": "Parque Natural de Sierra Nevada, su zona periférica de protección y Parque Nacional"
   },
+  "credito": {
+    "texto": "Realizado por Darwin Geospatial",
+    "enlace": "Realizado por Darwin Geospatial (se abre en una pestaña nueva)"
+  },
   "rail": {
     "nieve": "Nieve",
     "agua": "Agua",

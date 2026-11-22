@@ -38,6 +38,7 @@ export default {
         panel: "var(--layout-panel-width)",
         "map-control": "var(--layout-map-control)",
         tabbar: "var(--layout-tabbar-height)",
+        credit: "var(--layout-credit-height)",
         "sheet-peek": "var(--layout-sheet-peek)",
         "sheet-half": "var(--layout-sheet-half)",
         touch: "var(--layout-touch-target)",
