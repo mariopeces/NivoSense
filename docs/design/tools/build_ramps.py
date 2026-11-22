@@ -96,7 +96,14 @@ LAYERS = {
                 "key": "unknown",
                 "rgb": None,
                 "alpha": 0.0,
-                "pattern": {"kind": "hatch", "color": "#2E333B", "alpha": 0.7, "spacing_px": 6, "width_px": 1, "angle_deg": 45},
+                "pattern": {
+                    "kind": "hatch",
+                    "color": "#2E333B",
+                    "alpha": 0.7,
+                    "spacing_px": 6,
+                    "width_px": 1,
+                    "angle_deg": 45,
+                },
                 "label_es": "Sin dato (sombra del relieve o fuera de la escena)",
             },
         ],
@@ -108,7 +115,10 @@ LAYERS = {
         "value_scale": "mm of water, ensemble median",
         "source": "cmocean_deep",
         "transparent_below": 5,
-        "transparent_note": "README section 6: SWE under 5 mm is drawn transparent; the first class is light and translucent so trace snow never reads as solid cover",
+        "transparent_note": (
+            "README section 6: SWE under 5 mm is drawn transparent; "
+            "the first class is light and translucent so trace snow never reads as solid cover"
+        ),
         "classes": [
             {"min": 0, "max": 5, "t": None, "alpha": 0.0, "label_es": "< 5 mm"},
             {"min": 5, "max": 25, "t": 0.10, "alpha": 0.4, "label_es": "5-25 mm"},
@@ -168,10 +178,18 @@ def oklab(rgb: np.ndarray) -> np.ndarray:
     """sRGB 0..1 (..., 3) -> OKLab (Ottosson 2020)."""
     lin = srgb_to_linear(rgb)
     m1 = np.array(
-        [[0.4122214708, 0.5363325363, 0.0514459929], [0.2119034982, 0.6806995451, 0.1073969566], [0.0883024619, 0.2817188376, 0.6299787005]]
+        [
+            [0.4122214708, 0.5363325363, 0.0514459929],
+            [0.2119034982, 0.6806995451, 0.1073969566],
+            [0.0883024619, 0.2817188376, 0.6299787005],
+        ]
     )
     m2 = np.array(
-        [[0.2104542553, 0.7936177850, -0.0040720468], [1.9779984951, -2.4285922050, 0.4505937099], [0.0259040371, 0.7827717662, -0.8086757660]]
+        [
+            [0.2104542553, 0.7936177850, -0.0040720468],
+            [1.9779984951, -2.4285922050, 0.4505937099],
+            [0.0259040371, 0.7827717662, -0.8086757660],
+        ]
     )
     lms = np.cbrt(lin @ m1.T)
     return lms @ m2.T
@@ -362,7 +380,7 @@ def ladder(layers: dict, path: Path) -> None:
 def overlay(layers: dict, bg_img: Image.Image, title: str, path: Path, kind: str = "normal") -> None:
     """Vertical bands of every class over the background, opaque classes at their real alpha."""
     bg = np.asarray(bg_img.convert("RGB")).astype(float) / 255.0
-    rows = [(lid, [c for c in l["classes"] if c["color"] or c.get("pattern")]) for lid, l in layers.items()]
+    rows = [(lid, [c for c in lay["classes"] if c["color"] or c.get("pattern")]) for lid, lay in layers.items()]
     band_h = bg.shape[0] // len(rows)
     out = bg.copy()
     labels = []
@@ -377,7 +395,7 @@ def overlay(layers: dict, bg_img: Image.Image, title: str, path: Path, kind: str
         labels.append((8, y1 - 26, layers[lid]["label_es"], None, None))
     out = simulate(out, kind)
     img = Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8))
-    for x, y, text, pattern, box in labels:
+    for _x, _y, _text, pattern, box in labels:
         if pattern:
             p = dict(pattern)
             p["color"] = rgb_to_hex(simulate(hex_to_rgb(p["color"])[None, :], kind)[0])
@@ -433,14 +451,35 @@ def main() -> None:
     ladder(layers, sim / "ramps-cvd-greyscale.png")
     l1c_title = "Fondo: Sentinel-2 L1C TCI, S2C_30SVG_20260221_1_L1C (Earth Search), cresta Veleta-Mulhacén"
     ign_title = "Fondo: IGN Base gris (ign.es WMTS, CC BY 4.0 scne.es), mismo entorno"
-    for kind, suffix in [("normal", ""), ("deuteranopia", "-deuteranopia"), ("protanopia", "-protanopia"), ("greyscale", "-greyscale")]:
-        overlay(layers, l1c, l1c_title + (f" · simulación {kind}" if kind != "normal" else ""), sim / f"over-l1c{suffix}.png", kind)
-        overlay(layers, base, ign_title + (f" · simulación {kind}" if kind != "normal" else ""), sim / f"over-ign{suffix}.png", kind)
+    for kind, suffix in [
+        ("normal", ""),
+        ("deuteranopia", "-deuteranopia"),
+        ("protanopia", "-protanopia"),
+        ("greyscale", "-greyscale"),
+    ]:
+        overlay(
+            layers,
+            l1c,
+            l1c_title + (f" · simulación {kind}" if kind != "normal" else ""),
+            sim / f"over-l1c{suffix}.png",
+            kind,
+        )
+        overlay(
+            layers,
+            base,
+            ign_title + (f" · simulación {kind}" if kind != "normal" else ""),
+            sim / f"over-ign{suffix}.png",
+            kind,
+        )
 
     for lid, rows in checks.items():
         bad = [k for k, v in rows.items() if not v["lightness_monotonic"]]
-        print(lid, "monotonic in all" if not bad else f"NOT monotonic in {bad}",
-              "min dE:", {k: v["min_adjacent_deltaE_ok"] for k, v in rows.items()})
+        print(
+            lid,
+            "monotonic in all" if not bad else f"NOT monotonic in {bad}",
+            "min dE:",
+            {k: v["min_adjacent_deltaE_ok"] for k, v in rows.items()},
+        )
 
 
 if __name__ == "__main__":

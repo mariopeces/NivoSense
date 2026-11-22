@@ -54,7 +54,22 @@ def main() -> None:
             scale,
             ROOT / f"side-by-side-{vw}.png",
         )
-    screens = ["nieve", "capas", "nieve-info", "colapsado", "timeline", "timeline-estados", "agua", "cuenca", "webcams", "webcam-live", "metodo", "vacio", "cargando", "error"]
+    screens = [
+        "nieve",
+        "capas",
+        "nieve-info",
+        "colapsado",
+        "timeline",
+        "timeline-estados",
+        "agua",
+        "cuenca",
+        "webcams",
+        "webcam-live",
+        "metodo",
+        "vacio",
+        "cargando",
+        "error",
+    ]
     for vw, cols, scale in [(1440, 3, 0.4), (375, 7, 0.5)]:
         grid([(s, mock / f"{s}-{vw}.png") for s in screens], cols, scale, ROOT / f"all-screens-{vw}.png")
 
