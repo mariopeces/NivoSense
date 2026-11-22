@@ -112,7 +112,7 @@ def test_split_granules_of_one_tile_are_all_kept_latest_first():
 
 
 def test_only_footprints_that_touch_the_domain_count():
-    domain = load_domain(Path(__file__).parents[2] / "data" / "basins.geojson")
+    domain = load_domain(Path(__file__).parent / "fixtures" / "basins_national_park.geojson")
     touching = {i["id"] for i in fixture_items() if domain.touches(i["geometry"])}
     # Orbit R051 reaches the domain only through 30SWG; its 30SVF and 30SWF granules
     # intersect the search hull but not the polygons.

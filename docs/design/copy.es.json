@@ -125,7 +125,7 @@
     },
     "cuencas": {
       "nombre": "Cuencas",
-      "fuente": "Subcuencas recortadas al Parque Nacional (ES610002)",
+      "fuente": "Subcuencas recortadas al Parque Natural, su zona periférica y el Parque Nacional",
       "descripcion": "Límites de las subcuencas. Toca una para ver su nieve y su caudal."
     },
     "estacion": {
@@ -218,7 +218,7 @@
   "cuenca": {
     "lista_titulo": "Cuencas",
     "area": "Superficie",
-    "area_valor": "{valor} km² en el Parque Nacional",
+    "area_valor": "{valor} km² en la zona estudiada",
     "nieve_area": "Superficie con nieve",
     "swe_medio": "SWE medio",
     "espesor_medio": "Espesor medio",

@@ -99,15 +99,15 @@ describe("App shell", { timeout: 20_000 }, () => {
     fireEvent.click(screen.getByRole("tab", { name: "Agua" }));
     const rows = await screen.findAllByRole("button", { name: /km²$/ });
     expect(rows.map((row) => row.textContent)).toEqual([
-      "Río Guadalquivir319,2 km²",
-      "Río Guadalfeo o Río Cádiar303,6 km²",
-      "Río Andarax123,1 km²",
-      "Río Adra o Grande o Verde113,6 km²",
+      "Río Guadalquivir520,7 km²",
+      "Río Guadalfeo o Río Cádiar492,3 km²",
+      "Río Andarax486,1 km²",
+      "Río Adra o Grande o Verde223,2 km²",
     ]);
     fireEvent.click(rows[1]);
     expect(map().dataset.selected).toBe("604456");
     expect(screen.getByRole("heading", { level: 3 }).textContent).toBe("Río Guadalfeo o Río Cádiar");
-    expect(screen.getByText("303,6 km² en el Parque Nacional")).toBeTruthy();
+    expect(screen.getByText("492,3 km² en la zona estudiada")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Todas las cuencas" }));
     expect(map().dataset.selected).toBe("");
   });
