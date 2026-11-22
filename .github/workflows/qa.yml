@@ -1,0 +1,177 @@
+name: QA
+
+# The QA harness (python -m qa): catalogue checks, regression fixtures, thumbnails and the freshness SLOs.
+# Pipelines call it after rebuilding the index; a pull request that changes the harness runs it on the staging
+# catalogue. The report goes to the step summary, to qa/ in the catalogue's bucket and to a run artifact.
+#
+# A normal run checks the files of the last 35 days (or start..end) and the daily layers over their whole span.
+# full_range splits start..end (default 2025-10-01 to today) into one job per month, each with its own
+# 10 minute budget, so a check of the whole history never depends on one job's timeout.
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: "staging or prod"
+        type: string
+        default: staging
+      root:
+        description: "a catalogue under this prefix of the target, for trial runs (for example _scratch/x)"
+        type: string
+        default: ""
+      start:
+        type: string
+        default: ""
+      end:
+        type: string
+        default: ""
+      freshness:
+        type: boolean
+        default: true
+      full_range:
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        options: [staging, prod]
+        default: staging
+      root:
+        description: "a catalogue under this prefix of the target, for trial runs (for example _scratch/x)"
+        type: string
+        default: ""
+      start:
+        description: "first date checked, YYYY-MM-DD; empty for the last 35 days (2025-10-01 with full_range)"
+        type: string
+        default: ""
+      end:
+        description: "last date checked, YYYY-MM-DD; empty for up to today"
+        type: string
+        default: ""
+      freshness:
+        type: boolean
+        default: true
+      full_range:
+        description: "one job per month from start to end"
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - "qa/**"
+      - "pipelines/catalog/**"
+      - ".github/workflows/qa.yml"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  plan:
+    # Pull requests from forks get no OIDC token, so they cannot read the bucket.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    outputs:
+      ranges: ${{ steps.ranges.outputs.ranges }}
+    steps:
+      - id: ranges
+        env:
+          FULL: ${{ inputs.full_range || false }}
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+          # A pull request does not change the data, so its run leaves the freshness SLOs to the scheduled checks.
+          FRESHNESS: ${{ github.event_name != 'pull_request' && inputs.freshness }}
+        shell: python
+        run: |
+          import datetime as dt, json, os
+          start, end = os.environ["START"], os.environ["END"]
+          if os.environ["FULL"] == "true":
+              first = dt.date.fromisoformat(start or "2025-10-01")
+              last = dt.date.fromisoformat(end) if end else dt.date.today()
+              ranges, month = [], first.replace(day=1)
+              while month <= last:
+                  following = (month + dt.timedelta(days=32)).replace(day=1)
+                  ranges.append({
+                      "start": max(month, first).isoformat(),
+                      # The open end of the last month lets the harness apply the F2 cut-off for yesterday.
+                      "end": "" if following > last and not end else min(following - dt.timedelta(days=1), last).isoformat(),
+                      "freshness": False,
+                  })
+                  month = following
+          else:
+              ranges = [{"start": start, "end": end, "freshness": os.environ["FRESHNESS"] == "true"}]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"ranges={json.dumps(ranges)}", file=out)
+          print(json.dumps(ranges))
+
+  qa:
+    needs: plan
+    runs-on: ubuntu-24.04
+    # The card's budget: the harness finishes in under 10 minutes on a month of data.
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        range: ${{ fromJSON(needs.plan.outputs.ranges) }}
+    concurrency:
+      group: qa-${{ inputs.target || 'staging' }}-${{ inputs.root || github.ref }}-${{ matrix.range.start }}
+      cancel-in-progress: false
+    env:
+      TARGET: ${{ inputs.target || 'staging' }}
+      ROOT: ${{ inputs.root || '_scratch/t04-evidence-98f90df/staging' }}
+      START: ${{ matrix.range.start }}
+      END: ${{ matrix.range.end }}
+      FRESHNESS: ${{ matrix.range.freshness }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+      STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
+      DATA_BUCKET: ${{ vars.DATA_BUCKET }}
+      DATA_PREFIX: ${{ vars.DATA_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pipelines/requirements.lock
+      - run: pip install --require-hashes -r pipelines/requirements.lock
+
+      # Writing qa/ needs the writer of the catalogue; the prod writer can be impersonated only from main.
+      - name: Authenticate
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.TARGET == 'prod' && vars.GCP_SA_PROD || vars.GCP_SA_STAGING }}
+
+      - name: Run the harness
+        run: |
+          args=(run --target "$TARGET" --root "$ROOT" --upload --out-dir qa-out)
+          [ -n "$START" ] && args+=(--start "$START")
+          [ -n "$END" ] && args+=(--end "$END")
+          [ "$FRESHNESS" = true ] || args+=(--no-freshness)
+          python -m qa "${args[@]}"
+
+      - name: Keep the report and thumbnails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-${{ github.run_id }}-${{ matrix.range.start || 'window' }}
+          path: qa-out/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Report a failed run
+        if: failure() && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

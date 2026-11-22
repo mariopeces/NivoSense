@@ -1,10 +1,10 @@
+import json
+import shutil
+import subprocess
 from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timezone
 from pathlib import Path
-import json
-import shutil
-import subprocess
 
 from main import (
     REGION,

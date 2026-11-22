@@ -71,6 +71,6 @@ def write_observation_png(path: Path, snow: np.ndarray, valid: np.ndarray) -> No
     image.save(path, optimize=True, transparency=bytes([0, 235, 110]))
 
 
-def write_json(path: Path, payload) -> None:
+def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

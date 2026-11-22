@@ -23,7 +23,7 @@ from .raster import (
 FINAL_HOURS = COMMON_HORIZONS_HOURS[-1]
 
 
-def build_gfs(bbox, output: Path, work: Path) -> ModelOutput:
+def build_gfs(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
     west, south, east, north = bbox
     # The NOMADS subset only returns cells whose centres fall inside the box.
     client = GfsClient((west - 0.25, south - 0.25, east + 0.25, north + 0.25))
@@ -70,7 +70,7 @@ def build_gfs(bbox, output: Path, work: Path) -> ModelOutput:
     )
 
 
-def build_ecmwf(bbox, output: Path, work: Path) -> ModelOutput:
+def build_ecmwf(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
     client = EcmwfClient()
     cycle = select_latest_cycle(
         datetime.now(timezone.utc),
@@ -106,14 +106,16 @@ def build_ecmwf(bbox, output: Path, work: Path) -> ModelOutput:
     )
 
 
-def build_aemet(bbox, output: Path, work: Path) -> ModelOutput:
+def build_aemet(bbox: tuple[float, float, float, float], output: Path, work: Path) -> ModelOutput:
     archive_path = aemet.download_archive(work / "aemet" / "harmonie_pb.tar.gz")
     with tarfile.open(archive_path) as archive:
         cycle = aemet.run_cycle(archive)
-        decoded = {
-            end: aemet.decode_window(archive.extractfile(name).read(), bbox)
-            for end, name in aemet.precipitation_windows(archive, cycle).items()
-        }
+        decoded = {}
+        for end, name in aemet.precipitation_windows(archive, cycle).items():
+            member = archive.extractfile(name)
+            if member is None:
+                raise RuntimeError(f"AEMET archive entry {name} is not a file")
+            decoded[end] = aemet.decode_window(member.read(), bbox)
     root = output / "aemet" / cycle.strftime("%Y%m%dT%HZ")
     transform = decoded[aemet.WINDOW_HOURS][3]
     files = {}
@@ -152,7 +154,9 @@ def render_images(models: list[ModelOutput]) -> None:
     for variable in ("precipitation_total", "snowfall"):
         fields = [
             item
-            for item in (getattr(model, "precipitation" if variable == "precipitation_total" else "snowfall") for model in models)
+            for item in (
+                getattr(model, "precipitation" if variable == "precipitation_total" else "snowfall") for model in models
+            )
             if item
         ]
         if not fields:

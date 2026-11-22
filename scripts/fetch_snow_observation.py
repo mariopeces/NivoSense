@@ -13,7 +13,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-
 DEFAULT_CATALOG_ENDPOINT = "https://sh.dataspace.copernicus.eu/catalog/v1/search"
 DEFAULT_PROCESS_ENDPOINT = "https://sh.dataspace.copernicus.eu/process/v1"
 DEFAULT_TOKEN_ENDPOINT = (
@@ -382,6 +381,8 @@ def run(args: argparse.Namespace) -> Path:
         shutil.copyfile(fixture_raster, raster_path)
         shutil.copyfile(fixture_web_layer, web_layer_path)
     else:
+        # Only fixture mode runs without a token.
+        assert token is not None
         download_observation(
             environment_value("GFSC_PROCESS_ENDPOINT", DEFAULT_PROCESS_ENDPOINT),
             process_payload(collection, bbox, observed_at),
