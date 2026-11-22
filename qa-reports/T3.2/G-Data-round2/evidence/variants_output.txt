@@ -1,0 +1,13 @@
+NoVideo 1280x720 q50                          blank dark frame (mean 2.0, sd 0.0)
+NoVideo 352x288 q20                           blank dark frame (mean 3.0, sd 0.0)
+NoVideo + sensor noise +-6                    blank dark frame (mean 3.5, sd 1.9)
+NoVideo brightness x6 (grey-ish)              None
+NoVideo padded 4:3 into 16:9 grey bars        None
+dgt_night_1310.jpg brightness x1.0            None
+dgt_night_1310.jpg brightness x0.8            None
+dgt_night_1310.jpg brightness x0.6            None
+dgt_night_1310.jpg brightness x0.4            looks like the dgt_no_video placeholder (difference 6.1)
+dgt_night_169624_0553.jpg brightness x1.0     None
+dgt_night_169624_0553.jpg brightness x0.8     None
+dgt_night_169624_0553.jpg brightness x0.6     None
+dgt_night_169624_0553.jpg brightness x0.4     blank dark frame (mean 14.9, sd 2.3)

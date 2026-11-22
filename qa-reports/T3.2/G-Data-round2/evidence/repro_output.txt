@@ -1,0 +1,12 @@
+== A: solid-colour / corrupt frames, fresh LM, no history
+164375.jpg ('kept', 'live', None, '2026-11-22T07:58:00+00:00')
+168074.jpg ('kept', 'live', None, '2026-11-22T07:58:00+00:00')
+1086.jpg ('kept', 'live', None, '2026-11-22T07:58:00+00:00')
+== B: 162889 frame (burned in 2026-10-02), DGT re-stamps it every 10 min
+run t0+0min state=none: ('kept', 'live', None, '2026-11-22T07:57:00+00:00')
+run t0+60min state=kept: ('kept', 'live', None, '2026-11-22T07:57:00+00:00')
+run t0+90min state=LOST (restore failed): ('kept', 'live', None, '2026-11-22T09:27:00+00:00')
+run t0+150min state=kept: ('kept', 'live', None, '2026-11-22T09:27:00+00:00')
+run t0+211min state=kept: ('dropped', 'offline', 'stale: frame captured at 2026-11-22T09:27:00+00:00', '2026-11-22T09:27:00+00:00')
+== C: corrupt state.json
+('kept', 'live', None, '2026-11-22T12:57:00+00:00')
