@@ -9,7 +9,7 @@ permissions:
 jobs:
   timing:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,19 +24,26 @@ jobs:
         run: git show origin/plan/t21-domain:data/domain.geojson > "$RUNNER_TEMP/domain.geojson"
       - name: L2A ingest (input dates and QA bands)
         run: |
-          for d in 2026-01-12 2026-11-10 2026-11-20; do
-            python -W ignore -m pipelines.s2.ingest --domain "$RUNNER_TEMP/domain.geojson" --start $d --end $d --out "$RUNNER_TEMP/s2"
+          python -W ignore -m pipelines.s2.ingest --domain "$RUNNER_TEMP/domain.geojson" --start 2026-10-01 --end 2026-11-21 --out "$RUNNER_TEMP/s2" | tee "$RUNNER_TEMP/s2.log"
+          for d in 2025-12-18 2026-01-12 2026-02-21 2026-03-25 2026-04-04; do
+            python -W ignore -m pipelines.s2.ingest --domain "$RUNNER_TEMP/domain.geojson" --start $d --end $d --out "$RUNNER_TEMP/s2" | tee -a "$RUNNER_TEMP/s2.log"
           done
       - name: RGB from L1C, timed per date
         env:
           CATALOG_LOCAL_ROOT: ${{ runner.temp }}/catalog
         run: |
           /usr/bin/time -v python -W ignore -m pipelines.rgb_l1c.run --s2 "$RUNNER_TEMP/s2" \
-            --domain "$RUNNER_TEMP/domain.geojson" --start 2026-01-12 --end 2026-11-20 --target staging \
+            --domain "$RUNNER_TEMP/domain.geojson" --start 2025-10-01 --end 2026-11-21 --target staging \
             2>&1 | tee "$RUNNER_TEMP/rgb.log"
+      - name: Evidence
+        env:
+          PYTHONPATH: .
+        run: python -W ignore t13/evidence.py "$RUNNER_TEMP/s2" "$RUNNER_TEMP/catalog/staging" "$RUNNER_TEMP/rgb.log" "$RUNNER_TEMP/evidence"
       - uses: actions/upload-artifact@v4
         with:
           name: t13-timing
           path: |
             ${{ runner.temp }}/rgb.log
+            ${{ runner.temp }}/s2.log
+            ${{ runner.temp }}/evidence/
             ${{ runner.temp }}/catalog/staging/catalog/
