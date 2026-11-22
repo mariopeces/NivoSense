@@ -7,6 +7,7 @@ import http.client
 import io
 import json
 import math
+import os
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -93,6 +94,18 @@ REFERENCE_MAX_DIFFERENCE = 8
 # frames mean 17 or more and standard deviation 6 or more (2026-11-22).
 BLANK_MAX_MEAN = 16
 BLANK_MAX_STDDEV = 3
+# Dead frames of any colour: DGT's solid green (cam 164375, sd 0.2) and a "No video"
+# frame brightened to grey. Real DGT frames measured sd 3.6 or more, even darkened to x0.6.
+UNIFORM_MAX_STDDEV = 2
+# Solid saturated blocks: DGT's blue "no signal" (cam 168074, 88 % of the picture) and
+# decoder failures that fill part of the frame with one colour. A tile is flat when every
+# channel's sd is under FLAT_TILE_MAX_STDDEV on a nearest-neighbour sample (which keeps
+# sensor noise) and saturated when its channels differ by FLAT_TILE_MIN_SATURATION or
+# more. National scan of all 1,980 DGT cams on 2026-11-22: dead green and blue tiles
+# measured 135 to 215, the bluest flat fog (cam 163996) 64; no real frame reached 30 %.
+FLAT_TILE_MAX_STDDEV = 4
+FLAT_TILE_MIN_SATURATION = 100
+SOLID_BLOCK_MIN_SHARE = 0.3
 # DGT and feratel burn text in the top and bottom bands.
 OVERLAY_BAND = 0.15
 
@@ -115,11 +128,18 @@ class StillStore(Protocol):
         """Store body under key and return the URL the site loads it from."""
         ...
 
-    def load_state(self) -> dict[str, Any]:
-        """The frame history the previous run saved, or {} when there is none."""
+    def load_state(self) -> dict[str, Any] | None:
+        """The frame history the previous run saved, or None when there is none.
+
+        Raises HistoryUnreadable when a history exists but cannot be trusted.
+        """
         ...
 
     def save_state(self, state: dict[str, Any]) -> None: ...
+
+
+class HistoryUnreadable(Exception):
+    """A frame history that exists but is corrupt."""
 
 
 class Area(Protocol):
@@ -208,13 +228,17 @@ class LocalStillStore:
             path.write_bytes(body)
         return self.url_prefix + key
 
-    def load_state(self) -> dict[str, Any]:
+    def load_state(self) -> dict[str, Any] | None:
+        path = self.root / STATE_KEY
+        if not path.exists():
+            return None
         try:
-            state = json.loads((self.root / STATE_KEY).read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            # A missing or broken history only costs the earlier capture times.
-            return {}
-        return state if isinstance(state, dict) else {}
+            state = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise HistoryUnreadable(str(exc)) from exc
+        if not isinstance(state, dict) or not isinstance(state.get("frames"), dict):
+            raise HistoryUnreadable("no frames table")
+        return state
 
     def save_state(self, state: dict[str, Any]) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
@@ -411,8 +435,22 @@ def reference_thumbnails() -> dict[str, bytes]:
     return _reference_thumbnails
 
 
-def picture_problem(grey: Image.Image, provider: str) -> str | None:
+def solid_block_share(picture: Image.Image) -> float:
+    """Share of the picture covered by flat tiles of one saturated colour (16 x 9 tiles)."""
+    sample = picture.convert("RGB").resize((160, 90), Image.Resampling.NEAREST)
+    flat = 0
+    for row in range(9):
+        for col in range(16):
+            stat = ImageStat.Stat(sample.crop((col * 10, row * 10, col * 10 + 10, row * 10 + 10)))
+            saturation = max(stat.mean) - min(stat.mean)
+            if max(stat.stddev) < FLAT_TILE_MAX_STDDEV and saturation >= FLAT_TILE_MIN_SATURATION:
+                flat += 1
+    return flat / (16 * 9)
+
+
+def picture_problem(image: Image.Image, provider: str) -> str | None:
     """Why the decoded picture is not a camera view, whatever its bytes."""
+    grey = image.convert("L")
     distance = min((dhash_of(grey) ^ known).bit_count() for known in PLACEHOLDER_DHASH)
     if distance <= PLACEHOLDER_DHASH_MAX_BITS:
         return f"looks like a provider placeholder (dHash distance {distance})"
@@ -424,6 +462,11 @@ def picture_problem(grey: Image.Image, provider: str) -> str | None:
     mean, stddev = stat.mean[0], stat.stddev[0]
     if mean <= BLANK_MAX_MEAN and stddev <= BLANK_MAX_STDDEV:
         return f"blank dark frame (mean {mean:.1f}, sd {stddev:.1f})"
+    if stddev <= UNIFORM_MAX_STDDEV:
+        return f"uniform frame (mean {mean:.1f}, sd {stddev:.1f})"
+    share = solid_block_share(image.crop((0, band, width, height - band)))
+    if share >= SOLID_BLOCK_MIN_SHARE:
+        return f"solid colour block over {share:.0%} of the picture"
     small = thumbnail(grey)
     for name, reference in reference_thumbnails().items():
         difference = sum(abs(a - b) for a, b in zip(small, reference, strict=True)) / len(small)
@@ -454,10 +497,10 @@ def image_problem(response: ImageResponse, provider: str) -> str | None:
             return "generated on request (Last-Modified equals Date)"
     try:
         with Image.open(io.BytesIO(response.body)) as image:
-            grey = image.convert("L")
+            picture = image.convert("RGB")
     except (OSError, ValueError, SyntaxError, Image.DecompressionBombError):
         return "undecodable JPEG"
-    return picture_problem(grey, provider)
+    return picture_problem(picture, provider)
 
 
 def probe_camera_image(
@@ -590,25 +633,60 @@ def apply_history(
     record: dict[str, Any],
     sizes: dict[str, bytes],
     previous: dict[str, Any] | None,
+    now: datetime,
 ) -> dict[str, Any]:
-    """Keep the capture time of unchanged content and return the camera's new history.
+    """Set captured_at from the frame history and return the camera's new history entry.
 
-    DGT rewrites an unchanged file with a fresh Last-Modified (on 2026-11-22, cam 1310
-    served a 05:32 UTC frame as 05:57, then 06:02), so Last-Modified is only an upper
-    bound. The same bytes as the last run keep the earlier capture time. Identity is
-    by bytes, not by a perceptual hash: every DGT capture burns in a new clock, while a
-    perceptual hash would equate two real captures of a still scene and age a live cam.
+    DGT rewrites unchanged files with a fresh Last-Modified, for weeks: on 2026-11-22
+    cam 162889 served a frame burned in on 2026-10-02 with that morning's Last-Modified.
+    So a DGT frame's age is only known once a run has seen its content appear: the
+    previous run saw different bytes, so the content is newer than that run, and
+    Last-Modified bounds it from above. The entry is then "confirmed"; until then
+    captured_at is unknown. Unchanged bytes keep the earlier capture time.
+
+    Identity is by bytes, not by a perceptual hash: every DGT capture burns in a new
+    clock, while a perceptual hash would equate two real captures of a still scene.
     """
     digest = frame_digest(sizes)
+    header = parse_iso(camera["captured_at"])
     if previous and previous.get("sha256") == digest:
-        earlier = parse_iso(previous.get("captured_at"))
-        current = parse_iso(camera["captured_at"])
-        if earlier and (current is None or earlier < current):
-            record["captured_at_header"] = camera["captured_at"]
-            camera["captured_at"] = earlier.isoformat()
-            record["captured_at"] = camera["captured_at"]
         record["unchanged_since_last_run"] = True
-    return {"sha256": digest, "captured_at": camera["captured_at"]}
+        confirmed = previous.get("confirmed") is True
+        earlier = parse_iso(previous.get("captured_at"))
+        captured = min((t for t in (earlier, header) if t), default=None)
+    elif previous and previous.get("sha256"):
+        confirmed = True
+        captured = min(header, now) if header else None
+    else:
+        confirmed = False
+        captured = header
+    if captured != header:
+        record["captured_at_header"] = camera["captured_at"]
+    camera["captured_at"] = captured.isoformat() if captured else None
+    record["captured_at"] = camera["captured_at"]
+    record["content_change_seen"] = confirmed
+    return {"sha256": digest, "captured_at": camera["captured_at"], "confirmed": confirmed}
+
+
+def load_history(store: StillStore, restore: str | None, log: list[dict[str, Any]]) -> dict[str, Any]:
+    """The previous run's frame history, or {} when it is absent or cannot be trusted.
+
+    An empty history fails closed: every DGT cam is held out until a later run sees its
+    content change. restore is how pages.yml fared fetching it: "restored", "absent"
+    (none published yet) or "failed" (fetch error; whatever is on disk is not used).
+    """
+    if restore == "failed":
+        log.append({"source": "history", "status": "restore failed", "problem": "DGT cams wait for a new frame"})
+        return {}
+    try:
+        state = store.load_state()
+    except HistoryUnreadable as exc:
+        log.append({"source": "history", "status": "corrupt, discarded", "problem": str(exc)})
+        return {}
+    if state is None:
+        log.append({"source": "history", "status": "absent", "problem": "DGT cams wait for a new frame"})
+        return {}
+    return state["frames"]
 
 
 def parse_iso(value: Any) -> datetime | None:
@@ -631,6 +709,7 @@ def build_catalog(
     fetch: Callable[[str], ImageResponse] = fetch_image,
     fetch_xml: Callable[[str], bytes] = fetch_bytes,
     now: datetime | None = None,
+    history_restore: str | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     now = now or datetime.now(UTC)
     area = load_area(config["region"])
@@ -679,8 +758,8 @@ def build_catalog(
             bodies[camera["id"]] = sizes
     drop_shared_frames(cameras, probe_log, bodies)
 
-    history = store.load_state().get("frames")
-    history = history if isinstance(history, dict) else {}
+    history_log: list[dict[str, Any]] = []
+    history = load_history(store, history_restore, history_log)
     new_history: dict[str, Any] = {}
     for camera, record in zip(cameras, probe_log, strict=True):
         previous = history.get(camera["id"])
@@ -690,12 +769,21 @@ def build_catalog(
             if previous:
                 new_history[camera["id"]] = previous
             continue
-        new_history[camera["id"]] = apply_history(camera, record, bodies[camera["id"]], previous)
+        entry = new_history[camera["id"]] = apply_history(camera, record, bodies[camera["id"]], previous, now)
+        if camera["id"] not in live_only:
+            continue
         captured = parse_iso(camera["captured_at"])
-        if camera["id"] in live_only and captured and now - captured > STALE_AFTER:
-            set_offline(camera)
-            bodies.pop(camera["id"])
-            record.update(status="offline", problem=f"stale: frame captured at {captured.isoformat()}")
+        if not entry["confirmed"]:
+            problem = "first sight, waiting for a new frame (age unknown)"
+        elif captured is None:
+            problem = "no capture time"
+        elif now - captured > STALE_AFTER:
+            problem = f"stale: frame captured at {captured.isoformat()}"
+        else:
+            continue
+        set_offline(camera)
+        bodies.pop(camera["id"])
+        record.update(status="offline", problem=problem, captured_at=None)
     store.save_state({"frames": new_history})
 
     kept: list[dict[str, Any]] = []
@@ -711,7 +799,7 @@ def build_catalog(
         else:
             record["catalogue"] = "kept"
             kept.append(camera)
-    return kept, log + probe_log
+    return kept, log + probe_log + history_log
 
 
 def write_catalog(cameras: list[dict[str, Any]], output: Path) -> None:
@@ -731,7 +819,9 @@ def main() -> None:
     parser.add_argument("--stills-prefix", default=DEFAULT_STILLS_PREFIX)
     args = parser.parse_args()
     store = LocalStillStore(args.stills_dir, args.stills_prefix)
-    cameras, log = build_catalog(load_config(args.config), store)
+    # Set by pages.yml's "Restore the webcam frame history" step.
+    restore = os.environ.get("WEBCAM_HISTORY_RESTORE")
+    cameras, log = build_catalog(load_config(args.config), store, history_restore=restore)
     for record in log:
         print(json.dumps(record, ensure_ascii=False))
     write_catalog(cameras, args.output)
