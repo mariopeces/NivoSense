@@ -90,7 +90,8 @@ Not available until T5.1.
 
 ## Changes of approach and spending
 
-None yet.
+- 2026-11-22, T0.7 third failed round (advance OK item 3): G-Infra r3 found a pre-existing flaw in pages.yml restore() (artifacts from any run with head_branch main, including fork runs). Decision: fix it inside T0.7 since the PR rewrites pages.yml and it guards the live site; round 4 is a narrow G-Infra check of that finding plus a regression pass of round 3. No change to the definition of done.
+- 2026-11-21, T0.2: storage interim on nivosense-cogs prefixes (org IAM deny on bucket creation); see Log and Waiting for Mario.
 
 ## Log
 
