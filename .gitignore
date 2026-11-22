@@ -12,6 +12,10 @@ __pycache__/
 venv/
 env/
 
+# Webcam stills written by backend/ingest_webcams.py (served by the site, not committed)
+frontend/public/data/webcam-stills/
+frontend/public/data/webcams.json
+
 # Node
 node_modules/
 dist/

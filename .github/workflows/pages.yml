@@ -75,6 +75,9 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Install webcam ingest dependencies
+        run: python -m pip install "pillow==11.*"
+
       - name: Test webcam catalog
         run: python -m unittest discover -s backend/tests -v
 
@@ -123,9 +126,18 @@ jobs:
             cp -R snow-artifact frontend/public/data/snow-model
           fi
 
+      # A release with backend/validate_webcam_artifact.py writes data/webcams.json and
+      # the checked stills (neither is committed): a provider outage only drops that
+      # provider's cameras, and a crash fails the run so the last good deploy stays up.
+      # Older releases keep their committed webcams.json, so a failed refresh there is
+      # only a warning, as before.
       - name: Refresh webcam catalog
-        continue-on-error: true
-        run: python backend/ingest_webcams.py
+        run: |
+          if [ -f backend/validate_webcam_artifact.py ]; then
+            python backend/ingest_webcams.py
+          else
+            python backend/ingest_webcams.py || echo "::warning::Webcam refresh failed; keeping the release's webcams.json"
+          fi
 
       - name: Build frontend
         working-directory: frontend
@@ -138,6 +150,9 @@ jobs:
       - name: Validate static artifact
         run: |
           test -f frontend/dist/index.html
+          if [ -f backend/validate_webcam_artifact.py ]; then
+            python backend/validate_webcam_artifact.py frontend/dist
+          fi
           for f in data/webcams.json data/basins.geojson weather/manifest.json data/snow-model/manifest.json; do
             python -m json.tool "frontend/dist/$f" >/dev/null
           done
