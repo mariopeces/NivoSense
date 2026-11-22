@@ -4,7 +4,7 @@ Judged: PR #25 head `4d41315` (`plan/t41-shell`), T4.1's own work only, against 
 
 **How I checked.** I built the PR myself (`npm ci`, `npm run build`, `vite preview`). I took Playwright screenshots of all five rail sections at 1440×900 and 375×812, plus collapsed and open panel, the three sheet heights, empty states, basin selection both ways, the basemap switch, 3D, and rail hover and focus. In the same run I rendered the T4.0 mockups (`?s=nieve|agua|cuenca|webcams|metodo|colapsado|vacio`) and openpas-habitat (guest viewer). The local cedar-vista build only shows its sign-in landing (the viewer needs auth and isn't in public guest mode), so for the cedar viewer I compared against T4.0's reference screenshot `docs/design/screenshots/reference/cedar-vista-1440.webp`.
 
-Evidence on branch `mariopeces/g-t41-gui-r1` under `qa-reports/T4.1/G-UI-round1/`: `shots/` (57 renders), `shots/report.json` and `shots/extra.json` (audits), side-by-side sheets `side-*.webp`, and the scripts (`shoot.py`, `extra.py`, `fresh375.py`, `refs_viewer.py`, `sheet.py`). The renders were saved as PNG and converted to WebP afterwards.
+Evidence on branch [`mariopeces/g-t41-gui-r1`](https://github.com/mariopeces/NivoSense/tree/mariopeces/g-t41-gui-r1/qa-reports/T4.1/G-UI-round1) under `qa-reports/T4.1/G-UI-round1/`: `shots/` (57 renders), `shots/report.json` and `shots/extra.json` (audits), side-by-side sheets `side-*.webp`, and the scripts (`shoot.py`, `extra.py`, `fresh375.py`, `refs_viewer.py`, `sheet.py`). The renders were saved as PNG and converted to WebP afterwards.
 
 ### Rubric
 
