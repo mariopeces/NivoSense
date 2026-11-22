@@ -2,6 +2,8 @@
 
 - `counts.md`: labels per stratum (per draw and together) and per date; `scored` excludes unsure.
 - `stratum_*.png`: chip montage per stratum (32 random points each, seed 1010, caption = id and label). Each point: true colour 340 m (x3), SWIR false colour B11/B8/B4 340 m (x3), true colour 1 km. The labelled 20 m pixel is inside the red marks.
+- `pages_draw3/`, `pages_draw4/`: labelling pages of draws 3 (310 points, 14 pages) and 4 (64 points, 8 pages), same layout and blinding, with ids and raw labels.
+- `prevalence.md`: snow share per stratum, unweighted per draw and pooled vs design-weighted (output of `python -m qa.reference.score --prevalence`).
 - `pages_draw2/`: the 13 labelling pages of the second draw (315 points, same layout and blinding), with `page_ids.txt` and the raw labels in page order.
 - `pages/`: the 60 labelling pages of the first draw exactly as labelled (shuffled order per date, captions show only the point id, no label or stratum); `page_ids.txt` lists the ids on each page in reading order (left to right, top to bottom). Usable for a blind relabel without rebuilding the L1C mosaics.
 - `overviews/`: the 60 m L1C true-colour overviews with 500 m GLO-30 contours used to read each date's snowline before any point was drawn.
