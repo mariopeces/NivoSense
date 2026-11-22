@@ -75,3 +75,4 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.3);
 }
+.trial-shorthand { text-decoration: underline red; filter: drop-shadow(0 0 2px navy); column-rule: 1px solid teal; caret-color: lime; }
