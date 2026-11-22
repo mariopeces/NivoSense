@@ -28,7 +28,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | r3: narrow fixes requested by coordinator (G-Code r3 running) | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
 | T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | all gauntlets pass on 0bbc81e; merges right after T0.6 (rebase + 2 minors, narrow recheck) | #12 | r4 narrow: G-Infra PASS, G-Code PASS (r1-r3 fail) |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra r1 running; G-Code queued | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra and G-Code r1 running | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
 | T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
 | T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | waiting | | |
@@ -43,7 +43,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
-| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | gauntlet r3 (G-Data running on 083c3b5); merges after T0.7 and T0.3 | #8 | r1 both fail; r2: G-Data fail, G-Code PASS on 083c3b5 (minors: no Last-Modified shows live, frozen-camera replay, 26 MB unused large stills) |
+| T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | all gauntlets pass on 083c3b5; merges after T0.7 and T0.3 (rebase + narrow recheck) | #8 | r3: G-Data PASS; r2: G-Code PASS (both on 083c3b5) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
 | T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
@@ -160,3 +160,4 @@ Not available until T5.1.
 - 2026-11-22: T0.6 G-Code r3 FAIL (var() fallback, colour-bearing shorthands like textDecoration/filter, a template case, escaped identifiers). Narrow fix list extended with colour-bearing shorthand properties; escaped identifiers are a follow-up. T2.1 G-Code r1 FAIL (geopandas/pyproj/pyogrio not in the hashed locks after rebase onto T0.6). T0.4 G-Data r1 FAIL (3 majors). Started: T3.1 G-Data r3, T4.0 G-Code r1, T0.4 G-Infra r1. T4.1 draft PR #25 waits for T4.0 to fix ruff in docs/design/tools.
 - 2026-11-22: T0.7 G-Code r4 PASS at 0bbc81e: both round-4 gauntlets pass. T0.7 merges right after T0.6, after a rebase that also fixes two minors (restore must fail on a gh api error; query runs by event), with a narrow post-rebase check.
 - 2026-11-22: T4.1 PR #25 ready (tokens.css generated from tokens.json with sync test; colour baseline 102 -> 19, only the declared Legend.tsx exception; axe 0 violations on 5 sections at both sizes; CI green 44969739805). G-UI and G-Code r1 started. T0.7 fixes for its post-rebase minors committed locally (f96d6a1), waiting for T0.6 to merge.
+- 2026-11-22: T3.1 G-Data r3 PASS on 083c3b5 (failure injections all safe; placeholder detection holds for unfingerprinted variants). Both T3.1 gauntlets pass on 083c3b5; merges after T0.7 and T0.3 with a rebase and narrow recheck. Follow-ups: frozen frame re-stamped with fresh Last-Modified (sha check against prior stills once the bucket store exists), LookupError-class feed errors. T0.4 G-Code r1 started.
