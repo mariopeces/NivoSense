@@ -1,0 +1,6 @@
+{
+  "engine": "axe-core 4.10.2, tags wcag2a wcag2aa wcag21a wcag21aa best-practice, whole document, vite preview of this branch",
+  "1440, rgb + swe on 2026-11-20": {"violations": [], "passes": 43},
+  "1440, info popover open (Color real)": {"violations": [], "passes": 46},
+  "375, half sheet scrolled to the rows": {"violations": [], "passes": 42}
+}

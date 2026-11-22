@@ -1,0 +1,130 @@
+{
+  "source": "snow_state_latest.tif",
+  "date": "2026-11-20",
+  "code_version": "9f7499a0d5b4d9c6cbffc26f9c5beab147daf0b3",
+  "layers": {
+    "swe": {
+      "entry": {
+        "cog": "layers/swe/2026/2026-11-20-7f366b5883549223.tif",
+        "pmtiles": "tiles/swe/2026-11-20-7f366b5883549223.pmtiles",
+        "status": "modelled",
+        "resolution_m": 100,
+        "units": [
+          "mm"
+        ],
+        "value_range": [
+          [
+            0.0,
+            40.0
+          ]
+        ]
+      },
+      "valid_pixels": 85881,
+      "value_min_max": [
+        0.0,
+        39.1
+      ],
+      "display_equals_independent_lookup": true,
+      "display_colours_all_in_legend": true,
+      "display_pixels_per_class_colour": {
+        "#C9EBB1@102": 306,
+        "#74CCA3@191": 31
+      },
+      "tiles": {
+        "per_zoom": {
+          "8": {
+            "opaque": 56,
+            "legend_colour": 56,
+            "share": 1.0
+          },
+          "9": {
+            "opaque": 223,
+            "legend_colour": 223,
+            "share": 1.0
+          },
+          "10": {
+            "opaque": 901,
+            "legend_colour": 901,
+            "share": 1.0
+          },
+          "11": {
+            "opaque": 3670,
+            "legend_colour": 3670,
+            "share": 1.0
+          },
+          "12": {
+            "opaque": 14530,
+            "legend_colour": 14530,
+            "share": 1.0
+          }
+        },
+        "examples_not_in_legend": []
+      }
+    },
+    "snow_depth": {
+      "entry": {
+        "cog": "layers/snow_depth/2026/2026-11-20-f55b32a7c7bc0fd3.tif",
+        "pmtiles": "tiles/snow_depth/2026-11-20-f55b32a7c7bc0fd3.pmtiles",
+        "status": "modelled",
+        "resolution_m": 100,
+        "units": [
+          "cm"
+        ],
+        "value_range": [
+          [
+            0.0,
+            20.0
+          ]
+        ]
+      },
+      "valid_pixels": 337,
+      "value_min_max": [
+        2.42,
+        19.54
+      ],
+      "display_equals_independent_lookup": true,
+      "display_colours_all_in_legend": true,
+      "display_pixels_per_class_colour": {
+        "#D9C4D9@128": 337
+      },
+      "tiles": {
+        "per_zoom": {
+          "8": {
+            "opaque": 56,
+            "legend_colour": 56,
+            "share": 1.0
+          },
+          "9": {
+            "opaque": 223,
+            "legend_colour": 223,
+            "share": 1.0
+          },
+          "10": {
+            "opaque": 901,
+            "legend_colour": 901,
+            "share": 1.0
+          },
+          "11": {
+            "opaque": 3670,
+            "legend_colour": 3670,
+            "share": 1.0
+          },
+          "12": {
+            "opaque": 14530,
+            "legend_colour": 14530,
+            "share": 1.0
+          }
+        },
+        "examples_not_in_legend": []
+      }
+    }
+  },
+  "index_layers": {
+    "snow_depth": [
+      "2026-11-20"
+    ],
+    "swe": [
+      "2026-11-20"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "build": "vite preview of this branch; VITE_CATALOG_URL = a local catalogue written by publish() and rebuild_index(): swe and snow_depth from the real model state of 2026-11-20 (live site snow_state_latest.tif, tools/publish_model_state.py) plus the 7 real true colour entries of gs://nivosense-cogs/staging/_scratch/t04-evidence-98f90df/staging (their PMTiles proxied by range, tools/vite.preview.mjs)",
+  "?d=2026-11-20&l=rgb:100": "true colour PMTiles on the map, chip 'Color real · 20 nov 2026 Observado', credit 'Contiene datos modificados de Copernicus Sentinel 2026'",
+  "?d=2026-11-20&l=rgb:100,swe:100": "chip lists 'Equivalente en agua (SWE) · 20 nov 2026 Modelado' above 'Color real · 20 nov 2026 Observado'; zoomed: 100 m cells in two classes, no blending",
+  "toggle SWE off, depth on, opacity 50": "URL becomes ?d=2026-11-20&l=rgb:100,snow_depth:50",
+  "info popover SWE": "Sobre esta capa / Agua contenida en la nieve... / Fuente Modelo de nieve NivoSense / Resolución 100 m / Frecuencia Diaria / Dato real del 20 nov 2026 / Estado Modelado / Unidades mm / Escenas de origen nivosense-snow-model:snow_state_latest.tif:2026-11-20 / Ver el método",
+  "?d=2026-11-15&l=rgb:100,swe:100": {"chip": "Equivalente en agua (SWE) · 20 nov 2026 Modelado / Color real · 13 nov 2026 Observado", "rows": ["Sin escena este día. La más cercana: 20 nov 2026. (swe)", "... 20 nov 2026 (snow_depth)", "... 13 nov 2026 (rgb)"], "Ir al 13 nov 2026": "?d=2026-11-13&l=rgb:100,swe:100, timeline 'vie 13 nov 2026: Observado'"},
+  "375 px": {"document scrollWidth": 375},
+  "console errors and failed requests in a run without navigation mid-load": {"errors": [], "failed": []},
+  "real staging catalogue (404 today), 1440 and 375": {"notice 'Aún no hay escenas publicadas'": 1, "rows Pendiente": 5, "disabled toggles": 5}
+}
