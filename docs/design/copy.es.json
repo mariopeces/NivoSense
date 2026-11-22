@@ -198,6 +198,8 @@
     "reproducir": "Reproducir",
     "pausar": "Pausar",
     "ultima": "Última",
+    "demo_nieve": "Con nieve (mar 2025)",
+    "tooltip_demo_nieve": "Ver una escena de marzo de 2025, con mucha nieve en Sierra Nevada",
     "tooltip_ultima": "Ir a la fecha más reciente con datos",
     "calendario": "Elegir en el calendario",
     "teclado": "Flechas: día anterior o siguiente. Mayús + flechas: pasada anterior o siguiente. Inicio y Fin: primera y última fecha.",

@@ -173,6 +173,7 @@ jobs:
         working-directory: frontend
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_CATALOG_URL: https://storage.googleapis.com/${{ vars.DATA_BUCKET }}/${{ vars.DATA_PREFIX }}catalog/index.json
         run: |
           npm ci
           npm run build
