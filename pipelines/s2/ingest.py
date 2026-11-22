@@ -4,8 +4,11 @@
         [--catalogue-root work/catalogue]
 
 For each UTC date and relative orbit it writes <out>/<date>/<orbit>/ with reflectance.tif
-(green, red, swir16), classes.tif (scl, cloud probability) and record.json (tiles, scene ids,
-input key, completeness, domain coverage, valid fraction and whether the date is listed).
+(green, red, swir16), classes.tif (scl, cloud probability) and record.json (datatake, tiles,
+scene ids, input key, completeness, domain coverage, valid fraction and whether the date is
+listed). When two satellites pass the same orbit that day, each datatake is mosaicked on its
+own and the one with the highest domain valid fraction is kept; the others are recorded as
+alternatives.
 Every run also searches the last REPROCESS_DAYS days again, complete or not, and rebuilds a
 date whose input key (scene ids and processing baselines) or expected tiles changed. With
 --catalogue-root it writes the pass decision read by the freshness monitor to
@@ -18,6 +21,7 @@ import json
 import os
 import subprocess
 import sys
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -42,6 +46,7 @@ MIN_LISTED_VALID_FRACTION = 0.30
 class Record:
     date: str
     orbit: str
+    datatake: str
     tiles: list[str]
     expected_tiles: list[str]
     missing_tiles: list[str]
@@ -53,6 +58,7 @@ class Record:
     domain_valid_fraction: float
     domain_pixels: int
     listed: bool
+    alternatives: list[dict]
 
 
 def record_path(out: Path, day: date, orbit: str) -> Path:
@@ -63,10 +69,18 @@ def decision_path(catalogue_root: Path, day: date, orbit: str) -> Path:
     return catalogue_root / "s2" / "decisions" / f"{day.isoformat()}_{orbit}.json"
 
 
-def input_key(acquisition: Acquisition) -> str:
-    """Hash of the granules a mosaic is built from: a new granule or a newer baseline changes it."""
-    granules = sorted((item["id"], item["properties"]["s2:processing_baseline"]) for item in acquisition.items)
+def input_key(candidates: list[Acquisition]) -> str:
+    """Hash of the granules a pass is decided from: a new granule or a newer baseline changes it."""
+    granules = sorted(
+        (item["id"], item["properties"]["s2:processing_baseline"])
+        for acquisition in candidates
+        for item in acquisition.items
+    )
     return hashlib.sha256(json.dumps(granules).encode()).hexdigest()
+
+
+def is_listed(valid_fraction: float, complete: bool) -> bool:
+    return complete and bool(valid_fraction >= MIN_LISTED_VALID_FRACTION)
 
 
 def code_version() -> str:
@@ -112,41 +126,65 @@ def write_rasters(folder: Path, mosaic: Mosaic, grid: Grid) -> None:
         target.set_band_description(2, "cloud")
 
 
-def process(acquisition: Acquisition, expected: set[str], domain: Domain, out: Path) -> Record:
-    mosaic = build_mosaic(acquisition, domain.grid)
-    coverage, valid = domain_fractions(mosaic.scl, domain.mask)
-    missing = sorted(expected - set(acquisition.tiles))
+def process(candidates: list[Acquisition], expected: set[str], domain: Domain, out: Path) -> Record:
+    """Builds the record of one date and orbit from its datatakes. Each datatake is mosaicked
+    on its own: two overpasses minutes apart see different clouds, so blending them would put
+    a seam in the mosaic and give fractions that belong to neither."""
+    best: tuple[tuple[float, float, str], Acquisition, Mosaic] | None = None
+    seen = []
+    for acquisition in candidates:
+        mosaic = build_mosaic(acquisition, domain.grid)
+        coverage, valid = domain_fractions(mosaic.scl, domain.mask)
+        seen.append((acquisition, coverage, valid))
+        rank = (valid, coverage, acquisition.datatake)
+        if best is None or rank > best[0]:
+            best = (rank, acquisition, mosaic)
+    if best is None:
+        raise ValueError("a pass needs at least one datatake")
+    (valid, coverage, _), chosen, mosaic = best
+    missing = sorted(expected - set(chosen.tiles))
     record = Record(
-        date=acquisition.day.isoformat(),
-        orbit=acquisition.orbit,
-        tiles=list(acquisition.tiles),
+        date=chosen.day.isoformat(),
+        orbit=chosen.orbit,
+        datatake=chosen.datatake,
+        tiles=list(chosen.tiles),
         expected_tiles=sorted(expected),
         missing_tiles=missing,
         complete=not missing,
-        scene_ids=list(acquisition.scene_ids),
-        processing_baselines=[item["properties"]["s2:processing_baseline"] for item in acquisition.items],
-        input_key=input_key(acquisition),
+        scene_ids=list(chosen.scene_ids),
+        processing_baselines=[item["properties"]["s2:processing_baseline"] for item in chosen.items],
+        input_key=input_key(candidates),
         domain_coverage=round(coverage, 4),
         domain_valid_fraction=round(valid, 4),
         domain_pixels=domain.pixel_count,
-        listed=not missing and bool(valid >= MIN_LISTED_VALID_FRACTION),
+        listed=is_listed(valid, not missing),
+        alternatives=[
+            {
+                "datatake": other.datatake,
+                "scene_ids": list(other.scene_ids),
+                "domain_coverage": round(other_coverage, 4),
+                "domain_valid_fraction": round(other_valid, 4),
+            }
+            for other, other_coverage, other_valid in seen
+            if other is not chosen
+        ],
     )
-    folder = record_path(out, acquisition.day, acquisition.orbit).parent
+    folder = record_path(out, chosen.day, chosen.orbit).parent
     folder.mkdir(parents=True, exist_ok=True)
     write_rasters(folder, mosaic, domain.grid)
-    record_path(out, acquisition.day, acquisition.orbit).write_text(
+    record_path(out, chosen.day, chosen.orbit).write_text(
         json.dumps(record.__dict__, indent=2) + "\n", encoding="utf-8"
     )
     return record
 
 
-def is_current(out: Path, acquisition: Acquisition, expected: set[str]) -> bool:
+def is_current(out: Path, day: date, orbit: str, candidates: list[Acquisition], expected: set[str]) -> bool:
     """A record built from the same input key against the same expected tiles needs no rerun."""
-    path = record_path(out, acquisition.day, acquisition.orbit)
+    path = record_path(out, day, orbit)
     if not path.exists():
         return False
     stored = json.loads(path.read_text(encoding="utf-8"))
-    return stored.get("input_key") == input_key(acquisition) and stored["expected_tiles"] == sorted(expected)
+    return stored.get("input_key") == input_key(candidates) and stored["expected_tiles"] == sorted(expected)
 
 
 def write_decision(catalogue_root: Path, record: dict, version: str) -> None:
@@ -180,6 +218,8 @@ def run(
     """Ingest every acquisition in [start, end] and in the last REPROCESS_DAYS days; returns
     their records in date and orbit order."""
     today = today or datetime.now(timezone.utc).date()
+    if catalogue_root is not None and version is None:
+        version = code_version()
     domain = load_domain(domain_path)
     hull = convex_hull(domain.geometries)
     records: dict[tuple[str, str], dict] = {}
@@ -192,17 +232,16 @@ def run(
         ]
         acquisitions = group_acquisitions(items)
         expected = expected_tiles(acquisitions)
+        passes: dict[tuple[date, str], list[Acquisition]] = defaultdict(list)
         for acquisition in acquisitions:
-            if not window_start <= acquisition.day <= window_end:
-                continue
-            orbit_tiles = expected[acquisition.orbit]
-            rebuilt = not is_current(out, acquisition, orbit_tiles)
+            if window_start <= acquisition.day <= window_end:
+                passes[(acquisition.day, acquisition.orbit)].append(acquisition)
+        for (day, orbit), candidates in sorted(passes.items()):
+            rebuilt = not is_current(out, day, orbit, candidates, expected[orbit])
             if rebuilt:
-                process(acquisition, orbit_tiles, domain, out)
-            record = json.loads(record_path(out, acquisition.day, acquisition.orbit).read_text(encoding="utf-8"))
-            if catalogue_root is not None and (
-                rebuilt or not decision_path(catalogue_root, acquisition.day, acquisition.orbit).exists()
-            ):
+                process(candidates, expected[orbit], domain, out)
+            record = json.loads(record_path(out, day, orbit).read_text(encoding="utf-8"))
+            if catalogue_root is not None and (rebuilt or not decision_path(catalogue_root, day, orbit).exists()):
                 write_decision(catalogue_root, record, version or code_version())
             records[(record["date"], record["orbit"])] = record
     return [records[key] for key in sorted(records)]

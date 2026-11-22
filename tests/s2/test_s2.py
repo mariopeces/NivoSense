@@ -19,6 +19,9 @@ FIXTURE = Path(__file__).parent / "fixtures" / "earth_search_2026-11-05_10.json"
 # Every Earth Search item of 2026-11-17 over the domain hull, with the two 30SWG granules of one
 # datatake (generated 15:48 and 16:55 UTC).
 BASELINES_FIXTURE = Path(__file__).parent / "fixtures" / "earth_search_30SVF_2021-06-07_baselines.json"
+# Every Earth Search item of 2026-02-13 over the domain hull: S2A and S2B both pass relative
+# orbit R051, as two datatakes about 40 s apart.
+FIXTURE_0213 = Path(__file__).parent / "fixtures" / "earth_search_2026-02-13.json"
 FIXTURE_1117 = Path(__file__).parent / "fixtures" / "earth_search_2026-11-17.json"
 DECISION_FIELDS = {
     "date",
@@ -420,3 +423,61 @@ def test_newer_baseline_reopens_a_complete_date(tmp_path):
 
     assert [r["processing_baselines"][0] for r in second] == ["05.14"] * len(second)
     assert [r["input_key"] for r in second] != [r["input_key"] for r in first]
+
+
+def test_two_satellites_on_one_orbit_stay_separate_acquisitions():
+    items = json.loads(FIXTURE_0213.read_text(encoding="utf-8"))["features"]
+    acquisitions = group_acquisitions(items)
+    assert [(a.orbit, a.datatake, a.tiles) for a in acquisitions] == [
+        ("R051", "GS2A_20260213T105111_055604", ("30SVF", "30SWF", "30SWG")),
+        ("R051", "GS2B_20260213T105039_046695", ("30SVF", "30SWF", "30SWG")),
+    ]
+
+
+def test_the_clearer_datatake_is_kept_and_never_blended(tmp_path):
+    """2026-02-13 R051: S2A and S2B see different clouds. The clearer datatake (here S2B, with
+    a swath edge leaving half the domain without data) is kept as it is; pixels it does not
+    cover are not filled from S2A, so there is no seam and the fractions are S2B's own."""
+    items = json.loads(FIXTURE_0213.read_text(encoding="utf-8"))["features"]
+    swg = [i for i in items if i["properties"]["mgrs:grid_square"] == "WG"]
+    footprint = swg[0]["geometry"]["coordinates"][0]
+    xs, ys = transform("EPSG:4326", "EPSG:32630", [p[0] for p in footprint], [p[1] for p in footprint])
+    origin = (round(sum(xs) / len(xs), -3), round(sum(ys) / len(ys), -3))
+    rasters = tmp_path / "rasters"
+    rasters.mkdir()
+    s2a = [localise(i, rasters, scl=9, green=2000, origin=origin) for i in swg if i["id"].startswith("S2A")]
+    s2b = [
+        localise(i, rasters, scl=4, green=3000, nodata_left_half=True, origin=origin)
+        for i in swg
+        if i["id"].startswith("S2B")
+    ]
+    page = {"type": "FeatureCollection", "features": s2a + s2b, "links": []}
+    day = date(2026, 2, 13)
+
+    [record] = ingest.run(
+        small_domain(tmp_path, origin), day, day, tmp_path / "out", day, fetch=lambda request: copy.deepcopy(page)
+    )
+
+    assert record["datatake"] == "GS2B_20260213T105039_046695"
+    assert record["scene_ids"] == [s2b[0]["id"]]
+    assert record["domain_coverage"] == record["domain_valid_fraction"] == pytest.approx(0.5, abs=0.03)
+    assert record["alternatives"] == [
+        {
+            "datatake": "GS2A_20260213T105111_055604",
+            "scene_ids": [s2a[0]["id"]],
+            "domain_coverage": 1.0,
+            "domain_valid_fraction": 0.0,
+        }
+    ]
+    with rasterio.open(tmp_path / "out" / "2026-02-13" / "R051" / "classes.tif") as stored:
+        scl = stored.read(1)
+    assert set(np.unique(scl)) == {0, 4}
+
+
+def test_listing_follows_the_30_percent_rule_and_needs_every_tile():
+    assert ingest.is_listed(0.30, complete=True)
+    assert not ingest.is_listed(0.2999, complete=True)
+    # The Accept line's dates: 2026-11-05 R051 (valid 0.0706) out, 2026-11-10 R094 (0.837) in.
+    assert not ingest.is_listed(0.0706, complete=True)
+    assert ingest.is_listed(0.837, complete=True)
+    assert not ingest.is_listed(0.837, complete=False)

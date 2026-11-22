@@ -13,14 +13,20 @@ PAGE_LIMIT = 100
 # Earth Search c1 items carry no sat:relative_orbit; the orbit is in the ESA product name,
 # e.g. S2A_MSIL2A_20261110T110211_N0513_R094_T30SVF_20261110T160053.
 _ORBIT = re.compile(r"_R(\d{3})_")
+# s2:datatake_id ends with the processing baseline (GS2A_20261110T110211_059465_N05.13);
+# without it the id names one overpass of one satellite.
+_BASELINE_SUFFIX = re.compile(r"_N\d{2}\.\d{2}$")
 
 Fetch = Callable[[urllib.request.Request], dict]
 
 
 @dataclass(frozen=True)
 class Acquisition:
+    """The granules of one overpass of one satellite (one datatake) over the domain."""
+
     day: date
     orbit: str
+    datatake: str
     items: tuple[dict, ...]
 
     @property
@@ -47,6 +53,10 @@ def orbit_of(item: dict) -> str:
     if match is None:
         raise ValueError(f"No relative orbit in product name of {item['id']}")
     return f"R{match.group(1)}"
+
+
+def datatake_of(item: dict) -> str:
+    return _BASELINE_SUFFIX.sub("", item["properties"]["s2:datatake_id"])
 
 
 def search_items(geometry: dict, start: date, end: date, fetch: Fetch = fetch_json) -> list[dict]:
@@ -89,21 +99,25 @@ def _latest_baseline(granules: list[dict]) -> list[dict]:
 
 
 def group_acquisitions(items: list[dict]) -> list[Acquisition]:
-    """Items grouped by UTC date and relative orbit, older processing baselines dropped,
-    granules ordered by tile name and then latest generation first."""
-    granules: dict[tuple[date, str, str], list[dict]] = defaultdict(list)
+    """Items grouped by UTC date, relative orbit and datatake, older processing baselines
+    dropped, granules ordered by tile name and then latest generation first. Two satellites
+    can pass one relative orbit minutes apart (S2A and S2B, 2026-02-13 R051) with different
+    clouds; they stay separate acquisitions."""
+    granules: dict[tuple[date, str, str, str], list[dict]] = defaultdict(list)
     for item in items:
         day = date.fromisoformat(item["properties"]["datetime"][:10])
-        granules[(day, orbit_of(item), tile_of(item))].append(item)
-    groups: dict[tuple[date, str], list[dict]] = defaultdict(list)
-    for (day, orbit, _tile), versions in granules.items():
-        groups[(day, orbit)].extend(_latest_baseline(versions))
+        granules[(day, orbit_of(item), datatake_of(item), tile_of(item))].append(item)
+    groups: dict[tuple[date, str, str], list[dict]] = defaultdict(list)
+    for (day, orbit, datatake, _tile), versions in granules.items():
+        groups[(day, orbit, datatake)].extend(_latest_baseline(versions))
 
     def ordered(group: list[dict]) -> tuple[dict, ...]:
         latest_first = sorted(group, key=lambda item: item["properties"]["s2:generation_time"], reverse=True)
         return tuple(sorted(latest_first, key=tile_of))
 
-    return [Acquisition(day, orbit, ordered(group)) for (day, orbit), group in sorted(groups.items())]
+    return [
+        Acquisition(day, orbit, datatake, ordered(group)) for (day, orbit, datatake), group in sorted(groups.items())
+    ]
 
 
 def expected_tiles(acquisitions: list[Acquisition]) -> dict[str, set[str]]:
