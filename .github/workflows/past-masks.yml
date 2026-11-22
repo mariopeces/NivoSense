@@ -5,6 +5,8 @@ name: Past seasons snow masks
 # same input keys and code only reads its entries back, so a failed or cancelled run is resumed by running it
 # again. The domain comes from data/domain.geojson at `domain_ref` and is part of every cache key.
 on:
+  push:
+    branches: [run/t17-past-masks]
   workflow_dispatch:
     inputs:
       start:
@@ -32,7 +34,7 @@ concurrency:
 env:
   START: ${{ inputs.start || '2023-09-01' }}
   END: ${{ inputs.end || '2025-09-30' }}
-  DOMAIN_REF: ${{ inputs.domain_ref || 'main' }}
+  DOMAIN_REF: ${{ inputs.domain_ref || 'plan/t21-domain' }}
   STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
   STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
 
