@@ -56,12 +56,13 @@ jobs:
   catalog:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    # One group per catalogue, not one shared group: GitHub keeps a single pending run per group and cancels
-    # the older one, so a staging rebuild could drop a queued prod rebuild or promotion. A cancelled pending
-    # rebuild of the same catalogue loses nothing, since the newer one reads every entry. The index write is
-    # also conditional on its generation, so the group only saves retries; it is not what keeps the index whole.
+    # GitHub keeps a single pending run per group and cancels the older one. That is harmless for rebuilds of
+    # one catalogue (the newer run reads every entry), so they share catalog-staging or catalog-prod. A cancelled
+    # promote would silently drop its date range, so each promote gets a group of its own: promotes may then run
+    # side by side, which is safe because files are content-addressed, entries are per date and the prod index
+    # write is conditional on its generation. That condition, not the group, is what keeps the index whole.
     concurrency:
-      group: catalog-${{ inputs.action == 'promote' && 'promote' || inputs.target }}
+      group: catalog-${{ inputs.action == 'promote' && format('promote-{0}', github.run_id) || inputs.target }}
       cancel-in-progress: false
     env:
       ACTION: ${{ inputs.action }}

@@ -16,6 +16,8 @@ from typing import Protocol
 
 IMMUTABLE = "public, max-age=31536000, immutable"
 NO_CACHE = "no-cache"
+LOCK_TIMEOUT_S = 30.0
+STALE_LOCK_S = 10.0
 
 
 class PreconditionFailed(Exception):
@@ -80,14 +82,25 @@ class LocalStorage:
         # A lock file makes compare-and-swap safe across processes too, not only threads.
         lock = self.root / ".lock"
         with self._thread_lock:
-            deadline = time.monotonic() + 30
+            deadline = time.monotonic() + LOCK_TIMEOUT_S
             while True:
                 try:
                     fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
                     break
-                except FileExistsError:
+                # On Windows a lock file another process is deleting is "delete pending" for a moment: opening
+                # or inspecting it raises PermissionError, which means busy here, like FileExistsError.
+                except (FileExistsError, PermissionError):
+                    try:
+                        age = time.time() - lock.stat().st_mtime
+                    except OSError:
+                        age = 0.0
+                    # The lock covers a metadata write and a rename (milliseconds); an old one was left by a
+                    # killed process.
+                    if age > STALE_LOCK_S:
+                        lock.unlink(missing_ok=True)
+                        continue
                     if time.monotonic() > deadline:
-                        raise TimeoutError(f"Lock {lock} held for more than 30 s") from None
+                        raise TimeoutError(f"Lock {lock} held for more than {LOCK_TIMEOUT_S} s") from None
                     time.sleep(0.005)
             try:
                 yield
@@ -225,16 +238,22 @@ class GcsStorage:
         if_generation_match: int | None = None,
     ) -> int:
         from google.api_core.exceptions import PreconditionFailed as GcsPreconditionFailed
+        from google.cloud.storage.retry import DEFAULT_RETRY, DEFAULT_RETRY_IF_GENERATION_SPECIFIED
 
         blob = self._bucket.blob(self._name(key))
         blob.cache_control = cache_control
         # Never set content_encoding: gzip-encoded objects break HTTP range requests on PMTiles and COGs.
+        # google-cloud-storage retries only conditional writes by default. The unconditional writes here are
+        # entry overwrites, which end the same however many times they land, so retrying them is safe too.
+        retry = DEFAULT_RETRY if if_generation_match is None else DEFAULT_RETRY_IF_GENERATION_SPECIFIED
         try:
             if isinstance(source, bytes):
-                blob.upload_from_string(source, content_type=content_type, if_generation_match=if_generation_match)
+                blob.upload_from_string(
+                    source, content_type=content_type, if_generation_match=if_generation_match, retry=retry
+                )
             else:
                 blob.upload_from_filename(
-                    str(source), content_type=content_type, if_generation_match=if_generation_match
+                    str(source), content_type=content_type, if_generation_match=if_generation_match, retry=retry
                 )
         except GcsPreconditionFailed as error:
             raise PreconditionFailed(str(error)) from error
