@@ -26,7 +26,7 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
 | T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r4 narrow (combined G-Infra+G-Code running) on c5fd1ba | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
-| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | fixing after r1, stacked on plan/t06-ci | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
+| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | r1 fixes pushed (a46b2b6, on t06-ci c5fd1ba), r2 G-Data/G-Code/G-Infra queued | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | all gauntlets pass on 0bbc81e; merges right after T0.6 (rebase + 2 minors, narrow recheck) | #12 | r4 narrow: G-Infra PASS, G-Code PASS (r1-r3 fail) |
 | T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra and G-Code r1 running | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
 | T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
@@ -37,8 +37,8 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
 | T1.5 Backfill obs | A | task_b949268ad4cb | T1.2, T1.3, T1.4, T0.2 | waiting | | |
 | T1.6 Daily ops obs | A | task_ecc3437d227b | T1.5 | waiting | | |
-| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | fixing after r1 G-Code (deps into T0.6 locks), merges after T0.3 | #15 | r1: G-Data PASS, G-Method PASS, G-Code fail (geo deps missing from hashed locks) |
-| T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | building, stacked on plan/t21-domain (plan-forcing); scores wait for T1.7 | | |
+| T2.1 Domain | C | task_d9763bd6b0a5 | T0.3 | r1 fixes pushed (bad749e, on t06-ci), narrow G-Code r2 queued; merges after T0.3 | #15 | r1: G-Data PASS, G-Method PASS, G-Code fail (geo deps missing from hashed locks) |
+| T2.2 Forcing study | C | task_769d23832dad | T2.1, T1.7 | PR open; snow scores and recommendation wait for T1.7; gauntlet after that | #27 | |
 | T2.3 Physics + assimilation | C | task_833f794e4a1e | T2.2, T1.2 | waiting | | |
 | T2.4 Calibration | C | task_1014a67885c3 | T2.3 | waiting | | |
 | T2.5 Model backfill + daily | C (+A) | task_4dc4649dbeee | T2.4, T1.5 | waiting | | |
@@ -163,3 +163,4 @@ Not available until T5.1.
 - 2026-11-22: T3.1 G-Data r3 PASS on 083c3b5 (failure injections all safe; placeholder detection holds for unfingerprinted variants). Both T3.1 gauntlets pass on 083c3b5; merges after T0.7 and T0.3 with a rebase and narrow recheck. Follow-ups: frozen frame re-stamped with fresh Last-Modified (sha check against prior stills once the bucket store exists), LookupError-class feed errors. T0.4 G-Code r1 started.
 - 2026-11-22: T0.6 narrow fixes pushed (c5fd1ba, CI green, failing proof per item). Round 4 is one combined G-Infra+G-Code worker on the four listed items, the round-3 bypasses and the diff; it takes the next free slot.
 - 2026-11-22: T4.0 G-Code r1 FAIL (two majors: '[estado.undefined]' on 7 screens; build_ramps.py writes ramps.json on a broken ramp). Sent to the design lead. T0.6 combined narrow round 4 started.
+- 2026-11-22: T0.3 r1 fixes pushed (a46b2b6: strict JSON, 18 mutations caught, GcsStorage tests, per-promote concurrency groups, tile format upstream); r2 x3 queued. T2.1 r1 fixes pushed (bad749e: geo deps in the hashed locks, sha refusal, slivers merged); narrow G-Code r2 queued. T2.2 PR #27 opened: inventory scripted; precipitation vs 6 RIA foothill stations: timing similar (r 0.65-0.73), volume differs (median ratio ARPEGE 1.09, ICON-EU 1.21, GFS 1.51, IFS 1.57, ERA5 1.74); snow scores and the recommendation wait for T1.7, so its G-Method gauntlet waits too (past-season forcing prefetch, ~25k calls over ~3 days, running locally into .cache/forcing).
