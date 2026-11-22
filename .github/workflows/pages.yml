@@ -126,8 +126,9 @@ jobs:
             cp -R snow-artifact frontend/public/data/snow-model
           fi
 
+      # Writes data/webcams.json and the checked stills; neither is committed. A provider
+      # outage only drops that provider's cameras; a crash fails the run below.
       - name: Refresh webcam catalog
-        continue-on-error: true
         run: python backend/ingest_webcams.py
 
       - name: Build frontend
@@ -141,6 +142,7 @@ jobs:
       - name: Validate static artifact
         run: |
           test -f frontend/dist/index.html
+          python backend/validate_webcam_artifact.py frontend/dist
           for f in data/webcams.json data/basins.geojson weather/manifest.json data/snow-model/manifest.json; do
             python -m json.tool "frontend/dist/$f" >/dev/null
           done

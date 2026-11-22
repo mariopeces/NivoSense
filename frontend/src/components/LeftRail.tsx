@@ -297,10 +297,12 @@ function formatCapturedAt(value: string | null) {
   if (!value) return "Hora desconocida";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Hora desconocida";
-  const minutes = Math.max(0, Math.round((Date.now() - date.getTime()) / 60_000));
+  const minutes = Math.round((Date.now() - date.getTime()) / 60_000);
+  // A capture time in the future means a wrong clock somewhere; its age is unknown.
+  if (minutes < -5) return "Hora desconocida";
   const age =
     minutes < 60
-      ? `hace ${minutes} min`
+      ? `hace ${Math.max(0, minutes)} min`
       : minutes < 48 * 60
         ? `hace ${Math.round(minutes / 60)} h`
         : `hace ${Math.round(minutes / 1440)} d`;

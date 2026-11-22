@@ -363,7 +363,7 @@ class BuildCatalogTest(unittest.TestCase):
         problems = {record["id"]: record["problem"] for record in log}
         self.assertEqual(problems["cetursa-15110-2"], "identical bytes served by another camera")
         stored = sorted(p.parent.name for p in Path(self.tmp.name).rglob("*.jpg"))
-        self.assertEqual(stored, ["cetursa-15111-0", "cetursa-15111-0"])
+        self.assertEqual(stored, ["cetursa-15111-0"])
 
     def test_offline_camera_points_to_no_image(self) -> None:
         cameras, _ = build_catalog(self.config(["cetursa-15110-2"]), self.store, lambda url: jpeg(FERATEL_PLACEHOLDER))
@@ -371,6 +371,71 @@ class BuildCatalogTest(unittest.TestCase):
         self.assertIsNone(cameras[0]["thumbnail_url"])
         self.assertIsNone(cameras[0]["large_url"])
         self.assertEqual(list(Path(self.tmp.name).rglob("*")), [])
+
+
+    def test_feed_outage_leaves_other_sources_ingesting(self) -> None:
+        config = self.config(["cetursa-15111-0"])
+        config["sources"].insert(0, {"id": "dgt", "type": "datex2", "url": "https://example.test/feed.xml",
+                                     "attribution": "DGT", "provider": "DGT"})
+
+        def feed_down(url: str) -> bytes:
+            raise urllib.error.URLError("Name or service not known")
+
+        cameras, log = build_catalog(config, self.store, lambda url: jpeg(FERATEL_FRAME), feed_down)
+
+        self.assertEqual([(c["id"], c["status"]) for c in cameras], [("cetursa-15111-0", "live")])
+        self.assertEqual(log[0]["source"], "dgt")
+        self.assertEqual(log[0]["status"], "failed")
+
+    def test_malformed_feed_leaves_other_sources_ingesting(self) -> None:
+        config = self.config(["cetursa-15111-0"])
+        config["sources"].insert(0, {"id": "dgt", "type": "datex2", "url": "https://example.test/feed.xml",
+                                     "attribution": "DGT", "provider": "DGT"})
+
+        cameras, _ = build_catalog(config, self.store, lambda url: jpeg(FERATEL_FRAME), lambda url: b"<payload>")
+
+        self.assertEqual([c["status"] for c in cameras], ["live"])
+
+    def test_unexpected_error_on_one_camera_marks_only_it_offline(self) -> None:
+        def fetch(url: str) -> ImageResponse:
+            if "/15110/" in url:
+                raise RuntimeError("bug")
+            return jpeg(FERATEL_FRAME)
+
+        cameras, log = build_catalog(self.config(["cetursa-15110-2", "cetursa-15111-0"]), self.store, fetch)
+
+        self.assertEqual({c["id"]: c["status"] for c in cameras},
+                         {"cetursa-15110-2": "offline", "cetursa-15111-0": "live"})
+        self.assertIsNone(cameras[0]["thumbnail_url"])
+        self.assertIn("RuntimeError", log[0]["problem"])
+
+    def test_one_url_for_both_sizes_is_stored_once(self) -> None:
+        cameras, _ = build_catalog(self.config(["cetursa-pradollano-c1"]), self.store, lambda url: jpeg(FERATEL_FRAME))
+
+        self.assertEqual(cameras[0]["large_url"], cameras[0]["thumbnail_url"])
+        self.assertEqual(len(list(Path(self.tmp.name).rglob("*.jpg"))), 1)
+
+
+class ClockTest(unittest.TestCase):
+    def test_last_modified_ahead_of_date_gives_unknown_age(self) -> None:
+        camera = feratel_camera()
+
+        record, _ = probe_camera_image(
+            camera, lambda url: jpeg(FERATEL_FRAME, "Sun, 22 Nov 2026 00:15:00 GMT", "Sat, 21 Nov 2026 23:25:00 GMT")
+        )
+
+        self.assertEqual(camera["status"], "live")
+        self.assertIsNone(camera["captured_at"])
+        self.assertEqual(record["flag"], "Last-Modified ahead of Date: capture time unknown")
+
+    def test_small_clock_skew_keeps_the_capture_time(self) -> None:
+        camera = feratel_camera()
+
+        probe_camera_image(
+            camera, lambda url: jpeg(FERATEL_FRAME, "Sat, 21 Nov 2026 23:26:00 GMT", "Sat, 21 Nov 2026 23:25:00 GMT")
+        )
+
+        self.assertEqual(camera["captured_at"], "2026-11-21T23:26:00+00:00")
 
 
 class CetursaSourceTest(unittest.TestCase):

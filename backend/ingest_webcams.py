@@ -67,6 +67,10 @@ PLACEHOLDER_DHASH_MAX_BITS = 10
 # feratel stamps its placeholder with Last-Modified equal to the response Date (to
 # the second, every rendition on 2026-11-21); real frames carry the capture time.
 GENERATED_ON_REQUEST_SECONDS = 2
+# Every frame on 2026-11-21 had Last-Modified at or before the response Date. A later
+# Last-Modified means a wrong clock, so its age is unknown; two minutes absorbs skew
+# between the provider's file and HTTP clocks.
+CLOCK_SKEW_SECONDS = 120
 
 
 class ImageResponse(NamedTuple):
@@ -286,7 +290,7 @@ def image_problem(response: ImageResponse, provider: str) -> str | None:
             return "generated on request (Last-Modified equals Date)"
     try:
         frame_hash = dhash(response.body)
-    except OSError:
+    except (OSError, ValueError, SyntaxError, Image.DecompressionBombError):
         return "undecodable JPEG"
     distance = min((frame_hash ^ known).bit_count() for known in PLACEHOLDER_DHASH)
     if distance <= PLACEHOLDER_DHASH_MAX_BITS:
@@ -313,7 +317,8 @@ def probe_camera_image(
     bodies: dict[str, bytes] = {}
     fetched: dict[str, ImageResponse] = {}
     problem = None if camera["thumbnail_url"] and camera["large_url"] else "no image URL"
-    capture_times = set()
+    capture_times: set[str | None] = set()
+    served_at: list[datetime] = []
     for size in ("thumbnail", "large") if problem is None else ():
         url = camera[f"{size}_url"]
         response = fetched.get(url)
@@ -342,6 +347,8 @@ def probe_camera_image(
         assert response is not None
         bodies[size] = response.body
         capture_times.add(response.last_modified)
+        if (served := parse_http_date(response.date)) is not None:
+            served_at.append(served)
     if not problem and len(capture_times) > 1:
         problem = "thumbnail and large image carry different capture times"
 
@@ -350,6 +357,9 @@ def probe_camera_image(
         bodies = {}
     else:
         captured = parse_http_date(capture_times.pop())
+        if captured and served_at and (captured - min(served_at)).total_seconds() > CLOCK_SKEW_SECONDS:
+            record["flag"] = "Last-Modified ahead of Date: capture time unknown"
+            captured = None
         camera["status"] = "live"
         camera["captured_at"] = captured.isoformat() if captured else None
     record.update(status=camera["status"], problem=problem, captured_at=camera["captured_at"])
@@ -397,6 +407,10 @@ def store_stills(camera: dict[str, Any], sizes: dict[str, bytes], store: StillSt
         else "undated"
     )
     for size, body in sizes.items():
+        if size == "large" and body == sizes.get("thumbnail"):
+            # One URL serves both sizes (Pradollano, DGT): store the frame once.
+            camera["large_url"] = camera["thumbnail_url"]
+            continue
         digest = hashlib.sha256(body).hexdigest()[:16]
         key = f"{camera['id']}/{stamp}-{size}-{digest}.jpg"
         camera[f"{size}_url"] = store.put(key, body, "image/jpeg")
@@ -410,6 +424,7 @@ def build_catalog(
     config: dict[str, Any],
     store: StillStore,
     fetch: Callable[[str], ImageResponse] = fetch_image,
+    fetch_xml: Callable[[str], bytes] = fetch_bytes,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     region = config["region"]
     bbox = tuple(float(value) for value in region["bbox"])
@@ -417,37 +432,48 @@ def build_catalog(
         raise ValueError("region.bbox must contain west, south, east and north")
 
     cameras: list[dict[str, Any]] = []
+    log: list[dict[str, Any]] = []
     for source in config["sources"]:
         if not source.get("enabled", True):
             continue
         if source["type"] == "datex2":
-            cameras.extend(
-                parse_datex_cameras(
-                    fetch_bytes(source["url"]),
-                    bbox,  # type: ignore[arg-type]
-                    source["url"],
-                    source["attribution"],
-                    source.get("provider", source["id"]),
+            # A feed outage must not stop the other providers: its cameras are left
+            # out of this run (the feed is the only list of them) and the log says why.
+            try:
+                feed = fetch_xml(source["url"])
+                cameras.extend(
+                    parse_datex_cameras(
+                        feed,
+                        bbox,  # type: ignore[arg-type]
+                        source["url"],
+                        source["attribution"],
+                        source.get("provider", source["id"]),
+                    )
                 )
-            )
+            except (OSError, http.client.HTTPException, ET.ParseError) as exc:
+                log.append({"source": source["id"], "status": "failed", "problem": f"feed unavailable: {exc}"})
         elif source["type"] == "static":
             cameras.extend(static_cameras(source, bbox))  # type: ignore[arg-type]
         else:
             raise ValueError(f"Unsupported webcam source type: {source['type']}")
 
-    log: list[dict[str, Any]] = []
     bodies: dict[str, dict[str, bytes]] = {}
+    probe_log: list[dict[str, Any]] = []
     for camera in cameras:
-        record, sizes = probe_camera_image(camera, fetch)
-        log.append(record)
+        try:
+            record, sizes = probe_camera_image(camera, fetch)
+        except Exception as exc:  # noqa: BLE001 - one camera's unexpected failure must not stop the rest
+            set_offline(camera)
+            record, sizes = {"id": camera["id"], "status": "offline", "problem": f"ingest error: {exc!r}"}, {}
+        probe_log.append(record)
         if sizes:
             bodies[camera["id"]] = sizes
-    drop_shared_frames(cameras, log, bodies)
-    for camera, record in zip(cameras, log):
+    drop_shared_frames(cameras, probe_log, bodies)
+    for camera, record in zip(cameras, probe_log):
         if camera["id"] in bodies:
             store_stills(camera, bodies[camera["id"]], store)
             record["stored"] = [camera["thumbnail_url"], camera["large_url"]]
-    return cameras, log
+    return cameras, log + probe_log
 
 
 def write_catalog(cameras: list[dict[str, Any]], output: Path) -> None:
