@@ -2,6 +2,7 @@
 
 Kept by the coordinator (see `orchestration.md`). Last update: 2026-11-22.
 
+- Coordinator session: `orca_session_id:15073739-06c0-4769-a91f-7a2148f5db85` (since 2026-11-22 04:00 UTC; replaced `orca_session_id:95373d58-0719-4289-9379-c408b00cffb7`)
 - Orca Run: `run_d154a40aeb1c` (objective: NivoSense to production, README section 2 is the definition of done)
 - Agent: claude only. Limits (Mario, 2026-11-22): up to 7 builders and 6 gauntlets alive at once while the machine stays responsive (back to 5 builders if it slows down). One active builder per lane only where files would overlap.
 
@@ -25,13 +26,13 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T0.1 Rules | A | task_f158ee3c34b4 | - | merged (6c602c5) | #3 | G-Code r3 pass (r1, r2 fail) |
 | T0.2 Storage and access | A | task_08987025034c | - | merged (ee23a47); main probe run 44962735294 green | #7 | r2: G-Infra PASS, G-Code PASS on 6d1c14e (r1 both fail) |
 | T0.5 Quick fixes live site | E | task_7e715b7ea304 | - | merged (0076035), live verified | #4 | G-Code r1 pass, G-UI light r1 pass |
-| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r4 narrow (combined G-Infra+G-Code running) on c5fd1ba | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
-| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | r1 fixes pushed (a46b2b6, on t06-ci c5fd1ba), r2 G-Data/G-Code/G-Infra queued | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
+| T0.6 CI and tooling | A | task_00e7b52d23c4 | T0.1 | gauntlet r4 narrow (combined G-Infra+G-Code, restarted after the session limit, ctx_aaa0c46548eb) on c5fd1ba | #6 | r1, r2 both fail; r3: G-Infra fail, G-Code fail (edge-case colours inside the bar) |
+| T0.3 Catalogue and publish | A | task_1ffe0c8b1720 | T0.6, T0.2 | gauntlet r2 on a46b2b6 (G-Data, G-Code, G-Infra narrow running) | #13 | r1: G-Infra PASS, G-Data fail (NaN JSON), G-Code fail (surviving mutations) |
 | T0.7 Staging site and freeze | A | task_e15b64036ea2 | T0.2, T0.6 | all gauntlets pass on 0bbc81e; merges right after T0.6 (rebase + 2 minors, narrow recheck) | #12 | r4 narrow: G-Infra PASS, G-Code PASS (r1-r3 fail) |
-| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data; G-Infra and G-Code r1 running | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
-| T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
-| T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, ctx_ad484b6bb334) | | |
-| T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | building, stacked on plan/t11-s2-ingest + t03 + t04 (plan-snowobs, ctx_67b47268eaba); Q1 scored once after T1.0 freezes | | |
+| T0.4 QA harness | A | task_befbbf9c4c61 | T0.3, T0.7 | fixing after r1 G-Data (restarted, ctx_ecdd227b2c73); G-Infra and G-Code r1 cancelled, rerun with G-Data r2 on the fixed head | #20 | r1: G-Data fail (missing-day blind spots, unbounded range, decision-object validation) |
+| T1.1 S2 ingest | B | task_597641229107 | T0.4 | fixing after r1 (restarted, ctx_e39e1fe47378; 3 local commits unpushed at dafc7f3) | #14 | r1: G-Data fail (late granule), G-Method PASS, G-Code fail (two-platform same-orbit passes merged; weak tests) |
+| T1.0 Reference sample | B (labeller) | task_428ec7332f23 | T1.1 | building, labeller blind to classifier, on plan/t11-s2-ingest (plan-labeller, restarted ctx_f3ad488f18a0, keeps prior labels) | | |
+| T1.2 Observed snow cover | B | task_237efa709fff | T1.1, T1.0, T0.4 | building, stacked on plan/t11-s2-ingest + t03 + t04 (plan-snowobs, restarted ctx_50386be264f7); Q1 scored once after T1.0 freezes | | |
 | T1.3 RGB L1C | B | task_6af538d9ec65 | T1.1, T0.3 | ready, stacked on plan/t11-s2-ingest + plan/t03-catalog; G-Data, G-Method, G-Code queued | #22 | |
 | T1.4 Gap-fill v1 | B | task_2c113522136f | T1.2 | waiting | | |
 | T1.7 Past seasons masks | B | task_2754cb4b378b | T1.2 | waiting | | |
@@ -45,11 +46,11 @@ States: waiting, ready, building, gauntlet rN, merged, blocked.
 | T2.6 Validation page | C (+E) | task_92bd0ac7a8f8 | T2.5 | waiting | | |
 | T3.1 Cetursa webcams | D | task_2c3ed0791fb6 | T0.3 | all gauntlets pass on 083c3b5; merges after T0.7 and T0.3 (rebase + narrow recheck) | #8 | r3: G-Data PASS; r2: G-Code PASS (both on 083c3b5) |
 | T3.2 Live DGT cams | D | task_a99c254718d7 | T3.1 | waiting | | |
-| T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, ctx_2e89613ad377) | | |
+| T3.3 Bearings and FOV | D | task_5e9b5b26f163 | T3.1 | building, stacked on plan/t31-cetursa (plan-bearings, restarted ctx_f57c38e34971) | | |
 | T3.4 Cones and cards | E | task_46be14c32fd4 | T3.3, T4.1 | waiting | | |
-| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | gauntlet r2 (G-UI running); fixing G-Code r1 | #16 | r1: G-UI fail, G-Code fail (estado.undefined rows; build_ramps exits 0 on a broken ramp) |
-| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | gauntlet r1 (G-UI, G-Code), stacked on plan/t06-ci + plan/t40-design | #25 | |
-| T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | building, stacked on plan/t41-shell + plan/t03-catalog (plan-timeline, ctx_b1fd50713fbe) | | |
+| T4.0 Design spec | E (design lead) | task_de79f54a990b | T0.1 | G-UI r2 PASS on 7fd78a9; fixing G-Code r1 (restarted, ctx_3d9c8399f4c0) | #16 | r2: G-UI PASS (5 minors); r1: G-Code fail (estado.undefined rows; build_ramps exits 0 on a broken ramp) |
+| T4.1 Tokens and shell | E | task_3253e4b3860f | T0.6, T4.0 | gauntlet r1 (G-UI, G-Code restarted after the session limit), stacked on plan/t06-ci + plan/t40-design | #25 | |
+| T4.2 Timeline | E | task_0bf307d9e4ae | T4.1, T0.3 | building, stacked on plan/t41-shell + plan/t03-catalog (plan-timeline, restarted ctx_879156916e9b) | | |
 | T4.3 Layers and legends | E | task_3d88661e1945 | T4.2 | waiting | | |
 | T4.4 Basin and river panels | E | task_ff92a85a01b8 | T4.3 (T2.5 data optional, "pendiente" before) | waiting | | |
 | T4.5 Mobile, a11y, perf | E | task_8d2518876af4 | T4.4 | waiting | | |
@@ -166,3 +167,4 @@ Not available until T5.1.
 - 2026-11-22: T0.3 r1 fixes pushed (a46b2b6: strict JSON, 18 mutations caught, GcsStorage tests, per-promote concurrency groups, tile format upstream); r2 x3 queued. T2.1 r1 fixes pushed (bad749e: geo deps in the hashed locks, sha refusal, slivers merged); narrow G-Code r2 queued. T2.2 PR #27 opened: inventory scripted; precipitation vs 6 RIA foothill stations: timing similar (r 0.65-0.73), volume differs (median ratio ARPEGE 1.09, ICON-EU 1.21, GFS 1.51, IFS 1.57, ERA5 1.74); snow scores and the recommendation wait for T1.7, so its G-Method gauntlet waits too (past-season forcing prefetch, ~25k calls over ~3 days, running locally into .cache/forcing).
 - 2026-11-22: T1.3 PR #22 ready (catalogue copy dropped in favour of T0.3 a46b2b6; CI green on eeac1c6). Gauntlet queue: T0.3 r2 x3, T2.1 G-Code r2, T1.3 r1 x3.
 - 2026-11-22: Started under the stacked-branch rule: T4.2 timeline (plan-timeline) and T1.2 observed snow cover (plan-snowobs). T1.2 independence rule: the classifier builder never sees the T1.0 reference sample until its parameters are frozen and committed; Q1 is scored once, no tuning against the sample.
+- 2026-11-22 04:00 UTC: Coordinator handover. The previous coordinator (orca_session_id:95373d58) and 12 workers stopped at about 01:20 UTC on the Claude 5-hour session limit; the run stalled about 2.7 h. New coordinator orca_session_id:15073739 adopted the Run. Orca still showed the 12 workers as live, but a `send` was not delivered to an agent idle after the error, so each was stopped (guarded stop, terminal closed) and retried on the same Task in its same worktree with a recovery brief naming its uncommitted work and scratchpad: T0.6 r4 ctx_aaa0c46548eb, T4.1 G-Code r1 ctx_75488d11da87, T4.1 G-UI r1 ctx_6886b68166b0, T1.2 ctx_50386be264f7, T4.2 ctx_879156916e9b, T4.0 G-Code fixes ctx_3d9c8399f4c0 (keeps 3 uncommitted files), T0.4 G-Data fixes ctx_ecdd227b2c73, T1.1 fixes ctx_e39e1fe47378 (keeps 3 unpushed commits), T1.0 ctx_f3ad488f18a0 (keeps labels so far), T3.3 ctx_f57c38e34971. T0.4 G-Infra and G-Code r1 cancelled instead (the G-Data fixes will change the head; all three run on it). Unlogged report handled: T4.0 G-UI r2 PASS on 7fd78a9 (PR #16 comment 7072106126; 5 minors sent to the design lead). Freed gauntlet slots: T0.3 r2 G-Data ctx_8d703f055505, G-Code ctx_235c3ab61b60, G-Infra narrow ctx_0761e449774c. T0.7 (ctx_338dff800d4c) and T3.1 (ctx_b370eb479d70) builders stay idle on purpose, waiting for the T0.6 and T0.7 merges. Alive: 7 builders working (T1.2, T4.2, T4.0 fixer, T0.4 fixer, T1.1 fixer, T1.0, T3.3) plus 2 idle, 6 gauntlets. Queue: T2.1 G-Code r2, T1.3 r1 x3, T4.0 G-Code r2, T0.4 G-Data r2 + G-Infra r1 + G-Code r1.
