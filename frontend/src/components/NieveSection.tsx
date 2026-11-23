@@ -4,10 +4,12 @@ import { Icon } from "../lib/icons";
 import { t } from "../lib/copy";
 import { fechaCorta } from "../lib/format";
 import type { CatalogEntry, CatalogState } from "../lib/catalog";
-import { LOCKED_LAYERS, RAMPS, entryFor, layerSpecs, type LayerSpec } from "../lib/layers";
+import { RAMPS, entriesOf, entryFor, isDaily, isLocked, layerSpecs, type LayerSpec } from "../lib/layers";
+import { snowRanges } from "../lib/snowRange";
 import { STATUS_OF } from "../lib/timeline";
 import type { VisibleLayers } from "../lib/urlState";
 import RampLegend from "./RampLegend";
+import SnowRange from "./SnowRange";
 import { GroupLabel, Notice, Skeleton, StatusBadge } from "./ui";
 
 type Props = {
@@ -21,6 +23,16 @@ type Props = {
   onRetry: () => void;
 };
 
+// Why a locked layer is locked, when it has its own reason.
+const LOCKED_REASON: Record<string, string> = { swe: "capa.swe.bloqueada_motivo" };
+
+const RANGE_LABELS = {
+  area: "info_capa.superficie_nieve",
+  meanDepth: "info_capa.espesor_medio",
+  peakDepth: "info_capa.espesor_maximo",
+  value: "info_capa.rango_valor",
+};
+
 const ICON_BUTTON =
   "grid h-8 w-8 flex-none place-items-center rounded-md text-text-muted hover:bg-panel-soft hover:text-text " +
   "disabled:cursor-not-allowed disabled:hover:bg-transparent max-md:h-touch max-md:w-touch";
@@ -30,7 +42,7 @@ const ICON_BUTTON =
 export default function NieveSection({ catalog, date, visible, onToggle, onOpacity, onDate, onMethod, onRetry }: Props) {
   if (catalog.kind === "loading") return <Skeleton label={t("cargando.catalogo")} />;
   const index = catalog.kind === "ready" ? catalog.index : null;
-  const empty = !index || Object.values(index.layers).every((layer) => layer.entries.length === 0);
+  const empty = !index || Object.keys(index.layers).every((id) => entriesOf(index, id).length === 0);
   const specs = layerSpecs(index);
   const row = (spec: LayerSpec) => {
     const shown = visible.find((item) => item.id === spec.id);
@@ -38,7 +50,7 @@ export default function NieveSection({ catalog, date, visible, onToggle, onOpaci
       <LayerRow
         key={spec.id}
         spec={spec}
-        entries={index?.layers[spec.id]?.entries ?? []}
+        entries={entriesOf(index, spec.id)}
         date={date}
         opacity={shown?.opacity ?? null}
         onToggle={() => onToggle(spec.id)}
@@ -98,8 +110,8 @@ function LayerRow({
   const shown = date ? entryFor(entries, date) : null;
   const entry = shown?.entry ?? null;
   const on = opacity !== null && entry !== null;
-  const modelled = entries.some((item) => item.status === "modelled");
-  const locked = LOCKED_LAYERS.has(spec.id) && entries.length === 0;
+  const daily = entries.some(isDaily);
+  const locked = isLocked(spec.id);
   const name = spec.copy ? t(`capa.${spec.copy}.nombre`) : spec.id;
   const resolution = entry ? `${entry.resolution_m} m` : spec.copy ? t(`capa.${spec.copy}.resolucion`) : "";
   const meta = spec.copy ? t("fila_capa.meta", { fuente: t(`capa.${spec.copy}.fuente`), resolucion: resolution }) : resolution;
@@ -116,7 +128,7 @@ function LayerRow({
       <div className="flex items-start gap-2 p-3 pb-2">
         <button
           type="button"
-          disabled={locked || (!entry && !modelled)}
+          disabled={locked || (!entry && !daily)}
           aria-pressed={locked ? undefined : on}
           aria-label={locked ? `${name}: ${t("fila_capa.bloqueada")}` : toggleLabel}
           title={locked ? t("fila_capa.bloqueada") : entry ? toggleLabel : t("fila_capa.pendiente")}
@@ -130,11 +142,24 @@ function LayerRow({
           {meta && <p className="m-0 text-small text-text-muted">{meta}</p>}
           {entry?.status === "modelled" && (
             <p className="m-0 mt-1 text-small text-text-muted">
-              <span className="font-medium text-text">{t("fila_capa.modelo_experimental")}.</span> {t("fila_capa.modelo_aviso")}
+              <span className="font-medium text-text">{t("fila_capa.estimacion_modelo")}.</span> {t("fila_capa.modelo_aviso")}
+            </p>
+          )}
+          {entry?.status === "gapfilled" && (
+            <p className="m-0 mt-1 text-small text-text-muted">
+              {t(entry.qa?.flags.includes("observation_used") ? "fila_capa.nieve_diaria_con_imagen" : "fila_capa.nieve_diaria_sin_imagen")}
+              {entry.qa?.flags.includes("quality_check_failed") && (
+                <>
+                  {" "}
+                  <span className="font-medium text-warning">{t("fila_capa.revision_calidad")}</span>
+                </>
+              )}
             </p>
           )}
           {entry && shown?.exact && (
-            <p className="tnum m-0 mt-1 text-small">{t("fila_capa.fecha_observacion", { fecha_corta: fechaCorta(entry.date) })}</p>
+            <p className="tnum m-0 mt-1 text-small">
+              {t(isDaily(entry) ? "fila_capa.fecha_calculo" : "fila_capa.fecha_observacion", { fecha_corta: fechaCorta(entry.date) })}
+            </p>
           )}
           {entry && !shown?.exact && (
             <p className="tnum m-0 mt-1 text-small">
@@ -150,7 +175,7 @@ function LayerRow({
           )}
           {!entry && (
             <p className="m-0 mt-1 text-small text-text-muted">
-              {t(locked ? "fila_capa.bloqueada_detalle" : modelled ? "fila_capa.sin_nieve_modelada" : "fila_capa.pendiente_detalle")}
+              {t(locked ? (LOCKED_REASON[spec.id] ?? "fila_capa.bloqueada_detalle") : daily ? "fila_capa.sin_dato_dia" : "fila_capa.pendiente_detalle")}
             </p>
           )}
           <div className="mt-2">
@@ -160,7 +185,7 @@ function LayerRow({
                 {t("fila_capa.bloqueada")}
               </span>
             ) : (
-              <StatusBadge status={entry ? STATUS_OF[entry.status] : modelled ? "modelado" : "pendiente"} />
+              <StatusBadge status={entry ? STATUS_OF[entry.status] : daily ? STATUS_OF[entries[0].status] : "pendiente"} />
             )}
           </div>
         </div>
@@ -251,6 +276,7 @@ function LayerInfo({
   }, []);
 
   const unit = spec.ramp ? RAMPS[spec.ramp].unit : null;
+  const ranges = spec.id === "snow_depth" ? snowRanges(entry, "domain") : null;
   const rows: Array<[string, ReactNode]> = [
     ["info_capa.fuente", spec.copy ? t(`capa.${spec.copy}.fuente`) : spec.id],
     ["info_capa.resolucion", resolution],
@@ -275,6 +301,13 @@ function LayerInfo({
         </button>
       </div>
       {spec.copy && <p className="m-0 mt-1 text-small">{t(`capa.${spec.copy}.descripcion`)}</p>}
+      {ranges && (
+        <div className="mt-2">
+          <p className="m-0 mb-1 text-small font-medium">{t("info_capa.rango_titulo")}</p>
+          <SnowRange ranges={ranges} labels={RANGE_LABELS} />
+          <p className="m-0 mt-1 text-caption text-text-muted">{t("info_capa.rango_nota")}</p>
+        </div>
+      )}
       <dl className="m-0 mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 text-small">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">

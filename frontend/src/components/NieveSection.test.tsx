@@ -43,47 +43,98 @@ describe("NieveSection", () => {
     for (const name of ["Nieve observada", "Nieve diaria", "Equivalente en agua (SWE)", "Espesor de nieve", "Color real"]) {
       expect(row(name)).toBeTruthy();
     }
-    const swe = within(row("Equivalente en agua (SWE)"));
-    expect((swe.getByRole("button", { name: "Mostrar Equivalente en agua (SWE)" }) as HTMLButtonElement).disabled).toBe(true);
-    expect(swe.getByText("Pendiente")).toBeTruthy();
-    expect(swe.getByText("SWE (mm) · Menos de 5 mm: sin color")).toBeTruthy();
-    expect((swe.getByRole("slider") as HTMLInputElement).disabled).toBe(true);
+    const daily = within(row("Nieve diaria"));
+    expect((daily.getByRole("button", { name: "Mostrar Nieve diaria" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(daily.getByText("Pendiente")).toBeTruthy();
+    expect((daily.getByRole("slider") as HTMLInputElement).disabled).toBe(true);
     // The observed-snow legend lists every class of the ramp.
     const obs = within(row("Nieve observada"));
     for (const cls of RAMPS.snow_cover_observed.classes) expect(obs.getByText(cls.label_es)).toBeTruthy();
   });
 
-  it("labels a modelled layer as an experimental model with its caveat and lets it be switched on", () => {
-    const modelled = (layer: string, unit: string) => ({
-      dates: ["2026-11-10"],
-      entries: [
-        {
-          layer,
-          date: "2026-11-10",
-          status: "modelled" as const,
-          cog: `layers/${layer}/2026/x.tif`,
-          pmtiles: `tiles/${layer}/x.pmtiles`,
-          bounds: [-3.6, 36.9, -2.6, 37.3] as [number, number, number, number],
-          resolution_m: 100,
-          bands: [layer],
-          units: [unit],
-          source_ids: ["open-meteo:ecmwf_ifs"],
-        },
-      ],
-    });
-    const index = parseCatalog({
+  const depthEntry = (scores: Record<string, number> = {}) => ({
+    layer: "snow_depth",
+    date: "2026-11-10",
+    status: "modelled" as const,
+    cog: "layers/snow_depth/2026/x.tif",
+    pmtiles: "tiles/snow_depth/x.pmtiles",
+    bounds: [-3.6, 36.9, -2.6, 37.3] as [number, number, number, number],
+    resolution_m: 100,
+    bands: ["depth_p50", "depth_p10", "depth_p90"],
+    units: ["m", "m", "m"],
+    source_ids: ["open-meteo:ecmwf_ifs"],
+    qa: { flags: ["prior_ensemble"], scores },
+  });
+  const catalogWith = (layers: Record<string, unknown[]>): CatalogState => ({
+    kind: "ready",
+    index: parseCatalog({
       schema_version: 1,
       generated_at: "2026-11-22T00:00:00.000+00:00",
-      layers: { swe: modelled("swe", "mm"), snow_depth: modelled("snow_depth", "m") },
+      layers: Object.fromEntries(
+        Object.entries(layers).map(([id, entries]) => [id, { dates: (entries as { date: string }[]).map((e) => e.date), entries }]),
+      ),
+    }),
+  });
+
+  it("labels the depth as a model estimate (median of an ensemble, one camera, a factor of two) and lets it be switched on", () => {
+    render(<Harness catalog={catalogWith({ snow_depth: [depthEntry()] })} />);
+    const depth = within(row("Espesor de nieve"));
+    expect(depth.getByText("Estimación del modelo.")).toBeTruthy();
+    expect(depth.getByText(/mediana de un conjunto de simulaciones/)).toBeTruthy();
+    expect(depth.getByText(/una sola cámara \(2010 a 2013\).*factor de dos/)).toBeTruthy();
+    expect(screen.queryByText(/experimental/i)).toBeNull();
+    expect(screen.queryByText(/validad/i)).toBeNull();
+    expect(depth.queryByText("Pendiente")).toBeNull();
+    expect(depth.getByText("Modelado")).toBeTruthy();
+    fireEvent.click(depth.getByRole("button", { name: "Mostrar Espesor de nieve" }));
+    expect(state()).toBe("2026-11-10 snow_depth:100");
+  });
+
+  it("shows the p10 to p90 range of the depth in the layer information, from the qa scores", () => {
+    const scores = {
+      domain_snow_area_km2_p10: 200,
+      domain_snow_area_km2_p50: 310.4,
+      domain_snow_area_km2_p90: 450,
+      domain_depth_mean_m_p10: 0.12,
+      domain_depth_mean_m_p50: 0.31,
+      domain_depth_mean_m_p90: 0.62,
+      domain_depth_peak_m_p10: 0.9,
+      domain_depth_peak_m_p50: 1.9,
+      domain_depth_peak_m_p90: 3.4,
+    };
+    render(<Harness catalog={catalogWith({ snow_depth: [depthEntry(scores)] })} />);
+    fireEvent.click(screen.getByRole("button", { name: "Información de Espesor de nieve" }));
+    const dialog = within(screen.getByRole("dialog", { name: "Sobre esta capa: Espesor de nieve" }));
+    expect(dialog.getByText("Rango del conjunto (p10 a p90)")).toBeTruthy();
+    expect(dialog.getByText("310 km² (de 200 a 450)")).toBeTruthy();
+    expect(dialog.getByText("31 cm (de 12 a 62)")).toBeTruthy();
+    expect(dialog.getByText("190 cm (de 90 a 340)")).toBeTruthy();
+  });
+
+  it("offers the daily snow once it has entries and says whether the day has an image", () => {
+    const entry = (flags: string[]) => ({
+      ...depthEntry(),
+      layer: "snow_gapfill",
+      status: "gapfilled" as const,
+      resolution_m: 20,
+      bands: ["snow_probability", "obs_age_days"],
+      qa: { flags, scores: {} },
     });
-    render(<Harness catalog={{ kind: "ready", index }} />);
-    const swe = within(row("Equivalente en agua (SWE)"));
-    expect(swe.getByText("Modelo experimental.")).toBeTruthy();
-    expect(swe.getByText(/corregida con cada imagen despejada de Sentinel-2/)).toBeTruthy();
-    expect(swe.queryByText("Pendiente")).toBeNull();
-    fireEvent.click(swe.getByRole("button", { name: "Mostrar Equivalente en agua (SWE)" }));
-    expect(state()).toBe("2026-11-10 swe:100");
-    expect(within(row("Espesor de nieve")).getByText("Modelo experimental.")).toBeTruthy();
+    const { rerender } = render(<Harness catalog={catalogWith({ snow_gapfill: [entry(["observation_used"])] })} />);
+    const daily = () => within(row("Nieve diaria"));
+    expect(daily().queryByText("Próximamente")).toBeNull();
+    expect(daily().getByText(/Con imagen despejada de Sentinel-2 este día/)).toBeTruthy();
+    expect(daily().getByText("Rellenado")).toBeTruthy();
+    expect((daily().getByRole("button", { name: "Mostrar Nieve diaria" }) as HTMLButtonElement).disabled).toBe(false);
+    rerender(<Harness catalog={catalogWith({ snow_gapfill: [entry(["prior_ensemble"])] })} />);
+    expect(daily().getByText("Sin imagen despejada este día: probabilidad del modelo.")).toBeTruthy();
+    rerender(<Harness catalog={catalogWith({ snow_gapfill: [entry(["observation_used", "quality_check_failed"])] })} />);
+    expect(daily().getByText("El modelo y la imagen de este día discrepan más de lo habitual.")).toBeTruthy();
+  });
+
+  it("says a daily layer has no data for a day outside its record, instead of showing another day", () => {
+    render(<Harness catalog={catalogWith({ snow_depth: [depthEntry()] })} start="2026-11-12" />);
+    expect(within(row("Espesor de nieve")).getByText("Esta capa no tiene dato para este día.")).toBeTruthy();
   });
 
   it("switches the true colour on, sets its opacity and shows its scene date and status", () => {
@@ -151,11 +202,16 @@ describe("NieveSection", () => {
     expect(screen.queryByText("Color real")).toBeNull();
   });
 
-  it("shows the daily snow layer as locked: lock icon, disabled toggle, muted card", () => {
-    render(<Harness catalog={{ kind: "missing" }} />);
-    const toggle = screen.getByRole("button", { name: "Nieve diaria: Próximamente" }) as HTMLButtonElement;
+  it("locks the SWE with its reason, whatever the catalogue holds, and never lists its entries", () => {
+    const v1 = { ...depthEntry(), layer: "swe", bands: ["swe"], units: ["mm"] };
+    render(<Harness catalog={catalogWith({ swe: [v1], snow_depth: [depthEntry()] })} />);
+    const swe = row("Equivalente en agua (SWE)");
+    const toggle = within(swe).getByRole("button", { name: "Equivalente en agua (SWE): Próximamente" }) as HTMLButtonElement;
     expect(toggle.disabled).toBe(true);
-    expect(toggle.closest("[data-locked]")).toBeTruthy();
-    expect(screen.getByText("Todavía no está disponible. Estamos trabajando en esta capa.")).toBeTruthy();
+    expect(swe.closest("[data-locked]") ?? swe.getAttribute("data-locked")).toBeTruthy();
+    expect(within(swe).getByText("Requiere medidas de campo para validarse")).toBeTruthy();
+    expect(within(swe).getAllByText("Próximamente").length).toBeGreaterThan(0);
+    expect(within(swe).queryByText(/Escena|Calculado para/)).toBeNull();
+    expect(within(swe).queryByText("Modelado")).toBeNull();
   });
 });

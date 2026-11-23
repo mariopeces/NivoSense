@@ -1,5 +1,6 @@
 import type { CatalogIndex, CatalogStatus } from "./catalog";
 import type { Status } from "../components/ui";
+import { isLocked } from "./layers";
 
 // Start of hydrological year 2025-26, where the published history begins (docs/plan/README.md, goal).
 export const SEASON_START = "2025-10-01";
@@ -51,7 +52,8 @@ export function todayInMadrid(now = new Date()) {
 /** The timeline over the whole history, or null when the catalogue lists no product at all. */
 export function buildTimeline(index: CatalogIndex, today: string): TimelineModel | null {
   const byDate = new Map<string, Set<Status>>();
-  for (const layer of Object.values(index.layers)) {
+  for (const [id, layer] of Object.entries(index.layers)) {
+    if (isLocked(id)) continue;
     for (const entry of layer.entries) {
       const statuses = byDate.get(entry.date) ?? new Set<Status>();
       statuses.add(STATUS_OF[entry.status]);

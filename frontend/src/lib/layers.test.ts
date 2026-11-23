@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import fixture from "../test/fixtures/catalog-t04-evidence-98f90df.json";
 import { parseCatalog, type CatalogEntry } from "./catalog";
-import { LAYER_SPECS, RAMPS, catalogRoot, entryFor, layerSpecs, pmtilesUrl, rampBounds } from "./layers";
+import { LAYER_SPECS, LOCKED_LAYERS, RAMPS, catalogRoot, entriesOf, entryFor, isLocked, layerSpecs, pmtilesUrl, rampBounds } from "./layers";
 
 // A real catalogue: written by publish() to the staging scratch prefix during the T0.4 evidence run, 7 true
 // colour entries between 24 Oct and 20 Nov 2026.
@@ -31,9 +31,30 @@ describe("layerSpecs", () => {
   });
 });
 
+describe("locked layers", () => {
+  it("locks the SWE only: the daily snow is offered", () => {
+    expect([...LOCKED_LAYERS]).toEqual(["swe"]);
+    expect(isLocked("swe")).toBe(true);
+    expect(isLocked("snow_gapfill")).toBe(false);
+  });
+
+  it("never lists the entries of a locked layer, even when the catalogue holds them", () => {
+    const withSwe = { ...index, layers: { ...index.layers, swe: { dates: [rgb[0].date], entries: [{ ...rgb[0], layer: "swe" }] } } };
+    expect(entriesOf(withSwe, "swe")).toEqual([]);
+    expect(entriesOf(withSwe, "rgb")).toEqual(rgb);
+    expect(entriesOf(null, "rgb")).toEqual([]);
+  });
+});
+
 describe("entryFor", () => {
   it("returns the entry of the day when there is one", () => {
     expect(entryFor(rgb, "2026-11-10")).toEqual({ entry: rgb.find((e) => e.date === "2026-11-10"), exact: true });
+  });
+
+  it("never borrows the nearest day for a gap-filled layer either: it has a product for every day", () => {
+    const daily: CatalogEntry[] = [{ ...rgb[0], layer: "snow_gapfill", status: "gapfilled", date: "2026-11-10" }];
+    expect(entryFor(daily, "2026-11-10")?.exact).toBe(true);
+    expect(entryFor(daily, "2026-11-11")).toBeNull();
   });
 
   it("never borrows the nearest day for a modelled layer", () => {
