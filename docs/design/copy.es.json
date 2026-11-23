@@ -81,8 +81,8 @@
     "prevision": "Previsión",
     "pendiente": "Pendiente",
     "tooltip_observado": "Visto por el satélite en esa fecha.",
-    "tooltip_rellenado": "Sin imagen despejada ese día: estimado a partir de las observaciones más cercanas.",
-    "tooltip_modelado": "Calculado por el modelo de nieve, que corrige su estado con cada observación despejada.",
+    "tooltip_rellenado": "Observación de Sentinel-2 donde hay imagen despejada; en el resto, la probabilidad que calcula el modelo.",
+    "tooltip_modelado": "Estimación del modelo, sin corregirla con imágenes. Es la mediana de un conjunto de simulaciones.",
     "tooltip_prevision": "Calculado a partir de una previsión meteorológica; puede cambiar.",
     "tooltip_pendiente": "La capa está prevista pero todavía no se publica."
   },
@@ -97,11 +97,11 @@
     },
     "nieve_diaria": {
       "nombre": "Nieve diaria",
-      "fuente": "Nieve observada rellenada en el tiempo",
+      "fuente": "Sentinel-2 y modelo de nieve NivoSense",
       "resolucion": "20 m",
       "cadencia": "Diaria",
       "estado": "rellenado",
-      "descripcion": "Probabilidad de nieve para cada día. Los días sin imagen despejada se estiman con las observaciones anterior y siguiente, la cota de nieve y el modelo."
+      "descripcion": "Probabilidad de nieve para cada día. Con imagen despejada de Sentinel-2 vale 100 % o 0 % en los píxeles que la imagen decide; en el resto es la proporción de simulaciones del modelo con al menos 5 mm de agua en la nieve."
     },
     "swe": {
       "nombre": "Equivalente en agua (SWE)",
@@ -109,7 +109,8 @@
       "resolucion": "100 m",
       "cadencia": "Diaria",
       "estado": "modelado",
-      "descripcion": "Agua contenida en la nieve, en milímetros. Mediana del conjunto de simulaciones. Por debajo de 5 mm no se dibuja."
+      "descripcion": "Agua contenida en la nieve, en milímetros. No se publica: ninguna medida de campo permite validarla.",
+      "bloqueada_motivo": "Requiere medidas de campo para validarse"
     },
     "espesor": {
       "nombre": "Espesor de nieve",
@@ -117,7 +118,7 @@
       "resolucion": "100 m",
       "cadencia": "Diaria",
       "estado": "modelado",
-      "descripcion": "Espesor del manto en centímetros: SWE dividido por la densidad modelada. Solo donde el SWE llega a 5 mm."
+      "descripcion": "Espesor del manto en centímetros: mediana de un conjunto de 50 simulaciones. Solo se colorea donde la mediana llega a 5 mm de agua en la nieve. Se comprobó en una sola cámara (2010 a 2013) y puede errar por un factor de dos."
     },
     "color_real": {
       "nombre": "Color real",
@@ -154,13 +155,17 @@
     "fecha_modelado": "Estado del {fecha_corta}, corregido con la pasada del {fecha_obs}",
     "sin_escena_en_fecha": "Sin escena este día. La más cercana: {fecha_corta}.",
     "ir_a_escena": "Ir al {fecha_corta}",
-    "sin_nieve_modelada": "El modelo no calcula nieve por encima de 5 mm este día.",
-    "modelo_experimental": "Modelo experimental",
-    "modelo_aviso": "Estimación del modelo, corregida con cada imagen despejada de Sentinel-2. Puede fallar donde no hay imagen.",
+    "modelo_aviso": "Es la mediana de un conjunto de simulaciones, sin corregir con imágenes. Se comprobó en una sola cámara (2010 a 2013) y el espesor puede errar por un factor de dos. El rango de p10 a p90 está en la información de la capa.",
     "pendiente": "Aún no se publica",
     "pendiente_detalle": "Esta capa está prevista. Cuando haya datos aparecerá aquí con su fecha.",
     "bloqueada": "Próximamente",
-    "bloqueada_detalle": "Todavía no está disponible. Estamos trabajando en esta capa."
+    "bloqueada_detalle": "Todavía no está disponible. Estamos trabajando en esta capa.",
+    "estimacion_modelo": "Estimación del modelo",
+    "sin_dato_dia": "Esta capa no tiene dato para este día.",
+    "nieve_diaria_con_imagen": "Con imagen despejada de Sentinel-2 este día; en el resto de píxeles, estimación del modelo.",
+    "nieve_diaria_sin_imagen": "Sin imagen despejada este día: probabilidad del modelo.",
+    "revision_calidad": "El modelo y la imagen de este día discrepan más de lo habitual.",
+    "fecha_calculo": "Calculado para el {fecha_corta}"
   },
   "info_capa": {
     "titulo": "Sobre esta capa",
@@ -172,7 +177,13 @@
     "escenas": "Escenas de origen",
     "unidades": "Unidades",
     "metodo": "Ver el método",
-    "cerrar": "Cerrar"
+    "cerrar": "Cerrar",
+    "rango_titulo": "Rango del conjunto (p10 a p90)",
+    "superficie_nieve": "Superficie con nieve",
+    "espesor_medio": "Espesor medio sobre la nieve",
+    "espesor_maximo": "Espesor máximo",
+    "rango_valor": "{p50} {unidad} (de {p10} a {p90})",
+    "rango_nota": "Mediana y rango del 80 % de las simulaciones en toda la zona. Estimación del modelo, sin validar con medidas."
   },
   "leyenda": {
     "probabilidad": "Probabilidad de nieve (%)",
@@ -191,7 +202,7 @@
     "despejado": "{valor} % sin nubes",
     "despejado_nieve": "{valor} % sin nubes; de eso, {nieve} % con nieve",
     "media_conjunto": "Media ponderada del conjunto, {fecha_corta}",
-    "experimental": "Experimental: las magnitudes no están contrastadas con medidas de campo.",
+    "experimental": "Estimación del modelo: las magnitudes no están contrastadas con medidas de campo.",
     "precipitacion_acumulada": "Precipitación acumulada (mm)",
     "temperatura": "Temperatura a 2 m (°C)",
     "viento": "Viento a 10 m (km/h)",
@@ -253,7 +264,12 @@
     "media_historica": "Media histórica",
     "datos_validos": "Datos válidos",
     "rango_p10_p90": "Entre {p10} y {p90} (p10 a p90)",
-    "calibracion": "Conjunto ponderado de {miembros} simulaciones, forzado con {forzamiento}. F1 de cobertura de nieve en fechas reservadas: {f1}, frente a Sentinel-2 a 10 m."
+    "calibracion": "Conjunto ponderado de {miembros} simulaciones, forzado con {forzamiento}. F1 de cobertura de nieve en fechas reservadas: {f1}, frente a Sentinel-2 a 10 m.",
+    "rango_titulo": "Nieve del modelo este día",
+    "espesor_maximo": "Espesor máximo",
+    "rango_valor": "{p50} {unidad} (de {p10} a {p90})",
+    "rango_aviso": "Estimación del modelo con 50 simulaciones, sin validar con medidas de campo. Se muestra la mediana y el rango que deja fuera el 10 % más bajo y el 10 % más alto.",
+    "sin_rango": "El modelo no tiene estimación para esta cuenca este día."
   },
   "caudal": {
     "titulo": "Caudal",
@@ -309,7 +325,7 @@
     "indice": "En esta página",
     "seccion_nieve_observada": "Nieve observada",
     "seccion_nieve_diaria": "Nieve diaria",
-    "seccion_modelo": "SWE y espesor",
+    "seccion_modelo": "Espesor de nieve y SWE",
     "seccion_color_real": "Color real",
     "seccion_webcams": "Webcams",
     "seccion_validacion": "Validación",
@@ -325,8 +341,21 @@
     "volver_mapa": "Volver al mapa",
     "nieve_observada_calculo_1": "Se unen las cuatro teselas que tocan el dominio (30SVF, 30SVG, 30SWF y 30SWG) por fecha y órbita. Las nubes se filtran sobre el dominio, no sobre la tesela entera. El índice de nieve NDSI = (B03 − B11) / (B03 + B11) se calcula a 20 m con el método de dos pasadas de Theia/LIS: primero NDSI > 0,4 y rojo > 0,2; después NDSI > 0,15 y rojo > 0,04 por encima de la cota de nieve obtenida del modelo digital del terreno.",
     "nieve_observada_calculo_2": "Las laderas en sombra del relieve, calculadas con el terreno y la posición del sol, se marcan como sin dato. Bajo bosque la nieve se marca con confianza baja.",
-    "nieve_observada_validacion": "Contra una muestra de referencia congelada: al menos 1500 puntos en 12 fechas o más, etiquetados sobre color real y falso color SWIR. Objetivo: F1 de nieve de 0,85 en total y 0,70 en cada estrato (cota de nieve, sombra, bosque, borde de nube y terreno abierto).",
-    "fuente_nieve_observada": "Sentinel-2 L2A (Earth Search, AWS)"
+    "nieve_observada_validacion": "Todavía no la hemos contrastado con una muestra propia de puntos etiquetados a mano; es el siguiente paso previsto. Productos europeos del mismo tipo (HR-S&I) declaran un 94 % de acierto.",
+    "fuente_nieve_observada": "Sentinel-2 L2A (Earth Search, AWS)",
+    "nieve_diaria_que_es": "Probabilidad de nieve para cada día, a 20 m. En los píxeles que una imagen despejada de Sentinel-2 decide, vale 100 % (nieve) o 0 % (sin nieve) y se indica la fecha de la imagen. En el resto (nubes, sombra del relieve, días sin imagen) es la proporción de simulaciones del modelo con al menos 5 mm de agua en la nieve. Cada píxel indica cuántos días hace de su última observación.",
+    "nieve_diaria_calculo": "El modelo es un conjunto de 50 simulaciones del manto de nieve (fusión por grados día con un término de radiación), forzadas con el análisis y la previsión del modelo meteorológico del ECMWF y con parámetros inciertos. No se corrigen con las imágenes: probamos a hacerlo (filtro de partículas) y con fechas reservadas no mejoró la cobertura de nieve.",
+    "nieve_diaria_validacion": "Contra Sentinel-2, el modelo sin imágenes acierta la presencia de nieve con un F1 de 0,72 a 0,84 según la temporada (42, 47 y 76 fechas en tres años). En 18 fechas de 2024-25 que el modelo anterior de la web no usaba para corregirse, el nuevo obtiene un F1 de 0,74 y el anterior 0,69.",
+    "nieve_diaria_desconocido": "La cota de nieve del modelo falla entre 100 y 200 m y la superficie con nieve entre un 20 % por defecto y por exceso, con signo distinto cada temporada, porque la precipitación real no se conoce. Por debajo de 2.000 m, donde la nieve es fina y dura poco, acierta mucho menos (F1 de 0,3 a 1.700 y 1.800 m). Cada día se anota cuánto discrepa el modelo de la imagen; si es mucho, se marca.",
+    "modelo_que_es": "Espesor de nieve a 100 m: la mediana de 50 simulaciones, en metros. El rango de p10 a p90 (deja fuera el 10 % más bajo y el 10 % más alto) está en la información de la capa y en la ficha de cada cuenca. Solo se colorea donde la mediana llega a 5 mm de agua en la nieve.",
+    "modelo_validacion": "Solo se ha podido comprobar en un punto: la cámara de Poqueira (2.510 m), de 2010 a 2013. En esas cuatro temporadas el máximo de espesor del modelo fue 1,8; 0,75; 0,41 y 0,54 veces el medido, y el error cuadrático medio diario fue de 0,30 m, peor que suponer siempre que no hay nieve (0,28 m). El rango de p10 a p90 contuvo el máximo medido en tres de las cuatro temporadas.",
+    "modelo_desconocido": "No existe ninguna medida de agua en la nieve (SWE) en la zona, por eso esa capa está bloqueada y no damos volúmenes de agua. El espesor puede errar por un factor de dos en una temporada. La mayor fuente de error es la precipitación del modelo meteorológico: en la prueba de la cámara, ERA5 tuvo entre 0,6 y 1,1 veces la precipitación de los pluviómetros de alta montaña, y el modelo operativo (IFS) entre 1,1 y 1,6 veces en 2018.",
+    "modelo_datos": "Lo que más ayudaría: las series diarias de espesor de las pértigas de nieve de la red ERHIN de la Confederación Hidrográfica del Guadalquivir, las series de la UGR y la UCO hoy en moratoria, y el espesor de nieve fuera de pistas de Cetursa. Todavía no se han solicitado. Con ellas se podría corregir la precipitación por temporada y altitud y valorar abrir el SWE.",
+    "swe_bloqueada": "El SWE no se publica. Requiere medidas de campo para validarse.",
+    "que_es": "Qué es",
+    "lo_que_no_sabemos": "Lo que no sabemos",
+    "datos_que_ayudarian": "Datos que ayudarían",
+    "seccion_swe": "SWE"
   },
   "vacio": {
     "sin_catalogo_titulo": "Aún no hay escenas publicadas",

@@ -3,8 +3,41 @@ import { GroupLabel } from "./ui";
 
 export const LAYERS = ["nieve_observada", "nieve_diaria", "swe", "espesor", "color_real"];
 
-// The facts each layer's method section opens with (source, resolution, frequency), from the copy deck.
-// The full method page is its own screen in the spec.
+// What each snow section says, in the order a reader asks it: what it is, how it is made, what it was checked
+// against and what is not known. Every sentence comes from the copy deck, written from docs/snow-evaluation.md.
+const SECTIONS: Array<{ title: string; blocks: Array<[heading: string, text: string]> }> = [
+  {
+    title: "metodo.seccion_nieve_observada",
+    blocks: [
+      ["metodo.fuente_y_licencia", "metodo.fuente_nieve_observada"],
+      ["metodo.como_se_calcula", "metodo.nieve_observada_calculo_1"],
+      ["metodo.como_se_calcula", "metodo.nieve_observada_calculo_2"],
+      ["metodo.como_se_valida", "metodo.nieve_observada_validacion"],
+    ],
+  },
+  {
+    title: "metodo.seccion_nieve_diaria",
+    blocks: [
+      ["metodo.que_es", "metodo.nieve_diaria_que_es"],
+      ["metodo.como_se_calcula", "metodo.nieve_diaria_calculo"],
+      ["metodo.como_se_valida", "metodo.nieve_diaria_validacion"],
+      ["metodo.lo_que_no_sabemos", "metodo.nieve_diaria_desconocido"],
+    ],
+  },
+  {
+    title: "metodo.seccion_modelo",
+    blocks: [
+      ["metodo.que_es", "metodo.modelo_que_es"],
+      ["metodo.como_se_valida", "metodo.modelo_validacion"],
+      ["metodo.lo_que_no_sabemos", "metodo.modelo_desconocido"],
+      ["metodo.datos_que_ayudarian", "metodo.modelo_datos"],
+      ["metodo.seccion_swe", "metodo.swe_bloqueada"],
+    ],
+  },
+];
+
+// The facts each layer's method section opens with (source, resolution, frequency), from the copy deck,
+// then the sections that explain the snow layers. The full method page is its own screen in the spec.
 export default function MetodoSection() {
   return (
     <>
@@ -22,6 +55,17 @@ export default function MetodoSection() {
           </dl>
           <p className="m-0 text-small text-text-muted">{t(`capa.${layer}.descripcion`)}</p>
         </article>
+      ))}
+      {SECTIONS.map((section) => (
+        <section key={section.title} aria-label={t(section.title)}>
+          <GroupLabel>{t(section.title)}</GroupLabel>
+          {section.blocks.map(([heading, text]) => (
+            <article key={text} className="mb-2 rounded-md border border-line p-3">
+              <h4 className="m-0 text-small font-medium">{t(heading)}</h4>
+              <p className="m-0 mt-1 text-small">{t(text)}</p>
+            </article>
+          ))}
+        </section>
       ))}
     </>
   );

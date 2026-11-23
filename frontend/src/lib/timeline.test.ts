@@ -66,8 +66,8 @@ describe("buildTimeline", () => {
 
   it("starts earlier when the catalogue does and extends to the last forecast day", () => {
     const m = model([
-      ["swe", "2025-09-28", "modelled"],
-      ["swe", "2026-11-25", "forecast"],
+      ["snow_depth", "2025-09-28", "modelled"],
+      ["snow_depth", "2026-11-25", "forecast"],
     ]);
     expect(m.days[0].date).toBe("2025-09-28");
     expect(m.days[m.days.length - 1].date).toBe("2026-11-25");
@@ -76,10 +76,10 @@ describe("buildTimeline", () => {
 
   it("keeps every status of a day, best first, and marks empty days pending", () => {
     const m = model([
-      ["swe", "2026-02-21", "modelled"],
+      ["snow_depth", "2026-02-21", "modelled"],
       ["snow_gapfill", "2026-02-21", "gapfilled"],
       ["snow_obs", "2026-02-21", "observed"],
-      ["swe", "2026-02-22", "modelled"],
+      ["snow_depth", "2026-02-22", "modelled"],
     ]);
     expect(m.days[at(m, "2026-02-21")].statuses).toEqual(["observado", "rellenado", "modelado"]);
     expect(m.days[at(m, "2026-02-21")].best).toBe("observado");
@@ -92,14 +92,25 @@ describe("buildTimeline", () => {
   it("opens on the latest product up to today, not on a forecast", () => {
     const m = model([
       ["snow_obs", "2026-11-20", "observed"],
-      ["swe", "2026-11-24", "forecast"],
+      ["snow_depth", "2026-11-24", "forecast"],
     ]);
     expect(m.days[m.latestIndex].date).toBe("2026-11-20");
   });
 
   it("falls back to the latest forecast when nothing else exists", () => {
-    const m = model([["swe", "2026-11-24", "forecast"]]);
+    const m = model([["snow_depth", "2026-11-24", "forecast"]]);
     expect(m.days[m.latestIndex].date).toBe("2026-11-24");
+  });
+});
+
+describe("locked layers on the timeline", () => {
+  it("does not count v1 SWE entries as products of a day", () => {
+    const m = model([
+      ["swe", "2026-02-21", "modelled"],
+      ["snow_obs", "2026-02-22", "observed"],
+    ]);
+    expect(m.days[at(m, "2026-02-21")].statuses).toEqual([]);
+    expect(m.dataIndices).toEqual([at(m, "2026-02-22")]);
   });
 });
 
@@ -107,9 +118,9 @@ describe("stripSegments", () => {
   it("merges runs of one status and splits the forecast slot at today", () => {
     const m = model(
       [
-        ["swe", "2026-11-18", "modelled"],
-        ["swe", "2026-11-19", "modelled"],
-        ["swe", "2026-11-23", "forecast"],
+        ["snow_depth", "2026-11-18", "modelled"],
+        ["snow_depth", "2026-11-19", "modelled"],
+        ["snow_depth", "2026-11-23", "forecast"],
       ],
       "2026-11-21",
     );
@@ -130,7 +141,7 @@ describe("stripSegments", () => {
 describe("keyTarget", () => {
   const m = model([
     ["snow_obs", "2026-01-10", "observed"],
-    ["swe", "2026-01-12", "modelled"],
+    ["snow_depth", "2026-01-12", "modelled"],
     ["snow_obs", "2026-01-20", "observed"],
   ]);
   const jan15 = at(m, "2026-01-15");
@@ -229,7 +240,7 @@ describe("trackGeometry", () => {
     const m = model(
       [
         ["snow_obs", "2026-11-20", "observed"],
-        ["swe", "2026-11-27", "forecast"],
+        ["snow_depth", "2026-11-27", "forecast"],
       ],
       today,
     );

@@ -13,7 +13,7 @@ import MetodoSection from "./components/MetodoSection";
 import BasinChart from "./components/BasinChart";
 import RiverFlowChart from "./components/RiverFlowChart";
 import Legend from "./components/Legend";
-import SnowVolumeChart from "./components/SnowVolumeChart";
+import BasinSnowRange from "./components/BasinSnowRange";
 import { t } from "./lib/copy";
 import { useMediaQuery } from "./lib/useMediaQuery";
 import { useViewportHeight } from "./lib/useViewportHeight";
@@ -23,13 +23,8 @@ import { currentHydrologicalYear } from "./lib/horizons";
 import { fetchCatalog, type CatalogState } from "./lib/catalog";
 import { STATUS_OF, buildTimeline, todayInMadrid } from "./lib/timeline";
 import { readUrlState, writeUrlState, type VisibleLayers } from "./lib/urlState";
-import { catalogRoot, entryFor, layerSpecs, pmtilesUrl } from "./lib/layers";
+import { catalogRoot, entriesOf, entryFor, layerSpecs, pmtilesUrl } from "./lib/layers";
 import type { CatalogLayer } from "./components/Map";
-import {
-  SNOW_MODEL_SCHEMA_VERSION,
-  type BasinVolumeSeries,
-  type SnowModelManifest,
-} from "./lib/snowModel";
 import {
   WEATHER_SCHEMA_VERSION,
   defaultSelection,
@@ -92,67 +87,16 @@ export default function App() {
   const [weatherVariable, setWeatherVariable] =
     useState<WeatherVariable>("precipitation_total");
   const [weatherLoading, setWeatherLoading] = useState(true);
-  const [snowManifest, setSnowManifest] = useState<SnowModelManifest | null>(null);
-  const [snowLoading, setSnowLoading] = useState(true);
   const [visible, setVisible] = useState<VisibleLayers>(initialUrl.layers);
   const [layersSettled, setLayersSettled] = useState(false);
-  const [volumeSeries, setVolumeSeries] = useState<BasinVolumeSeries | null>(null);
-  const [volumeLoading, setVolumeLoading] = useState(false);
-  const [volumeError, setVolumeError] = useState<string | null>(null);
 
   const apiUrl =
     import.meta.env.VITE_API_URL ??
     (import.meta.env.DEV ? "http://localhost:8080" : "");
-  const snowManifestUrl = `${import.meta.env.BASE_URL}data/snow-model/manifest.json`;
   const catalogUrl = import.meta.env.VITE_CATALOG_URL;
   const weatherManifestUrl =
     import.meta.env.VITE_WEATHER_MANIFEST_URL ??
     `${import.meta.env.BASE_URL}weather/manifest.json`;
-
-  useEffect(() => {
-    fetch(snowManifestUrl)
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-      })
-      .then((payload: SnowModelManifest) => {
-        if (payload.schema_version !== SNOW_MODEL_SCHEMA_VERSION) {
-          throw new Error(`Unsupported snow model manifest version ${payload.schema_version}`);
-        }
-        setSnowManifest(payload);
-      })
-      .catch((error) => console.error("Failed to load the snow model:", error))
-      .finally(() => setSnowLoading(false));
-  }, [snowManifestUrl]);
-
-  useEffect(() => {
-    const seriesPath = snowManifest?.basins.find((item) => item.id === selectedBasinId)?.series;
-    setVolumeSeries(null);
-    setVolumeError(null);
-    if (!seriesPath) {
-      setVolumeLoading(false);
-      return;
-    }
-    const controller = new AbortController();
-    setVolumeLoading(true);
-    fetch(new URL(seriesPath, new URL(snowManifestUrl, window.location.href)), {
-      signal: controller.signal,
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-      })
-      .then((payload: BasinVolumeSeries) => setVolumeSeries(payload))
-      .catch((error) => {
-        if (error.name === "AbortError") return;
-        console.error("Failed to load the snow volume series:", error);
-        setVolumeError(t("error.serie"));
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setVolumeLoading(false);
-      });
-    return () => controller.abort();
-  }, [snowManifest, selectedBasinId, snowManifestUrl]);
 
   useEffect(() => {
     fetch(weatherManifestUrl)
@@ -237,7 +181,7 @@ export default function App() {
   useEffect(() => {
     if (layersSettled || (catalog.kind !== "ready" && catalog.kind !== "missing")) return;
     const index = catalog.kind === "ready" ? catalog.index : null;
-    const published = (id: string) => (index?.layers[id]?.entries.length ?? 0) > 0;
+    const published = (id: string) => entriesOf(index, id).length > 0;
     setVisible((current) => {
       if (initialUrl.layers.length) return current.filter((layer) => published(layer.id));
       const specs = layerSpecs(index).filter((spec) => published(spec.id));
@@ -276,7 +220,7 @@ export default function App() {
     const ordered = [...specs.filter((spec) => spec.group === "imagen"), ...specs.filter((spec) => spec.group === "nieve").reverse()];
     return ordered.flatMap((spec) => {
       const shown = visible.find((layer) => layer.id === spec.id);
-      const found = shown && entryFor(catalog.index.layers[spec.id]?.entries ?? [], selectedDate);
+      const found = shown && entryFor(entriesOf(catalog.index, spec.id), selectedDate);
       if (!shown || !found) return [];
       return [
         {
@@ -514,13 +458,10 @@ export default function App() {
                 selectedId={selectedBasinId}
                 onSelect={handleBasinSelect}
               >
-                {selectedBasin && !apiUrl && (
-                  <SnowVolumeChart
-                    basin={snowManifest?.basins.find((item) => item.id === selectedBasin.id) ?? null}
-                    manifest={snowManifest}
-                    series={volumeSeries}
-                    loading={volumeLoading || snowLoading}
-                    error={volumeError}
+                {selectedBasin && !apiUrl && catalog.kind === "ready" && (
+                  <BasinSnowRange
+                    entry={(selectedDate && entryFor(entriesOf(catalog.index, "snow_depth"), selectedDate)?.entry) || null}
+                    basinId={selectedBasin.id}
                   />
                 )}
                 {selectedBasin && apiUrl && (

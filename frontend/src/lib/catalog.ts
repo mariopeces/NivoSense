@@ -13,6 +13,8 @@ export type CatalogEntry = {
   bands: string[];
   units: string[];
   source_ids: string[];
+  /** Flags and scores the producing pipeline attached (pipelines/catalog/schema.json, qa). */
+  qa?: { flags: string[]; scores: Record<string, number> };
 };
 
 export type CatalogIndex = {
