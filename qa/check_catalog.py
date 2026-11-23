@@ -140,7 +140,7 @@ def pmtiles_problems(storage: Storage, entry: dict[str, Any], tile_format: str =
             problems.append(f"{name} section ends past the end of the file ({size} bytes)")
     if header["tile_type"] != TileType[tile_format]:
         problems.append(f"tile type {header['tile_type'].name}, expected {tile_format}")
-    zooms = ZOOMS[entry["resolution_m"]]
+    zooms = get_layer(entry["layer"]).zooms or ZOOMS[entry["resolution_m"]]
     if (header["min_zoom"], header["max_zoom"]) != zooms:
         problems.append(f"zooms {header['min_zoom']}..{header['max_zoom']}, expected {zooms[0]}..{zooms[1]}")
     if header["addressed_tiles_count"] == 0:

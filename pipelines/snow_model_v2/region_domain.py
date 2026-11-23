@@ -28,6 +28,11 @@ class RegionDomain:
     ski_cells: np.ndarray  # (cells,) bool: artificial snow, never evidence for the natural snow model
     domain: ClassDomain
     elevation_grid: np.ndarray  # (height, width) m, NaN outside the DEM
+    # Per-cell inputs of the cell-wise run (`domain.cellwise_domain`), in the order of `cell_index`.
+    neighbours: np.ndarray | None = None  # (cells, K) forcing point indices
+    weights: np.ndarray | None = None  # (cells, K)
+    radiation: np.ndarray | None = None  # (samples, cells)
+    aspect: np.ndarray | None = None  # (cells,) int8 aspect classes
 
 
 def build_region_domain(region_path: Path, forcing: Forcing, cache: Path) -> RegionDomain:
@@ -58,4 +63,15 @@ def build_region_domain(region_path: Path, forcing: Forcing, cache: Path) -> Reg
     domain = build_class_domain(
         elevation.ravel()[cell_index], classes, neighbours, radiation, grid.cell_area_m2, weights=weights
     )
-    return RegionDomain(grid, cell_index, elevation.ravel()[cell_index], ski.ravel()[cell_index], domain, elevation)
+    return RegionDomain(
+        grid,
+        cell_index,
+        elevation.ravel()[cell_index],
+        ski.ravel()[cell_index],
+        domain,
+        elevation,
+        neighbours,
+        weights,
+        radiation,
+        classes,
+    )

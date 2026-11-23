@@ -154,8 +154,18 @@ def _write_cog(source: Path, target: Path, categorical: bool) -> None:
             raise RuntimeError(f"GDAL did not write a COG layout to {target}")
 
 
+def _fully_transparent(display: Path) -> bool:
+    import rasterio
+
+    with rasterio.open(display) as src:
+        return not src.read(4).any()
+
+
 def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], spec: Layer) -> None:
     # rio-pmtiles is a rasterio CLI plugin; running it as a subprocess keeps its process pool out of ours.
+    # A day with nothing to draw (no snow anywhere) still gets its tiles: without them the archive would hold no
+    # tile at all and the day could not be told from a broken product.
+    keep_empty = _fully_transparent(display)
     subprocess.run(
         [
             sys.executable,
@@ -172,7 +182,7 @@ def _write_pmtiles(display: Path, target: Path, zooms: tuple[int, int], spec: La
             f"{zooms[0]}..{zooms[1]}",
             "--resampling",
             spec.display_resampling,
-            "--exclude-empty-tiles",
+            "--include-empty-tiles" if keep_empty else "--exclude-empty-tiles",
             "--silent",
         ],
         check=True,
@@ -217,7 +227,7 @@ def publish(
         Path(files["data"]), spec.resolution_m, list(meta["bands"]), list(meta["units"]), meta["value_range"]
     )
     _check_display(Path(files["display"]), data_info)
-    zooms = ZOOMS[spec.resolution_m]
+    zooms = spec.zooms or ZOOMS[spec.resolution_m]
 
     with tempfile.TemporaryDirectory(prefix="publish-") as tmp:
         cog = Path(tmp) / "data.tif"
