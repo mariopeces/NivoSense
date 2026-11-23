@@ -527,7 +527,7 @@ def run_water_year(
 
     parameters = sample_parameters(members, water_year, storm_count=forcing.storm_count)
     run = run_ensemble(region.domain, forcing, parameters, store.tolist(), workers=context.workers)
-    snowy_class = (run.swe >= CANDIDATE_MM).any(axis=(0, 2))
+    snowy_class = np.asarray((run.swe >= CANDIDATE_MM).any(axis=(0, 2)), dtype=bool)
     selected = candidate_cells(region.domain, region.elevation, snowy_class)
     cells = np.flatnonzero(selected)
     log(
