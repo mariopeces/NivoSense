@@ -80,7 +80,7 @@ class CheckCatalogTests(CatalogueTestCase):
         self.assertTrue(report["ok"])
         self.assertEqual(report["entries_checked"], 3)
         self.assertEqual(report["layers"]["snow_gapfill"]["daily"]["missing_days"], [])
-        self.assertEqual(report["layers"]["swe"]["daily"], "not live: no entry and no declared start")
+        self.assertEqual(report["layers"]["snow_depth"]["daily"], "not live: no entry and no declared start")
 
     def test_tiles_in_another_format_than_the_layer_declares_are_caught(self) -> None:
         # rgb declares WebP tiles; the gap-fill PMTiles hold PNG.
@@ -120,10 +120,10 @@ class CheckCatalogTests(CatalogueTestCase):
         self.assertEqual([e["date"] for e in errors_of(late, "missing_day")], ["2026-11-04"])
 
     def test_a_declared_daily_layer_with_no_entry_misses_every_day(self) -> None:
-        with mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"swe": "2026-11-02"}):
+        with mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"snow_depth": "2026-11-02"}):
             report = check_catalog(self.storage, now=NOW)
         missing = [(e["layer"], e["date"]) for e in errors_of(report, "missing_day")]
-        self.assertEqual(missing, [("swe", "2026-11-02"), ("swe", "2026-11-03")])
+        self.assertEqual(missing, [("snow_depth", "2026-11-02"), ("snow_depth", "2026-11-03")])
 
     def test_a_declared_start_before_the_first_entry_is_checked_from_the_declared_start(self) -> None:
         with mock.patch.dict("qa.check_catalog.DAILY_SINCE", {"snow_gapfill": "2026-10-30"}):
@@ -462,7 +462,7 @@ class FreshnessTests(unittest.TestCase):
 class F2Tests(unittest.TestCase):
     @staticmethod
     def entries(created_at: str, date: str = "2026-11-20") -> dict[str, list[dict[str, Any]]]:
-        return {layer: [{"date": date, "created_at": created_at}] for layer in ("snow_gapfill", "swe", "snow_depth")}
+        return {layer: [{"date": date, "created_at": created_at}] for layer in ("snow_gapfill", "snow_depth")}
 
     def test_on_time_late_missing_and_not_due(self) -> None:
         now = dt.datetime(2026, 11, 21, 12, 0, tzinfo=dt.timezone.utc)
@@ -471,12 +471,12 @@ class F2Tests(unittest.TestCase):
         late = check_f2(self.entries("2026-11-21T09:01:00+00:00"), now)
         self.assertEqual({b["why"] for b in late["breaches"]}, {"late"})
         with mock.patch.dict(
-            "qa.freshness.DAILY_SINCE", dict.fromkeys(("snow_gapfill", "swe", "snow_depth"), "2025-10-01")
+            "qa.freshness.DAILY_SINCE", dict.fromkeys(("snow_gapfill", "snow_depth"), "2025-10-01")
         ):
-            self.assertEqual(len(check_f2({}, now)["breaches"]), 3)
+            self.assertEqual(len(check_f2({}, now)["breaches"]), 2)
             early = check_f2({}, dt.datetime(2026, 11, 21, 8, 30, tzinfo=dt.timezone.utc))
         self.assertTrue(early["ok"])
-        self.assertEqual(early["layers"]["swe"]["state"], "not_due")
+        self.assertEqual(early["layers"]["snow_depth"]["state"], "not_due")
 
     def test_the_deadline_follows_summer_time(self) -> None:
         # 2026-03-29 is the first day of CEST: 10:00 Madrid is 08:00 UTC.

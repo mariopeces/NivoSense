@@ -44,12 +44,13 @@ F1_PASS_LAYER = "snow_obs"
 F1_RGB_LAYER = "rgb"
 # README D1: an S2 date is listed when at least 30% of the domain is covered and valid.
 MIN_LISTED_VALID_FRACTION = 0.30
-F2_LAYERS = ("snow_gapfill", "swe", "snow_depth")
+# SWE left the daily layers when v2 replaced v1 (docs/snow-evaluation.md): nothing validates it, so it is not published.
+F2_LAYERS = ("snow_gapfill", "snow_depth")
 # The daily layers (README section 1) and the first day each must exist from. A layer's producing task sets its
 # date to 2025-10-01 (README D1) when its backfill lands (T1.4 gap-fill, T2.5 SWE and depth). Until then a layer
 # with entries is checked from its first one, and one with none is not live: check_catalog does not count its
 # days and F2 does not count it as a breach.
-DAILY_SINCE: dict[str, str | None] = {"snow_gapfill": None, "swe": None, "snow_depth": None}
+DAILY_SINCE: dict[str, str | None] = {"snow_gapfill": None, "snow_depth": None}
 F2_DEADLINE = dt.time(10, 0)
 MADRID = ZoneInfo("Europe/Madrid")
 # Earth Search c1 items carry no sat:relative_orbit; it is in the ESA product name (..._R094_T30SVG_...).

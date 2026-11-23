@@ -140,7 +140,7 @@ class PmtilesTests(CatalogueTestCase):
 
     def test_zooms_other_than_the_resolution_needs_are_caught(self) -> None:
         _rewrite_header(self.pmtiles(), max_zoom=11)
-        self.assertEqual(pm_problems(self.storage, self.entries[0]), ["zooms 8..11, expected 8..14"])
+        self.assertEqual(pm_problems(self.storage, self.entries[0]), ["zooms 8..11, expected 8..13"])
 
     def test_no_tiles_is_caught(self) -> None:
         _rewrite_header(self.pmtiles(), addressed_tiles_count=0)
@@ -354,14 +354,14 @@ class F2Tests(unittest.TestCase):
     @staticmethod
     def entries(created_at: str) -> dict[str, list[dict[str, Any]]]:
         return {
-            layer: [{"date": "2026-11-20", "created_at": created_at}] for layer in ("snow_gapfill", "swe", "snow_depth")
+            layer: [{"date": "2026-11-20", "created_at": created_at}] for layer in ("snow_gapfill", "snow_depth")
         }
 
     def test_the_deadline_is_10_00_in_madrid_not_in_utc(self) -> None:
         # 09:30 UTC on 2026-11-21 is 10:30 in Madrid: yesterday is due, and an entry from 09:15 UTC is late.
         now = dt.datetime(2026, 11, 21, 9, 30, tzinfo=dt.timezone.utc)
-        with mock.patch.dict("qa.freshness.DAILY_SINCE", {"swe": "2025-10-01"}):
-            self.assertEqual(check_f2({}, now)["layers"]["swe"]["state"], "missing")
+        with mock.patch.dict("qa.freshness.DAILY_SINCE", {"snow_depth": "2025-10-01"}):
+            self.assertEqual(check_f2({}, now)["layers"]["snow_depth"]["state"], "missing")
         late = check_f2(self.entries("2026-11-21T09:15:00+00:00"), now)
         self.assertEqual({layer["state"] for layer in late["layers"].values()}, {"late"})
 
@@ -375,10 +375,12 @@ class F2Tests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual({layer["state"] for layer in result["layers"].values()}, {"not_live"})
         # Once a layer declares its start, or has any entry, a missing yesterday is a breach.
-        with mock.patch.dict("qa.freshness.DAILY_SINCE", {"swe": "2025-10-01"}):
-            self.assertEqual([b["layer"] for b in check_f2({}, now)["breaches"]], ["swe"])
+        with mock.patch.dict("qa.freshness.DAILY_SINCE", {"snow_gapfill": "2025-10-01"}):
+            self.assertEqual([b["layer"] for b in check_f2({}, now)["breaches"]], ["snow_gapfill"])
         old = {"snow_depth": [{"date": "2026-11-01", "created_at": "2026-11-02T08:00:00+00:00"}]}
         self.assertEqual([b["layer"] for b in check_f2(old, now)["breaches"]], ["snow_depth"])
+        # SWE is not a daily layer any more: nothing publishes it, so its absence is no breach.
+        self.assertNotIn("swe", check_f2({}, now)["layers"])
 
 
 class FixtureRuleTests(RegressionCase):

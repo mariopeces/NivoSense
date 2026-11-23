@@ -28,15 +28,32 @@ class Layer:
     # nearest neighbour: bilinear blends neighbouring class colours into colours the legend does not have
     # (measured on the 2026-11-20 model SWE: 9 to 23 % of tile pixels per zoom). Only a photograph is smoothed.
     display_resampling: str = "nearest"
+    # Band names of the COG, in order, for a layer whose producer fixes them (band 1 is the median, 2 and 3 the
+    # p10 and p90 of an ensemble layer). The producer takes them from here; tests keep the two in step.
+    bands: tuple[str, ...] | None = None
+    # PMTiles zoom range when the layer needs less than its resolution's default (ZOOMS).
+    zooms: tuple[int, int] | None = None
 
 
 LAYERS = {
     layer.id: layer
     for layer in (
         Layer("snow_obs", "observed", 20, categorical=True),
-        Layer("snow_gapfill", "gapfilled", 20, categorical=True),
+        # Snow probability: the observation (1 or 0) on the pixels a clear Sentinel-2 date decides, the prior
+        # ensemble share of members with SWE >= 5 mm elsewhere. Band 2 is the days since the pixel was last decided.
+        Layer(
+            "snow_gapfill",
+            "gapfilled",
+            20,
+            categorical=False,
+            bands=("snow_probability", "obs_age_days"),
+            # Zoom 13 is 7.6 m per pixel: it shows every 20 m pixel and builds four times fewer tiles, which keeps
+            # a daily layer (365 products a year) inside the Actions time limit.
+            zooms=(8, 13),
+        ),
+        # Retired from publication (no measurement validates SWE); v1 entries may still sit in a catalogue.
         Layer("swe", "modelled", 100, categorical=False),
-        Layer("snow_depth", "modelled", 100, categorical=False),
+        Layer("snow_depth", "modelled", 100, categorical=False, bands=("depth_p50", "depth_p10", "depth_p90")),
         # WebP 85 on the full-snow date 2026-01-12, crest Veleta-Mulhacen, zoom 14: 42.8 dB PSNR against PNG
         # (75: 40.9 dB, softens snow texture; 90: 44.1 dB, 30% larger), with no visible blocking.
         Layer(
