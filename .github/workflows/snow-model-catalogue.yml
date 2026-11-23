@@ -1,6 +1,7 @@
 name: Snow model catalogue
 
-# Daily SWE and snow depth, published to the catalogue from the model state stored under state/<date>.npz.
+# Retired v1 (docs/snow-evaluation.md): manual runs only, the schedule moved to snow-model-v2.yml.
+# SWE and snow depth, published to the catalogue from the model state stored under state/<date>.npz.
 # Daily run (prod): the last 6 days, so an observation that arrived late is inserted and the days after it are
 # recomputed from the state of the day before. Manual run: any range and target; a range that starts on 1 October
 # starts the season from zero, any other start needs the state of the day before. Seasons run serially.
@@ -19,8 +20,6 @@ on:
         type: choice
         options: [staging, prod]
         default: staging
-  schedule:
-    - cron: "30 8 * * *"
 
 permissions:
   contents: read

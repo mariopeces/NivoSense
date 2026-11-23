@@ -1,0 +1,98 @@
+name: Snow model v2
+
+# Daily snow probability (layer snow_gapfill) and snow depth range (layer snow_depth) from the v2 prior ensemble,
+# with the Sentinel-2 observation where a clear date exists (docs/snow-evaluation.md, section 0, C.4).
+# The model always runs from 1 October of the water year to the end date; start and end only choose the dates that
+# are published, so the scheduled run recomputes the last 7 days on top of the season to date. A range that crosses
+# 1 October runs each water year in turn. Manual run: any range and target (backfill one water year at a time).
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "First date to publish, YYYY-MM-DD"
+        type: string
+        required: true
+      end:
+        description: "Last date to publish, YYYY-MM-DD"
+        type: string
+        required: true
+      target:
+        type: choice
+        options: [staging, prod]
+        default: staging
+  schedule:
+    - cron: "30 8 * * *"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    concurrency:
+      group: snow-model-v2-${{ inputs.target || 'prod' }}
+      cancel-in-progress: false
+    env:
+      TARGET: ${{ inputs.target || 'prod' }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+      STAGING_PREFIX: ${{ vars.STAGING_PREFIX }}
+      DATA_BUCKET: ${{ vars.DATA_BUCKET }}
+      DATA_PREFIX: ${{ vars.DATA_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pipelines/requirements.lock
+      - run: pip install --require-hashes -r pipelines/requirements.lock
+
+      - name: Work out the range
+        id: range
+        run: |
+          if [ -n "${{ inputs.start }}" ]; then
+            echo "start=${{ inputs.start }}" >> "$GITHUB_OUTPUT"
+            echo "end=${{ inputs.end }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "start=$(date -u -d '7 days ago' +%F)" >> "$GITHUB_OUTPUT"
+            echo "end=$(date -u -d 'yesterday' +%F)" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The forcing archive of a finished water year and the DEM never change; an unfinished season is extended.
+      - uses: actions/cache@v4
+        with:
+          path: snow-cache
+          key: snow-v2-cache-${{ github.run_id }}
+          restore-keys: snow-v2-cache-
+
+      - name: Authenticate
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.TARGET == 'prod' && vars.GCP_SA_PROD || vars.GCP_SA_STAGING }}
+
+      - name: Model snow probability and depth
+        run: >-
+          python -m pipelines.snow_model_v2.daily
+          --start "${{ steps.range.outputs.start }}" --end "${{ steps.range.outputs.end }}"
+          --target "$TARGET" --cache snow-cache
+
+      - name: Rebuild the catalogue index
+        run: python -m pipelines.catalog rebuild-index --target "$TARGET"
+
+      - name: Report a failed scheduled run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled workflow failed: ${{ github.workflow }}"
+          body="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
